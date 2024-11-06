@@ -61,6 +61,25 @@ public class ObservableTests
     }
 
     [TestMethod]
+    public void OnStateChanged_Raises_PropertyChange_Events_In_Order()
+    {
+        var output = new List<string?>();
+        var testClass = new TestOnStateChangedClass();
+        testClass.PropertyChanging += (_, args) => output.Add($"PropertyChanging: {args.PropertyName} {testClass.CurrentValuesAsString}");
+        testClass.PropertyChanged += (_, args) => output.Add($"PropertyChanged: {args.PropertyName} {testClass.CurrentValuesAsString}");
+
+        testClass.FieldOne = 9;
+
+        Assert.AreEqual(6, output.Count);
+        Assert.AreEqual("PropertyChanging: FieldOne 0,0,0", output[0]);
+        Assert.AreEqual("PropertyChanging: FieldTwo 9,0,0", output[1]);
+        Assert.AreEqual("PropertyChanging: FieldThree 9,9,0", output[2]);
+        Assert.AreEqual("PropertyChanged: FieldOne 9,9,9", output[3]);
+        Assert.AreEqual("PropertyChanged: FieldTwo 9,9,9", output[4]);
+        Assert.AreEqual("PropertyChanged: FieldThree 9,9,9", output[5]);
+    }
+
+    [TestMethod]
     public void OnStateChanged_Prevents_Recursive_Calls()
     {
         var testClass = new TestOnStateChangedRecurseClass();
@@ -140,6 +159,11 @@ public class ObservableTests
             );
         }
         private int _fieldThree = 0;
+
+        public string CurrentValuesAsString
+        {
+            get => $"{FieldOne},{FieldTwo},{FieldThree}";
+        }
 
         protected override void OnStateChanged()
         {

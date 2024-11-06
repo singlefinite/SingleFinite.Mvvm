@@ -38,7 +38,7 @@ public abstract class Observable : INotifyPropertyChanged, INotifyPropertyChangi
     private readonly ActionBuffer<string> _transactionBuffer = new();
 
     /// <summary>
-    /// Flag that gets set to true while the OnPropertyChanged method is executing.
+    /// Flag that gets set to true while the UpdateState method is executing.
     /// </summary>
     private bool _isUpdatingState = false;
 
@@ -197,10 +197,10 @@ public abstract class Observable : INotifyPropertyChanged, INotifyPropertyChangi
 
             currentValue = newValue;
 
+            UpdateState([name]);
+
             RaisePropertyChanged(name);
             onPropertyChanged?.Invoke();
-
-            UpdateState([name]);
         }
     }
 
