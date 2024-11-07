@@ -30,22 +30,35 @@ public interface IAppHost
     /// Start this app host.  This builds a new ServiceProvider.
     /// If the app host has already been started this method will have no effect.
     /// </summary>
+    /// <exception cref="ObjectDisposedException">Thrown if this app host has been disposed.</exception>
     void Start();
 
     /// <summary>
-    /// Restart this app host.  This will dispose of the current service provider and builds a new one.
+    /// Restart this app host.  This will dispose of the current service provider and build a new one.
+    /// If this app host hasn't been started yet this function will behave the same as if Start was called.
     /// </summary>
     /// <exception cref="ObjectDisposedException">Thrown if this app host has been disposed.</exception>
-    /// <exception cref="InvalidOperationException">Thrown if this app host has not been started yet.</exception>
     void Restart();
 
     /// <summary>
-    /// Raised when this app host is started.
+    /// Raised when this app host is started or restarted.
     /// </summary>
-    EventToken Started { get; }
+    EventToken<StartedEventArgs> Started { get; }
 
     /// <summary>
-    /// Raised when this app host is restarted.
+    /// Event arguments for the IAppHost.Started event.
     /// </summary>
-    EventToken Restarted { get; }
+    /// <param name="isRestart">Value for the IsRestart property.</param>
+    public class StartedEventArgs(bool isRestart) : EventArgs
+    {
+        #region Properties
+
+        /// <summary>
+        /// If the app was started for the first time this returns false.
+        /// If the app has was restarted this returns true.
+        /// </summary>
+        public bool IsRestart { get; } = isRestart;
+
+        #endregion
+    }
 }

@@ -41,7 +41,7 @@ internal sealed class AppHost : IAppHost, IDisposable
     private readonly IServiceCollection _services;
 
     /// <summary>
-    /// Holds the actions to invoke whenever the app is started or reset.
+    /// Holds the actions to invoke whenever the app is started or restarted.
     /// </summary>
     private readonly IList<Action<IServiceProvider>> _onStarted;
 
@@ -60,7 +60,7 @@ internal sealed class AppHost : IAppHost, IDisposable
     /// <param name="services">The service collection for the app.</param>
     /// <param name="views">The views collection for the app.</param>
     /// <param name="plugins">The plugins collection for the app.</param>
-    /// <param name="onStarted">Actions to invoke whenever the app is started or reset.</param>
+    /// <param name="onStarted">Actions to invoke whenever the app is started or restarted.</param>
     public AppHost(
         IServiceCollection services,
         IViewCollection views,
@@ -112,7 +112,7 @@ internal sealed class AppHost : IAppHost, IDisposable
         _isStarted = true;
 
         RestartServiceProvider();
-        _startedEventTokenSource.RaiseEvent();
+        _startedEventTokenSource.RaiseEvent(new(isRestart: false));
     }
 
     /// <inheritdoc/>
@@ -121,10 +121,13 @@ internal sealed class AppHost : IAppHost, IDisposable
         ObjectDisposedException.ThrowIf(_isDisposed, this);
 
         if (!_isStarted)
-            throw new InvalidOperationException("The host has not been started.");
+        {
+            Start();
+            return;
+        }
 
         RestartServiceProvider();
-        _restartedEventTokenSource.RaiseEvent();
+        _startedEventTokenSource.RaiseEvent(new(isRestart: true));
     }
 
     /// <summary>
@@ -144,12 +147,8 @@ internal sealed class AppHost : IAppHost, IDisposable
     #region Events
 
     /// <inheritdoc/>
-    public EventToken Started => _startedEventTokenSource.Token;
-    private readonly EventTokenSource _startedEventTokenSource = new();
-
-    /// <inheritdoc/>
-    public EventToken Restarted => _restartedEventTokenSource.Token;
-    private readonly EventTokenSource _restartedEventTokenSource = new();
+    public EventToken<IAppHost.StartedEventArgs> Started => _startedEventTokenSource.Token;
+    private readonly EventTokenSource<IAppHost.StartedEventArgs> _startedEventTokenSource = new();
 
     #endregion
 }
