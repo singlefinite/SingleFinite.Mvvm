@@ -62,7 +62,7 @@ public abstract class Observable : INotifyPropertyChanged, INotifyPropertyChangi
     /// Call the OnStateChanged methods with the PropertyChanged events disabled.
     /// If this method is called while a previous call is still in progress, the new call will be ignored.
     /// </summary>
-    private void UpdateState(IList<string> names)
+    protected void UpdateState()
     {
         if (_isUpdatingState)
             return;
@@ -70,27 +70,12 @@ public abstract class Observable : INotifyPropertyChanged, INotifyPropertyChangi
         try
         {
             _isUpdatingState = true;
-            OnStateChanged(names);
             OnStateChanged();
         }
         finally
         {
             _isUpdatingState = false;
         }
-    }
-
-    /// <summary>
-    /// This method is called whenever one or more PropertyChanged events are raised by this object.
-    /// To prevent infinite recursion, the PropertyChanged events that are raised
-    /// as a result of changes to properties made by this method will be suppressed until
-    /// this method has exited.  When the suppressed PropertyChanged events are raised they will
-    /// not trigger this method being called again.
-    /// </summary>
-    /// <param name="propertyNames">
-    /// The names of the properties that have changed.
-    /// </param>
-    protected virtual void OnStateChanged(IList<string> propertyNames)
-    {
     }
 
     /// <summary>
@@ -197,7 +182,7 @@ public abstract class Observable : INotifyPropertyChanged, INotifyPropertyChangi
 
             currentValue = newValue;
 
-            UpdateState([name]);
+            UpdateState();
 
             RaisePropertyChanged(name);
             onPropertyChanged?.Invoke();
