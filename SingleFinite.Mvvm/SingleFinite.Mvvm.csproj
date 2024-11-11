@@ -17,9 +17,14 @@
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <Authors>Single Finite</Authors>
     <PackageTags>MVVM</PackageTags>
+    <PackageIcon>ICON.png</PackageIcon>
   </PropertyGroup>
 
   <ItemGroup>
+    <None Include="..\ICON.png" Link="Properties\ICON.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
     <None Include="..\LICENSE.txt" Link="Properties\LICENSE.txt">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
