@@ -34,21 +34,6 @@ public abstract class ViewModel : Observable, IViewModel
     #region Fields
 
     /// <summary>
-    /// Set to true when this object has been initialized.
-    /// </summary>
-    private bool _isInitialized = false;
-
-    /// <summary>
-    /// Set to true when this object is activated and false when it is deactivated.
-    /// </summary>
-    private bool _isActive = false;
-
-    /// <summary>
-    /// Set to true when this object has been disposed.
-    /// </summary>
-    private bool _isDisposed = false;
-
-    /// <summary>
     /// Holds token that is provided with the OnActivated method and which will be cancelled when
     /// the view model is deactivated.
     /// </summary>
@@ -61,17 +46,17 @@ public abstract class ViewModel : Observable, IViewModel
     /// <summary>
     /// Indicates if this view model has been initialized.
     /// </summary>
-    protected bool IsInitialized => _isInitialized;
+    protected bool IsInitialized { get; private set; }
 
     /// <summary>
     /// Indicates if this view model is currently active.
     /// </summary>
-    public bool IsActive => _isActive;
+    public bool IsActive { get; private set; }
 
     /// <summary>
     /// Indicates if this view model has been disposed.
     /// </summary>
-    public bool IsDisposed => _isDisposed;
+    public bool IsDisposed { get; private set; }
 
     #endregion
 
@@ -80,10 +65,10 @@ public abstract class ViewModel : Observable, IViewModel
     /// <inheritdoc/>
     void IViewModel.Initialize()
     {
-        ObjectDisposedException.ThrowIf(_isDisposed, this);
-        if (_isInitialized) return;
+        ObjectDisposedException.ThrowIf(IsDisposed, this);
+        if (IsInitialized) return;
 
-        _isInitialized = true;
+        IsInitialized = true;
         OnInitialize();
         _initializedEventTokenSource.RaiseEvent();
     }
@@ -91,11 +76,11 @@ public abstract class ViewModel : Observable, IViewModel
     /// <inheritdoc/>
     void IViewModel.Activate()
     {
-        ObjectDisposedException.ThrowIf(_isDisposed, this);
-        if (_isActive) return;
+        ObjectDisposedException.ThrowIf(IsDisposed, this);
+        if (IsActive) return;
 
         _activeCancellationTokenSource = new();
-        _isActive = true;
+        IsActive = true;
         OnActivate(_activeCancellationTokenSource.Token);
         _activatedEventTokenSource.RaiseEvent();
     }
@@ -103,14 +88,14 @@ public abstract class ViewModel : Observable, IViewModel
     /// <inheritdoc/>
     void IViewModel.Deactivate()
     {
-        ObjectDisposedException.ThrowIf(_isDisposed, this);
-        if (!_isActive) return;
+        ObjectDisposedException.ThrowIf(IsDisposed, this);
+        if (!IsActive) return;
 
         _activeCancellationTokenSource?.Cancel();
         _activeCancellationTokenSource?.Dispose();
         _activeCancellationTokenSource = null;
 
-        _isActive = false;
+        IsActive = false;
         OnDeactivate();
         _deactivatedEventTokenSource.RaiseEvent();
     }
@@ -133,10 +118,10 @@ public abstract class ViewModel : Observable, IViewModel
     /// </param>
     protected virtual void Dispose(bool isDisposing)
     {
-        if (_isDisposed)
+        if (IsDisposed)
             return;
 
-        _isDisposed = true;
+        IsDisposed = true;
         if (isDisposing)
             OnDispose();
 

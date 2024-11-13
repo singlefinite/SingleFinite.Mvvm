@@ -99,66 +99,60 @@ public class ObservableTests
     {
         public string FieldOne
         {
-            get => _fieldOne;
+            get;
             set => ChangeProperty(
-                currentValue: ref _fieldOne,
+                currentValue: ref field,
                 newValue: value
             );
-        }
-        private string _fieldOne = "";
+        } = "";
 
         public int FieldTwo
         {
-            get => _fieldTwo;
+            get;
             set => ChangeProperty(
-                currentValue: ref _fieldTwo,
+                currentValue: ref field,
                 newValue: value
             );
         }
-        private int _fieldTwo = 0;
 
         public double FieldThree
         {
-            get => _fieldThree;
+            get;
             set => ChangeProperty(
-                currentValue: ref _fieldThree,
+                currentValue: ref field,
                 newValue: value
             );
         }
-        private double _fieldThree = 0.0;
     }
 
     private class TestOnStateChangedClass : Observable
     {
         public int FieldOne
         {
-            get => _fieldOne;
+            get;
             set => ChangeProperty(
-                currentValue: ref _fieldOne,
+                currentValue: ref field,
                 newValue: value
             );
         }
-        private int _fieldOne = 0;
 
         public int FieldTwo
         {
-            get => _fieldTwo;
+            get;
             set => ChangeProperty(
-                currentValue: ref _fieldTwo,
+                currentValue: ref field,
                 newValue: value
             );
         }
-        private int _fieldTwo = 0;
 
         public int FieldThree
         {
-            get => _fieldThree;
+            get;
             set => ChangeProperty(
-                currentValue: ref _fieldThree,
+                currentValue: ref field,
                 newValue: value
             );
         }
-        private int _fieldThree = 0;
 
         public string CurrentValuesAsString
         {
@@ -179,23 +173,21 @@ public class ObservableTests
     {
         public int FieldOne
         {
-            get => _fieldOne;
+            get;
             set => ChangeProperty(
-                currentValue: ref _fieldOne,
+                currentValue: ref field,
                 newValue: value
             );
         }
-        private int _fieldOne = 0;
 
         public int FieldTwo
         {
-            get => _fieldTwo;
+            get;
             set => ChangeProperty(
-                currentValue: ref _fieldTwo,
+                currentValue: ref field,
                 newValue: value
             );
         }
-        private int _fieldTwo = 0;
 
         protected override void OnStateChanged()
         {
