@@ -127,8 +127,8 @@ public abstract class Observable : INotifyPropertyChanged, INotifyPropertyChangi
     /// will not be updated and the PropertyChanging and PropertyChanged events will not be raised.
     /// </summary>
     /// <typeparam name="TValue">The type of value.</typeparam>
-    /// <param name="currentValue">The current value of the property which may be changed.</param>
-    /// <param name="newValue">The new value to set the property to.</param>
+    /// <param name="field">The reference to the property field which may be changed.</param>
+    /// <param name="value">The new value to set the property field to.</param>
     /// <param name="onPropertyChanging">
     /// If the new value will change the property, invoke this action before changing the value and after
     /// raising the PropertyChanging event.  Note that if a transaction is open this action will only be
@@ -145,8 +145,8 @@ public abstract class Observable : INotifyPropertyChanged, INotifyPropertyChangi
     /// to use the name of the calling member.
     /// </param>
     protected void ChangeProperty<TValue>(
-        ref TValue currentValue,
-        TValue newValue,
+        ref TValue field,
+        TValue value,
         Action? onPropertyChanging = null,
         Action? onPropertyChanged = null,
         [CallerMemberName] string? name = default
@@ -154,7 +154,7 @@ public abstract class Observable : INotifyPropertyChanged, INotifyPropertyChangi
     {
         ArgumentNullException.ThrowIfNull(name);
 
-        if (object.Equals(currentValue, newValue))
+        if (object.Equals(field, value))
             return;
 
         if (_transaction.IsOpen)
@@ -171,7 +171,7 @@ public abstract class Observable : INotifyPropertyChanged, INotifyPropertyChangi
                 onPropertyChanging?.Invoke();
             }
 
-            currentValue = newValue;
+            field = value;
         }
         else
         {
@@ -180,7 +180,7 @@ public abstract class Observable : INotifyPropertyChanged, INotifyPropertyChangi
             RaisePropertyChanging(name);
             onPropertyChanging?.Invoke();
 
-            currentValue = newValue;
+            field = value;
 
             UpdateState();
 

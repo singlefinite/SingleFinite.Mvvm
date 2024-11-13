@@ -161,24 +161,19 @@ public class ViewModelTests
     {
         public int Number
         {
-            get => _number;
+            get;
             set => ChangeProperty(
-                currentValue: ref _number,
-                newValue: value,
-                onPropertyChanged: () => _numberChanged.RaiseEvent(_number)
+                field: ref field,
+                value: value,
+                onPropertyChanged: () => _numberChanged.RaiseEvent(field)
             );
         }
-        private int _number = 0;
 
         public string Text
         {
-            get => _text;
-            private set => ChangeProperty(
-                currentValue: ref _text,
-                newValue: value
-            );
-        }
-        private string _text = "";
+            get;
+            private set => ChangeProperty(ref field, value);
+        } = "";
 
         protected override void OnInitialize()
         {

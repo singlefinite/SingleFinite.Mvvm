@@ -100,28 +100,19 @@ public class ObservableTests
         public string FieldOne
         {
             get;
-            set => ChangeProperty(
-                currentValue: ref field,
-                newValue: value
-            );
+            set => ChangeProperty(ref field, value);
         } = "";
 
         public int FieldTwo
         {
             get;
-            set => ChangeProperty(
-                currentValue: ref field,
-                newValue: value
-            );
+            set => ChangeProperty(ref field, value);
         }
 
         public double FieldThree
         {
             get;
-            set => ChangeProperty(
-                currentValue: ref field,
-                newValue: value
-            );
+            set => ChangeProperty(ref field, value);
         }
     }
 
@@ -130,28 +121,19 @@ public class ObservableTests
         public int FieldOne
         {
             get;
-            set => ChangeProperty(
-                currentValue: ref field,
-                newValue: value
-            );
+            set => ChangeProperty(ref field, value);
         }
 
         public int FieldTwo
         {
             get;
-            set => ChangeProperty(
-                currentValue: ref field,
-                newValue: value
-            );
+            set => ChangeProperty(ref field, value);
         }
 
         public int FieldThree
         {
             get;
-            set => ChangeProperty(
-                currentValue: ref field,
-                newValue: value
-            );
+            set => ChangeProperty(ref field, value);
         }
 
         public string CurrentValuesAsString
@@ -174,19 +156,13 @@ public class ObservableTests
         public int FieldOne
         {
             get;
-            set => ChangeProperty(
-                currentValue: ref field,
-                newValue: value
-            );
+            set => ChangeProperty(ref field, value);
         }
 
         public int FieldTwo
         {
             get;
-            set => ChangeProperty(
-                currentValue: ref field,
-                newValue: value
-            );
+            set => ChangeProperty(ref field, value);
         }
 
         protected override void OnStateChanged()
