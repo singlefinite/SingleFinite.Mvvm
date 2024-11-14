@@ -13,12 +13,15 @@
 // LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR 
 // IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-namespace SingleFinite.Mvvm.Internal;
+using System.ComponentModel;
+using SingleFinite.Mvvm.Internal;
+
+namespace SingleFinite.Mvvm;
 
 /// <summary>
 /// A class that is either in the open or closed state and will raise an event when moving from open to closed.
 /// </summary>
-internal class Transaction
+public class Transaction : INotifyPropertyChanging, INotifyPropertyChanged
 {
     #region Fields
 
@@ -34,7 +37,25 @@ internal class Transaction
     /// <summary>
     /// If there are any undisposed objects returned by the Open method this property will be true.
     /// </summary>
-    public bool IsOpen => _pendingCount > 0;
+    public bool IsOpen
+    {
+        get;
+        private set
+        {
+            if (field == value)
+                return;
+
+            PropertyChanging?.Invoke(this, new(nameof(IsOpen)));
+            field = value;
+            PropertyChanged?.Invoke(this, new(nameof(IsOpen)));
+
+            _isOpenChangedSource.RaiseEvent(field);
+            if (field)
+                _openedSource.RaiseEvent();
+            else
+                _closedSource.RaiseEvent();
+        }
+    }
 
     #endregion
 
@@ -52,6 +73,7 @@ internal class Transaction
     public IDisposable Start()
     {
         _pendingCount++;
+        IsOpen = true;
         return new ActionOnDispose(Finish);
     }
 
@@ -63,7 +85,7 @@ internal class Transaction
         _pendingCount--;
         if (_pendingCount < 0) throw new InvalidOperationException("The pending count is less than zero.");
         if (_pendingCount == 0)
-            _onClosed.RaiseEvent();
+            IsOpen = false;
     }
 
     #endregion
@@ -71,10 +93,32 @@ internal class Transaction
     #region Events
 
     /// <summary>
-    /// Event that is raised when all disposable objects returned by the Start method have been disposed.
+    /// Event that is raised when the IsOpen property changes.
     /// </summary>
-    private readonly EventTokenSource _onClosed = new();
-    public EventToken OnClosed => _onClosed.Token;
+    public EventToken<bool> IsOpenChanged => _isOpenChangedSource.Token;
+    private readonly EventTokenSource<bool> _isOpenChangedSource = new();
+
+    /// <summary>
+    /// Event that is raised when the IsOpen property changes from false to true.
+    /// </summary>
+    public EventToken Opened => _openedSource.Token;
+    private readonly EventTokenSource _openedSource = new();
+
+    /// <summary>
+    /// Event that is raised when the IsOpen property changes from true to false.
+    /// </summary>
+    public EventToken Closed => _closedSource.Token;
+    private readonly EventTokenSource _closedSource = new();
+
+    /// <summary>
+    /// Raised before a property is changed.
+    /// </summary>
+    public event PropertyChangingEventHandler? PropertyChanging;
+
+    /// <summary>
+    /// Raised after a property has changed.
+    /// </summary>
+    public event PropertyChangedEventHandler? PropertyChanged;
 
     #endregion
 }

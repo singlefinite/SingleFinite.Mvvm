@@ -13,8 +13,6 @@
 // LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR 
 // IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using SingleFinite.Mvvm.Internal;
-
 namespace SingleFinite.Mvvm.UnitTests;
 
 [TestClass]
@@ -45,12 +43,12 @@ public class TransactionTests
     }
 
     [TestMethod]
-    public void OnClosed_Event_Raised_When_Transaction_Is_Closed()
+    public void Closed_Event_Raised_When_Transaction_Is_Closed()
     {
         var onClosedCount = 0;
 
         var transaction = new Transaction();
-        transaction.OnClosed.Register(() => onClosedCount++);
+        transaction.Closed.Register(() => onClosedCount++);
 
         Assert.AreEqual(0, onClosedCount);
 
@@ -69,5 +67,32 @@ public class TransactionTests
         disposable2.Dispose();
 
         Assert.AreEqual(1, onClosedCount);
+    }
+
+    [TestMethod]
+    public void Opened_Event_Raised_When_Transaction_Is_Opened()
+    {
+        var onOpenCount = 0;
+
+        var transaction = new Transaction();
+        transaction.Opened.Register(() => onOpenCount++);
+
+        Assert.AreEqual(0, onOpenCount);
+
+        var disposable1 = transaction.Start();
+
+        Assert.AreEqual(1, onOpenCount);
+
+        var disposable2 = transaction.Start();
+
+        Assert.AreEqual(1, onOpenCount);
+
+        disposable1.Dispose();
+
+        Assert.AreEqual(1, onOpenCount);
+
+        disposable2.Dispose();
+
+        Assert.AreEqual(1, onOpenCount);
     }
 }

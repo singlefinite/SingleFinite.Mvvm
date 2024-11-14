@@ -51,7 +51,7 @@ public abstract class Observable : INotifyPropertyChanged, INotifyPropertyChangi
     /// </summary>
     public Observable()
     {
-        _transaction.OnClosed.Register(OnTransactionClosed);
+        _transaction.Closed.Register(OnTransactionClosed);
     }
 
     #endregion
