@@ -1,17 +1,23 @@
 ﻿// MIT License
 // Copyright (c) 2024 Single Finite
 //
-// Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation 
-// files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, 
-// modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software 
-// is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy 
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights 
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell 
+// copies of the Software, and to permit persons to whom the Software is 
+// furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+// The above copyright notice and this permission notice shall be included in 
+// all copies or substantial portions of the Software.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES 
-// OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE 
-// LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR 
-// IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
 
 using System.Collections.Concurrent;
 using SingleFinite.Mvvm.Services;
@@ -19,11 +25,17 @@ using SingleFinite.Mvvm.Services;
 namespace SingleFinite.Mvvm.Internal.Services;
 
 /// <summary>
-/// Default implementation of <see cref="IAppMainDispatcher"/> that queues execution of functions and actions on to a dedicated thread.
-/// Normally this service should be replaced with a platform specific service that will dispatch to the UI thread for that platform.
-/// However, this service is useful for unit testing when there is no UI thread provided by the unit testing framework.
+/// Default implementation of <see cref="IAppMainDispatcher"/> that queues
+/// execution of functions and actions on to a dedicated thread.  Normally this 
+/// service should be replaced with a platform specific service that will 
+/// dispatch to the UI thread for that platform.  However, this service is 
+/// useful for unit testing when there is no UI thread provided by the unit 
+/// testing framework.
 /// </summary>
-internal sealed class DedicatedThreadDispatcher : DispatcherBase, IAppMainDispatcher, IDisposable
+internal sealed class DedicatedThreadDispatcher :
+    DispatcherBase,
+    IAppMainDispatcher,
+    IDisposable
 {
     #region Fields
 
@@ -53,7 +65,7 @@ internal sealed class DedicatedThreadDispatcher : DispatcherBase, IAppMainDispat
     {
         _thread = new(ThreadStart)
         {
-            Name = "SingleFinite.Mvvm.Internal.Services.DedicatedThreadDispatcher"
+            Name = GetType().FullName
         };
         _thread.Start();
     }
@@ -63,8 +75,8 @@ internal sealed class DedicatedThreadDispatcher : DispatcherBase, IAppMainDispat
     #region Methods
 
     /// <summary>
-    /// This method is run on the dedicated thread and will execute functions and actions from the queue
-    /// until the queue has been marked completed.
+    /// This method is run on the dedicated thread and will execute functions
+    /// and actions from the queue until the queue has been completed.
     /// </summary>
     private void ThreadStart()
     {
@@ -79,19 +91,24 @@ internal sealed class DedicatedThreadDispatcher : DispatcherBase, IAppMainDispat
         }
         catch (InvalidOperationException)
         {
-            // Ignore exception thrown when action queue has been marked complete.
+            // Ignore exception thrown when action queue has been completed.
         }
     }
 
     /// <summary>
-    /// Implements <see cref="IDispatcher"/> by dispatching the function execution to the dedicated thread.
-    /// If this method is called from the dedicated thread the function will be executed right away isntead
-    /// of being queued.
+    /// Implements <see cref="IDispatcher"/> by dispatching the function 
+    /// execution to the dedicated thread.  If this method is called from the 
+    /// dedicated thread the function will be executed right away isntead of 
+    /// being queued.
     /// </summary>
-    /// <typeparam name="TResult">The type of result returned by the function.</typeparam>
+    /// <typeparam name="TResult">
+    /// The type of result returned by the function.
+    /// </typeparam>
     /// <param name="func">The function to execute.</param>
     /// <returns>A task that runs until the function has completed.</returns>
-    /// <exception cref="ObjectDisposedException">Thrown if this object has been disposed.</exception>
+    /// <exception cref="ObjectDisposedException">
+    /// Thrown if this object has been disposed.
+    /// </exception>
     public override Task<TResult> RunAsync<TResult>(Func<Task<TResult>> func)
     {
         ObjectDisposedException.ThrowIf(_isDisposed, this);
@@ -99,7 +116,9 @@ internal sealed class DedicatedThreadDispatcher : DispatcherBase, IAppMainDispat
         if (Thread.CurrentThread == _thread)
             return func();
 
-        var taskCompletionSource = new TaskCompletionSource<TResult>(TaskCreationOptions.RunContinuationsAsynchronously);
+        var taskCompletionSource = new TaskCompletionSource<TResult>(
+            TaskCreationOptions.RunContinuationsAsynchronously
+        );
 
         _queue.Add(async () =>
         {
@@ -118,7 +137,8 @@ internal sealed class DedicatedThreadDispatcher : DispatcherBase, IAppMainDispat
     }
 
     /// <summary>
-    /// Mark the queue as complete when disposed and wait for the dedicated thread to stop.
+    /// Mark the queue as complete when disposed and wait for the dedicated 
+    /// thread to stop.
     /// </summary>
     public void Dispose()
     {

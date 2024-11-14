@@ -19,11 +19,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-namespace SingleFinite.Mvvm;
+using SingleFinite.Mvvm.Internal;
 
-/// <summary>
-/// Specifies the contract for a collection of plugin descriptors.
-/// </summary>
-public interface IPluginCollection : IList<PluginDescriptor>
+namespace SingleFinite.Mvvm.UnitTests;
+
+[TestClass]
+public class ObjectExtensionsTests
 {
+    [TestMethod]
+    public void Require_Throws_With_Variable_Name_When_Null()
+    {
+        string? testItem = null;
+
+        try
+        {
+            testItem.Require();
+            Assert.Fail("Exception not thrown.");
+        }
+        catch (NullReferenceException ex)
+        {
+            Assert.AreEqual("testItem is null.", ex.Message);
+        }
+    }
 }

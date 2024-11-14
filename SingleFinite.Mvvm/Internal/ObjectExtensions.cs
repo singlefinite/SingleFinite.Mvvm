@@ -19,11 +19,36 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-namespace SingleFinite.Mvvm;
+using System.Runtime.CompilerServices;
+
+namespace SingleFinite.Mvvm.Internal;
 
 /// <summary>
-/// Specifies the contract for a collection of plugin descriptors.
+/// Extensions methods for object types.
 /// </summary>
-public interface IPluginCollection : IList<PluginDescriptor>
+internal static class ObjectExtensions
 {
+    #region Methods
+
+    /// <summary>
+    /// Throw an exception if the given item is null, otherwise return the item
+    /// ensuring it's not null.
+    /// </summary>
+    /// <typeparam name="TType">The type of object required.</typeparam>
+    /// <param name="item">The item to check.</param>
+    /// <param name="name">
+    /// The name used in the exception messsage if the item is null.
+    /// Leave unset to use the argument expression passed into this method.
+    /// </param>
+    /// <returns>The given item if it's not null.</returns>
+    /// <exception cref="NullReferenceException">
+    /// Thrown if the given item is null.
+    /// </exception>
+    public static TType Require<TType>(
+        this TType? item,
+        [CallerArgumentExpression(nameof(item))] string? name = null
+    ) =>
+        item ?? throw new NullReferenceException($"{name} is null.");
+
+    #endregion
 }

@@ -1,23 +1,30 @@
 ﻿// MIT License
 // Copyright (c) 2024 Single Finite
 //
-// Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation 
-// files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, 
-// modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software 
-// is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy 
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights 
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell 
+// copies of the Software, and to permit persons to whom the Software is 
+// furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+// The above copyright notice and this permission notice shall be included in 
+// all copies or substantial portions of the Software.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES 
-// OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE 
-// LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR 
-// IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
 
 namespace SingleFinite.Mvvm.Internal;
 
 /// <summary>
 /// This class is used to buffer actions to be invoked in the future.
-/// The buffered actions are stored with a key and invoked in the order they were added.
+/// The buffered actions are stored with a key and invoked in the order they 
+/// were added.
 /// </summary>
 internal class ActionBuffer<TKey> where TKey : notnull
 {
@@ -29,7 +36,8 @@ internal class ActionBuffer<TKey> where TKey : notnull
     private readonly Dictionary<TKey, Entry> _buffer = [];
 
     /// <summary>
-    /// Used to keep track of the order in which actions are added to the buffer.
+    /// Used to keep track of the order in which actions are added to the 
+    /// buffer.
     /// </summary>
     private int _bufferIndex = 0;
 
@@ -38,15 +46,15 @@ internal class ActionBuffer<TKey> where TKey : notnull
     #region Methods
 
     /// <summary>
-    /// Add an action to be invoked in the future.  If an action with the given key
-    /// already exists in the buffer it will be replaced with the new action but
-    /// will still be invoked in the same order as the action it replaces.
+    /// Add an action to be invoked in the future.  If an action with the given 
+    /// key already exists in the buffer it will be replaced with the new action
+    /// but will still be invoked in the same order as the action it replaces.
     /// </summary>
     /// <param name="key">The key for the action.</param>
     /// <param name="action">The action to invoke.</param>
     /// <returns>
-    /// true if the action was added to the buffer or false if the action replaces an
-    /// already existing action in the buffer with the same key.
+    /// true if the action was added to the buffer or false if the action 
+    /// replaces an already existing action in the buffer with the same key.
     /// </returns>
     public bool AddOrReplace(TKey key, Action action)
     {
@@ -99,7 +107,9 @@ internal class ActionBuffer<TKey> where TKey : notnull
     /// </summary>
     /// <param name="Key">The key for the action.</param>
     /// <param name="Action">The action to invoke.</param>
-    /// <param name="Index">The index that determines the order to invoke the Action.</param>
+    /// <param name="Index">
+    /// The index that determines the order to invoke the Action.
+    /// </param>
     private record Entry(
         TKey Key,
         Action Action,

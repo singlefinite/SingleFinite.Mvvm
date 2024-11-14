@@ -1,17 +1,23 @@
 ﻿// MIT License
 // Copyright (c) 2024 Single Finite
 //
-// Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation 
-// files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, 
-// modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software 
-// is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy 
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights 
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell 
+// copies of the Software, and to permit persons to whom the Software is 
+// furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+// The above copyright notice and this permission notice shall be included in 
+// all copies or substantial portions of the Software.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES 
-// OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE 
-// LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR 
-// IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
 
 using SingleFinite.Mvvm.Internal.Services;
 using SingleFinite.Mvvm.Services;
@@ -53,8 +59,12 @@ public sealed class AppHostBuilder
     /// <summary>
     /// Add services to the host.
     /// </summary>
-    /// <param name="configure">Action called to configure the service collection.</param>
-    /// <returns>A reference to this object so a fluent pattern can be used.</returns>
+    /// <param name="configure">
+    /// Action called to configure the service collection.
+    /// </param>
+    /// <returns>
+    /// A reference to this object so a fluent pattern can be used.
+    /// </returns>
     public AppHostBuilder AddServices(Action<IServiceCollection> configure)
     {
         configure(_services);
@@ -64,8 +74,12 @@ public sealed class AppHostBuilder
     /// <summary>
     /// Add views to the host.
     /// </summary>
-    /// <param name="configure">Action called to configure the view collection.</param>
-    /// <returns>A reference to this object so a fluent pattern can be used.</returns>
+    /// <param name="configure">
+    /// Action called to configure the view collection.
+    /// </param>
+    /// <returns>
+    /// A reference to this object so a fluent pattern can be used.
+    /// </returns>
     public AppHostBuilder AddViews(Action<IViewCollection> configure)
     {
         configure(_views);
@@ -75,8 +89,12 @@ public sealed class AppHostBuilder
     /// <summary>
     /// Add plugins to host.
     /// </summary>
-    /// <param name="configure">Action called to configure the plugin collection.</param>
-    /// <returns>A reference to this object so a fluent pattern can be used.</returns>
+    /// <param name="configure">
+    /// Action called to configure the plugin collection.
+    /// </param>
+    /// <returns>
+    /// A reference to this object so a fluent pattern can be used.
+    /// </returns>
     public AppHostBuilder AddPlugins(Action<IPluginCollection> configure)
     {
         configure(_plugins);
@@ -87,7 +105,9 @@ public sealed class AppHostBuilder
     /// Add action to invoke when the host is started or reset.
     /// </summary>
     /// <param name="onStarted">The action to add to the host.</param>
-    /// <returns>A reference to this object so a fluent pattern can be used.</returns>
+    /// <returns>
+    /// A reference to this object so a fluent pattern can be used.
+    /// </returns>
     public AppHostBuilder AddOnStarted(Action onStarted)
     {
         _onStarted.Add(_ => onStarted());
@@ -97,9 +117,13 @@ public sealed class AppHostBuilder
     /// <summary>
     /// Add action to invoke when the host is started or reset.
     /// </summary>
-    /// <typeparam name="TService">The type of service to provide to the onStarted action.</typeparam>
+    /// <typeparam name="TService">
+    /// The type of service to provide to the onStarted action.
+    /// </typeparam>
     /// <param name="onStarted">The action to add to the host.</param>
-    /// <returns>A reference to this object so a fluent pattern can be used.</returns>
+    /// <returns>
+    /// A reference to this object so a fluent pattern can be used.
+    /// </returns>
     public AppHostBuilder AddOnStarted<TService>(Action<TService> onStarted)
         where TService : notnull
     {
@@ -123,7 +147,8 @@ public sealed class AppHostBuilder
     );
 
     /// <summary>
-    /// Build a new host using the configurations made through this builder and then start it.
+    /// Build a new host using the configurations made through this builder and 
+    /// then start it.
     /// </summary>
     /// <returns>A newly built host that has been started.</returns>
     public IAppHost BuildAndStart()

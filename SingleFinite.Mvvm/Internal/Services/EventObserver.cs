@@ -1,17 +1,23 @@
 ﻿// MIT License
 // Copyright (c) 2024 Single Finite
 //
-// Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation 
-// files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, 
-// modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software 
-// is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy 
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights 
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell 
+// copies of the Software, and to permit persons to whom the Software is 
+// furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+// The above copyright notice and this permission notice shall be included in 
+// all copies or substantial portions of the Software.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES 
-// OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE 
-// LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR 
-// IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
 
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
@@ -32,7 +38,8 @@ internal sealed class EventObserver : IEventObserver, IDisposable
     private bool _isDisposed = false;
 
     /// <summary>
-    /// Holds disposable objects that will be unregister callbacks when disposed.
+    /// Holds disposable objects that will be unregister callbacks when 
+    /// disposed.
     /// </summary>
     private readonly List<IDisposable> _registrationList = [];
 
@@ -184,7 +191,8 @@ internal sealed class EventObserver : IEventObserver, IDisposable
         Func<object> property,
         Action callback,
         CancellationToken? cancellationToken = null,
-        [CallerArgumentExpression(nameof(property))] string? propertyExpression = null
+        [CallerArgumentExpression(nameof(property))]
+        string? propertyExpression = null
     )
     {
         ObjectDisposedException.ThrowIf(_isDisposed, this);
@@ -208,7 +216,8 @@ internal sealed class EventObserver : IEventObserver, IDisposable
         Func<object> property,
         Action<IDisposable> callback,
         CancellationToken? cancellationToken = null,
-        [CallerArgumentExpression(nameof(property))] string? propertyExpression = null
+        [CallerArgumentExpression(nameof(property))]
+        string? propertyExpression = null
     )
     {
         ObjectDisposedException.ThrowIf(_isDisposed, this);
@@ -216,7 +225,7 @@ internal sealed class EventObserver : IEventObserver, IDisposable
         IDisposable? registration = null;
         void Handler(object? sender, PropertyChangingEventArgs e)
         {
-            callback(registration ?? throw new NullReferenceException("registration is null"));
+            callback(registration.Require());
         }
 
         var propertyName = ParsePropertyName(propertyExpression);
@@ -235,7 +244,8 @@ internal sealed class EventObserver : IEventObserver, IDisposable
         Func<object> property,
         Action callback,
         CancellationToken? cancellationToken = null,
-        [CallerArgumentExpression(nameof(property))] string? propertyExpression = null
+        [CallerArgumentExpression(nameof(property))]
+        string? propertyExpression = null
     )
     {
         ObjectDisposedException.ThrowIf(_isDisposed, this);
@@ -258,7 +268,8 @@ internal sealed class EventObserver : IEventObserver, IDisposable
         Func<object> property,
         Action<IDisposable> callback,
         CancellationToken? cancellationToken = null,
-        [CallerArgumentExpression(nameof(property))] string? propertyExpression = null
+        [CallerArgumentExpression(nameof(property))]
+        string? propertyExpression = null
     )
     {
         ObjectDisposedException.ThrowIf(_isDisposed, this);
@@ -266,7 +277,7 @@ internal sealed class EventObserver : IEventObserver, IDisposable
         IDisposable? registration = null;
         void Handler(object? sender, PropertyChangedEventArgs e)
         {
-            callback(registration ?? throw new NullReferenceException("registration is null"));
+            callback(registration.Require());
         }
 
         var propertyName = ParsePropertyName(propertyExpression);
@@ -289,7 +300,10 @@ internal sealed class EventObserver : IEventObserver, IDisposable
     {
         ObjectDisposedException.ThrowIf(_isDisposed, this);
         register(handler);
-        return Register(new ActionOnDispose(() => unregister(handler)), cancellationToken);
+        return Register(
+            new ActionOnDispose(() => unregister(handler)),
+            cancellationToken
+        );
     }
 
     /// <summary>
@@ -310,15 +324,18 @@ internal sealed class EventObserver : IEventObserver, IDisposable
     }
 
     /// <summary>
-    /// Add a new registration to the registration list that will remove itself when disposed and
-    /// then dispose of the given event registration.
+    /// Add a new registration to the registration list that will remove itself 
+    /// when disposed and then dispose of the given event registration.
     /// </summary>
     /// <param name="eventRegistration">
-    /// The event registration to dispose after removing the registration from the list.
+    /// The event registration to dispose after removing the registration from 
+    /// the list.
     /// </param>
-    /// <param name="cancellationToken">Optional token that when cancelled will unregister the callback.</param>
+    /// <param name="cancellationToken">Optional token that when cancelled will 
+    /// unregister the callback.</param>
     /// <returns>
-    /// A disposable that removes itself from the registration list when disposed.
+    /// A disposable that removes itself from the registration list when 
+    /// disposed.
     /// </returns>
     private ActionOnDispose Register(
         IDisposable eventRegistration,
@@ -348,10 +365,15 @@ internal sealed class EventObserver : IEventObserver, IDisposable
     /// The expected format for the expression is '() => owner.property'.
     /// </param>
     /// <returns>The property name parsed from the expression.</returns>
-    /// <exception cref="ArgumentException">Thrown if the expression is not in the expected format.</exception>
+    /// <exception cref="ArgumentException">
+    /// Thrown if the expression is not in the expected format.
+    /// </exception>
     private static string ParsePropertyName(string? propertyExpression)
     {
-        ArgumentNullException.ThrowIfNullOrWhiteSpace(propertyExpression, nameof(propertyExpression));
+        ArgumentNullException.ThrowIfNullOrWhiteSpace(
+            propertyExpression,
+            nameof(propertyExpression)
+        );
 
         var dotIndex = propertyExpression.IndexOf('.');
         if (dotIndex == -1)

@@ -1,17 +1,23 @@
 ﻿// MIT License
 // Copyright (c) 2024 Single Finite
 //
-// Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation 
-// files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, 
-// modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software 
-// is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy 
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights 
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell 
+// copies of the Software, and to permit persons to whom the Software is 
+// furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+// The above copyright notice and this permission notice shall be included in 
+// all copies or substantial portions of the Software.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES 
-// OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE 
-// LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR 
-// IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
 
 using Microsoft.Extensions.DependencyInjection;
 using SingleFinite.Mvvm.Internal.Services;
@@ -32,7 +38,9 @@ public class AppHostTests
             onStarted: []
         );
 
-        Assert.ThrowsException<InvalidOperationException>(() => appHost.ServiceProvider);
+        Assert.ThrowsException<InvalidOperationException>(
+            () => appHost.ServiceProvider
+        );
 
         appHost.Start();
 
@@ -127,7 +135,9 @@ public class AppHostTests
 
         appHost.Start();
 
-        var disposableCounter = appHost.ServiceProvider.GetRequiredService<DisposableCounter>();
+        var disposableCounter =
+            appHost.ServiceProvider.GetRequiredService<DisposableCounter>();
+
         Assert.AreEqual(0, disposableCounter.Count);
 
         appHost.Dispose();
@@ -154,7 +164,9 @@ public class AppHostTests
 
         appHost.Start();
 
-        var disposableCounter = appHost.ServiceProvider.GetRequiredService<DisposableCounter>();
+        var disposableCounter =
+            appHost.ServiceProvider.GetRequiredService<DisposableCounter>();
+
         Assert.AreEqual(0, disposableCounter.Count);
 
         appHost.Restart();
@@ -177,11 +189,13 @@ public class AppHostTests
 
         appHost.Start();
 
-        var exampleService1 = appHost.ServiceProvider.GetRequiredService<DisposableCounter>();
+        var exampleService1 =
+            appHost.ServiceProvider.GetRequiredService<DisposableCounter>();
 
         appHost.Restart();
 
-        var exampleService2 = appHost.ServiceProvider.GetRequiredService<DisposableCounter>();
+        var exampleService2 =
+            appHost.ServiceProvider.GetRequiredService<DisposableCounter>();
 
         Assert.AreNotEqual(exampleService1, exampleService2);
     }
@@ -245,13 +259,15 @@ public class AppHostTests
 
         Assert.AreEqual(1, output.Count);
 
-        var exampleService1 = appHost.ServiceProvider.GetRequiredService<DisposableCounter>();
+        var exampleService1 =
+            appHost.ServiceProvider.GetRequiredService<DisposableCounter>();
 
         appHost.Start();
 
         Assert.AreEqual(1, output.Count);
 
-        var exampleService2 = appHost.ServiceProvider.GetRequiredService<DisposableCounter>();
+        var exampleService2 =
+            appHost.ServiceProvider.GetRequiredService<DisposableCounter>();
 
         Assert.AreEqual(exampleService1, exampleService2);
     }

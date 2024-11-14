@@ -1,17 +1,23 @@
 ﻿// MIT License
 // Copyright (c) 2024 Single Finite
 //
-// Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation 
-// files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, 
-// modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software 
-// is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy 
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights 
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell 
+// copies of the Software, and to permit persons to whom the Software is 
+// furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+// The above copyright notice and this permission notice shall be included in 
+// all copies or substantial portions of the Software.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES 
-// OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE 
-// LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR 
-// IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
 
 using SingleFinite.Mvvm.Services;
 using Microsoft.Extensions.DependencyInjection;
@@ -60,7 +66,9 @@ internal sealed class AppHost : IAppHost, IDisposable
     /// <param name="services">The service collection for the app.</param>
     /// <param name="views">The views collection for the app.</param>
     /// <param name="plugins">The plugins collection for the app.</param>
-    /// <param name="onStarted">Actions to invoke whenever the app is started or restarted.</param>
+    /// <param name="onStarted">
+    /// Actions to invoke whenever the app is started or restarted.
+    /// </param>
     public AppHost(
         IServiceCollection services,
         IViewCollection views,
@@ -112,7 +120,7 @@ internal sealed class AppHost : IAppHost, IDisposable
         _isStarted = true;
 
         RestartServiceProvider();
-        _startedEventTokenSource.RaiseEvent(new(isRestart: false));
+        _startedSource.RaiseEvent(new(isRestart: false));
     }
 
     /// <inheritdoc/>
@@ -127,7 +135,7 @@ internal sealed class AppHost : IAppHost, IDisposable
         }
 
         RestartServiceProvider();
-        _startedEventTokenSource.RaiseEvent(new(isRestart: true));
+        _startedSource.RaiseEvent(new(isRestart: true));
     }
 
     /// <summary>
@@ -147,8 +155,8 @@ internal sealed class AppHost : IAppHost, IDisposable
     #region Events
 
     /// <inheritdoc/>
-    public EventToken<IAppHost.StartedEventArgs> Started => _startedEventTokenSource.Token;
-    private readonly EventTokenSource<IAppHost.StartedEventArgs> _startedEventTokenSource = new();
+    public EventToken<IAppHost.StartedEventArgs> Started => _startedSource.Token;
+    private readonly EventTokenSource<IAppHost.StartedEventArgs> _startedSource = new();
 
     #endregion
 }

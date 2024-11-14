@@ -1,17 +1,23 @@
 ﻿// MIT License
 // Copyright (c) 2024 Single Finite
 //
-// Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation 
-// files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, 
-// modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software 
-// is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy 
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights 
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell 
+// copies of the Software, and to permit persons to whom the Software is 
+// furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+// The above copyright notice and this permission notice shall be included in 
+// all copies or substantial portions of the Software.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES 
-// OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE 
-// LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR 
-// IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
 
 using SingleFinite.Mvvm.Services;
 
@@ -21,7 +27,9 @@ namespace SingleFinite.Mvvm.Internal.Services;
 /// Implementation of <see cref="IPresenterStack"/>.
 /// </summary>
 /// <param name="viewBuilder">Used to build view objects.</param>
-internal sealed class PresenterStack(IViewBuilder viewBuilder) : IPresenterStack, IDisposable
+internal sealed class PresenterStack(IViewBuilder viewBuilder) :
+    IPresenterStack,
+    IDisposable
 {
     #region Fields
 
@@ -50,7 +58,8 @@ internal sealed class PresenterStack(IViewBuilder viewBuilder) : IPresenterStack
     #region Methods
 
     /// <summary>
-    /// Update the public stack properties so they match the private writable stack.
+    /// Update the public stack properties so they match the private writable
+    /// stack.
     /// </summary>
     private void UpdateCurrent()
     {
@@ -68,18 +77,24 @@ internal sealed class PresenterStack(IViewBuilder viewBuilder) : IPresenterStack
     }
 
     /// <summary>
-    /// Get the number of views that should be popped off of the stack so that the desired view is left on top.
+    /// Get the number of views that should be popped off of the stack so that 
+    /// the desired view is left on top.
     /// </summary>
     /// <param name="predicate">The function used to identify a view.</param>
     /// <param name="fromTop">
-    /// When true, iterate from the top of the stack to the bottom when searching for a view.
-    /// When false, iterate from the bottom of the stack to the top when searching for a view.
+    /// When true, iterate from the top of the stack to the bottom when 
+    /// searching for a view.
+    /// When false, iterate from the bottom of the stack to the top when 
+    /// searching for a view.
     /// </param>
     /// <param name="inclusive">
-    /// If true the pop count should remove the identified view from the stack and everything above it.
-    /// If false the pop count should leave the identified view on the stack but remove everything above it.
+    /// If true the pop count should remove the identified view from the stack 
+    /// and everything above it.
+    /// If false the pop count should leave the identified view on the stack but
+    /// remove everything above it.
     /// </param>
-    /// <returns>The number of views to pop off the stack in order to leave the desired view on top.</returns>
+    /// <returns>The number of views to pop off the stack in order to leave the 
+    /// desired view on top.</returns>
     private int FindPopCount(
         Func<IView, bool> predicate,
         bool fromTop,
@@ -90,7 +105,10 @@ internal sealed class PresenterStack(IViewBuilder viewBuilder) : IPresenterStack
             .Select((view, index) => predicate(view) ? index : -1)
             .Where(index => index != -1);
 
-        var index = fromTop ? query.FirstOrDefault(-1) : query.LastOrDefault(-1);
+        var index = fromTop ?
+            query.FirstOrDefault(-1) :
+            query.LastOrDefault(-1);
+
         if (index == -1)
             return 0;
 
@@ -102,7 +120,8 @@ internal sealed class PresenterStack(IViewBuilder viewBuilder) : IPresenterStack
     /// </summary>
     /// <param name="popOptions">The push options to process.</param>
     /// <param name="alwaysDeactivateTop">
-    /// When true the top view in the stack will be deactivated even if the stack is not changed
+    /// When true the top view in the stack will be deactivated even if the 
+    /// stack is not changed
     /// by this method.
     /// </param>
     /// <returns>true if the stack was modified, false if it wasn't.</returns>
@@ -115,13 +134,18 @@ internal sealed class PresenterStack(IViewBuilder viewBuilder) : IPresenterStack
         {
             null => 0,
             PopOptions.PopOptionsRemoveAll => _stack.Count,
-            PopOptions.PopOptionsCount count => Math.Min(count.Count, _stack.Count),
+            PopOptions.PopOptionsCount count => Math.Min(
+                count.Count,
+                _stack.Count
+            ),
             PopOptions.PopOptionsQuery query => FindPopCount(
                 predicate: query.Predicate,
                 fromTop: query.FromTop,
                 inclusive: query.Inclusive
             ),
-            _ => throw new InvalidOperationException($"Unexpected PopOptions type: {popOptions.GetType().FullName}")
+            _ => throw new InvalidOperationException(
+                $"Unexpected PopOptions type: {popOptions.GetType().FullName}"
+            )
         };
 
         if (popCount == 0)
@@ -141,7 +165,10 @@ internal sealed class PresenterStack(IViewBuilder viewBuilder) : IPresenterStack
     }
 
     /// <inheritdoc/>
-    public IView Push(IViewModelDescriptor viewModelDescriptor, PopOptions? popOptions = null)
+    public IView Push(
+        IViewModelDescriptor viewModelDescriptor,
+        PopOptions? popOptions = null
+    )
     {
         ObjectDisposedException.ThrowIf(_isDisposed, this);
 
@@ -164,12 +191,21 @@ internal sealed class PresenterStack(IViewBuilder viewBuilder) : IPresenterStack
         Push(new ViewModelDescriptor<TViewModel>(), popOptions);
 
     /// <inheritdoc/>
-    public IView Push<TViewModel, TViewModelContext>(TViewModelContext context, PopOptions? popOptions = null)
+    public IView Push<TViewModel, TViewModelContext>(
+        TViewModelContext context,
+        PopOptions? popOptions = null
+    )
         where TViewModel : IViewModel<TViewModelContext> =>
-        Push(new ViewModelDescriptor<TViewModel, TViewModelContext>(context), popOptions);
+        Push(
+            new ViewModelDescriptor<TViewModel, TViewModelContext>(context),
+            popOptions
+        );
 
     /// <inheritdoc/>
-    public IView[] PushAll(IEnumerable<IViewModelDescriptor> viewModelDescriptors, PopOptions? popOptions = null)
+    public IView[] PushAll(
+        IEnumerable<IViewModelDescriptor> viewModelDescriptors,
+        PopOptions? popOptions = null
+    )
     {
         ObjectDisposedException.ThrowIf(_isDisposed, this);
 
