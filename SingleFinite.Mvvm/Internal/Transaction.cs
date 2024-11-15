@@ -20,15 +20,14 @@
 // SOFTWARE.
 
 using System.ComponentModel;
-using SingleFinite.Mvvm.Internal;
 
-namespace SingleFinite.Mvvm;
+namespace SingleFinite.Mvvm.Internal;
 
 /// <summary>
 /// A class that is either in the open or closed state and will raise an event 
 /// when moving from open to closed.
 /// </summary>
-public class Transaction : INotifyPropertyChanging, INotifyPropertyChanged
+internal class Transaction : INotifyPropertyChanging, INotifyPropertyChanged
 {
     #region Fields
 

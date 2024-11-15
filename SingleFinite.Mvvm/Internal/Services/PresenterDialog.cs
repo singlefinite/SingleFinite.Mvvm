@@ -79,59 +79,50 @@ internal class PresenterDialog : IPresenterDialog
     #region Methods
 
     /// <inheritdoc/>
-    public async Task<IViewModel> ShowAsync(
-        IViewModelDescriptor viewModelDescriptor
-    )
+    public IDialogContext Show(IViewModelDescriptor viewModelDescriptor)
     {
         var view = _viewBuilder.Build(viewModelDescriptor);
-        await ShowAsync(view);
-        return view.ViewModel;
-    }
+        var viewModel = (IDialogViewModel)view.ViewModel;
 
-    /// <inheritdoc/>
-    public async Task<TViewModel> ShowAsync<TViewModel>()
-        where TViewModel : IViewModel
-    {
-        var view = _viewBuilder.Build<TViewModel>();
-        await ShowAsync(view);
-        return (TViewModel)view.ViewModel;
-    }
+        var closedSource = new TaskCompletionSource();
+        var isOpenDisposable = _transaction.Start();
 
-    /// <inheritdoc/>
-    public async Task<TViewModel> ShowAsync<TViewModel, TViewModelContext>(
-        TViewModelContext context
-    )
-        where TViewModel : IViewModel<TViewModelContext>
-    {
-        var view = _viewBuilder.Build<TViewModel, TViewModelContext>(context);
-        await ShowAsync(view);
-        return (TViewModel)view.ViewModel;
-    }
+        var context = new DialogContext(
+            view: view,
+            closed: closedSource.Task,
+            close: () =>
+            {
+                view.ViewModel.Deactivate();
+                view.ViewModel.Dispose();
+                closedSource.SetResult();
+                isOpenDisposable.Dispose();
+            }
+        );
 
-    /// <summary>
-    /// Raise the DialogOpened event.
-    /// </summary>
-    /// <param name="view">The view to pass to the DialogOpened event.</param>
-    /// <returns>
-    /// A task that will complete when the view model for the view has been
-    /// disposed.
-    /// </returns>
-    private Task ShowAsync(IView view)
-    {
-        var taskCompletionSource = new TaskCompletionSource();
-        var transactionDisposable = _transaction.Start();
-
-        view.ViewModel.Disposed.Register(eventDisposable =>
+        viewModel.Closed.Register(disposable =>
         {
-            transactionDisposable.Dispose();
-            eventDisposable.Dispose();
-            taskCompletionSource.SetResult();
+            context.Close();
+            disposable.Dispose();
         });
+
+        viewModel.Activate();
 
         _dialogOpenedSource.RaiseEvent(view);
 
-        return taskCompletionSource.Task;
+        return context;
     }
+
+    /// <inheritdoc/>
+    public IDialogContext Show<TViewModel>()
+        where TViewModel : IDialogViewModel =>
+        Show(new ViewModelDescriptor<TViewModel>());
+
+    /// <inheritdoc/>
+    public IDialogContext Show<TViewModel, TViewModelContext>(
+        TViewModelContext context
+    )
+        where TViewModel : IDialogViewModel<TViewModelContext> =>
+        Show(new ViewModelDescriptor<TViewModel, TViewModelContext>(context));
 
     #endregion
 

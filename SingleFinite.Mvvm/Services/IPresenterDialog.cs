@@ -35,47 +35,32 @@ public interface IPresenterDialog
     /// Display a dialog view.
     /// </summary>
     /// <param name="viewModelDescriptor">Describes the view to build.</param>
-    /// <returns>
-    /// A task that completes when the view model has been closed.
-    /// The view model that was shown is returned which allows callers to get
-    /// any kind of result the view model may have collected.  Note that the 
-    /// view model will be in the disposed state.
-    /// </returns>
-    Task<IViewModel> ShowAsync(IViewModelDescriptor viewModelDescriptor);
+    /// <returns>The context for the dialog that is shown.</returns>
+    IDialogContext Show(IViewModelDescriptor viewModelDescriptor);
 
     /// <summary>
     /// Display a dialog view.
     /// </summary>
-    /// <typeparam name="TViewModel">
+    /// <typeparam name="TDialogViewModel">
     /// The type of view model to display a dialog view for.
     /// </typeparam>
-    /// <returns>
-    /// A task that completes when the view model has been closed.
-    /// The view model that was shown is returned which allows callers to get
-    /// any kind of result the view model may have collected.  Note that the 
-    /// view model will be in the disposed state.
-    /// </returns>
-    Task<TViewModel> ShowAsync<TViewModel>()
-        where TViewModel : IViewModel;
+    /// <returns>The context for the dialog that is shown.</returns>
+    IDialogContext Show<TDialogViewModel>()
+        where TDialogViewModel : IDialogViewModel;
 
     /// <summary>
     /// Display a dialog view.
     /// </summary>
-    /// <typeparam name="TViewModel">
+    /// <typeparam name="TDialogViewModel">
     /// The type of view model to display a dialog view for.
     /// </typeparam>
     /// <typeparam name="TViewModelContext">
     /// The type of context to provide to the view model.
     /// </typeparam>
     /// <param name="context">The context to provide to the dialog.</param>
-    /// <returns>
-    /// A task that completes when the view model has been closed.
-    /// The view model that was shown is returned which allows callers to get
-    /// any kind of result the view model may have collected.  Note that the 
-    /// view model will be in the disposed state.
-    /// </returns>
-    Task<TViewModel> ShowAsync<TViewModel, TViewModelContext>(TViewModelContext context)
-        where TViewModel : IViewModel<TViewModelContext>;
+    /// <returns>The context for the dialog that is shown.</returns>
+    IDialogContext Show<TDialogViewModel, TViewModelContext>(TViewModelContext context)
+        where TDialogViewModel : IDialogViewModel<TViewModelContext>;
 
     /// <summary>
     /// Event that is raised when the IsDialogOpen property changes.
