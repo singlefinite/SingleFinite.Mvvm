@@ -89,14 +89,18 @@ internal sealed class ViewBuilder(
     }
 
     /// <inheritdoc/>
-    public IView Build<TViewModel>()
+    public IView<TViewModel> Build<TViewModel>()
         where TViewModel : IViewModel =>
-        Build(new ViewModelDescriptor<TViewModel>());
+        (IView<TViewModel>)Build(new ViewModelDescriptor<TViewModel>());
 
     /// <inheritdoc/>
-    public IView Build<TViewModel, TViewModelContext>(TViewModelContext context)
+    public IView<TViewModel> Build<TViewModel, TViewModelContext>(
+        TViewModelContext context
+    )
         where TViewModel : IViewModel<TViewModelContext> =>
-        Build(new ViewModelDescriptor<TViewModel, TViewModelContext>(context));
+        (IView<TViewModel>)Build(
+            new ViewModelDescriptor<TViewModel, TViewModelContext>(context)
+        );
 
     #endregion
 }

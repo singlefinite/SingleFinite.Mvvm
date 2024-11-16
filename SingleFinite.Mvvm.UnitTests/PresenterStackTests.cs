@@ -22,6 +22,7 @@
 using SingleFinite.Mvvm.Internal.Services;
 using SingleFinite.Mvvm.Services;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.VisualStudio.TestPlatform.Utilities;
 
 namespace SingleFinite.Mvvm.UnitTests;
 
@@ -177,6 +178,19 @@ public class PresenterStackTests
         Assert.IsInstanceOfType<TestViewModel3>(presenterStack.Stack[0].ViewModel);
         Assert.IsInstanceOfType<TestViewModel2>(presenterStack.Stack[1].ViewModel);
         Assert.IsInstanceOfType<TestViewModel1>(presenterStack.Stack[2].ViewModel);
+    }
+
+    [TestMethod]
+    public void Push_Method_With_Template_Returns_View_With_Template()
+    {
+        using var context = new TestContext();
+
+        var viewModelTestContext = new ViewModelTestContext([]);
+
+        var presenterStack = (PresenterStack)context.ServiceProvider.GetRequiredService<IPresenterStack>();
+        var view = presenterStack.Push<TestViewModel1, ViewModelTestContext>(viewModelTestContext);
+
+        Assert.IsNotNull(view);
     }
 
     #region Types

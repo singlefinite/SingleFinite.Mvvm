@@ -87,7 +87,7 @@ internal class PresenterDialog : IPresenterDialog
         var closedSource = new TaskCompletionSource();
         var isOpenDisposable = _transaction.Start();
 
-        var context = new DialogContext(
+        var dialogContext = new DialogContext(
             view: view,
             closed: closedSource.Task,
             close: () =>
@@ -101,7 +101,7 @@ internal class PresenterDialog : IPresenterDialog
 
         viewModel.Closed.Register(disposable =>
         {
-            context.Close();
+            dialogContext.Close();
             disposable.Dispose();
         });
 
@@ -109,20 +109,80 @@ internal class PresenterDialog : IPresenterDialog
 
         _dialogOpenedSource.RaiseEvent(view);
 
-        return context;
+        return dialogContext;
     }
 
     /// <inheritdoc/>
-    public IDialogContext Show<TViewModel>()
-        where TViewModel : IDialogViewModel =>
-        Show(new ViewModelDescriptor<TViewModel>());
+    public IDialogContext<TDialogViewModel> Show<TDialogViewModel>()
+        where TDialogViewModel : IDialogViewModel
+    {
+        var view = _viewBuilder.Build<TDialogViewModel>();
+        var viewModel = (IDialogViewModel)view.ViewModel;
+
+        var closedSource = new TaskCompletionSource();
+        var isOpenDisposable = _transaction.Start();
+
+        var dialogContext = new DialogContext<TDialogViewModel>(
+            view: view,
+            closed: closedSource.Task,
+            close: () =>
+            {
+                view.ViewModel.Deactivate();
+                view.ViewModel.Dispose();
+                closedSource.SetResult();
+                isOpenDisposable.Dispose();
+            }
+        );
+
+        viewModel.Closed.Register(disposable =>
+        {
+            dialogContext.Close();
+            disposable.Dispose();
+        });
+
+        viewModel.Activate();
+
+        _dialogOpenedSource.RaiseEvent(view);
+
+        return dialogContext;
+    }
 
     /// <inheritdoc/>
-    public IDialogContext Show<TViewModel, TViewModelContext>(
-        TViewModelContext context
+    public IDialogContext<TDialogViewModel> Show<TDialogViewModel, TDialogViewModelContext>(
+        TDialogViewModelContext context
     )
-        where TViewModel : IDialogViewModel<TViewModelContext> =>
-        Show(new ViewModelDescriptor<TViewModel, TViewModelContext>(context));
+        where TDialogViewModel : IDialogViewModel<TDialogViewModelContext>
+    {
+        var view = _viewBuilder.Build<TDialogViewModel, TDialogViewModelContext>(context);
+        var viewModel = (IDialogViewModel)view.ViewModel;
+
+        var closedSource = new TaskCompletionSource();
+        var isOpenDisposable = _transaction.Start();
+
+        var dialogContext = new DialogContext<TDialogViewModel>(
+            view: view,
+            closed: closedSource.Task,
+            close: () =>
+            {
+                view.ViewModel.Deactivate();
+                view.ViewModel.Dispose();
+                closedSource.SetResult();
+                isOpenDisposable.Dispose();
+            }
+        );
+
+        viewModel.Closed.Register(disposable =>
+        {
+            dialogContext.Close();
+            disposable.Dispose();
+        });
+
+        viewModel.Activate();
+
+        _dialogOpenedSource.RaiseEvent(view);
+
+        return dialogContext;
+    }
 
     #endregion
 

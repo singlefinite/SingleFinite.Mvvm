@@ -42,7 +42,7 @@ public interface IViewBuilder
     /// The type of view model to build for the view.
     /// </typeparam>
     /// <returns>The newly built view.</returns>
-    IView Build<TViewModel>()
+    IView<TViewModel> Build<TViewModel>()
         where TViewModel : IViewModel;
 
     /// <summary>
@@ -59,6 +59,6 @@ public interface IViewBuilder
     /// The context to provide to the view model that is built for the view.
     /// </param>
     /// <returns>The newly built view.</returns>
-    IView Build<TViewModel, TViewModelContext>(TViewModelContext context)
+    IView<TViewModel> Build<TViewModel, TViewModelContext>(TViewModelContext context)
         where TViewModel : IViewModel<TViewModelContext>;
 }

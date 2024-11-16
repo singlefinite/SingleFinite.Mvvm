@@ -62,3 +62,30 @@ internal class DialogContext(
 
     #endregion
 }
+
+/// <summary>
+/// Implementation for IDialogContext.
+/// </summary>
+/// <param name="view">The value for View property.</param>
+/// <param name="closed">The value for Closed property.</param>
+/// <param name="close">The action to invoke when Close is called.</param>
+/// <typeparam name="TDialogViewModel">
+/// The type of view model displayed in the dialog.
+/// </typeparam>
+internal class DialogContext<TDialogViewModel>(
+    IView<TDialogViewModel> view,
+    Task closed,
+    Action close
+) :
+    DialogContext(
+        view,
+        closed,
+        close
+    ),
+    IDialogContext<TDialogViewModel>
+    where TDialogViewModel : IDialogViewModel
+{
+    /// <inheritdoc/>
+    IView<TDialogViewModel> IDialogContext<TDialogViewModel>.View =>
+        (IView<TDialogViewModel>)View;
+}

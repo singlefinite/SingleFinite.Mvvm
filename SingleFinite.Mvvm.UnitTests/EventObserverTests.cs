@@ -362,6 +362,24 @@ public class EventObserverTests
         Assert.AreEqual(0, observedTestEvent);
     }
 
+    [TestMethod]
+    public void Observe_Event_With_Args_Using_Callback_Without_Args()
+    {
+        var eventObserver = new EventObserver();
+        var testClass = new TestClassWithEvent();
+
+        var observed = false;
+
+        eventObserver.Observe(
+            token: testClass.EventToken,
+            callback: () => observed = true
+        );
+
+        testClass.RaiseTestToken(99);
+
+        Assert.IsTrue(observed);
+    }
+
     #region Types
 
     private interface IMessage

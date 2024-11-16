@@ -57,7 +57,7 @@ public interface IPresenterStack : IPresenter
     /// Options for popping views off the stack before pushing the new views on.
     /// </param>
     /// <returns>The newly created view.</returns>
-    IView Push<TViewModel>(PopOptions? popOptions = null)
+    IView<TViewModel> Push<TViewModel>(PopOptions? popOptions = null)
         where TViewModel : IViewModel;
 
     /// <summary>
@@ -76,7 +76,7 @@ public interface IPresenterStack : IPresenter
     /// Options for popping views off the stack before pushing the new views on.
     /// </param>
     /// <returns>The newly created view.</returns>
-    IView Push<TViewModel, TViewModelContext>(
+    IView<TViewModel> Push<TViewModel, TViewModelContext>(
         TViewModelContext context,
         PopOptions? popOptions = null
     )

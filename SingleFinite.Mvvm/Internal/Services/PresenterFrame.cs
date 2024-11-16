@@ -69,14 +69,17 @@ internal sealed class PresenterFrame(IViewBuilder viewBuilder) :
     }
 
     /// <inheritdoc/>
-    public IView Set<TViewModel>()
+    public IView<TViewModel> Set<TViewModel>()
         where TViewModel : IViewModel =>
-        Set(new ViewModelDescriptor<TViewModel>());
+        (IView<TViewModel>)Set(new ViewModelDescriptor<TViewModel>());
 
     /// <inheritdoc/>
-    public IView Set<TViewModel, TViewModelContext>(TViewModelContext context)
-        where TViewModel : IViewModel<TViewModelContext> =>
-        Set(new ViewModelDescriptor<TViewModel, TViewModelContext>(context));
+    public IView<TViewModel> Set<TViewModel, TViewModelContext>(
+        TViewModelContext context
+    ) where TViewModel : IViewModel<TViewModelContext> =>
+        (IView<TViewModel>)Set(
+            new ViewModelDescriptor<TViewModel, TViewModelContext>(context)
+        );
 
     /// <inheritdoc/>
     public void Clear()

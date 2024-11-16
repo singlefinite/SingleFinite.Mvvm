@@ -45,7 +45,7 @@ public interface IPresenterDialog
     /// The type of view model to display a dialog view for.
     /// </typeparam>
     /// <returns>The context for the dialog that is shown.</returns>
-    IDialogContext Show<TDialogViewModel>()
+    IDialogContext<TDialogViewModel> Show<TDialogViewModel>()
         where TDialogViewModel : IDialogViewModel;
 
     /// <summary>
@@ -54,13 +54,15 @@ public interface IPresenterDialog
     /// <typeparam name="TDialogViewModel">
     /// The type of view model to display a dialog view for.
     /// </typeparam>
-    /// <typeparam name="TViewModelContext">
+    /// <typeparam name="TDialogViewModelContext">
     /// The type of context to provide to the view model.
     /// </typeparam>
     /// <param name="context">The context to provide to the dialog.</param>
     /// <returns>The context for the dialog that is shown.</returns>
-    IDialogContext Show<TDialogViewModel, TViewModelContext>(TViewModelContext context)
-        where TDialogViewModel : IDialogViewModel<TViewModelContext>;
+    IDialogContext<TDialogViewModel> Show<TDialogViewModel, TDialogViewModelContext>(
+        TDialogViewModelContext context
+    )
+        where TDialogViewModel : IDialogViewModel<TDialogViewModelContext>;
 
     /// <summary>
     /// Event that is raised when the IsDialogOpen property changes.

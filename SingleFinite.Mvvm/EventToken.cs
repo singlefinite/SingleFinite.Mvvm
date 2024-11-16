@@ -134,6 +134,20 @@ public sealed class EventToken<TArgs>
     /// <returns>
     /// A registration object that when disposed will unregister the callback.
     /// </returns>
+    public IDisposable Register(Action callback)
+    {
+        void Handler(TArgs _) => callback();
+        ActionEvent += Handler;
+        return new ActionOnDispose(() => ActionEvent -= Handler);
+    }
+
+    /// <summary>
+    /// Register the action to call when this event is raised.
+    /// </summary>
+    /// <param name="callback">The callback to register.</param>
+    /// <returns>
+    /// A registration object that when disposed will unregister the callback.
+    /// </returns>
     public IDisposable Register(Action<TArgs> callback)
     {
         ActionEvent += callback;
@@ -210,6 +224,20 @@ public sealed class EventToken<TSender, TArgs>
     #endregion
 
     #region Methods
+
+    /// <summary>
+    /// Register the action to call when this event is raised.
+    /// </summary>
+    /// <param name="callback">The callback to register.</param>
+    /// <returns>
+    /// A registration object that when disposed will unregister the callback.
+    /// </returns>
+    public IDisposable Register(Action callback)
+    {
+        void Handler(TSender _, TArgs __) => callback();
+        ActionEvent += Handler;
+        return new ActionOnDispose(() => ActionEvent -= Handler);
+    }
 
     /// <summary>
     /// Register the action to call when this event is raised.

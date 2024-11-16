@@ -112,6 +112,32 @@ public interface IEventObserver
     /// <typeparam name="TArgs">
     /// The type of arguments included with raised events.
     /// </typeparam>
+    /// <param name="token">The event to register the callback to.</param>
+    /// <param name="callback">
+    /// The callback that will be registered to the event.
+    /// </param>
+    /// <param name="cancellationToken">
+    /// Optional token that when cancelled will unregister the callback.
+    /// </param>
+    /// <exception cref="ObjectDisposedException">
+    /// Thrown if the service has been disposed.
+    /// </exception>
+    /// <returns>
+    /// A disposable object that when disposed will unregister the callback.
+    /// </returns>
+    IDisposable Observe<TArgs>(
+        EventToken<TArgs> token,
+        Action callback,
+        CancellationToken? cancellationToken = null
+    );
+
+    /// <summary>
+    /// Setup an event callback that will be unregistered when the dependency 
+    /// injection scope that this service belongs to is disposed.
+    /// </summary>
+    /// <typeparam name="TArgs">
+    /// The type of arguments included with raised events.
+    /// </typeparam>
     /// <typeparam name="TCallbackArgs">
     /// The type of arguments the callback expects.
     /// If an event is raised with arguments that can't be cast to this type the
@@ -223,6 +249,35 @@ public interface IEventObserver
     IDisposable Observe<TSender, TArgs>(
         EventToken<TSender, TArgs> token,
         Action<TSender, TArgs> callback,
+        CancellationToken? cancellationToken = null
+    );
+
+    /// <summary>
+    /// Setup an event callback that will be unregistered when the dependency 
+    /// injection scope that this service belongs to is disposed.
+    /// </summary>
+    /// <typeparam name="TSender">
+    /// The type of object that will raise events.
+    /// </typeparam>
+    /// <typeparam name="TArgs">
+    /// The type of arguments included with raised events.
+    /// </typeparam>
+    /// <param name="token">The event to register the callback to.</param>
+    /// <param name="callback">
+    /// The callback that will be registered to the event.
+    /// </param>
+    /// <param name="cancellationToken">
+    /// Optional token that when cancelled will unregister the callback.
+    /// </param>
+    /// <exception cref="ObjectDisposedException">
+    /// Thrown if the service has been disposed.
+    /// </exception>
+    /// <returns>
+    /// A disposable object that when disposed will unregister the callback.
+    /// </returns>
+    IDisposable Observe<TSender, TArgs>(
+        EventToken<TSender, TArgs> token,
+        Action callback,
         CancellationToken? cancellationToken = null
     );
 

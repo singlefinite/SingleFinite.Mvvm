@@ -52,7 +52,7 @@ public interface IPresenterFrame : IPresenter
     /// <exception cref="ObjectDisposedException">
     /// Thrown if this presenter has been disposed.
     /// </exception>
-    IView Set<TViewModel>()
+    IView<TViewModel> Set<TViewModel>()
         where TViewModel : IViewModel;
 
     /// <summary>
@@ -72,7 +72,7 @@ public interface IPresenterFrame : IPresenter
     /// <exception cref="ObjectDisposedException">
     /// Thrown if this presenter has been disposed.
     /// </exception>
-    IView Set<TViewModel, TViewModelContext>(TViewModelContext context)
+    IView<TViewModel> Set<TViewModel, TViewModelContext>(TViewModelContext context)
         where TViewModel : IViewModel<TViewModelContext>;
 
     /// <summary>

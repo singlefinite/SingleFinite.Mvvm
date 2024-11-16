@@ -22,6 +22,7 @@
 using SingleFinite.Mvvm.Internal.Services;
 using SingleFinite.Mvvm.Services;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.VisualStudio.TestPlatform.Utilities;
 
 namespace SingleFinite.Mvvm.UnitTests;
 
@@ -90,6 +91,17 @@ public class PresenterFrameTests
         scope.Dispose();
         Assert.IsNull(presenterFrameInScope.Current);
         Assert.IsNotNull(presenterFrameInRoot.Current);
+    }
+
+    [TestMethod]
+    public void Set_Method_With_Template_Creates_View_With_Template()
+    {
+        using var context = new TestContext();
+        var presenterFrame = (PresenterFrame)context.ServiceProvider.GetRequiredService<IPresenterFrame>();
+        var viewModelTestContext = new ViewModelTestContext([]);
+        var view = presenterFrame.Set<TestViewModel1, ViewModelTestContext>(viewModelTestContext);
+
+        Assert.IsNotNull(view);
     }
 
     [TestMethod]

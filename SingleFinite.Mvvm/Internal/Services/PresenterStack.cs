@@ -186,17 +186,19 @@ internal sealed class PresenterStack(IViewBuilder viewBuilder) :
     }
 
     /// <inheritdoc/>
-    public IView Push<TViewModel>(PopOptions? popOptions = null)
+    public IView<TViewModel> Push<TViewModel>(PopOptions? popOptions = null)
         where TViewModel : IViewModel =>
-        Push(new ViewModelDescriptor<TViewModel>(), popOptions);
+        (IView<TViewModel>)Push(
+            new ViewModelDescriptor<TViewModel>(), popOptions
+        );
 
     /// <inheritdoc/>
-    public IView Push<TViewModel, TViewModelContext>(
+    public IView<TViewModel> Push<TViewModel, TViewModelContext>(
         TViewModelContext context,
         PopOptions? popOptions = null
     )
         where TViewModel : IViewModel<TViewModelContext> =>
-        Push(
+        (IView<TViewModel>)Push(
             new ViewModelDescriptor<TViewModel, TViewModelContext>(context),
             popOptions
         );

@@ -41,3 +41,21 @@ public interface IDialogContext
     /// </summary>
     void Close();
 }
+
+/// <summary>
+/// The context for a dialog that is displaying a view.
+/// </summary>
+/// <typeparam name="TDialogViewModel">
+/// The type of view model the view is displaying.
+/// </typeparam>
+public interface IDialogContext<TDialogViewModel> : IDialogContext
+    where TDialogViewModel : IDialogViewModel
+{
+    /// <inheritdoc/>
+    IView IDialogContext.View => View;
+
+    /// <summary>
+    /// The view displayed in the dialog.
+    /// </summary>
+    new IView<TDialogViewModel> View { get; }
+}

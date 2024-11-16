@@ -81,6 +81,17 @@ internal sealed class EventObserver : IEventObserver, IDisposable
     }
 
     /// <inheritdoc/>
+    public IDisposable Observe<TArgs>(
+        EventToken<TArgs> token,
+        Action callback,
+        CancellationToken? cancellationToken = null
+    )
+    {
+        ObjectDisposedException.ThrowIf(_isDisposed, this);
+        return Register(token.Register(callback), cancellationToken);
+    }
+
+    /// <inheritdoc/>
     public IDisposable Observe<TArgs, TCallbackArgs>(
         EventToken<TArgs> token,
         Action<TCallbackArgs> callback,
@@ -131,6 +142,17 @@ internal sealed class EventObserver : IEventObserver, IDisposable
     public IDisposable Observe<TSender, TArgs>(
         EventToken<TSender, TArgs> token,
         Action<TSender, TArgs> callback,
+        CancellationToken? cancellationToken = null
+    )
+    {
+        ObjectDisposedException.ThrowIf(_isDisposed, this);
+        return Register(token.Register(callback), cancellationToken);
+    }
+
+    /// <inheritdoc/>
+    public IDisposable Observe<TSender, TArgs>(
+        EventToken<TSender, TArgs> token,
+        Action callback,
         CancellationToken? cancellationToken = null
     )
     {
