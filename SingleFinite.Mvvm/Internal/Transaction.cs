@@ -27,7 +27,7 @@ namespace SingleFinite.Mvvm.Internal;
 /// A class that is either in the open or closed state and will raise an event 
 /// when moving from open to closed.
 /// </summary>
-internal class Transaction : INotifyPropertyChanging, INotifyPropertyChanged
+internal class Transaction
 {
     #region Fields
 
@@ -53,9 +53,7 @@ internal class Transaction : INotifyPropertyChanging, INotifyPropertyChanged
             if (field == value)
                 return;
 
-            PropertyChanging?.Invoke(this, new(nameof(IsOpen)));
             field = value;
-            PropertyChanged?.Invoke(this, new(nameof(IsOpen)));
 
             _isOpenChangedSource.RaiseEvent(field);
             if (field)
@@ -127,16 +125,6 @@ internal class Transaction : INotifyPropertyChanging, INotifyPropertyChanged
     /// </summary>
     public EventToken Closed => _closedSource.Token;
     private readonly EventTokenSource _closedSource = new();
-
-    /// <summary>
-    /// Raised before a property is changed.
-    /// </summary>
-    public event PropertyChangingEventHandler? PropertyChanging;
-
-    /// <summary>
-    /// Raised after a property has changed.
-    /// </summary>
-    public event PropertyChangedEventHandler? PropertyChanged;
 
     #endregion
 }
