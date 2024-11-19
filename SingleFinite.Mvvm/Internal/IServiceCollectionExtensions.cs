@@ -49,7 +49,7 @@ internal static class IServiceCollectionExtensions
     /// The service collection that was passed in so a fluent style call chain 
     /// can be used to register services.
     /// </returns>
-    public static IServiceCollection AddMvvm(
+    internal static IServiceCollection AddMvvm(
         this IServiceCollection services,
         IAppHost host,
         IViewCollection views,
@@ -61,6 +61,7 @@ internal static class IServiceCollectionExtensions
         .AddSingleton<IViewRegistry>(new ViewRegistry(views))
         .AddSingleton<IPluginRegistry>(new PluginRegistry(plugins))
         .AddSingleton<IPluginLoader, PluginLoader>()
+        .AddSingleton<IDialogs, Dialogs>()
         .AddScoped<IBuilder, Builder>()
         .AddScoped<IViewBuilder, ViewBuilder>()
         .AddScoped<ICancellationTokenProvider, CancellationTokenProvider>()
