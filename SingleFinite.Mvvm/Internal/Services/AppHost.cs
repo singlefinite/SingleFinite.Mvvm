@@ -32,11 +32,6 @@ internal sealed class AppHost : IAppHost, IDisposable
     #region Fields
 
     /// <summary>
-    /// Set to true when the host is started.
-    /// </summary>
-    private bool _isStarted = false;
-
-    /// <summary>
     /// Set to true when this object is disposed.
     /// </summary>
     private bool _isDisposed = false;
@@ -98,44 +93,20 @@ internal sealed class AppHost : IAppHost, IDisposable
 
     #region Methods
 
-    /// <summary>
-    /// Restart the ServiceProvider and invoke all of the OnStarted actions.
-    /// </summary>
-    private void RestartServiceProvider()
-    {
-        (_serviceProvider as IDisposable)?.Dispose();
-        _serviceProvider = _services.BuildServiceProvider();
-        foreach (var onStarted in _onStarted)
-            onStarted(_serviceProvider);
-    }
-
     /// <inheritdoc/>
     public void Start()
     {
         ObjectDisposedException.ThrowIf(_isDisposed, this);
 
-        if (_isStarted)
+        if (_serviceProvider is not null)
             return;
 
-        _isStarted = true;
+        _serviceProvider = _services.BuildServiceProvider();
 
-        RestartServiceProvider();
-        _startedSource.RaiseEvent(new(isRestart: false));
-    }
+        foreach (var onStarted in _onStarted)
+            onStarted(_serviceProvider);
 
-    /// <inheritdoc/>
-    public void Restart()
-    {
-        ObjectDisposedException.ThrowIf(_isDisposed, this);
-
-        if (!_isStarted)
-        {
-            Start();
-            return;
-        }
-
-        RestartServiceProvider();
-        _startedSource.RaiseEvent(new(isRestart: true));
+        _startedSource.RaiseEvent();
     }
 
     /// <summary>
@@ -155,8 +126,8 @@ internal sealed class AppHost : IAppHost, IDisposable
     #region Events
 
     /// <inheritdoc/>
-    public EventToken<IAppHost.StartedEventArgs> Started => _startedSource.Token;
-    private readonly EventTokenSource<IAppHost.StartedEventArgs> _startedSource = new();
+    public EventToken Started => _startedSource.Token;
+    private readonly EventTokenSource _startedSource = new();
 
     #endregion
 }

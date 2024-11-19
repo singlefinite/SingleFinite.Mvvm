@@ -48,7 +48,7 @@ public class AppHostTests
     }
 
     [TestMethod]
-    public void Start_And_Restart_Methods_Invoke_OnStarted_Actions()
+    public void Start_Method_Invoke_OnStarted_Actions()
     {
         var onStarted1Count = 0;
         var onStarted2Count = 0;
@@ -70,17 +70,12 @@ public class AppHostTests
 
         Assert.AreEqual(1, onStarted1Count);
         Assert.AreEqual(1, onStarted2Count);
-
-        appHost.Restart();
-
-        Assert.AreEqual(2, onStarted1Count);
-        Assert.AreEqual(2, onStarted2Count);
     }
 
     [TestMethod]
-    public void Started_Event_Raised_When_Start_And_Restart_Method_Invoked()
+    public void Started_Event_Raised_When_Start_Method_Invoked()
     {
-        var output = new List<IAppHost.StartedEventArgs>();
+        var onStartedCount = 0;
 
         var appHost = new AppHost(
             services: new ServiceCollection(),
@@ -89,23 +84,17 @@ public class AppHostTests
             onStarted: []
         );
 
-        appHost.Started.Register(args => output.Add(args));
+        appHost.Started.Register(() => onStartedCount++);
 
-        Assert.AreEqual(0, output.Count);
+        Assert.AreEqual(0, onStartedCount);
 
         appHost.Start();
 
-        Assert.AreEqual(1, output.Count);
-        Assert.AreEqual(false, output[0].IsRestart);
-
-        appHost.Restart();
-
-        Assert.AreEqual(2, output.Count);
-        Assert.AreEqual(true, output[1].IsRestart);
+        Assert.AreEqual(1, onStartedCount);
     }
 
     [TestMethod]
-    public void Start_And_Restart_Methods_Throw_When_Disposed()
+    public void Start_Method_Throw_When_Disposed()
     {
         var appHost = new AppHost(
             services: new ServiceCollection(),
@@ -117,7 +106,6 @@ public class AppHostTests
         appHost.Dispose();
 
         Assert.ThrowsException<ObjectDisposedException>(appHost.Start);
-        Assert.ThrowsException<ObjectDisposedException>(appHost.Restart);
     }
 
     [TestMethod]
@@ -150,79 +138,6 @@ public class AppHostTests
     }
 
     [TestMethod]
-    public void Restart_Method_Disposes_Current_ServiceProvider()
-    {
-        var services = new ServiceCollection();
-        services.AddSingleton<DisposableCounter>();
-
-        var appHost = new AppHost(
-            services: services,
-            views: new ViewCollection(),
-            plugins: new PluginCollection(),
-            onStarted: []
-        );
-
-        appHost.Start();
-
-        var disposableCounter =
-            appHost.ServiceProvider.GetRequiredService<DisposableCounter>();
-
-        Assert.AreEqual(0, disposableCounter.Count);
-
-        appHost.Restart();
-
-        Assert.AreEqual(1, disposableCounter.Count);
-    }
-
-    [TestMethod]
-    public void Restart_Method_Creates_New_ServiceProvider()
-    {
-        var services = new ServiceCollection();
-        services.AddSingleton<DisposableCounter>();
-
-        var appHost = new AppHost(
-            services: services,
-            views: new ViewCollection(),
-            plugins: new PluginCollection(),
-            onStarted: []
-        );
-
-        appHost.Start();
-
-        var exampleService1 =
-            appHost.ServiceProvider.GetRequiredService<DisposableCounter>();
-
-        appHost.Restart();
-
-        var exampleService2 =
-            appHost.ServiceProvider.GetRequiredService<DisposableCounter>();
-
-        Assert.AreNotEqual(exampleService1, exampleService2);
-    }
-
-    [TestMethod]
-    public void Restart_Method_Starts_If_Not_Started()
-    {
-        var output = new List<IAppHost.StartedEventArgs>();
-
-        var appHost = new AppHost(
-            services: new ServiceCollection(),
-            views: new ViewCollection(),
-            plugins: new PluginCollection(),
-            onStarted: []
-        );
-
-        appHost.Started.Register(args => output.Add(args));
-
-        Assert.AreEqual(0, output.Count);
-
-        appHost.Restart();
-
-        Assert.AreEqual(1, output.Count);
-        Assert.AreEqual(false, output[0].IsRestart);
-    }
-
-    [TestMethod]
     public void Start_Method_Adds_AppHost_As_Service()
     {
         var appHost = new AppHost(
@@ -241,7 +156,7 @@ public class AppHostTests
     [TestMethod]
     public void Start_Method_Invoked_More_Than_Once_Has_No_Effect()
     {
-        var output = new List<IAppHost.StartedEventArgs>();
+        var onStartedCount = 0;
 
         var services = new ServiceCollection();
         services.AddSingleton<DisposableCounter>();
@@ -253,18 +168,18 @@ public class AppHostTests
             onStarted: []
         );
 
-        appHost.Started.Register(args => output.Add(args));
+        appHost.Started.Register(() => onStartedCount++);
 
         appHost.Start();
 
-        Assert.AreEqual(1, output.Count);
+        Assert.AreEqual(1, onStartedCount);
 
         var exampleService1 =
             appHost.ServiceProvider.GetRequiredService<DisposableCounter>();
 
         appHost.Start();
 
-        Assert.AreEqual(1, output.Count);
+        Assert.AreEqual(1, onStartedCount);
 
         var exampleService2 =
             appHost.ServiceProvider.GetRequiredService<DisposableCounter>();
