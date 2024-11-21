@@ -79,107 +79,90 @@ internal class PresenterDialog : IPresenterDialog
     #region Methods
 
     /// <inheritdoc/>
-    public IDialogContext Show(IViewModelDescriptor viewModelDescriptor)
-    {
-        var view = _viewBuilder.Build(viewModelDescriptor);
-        var viewModel = (IDialogViewModel)view.ViewModel;
-
-        var closedSource = new TaskCompletionSource();
-        var isOpenDisposable = _transaction.Start();
-
-        var dialogContext = new DialogContext(
-            view: view,
-            closed: closedSource.Task,
-            close: () =>
-            {
-                view.ViewModel.Deactivate();
-                view.ViewModel.Dispose();
-                closedSource.SetResult();
-                isOpenDisposable.Dispose();
-            }
+    public IDialogContext Show(IViewModelDescriptor viewModelDescriptor) =>
+        Show<IDialogContext>(
+            createContext: () => new DialogContext(
+                view: _viewBuilder.Build(viewModelDescriptor),
+                isModal: false
+            )
         );
-
-        viewModel.Closed.Register(disposable =>
-        {
-            dialogContext.Close();
-            disposable.Dispose();
-        });
-
-        viewModel.Activate();
-
-        _dialogOpenedSource.RaiseEvent(view);
-
-        return dialogContext;
-    }
 
     /// <inheritdoc/>
     public IDialogContext<TDialogViewModel> Show<TDialogViewModel>()
-        where TDialogViewModel : IDialogViewModel
-    {
-        var view = _viewBuilder.Build<TDialogViewModel>();
-        var viewModel = (IDialogViewModel)view.ViewModel;
-
-        var closedSource = new TaskCompletionSource();
-        var isOpenDisposable = _transaction.Start();
-
-        var dialogContext = new DialogContext<TDialogViewModel>(
-            view: view,
-            closed: closedSource.Task,
-            close: () =>
-            {
-                view.ViewModel.Deactivate();
-                view.ViewModel.Dispose();
-                closedSource.SetResult();
-                isOpenDisposable.Dispose();
-            }
+        where TDialogViewModel : IDialogViewModel =>
+        Show<IDialogContext<TDialogViewModel>>(
+            createContext: () => new DialogContext<TDialogViewModel>(
+                view: _viewBuilder.Build<TDialogViewModel>(),
+                isModal: false
+            )
         );
-
-        viewModel.Closed.Register(disposable =>
-        {
-            dialogContext.Close();
-            disposable.Dispose();
-        });
-
-        viewModel.Activate();
-
-        _dialogOpenedSource.RaiseEvent(view);
-
-        return dialogContext;
-    }
 
     /// <inheritdoc/>
     public IDialogContext<TDialogViewModel> Show<TDialogViewModel, TDialogViewModelContext>(
         TDialogViewModelContext context
     )
-        where TDialogViewModel : IDialogViewModel<TDialogViewModelContext>
-    {
-        var view = _viewBuilder.Build<TDialogViewModel, TDialogViewModelContext>(context);
-        var viewModel = (IDialogViewModel)view.ViewModel;
-
-        var closedSource = new TaskCompletionSource();
-        var isOpenDisposable = _transaction.Start();
-
-        var dialogContext = new DialogContext<TDialogViewModel>(
-            view: view,
-            closed: closedSource.Task,
-            close: () =>
-            {
-                view.ViewModel.Deactivate();
-                view.ViewModel.Dispose();
-                closedSource.SetResult();
-                isOpenDisposable.Dispose();
-            }
+        where TDialogViewModel : IDialogViewModel<TDialogViewModelContext> =>
+        Show<IDialogContext<TDialogViewModel>>(
+            createContext: () => new DialogContext<TDialogViewModel>(
+                view: _viewBuilder.Build<TDialogViewModel, TDialogViewModelContext>(context),
+                isModal: false
+            )
         );
 
-        viewModel.Closed.Register(disposable =>
-        {
-            dialogContext.Close();
-            disposable.Dispose();
-        });
+    /// <inheritdoc/>
+    public IViewModel ShowModal(IViewModelDescriptor viewModelDescriptor) =>
+        Show<IDialogContext>(
+            createContext: () => new DialogContext(
+                view: _viewBuilder.Build(viewModelDescriptor),
+                isModal: true
+            )
+        ).View.ViewModel;
 
-        viewModel.Activate();
+    /// <inheritdoc/>
+    public TDialogViewModel ShowModal<TDialogViewModel>()
+        where TDialogViewModel : IDialogViewModel =>
+        Show<IDialogContext<TDialogViewModel>>(
+            createContext: () => new DialogContext<TDialogViewModel>(
+                view: _viewBuilder.Build<TDialogViewModel>(),
+                isModal: true
+            )
+        ).View.ViewModel;
 
-        _dialogOpenedSource.RaiseEvent(view);
+    /// <inheritdoc/>
+    public TDialogViewModel ShowModal<TDialogViewModel, TDialogViewModelContext>(
+        TDialogViewModelContext context
+    )
+        where TDialogViewModel : IDialogViewModel<TDialogViewModelContext> =>
+        Show<IDialogContext<TDialogViewModel>>(
+            createContext: () => new DialogContext<TDialogViewModel>(
+                view: _viewBuilder.Build<TDialogViewModel, TDialogViewModelContext>(context),
+                isModal: true
+            )
+        ).View.ViewModel;
+
+    /// <summary>
+    /// Show a dialog for a view.
+    /// </summary>
+    /// <typeparam name="TDialogContext">
+    /// The type of dialog context that will be returned.
+    /// </typeparam>
+    /// <param name="createContext">
+    /// Action that creates the dialog context.
+    /// </param>
+    /// <returns>The dialog context for the dialog being shown.</returns>
+    private TDialogContext Show<TDialogContext>(
+        Func<TDialogContext> createContext
+    )
+        where TDialogContext : IDialogContext
+    {
+        var dialogContext = createContext();
+
+        var token = _transaction.Start();
+        dialogContext.Closed.Register(token.Dispose);
+
+        dialogContext.View.ViewModel.Activate();
+
+        _dialogOpenedSource.RaiseEvent(dialogContext);
 
         return dialogContext;
     }
@@ -193,8 +176,8 @@ internal class PresenterDialog : IPresenterDialog
     private readonly EventTokenSource<bool> _isDialogOpenChangedSource = new();
 
     /// <inheritdoc/>
-    public EventToken<IView> DialogOpened => _dialogOpenedSource.Token;
-    private readonly EventTokenSource<IView> _dialogOpenedSource = new();
+    public EventToken<IDialogContext> DialogOpened => _dialogOpenedSource.Token;
+    private readonly EventTokenSource<IDialogContext> _dialogOpenedSource = new();
 
     #endregion
 }

@@ -50,6 +50,7 @@ public interface IPresenterDialog
 
     /// <summary>
     /// Display a dialog view.
+    /// This function doesn't return until the dialog has been closed.
     /// </summary>
     /// <typeparam name="TDialogViewModel">
     /// The type of view model to display a dialog view for.
@@ -65,6 +66,41 @@ public interface IPresenterDialog
         where TDialogViewModel : IDialogViewModel<TDialogViewModelContext>;
 
     /// <summary>
+    /// Display a modal dialog view.
+    /// </summary>
+    /// <param name="viewModelDescriptor">Describes the view to build.</param>
+    /// <returns>The view model that was displayed in the dialog.</returns>
+    IViewModel ShowModal(IViewModelDescriptor viewModelDescriptor);
+
+    /// <summary>
+    /// Display a modal dialog view.
+    /// This function doesn't return until the dialog has been closed.
+    /// </summary>
+    /// <typeparam name="TDialogViewModel">
+    /// The type of view model to display a dialog view for.
+    /// </typeparam>
+    /// <returns>The view model that was displayed in the dialog.</returns>
+    TDialogViewModel ShowModal<TDialogViewModel>()
+        where TDialogViewModel : IDialogViewModel;
+
+    /// <summary>
+    /// Display a modal dialog view.
+    /// This function doesn't return until the dialog has been closed.
+    /// </summary>
+    /// <typeparam name="TDialogViewModel">
+    /// The type of view model to display a dialog view for.
+    /// </typeparam>
+    /// <typeparam name="TDialogViewModelContext">
+    /// The type of context to provide to the view model.
+    /// </typeparam>
+    /// <param name="context">The context to provide to the dialog.</param>
+    /// <returns>The view model that was displayed in the dialog.</returns>
+    TDialogViewModel ShowModal<TDialogViewModel, TDialogViewModelContext>(
+        TDialogViewModelContext context
+    )
+        where TDialogViewModel : IDialogViewModel<TDialogViewModelContext>;
+
+    /// <summary>
     /// Event that is raised when the IsDialogOpen property changes.
     /// </summary>
     EventToken<bool> IsDialogOpenChanged { get; }
@@ -72,5 +108,5 @@ public interface IPresenterDialog
     /// <summary>
     /// Event that is raised when a dialog is opened.
     /// </summary>
-    EventToken<IView> DialogOpened { get; }
+    EventToken<IDialogContext> DialogOpened { get; }
 }

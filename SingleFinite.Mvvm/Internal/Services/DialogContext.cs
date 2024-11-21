@@ -22,33 +22,60 @@
 namespace SingleFinite.Mvvm.Internal.Services;
 
 /// <summary>
-/// Implementation for IDialogContext.
+/// Implementation for <see cref="IDialogContext"/>.
 /// </summary>
-/// <param name="view">The value for View property.</param>
-/// <param name="closed">The value for Closed property.</param>
-/// <param name="close">The action to invoke when Close is called.</param>
-internal class DialogContext(
-    IView view,
-    Task closed,
-    Action close
-) : IDialogContext
+internal class DialogContext : IDialogContext
 {
     #region Fields
 
     /// <summary>
-    /// Indicates if the dialog has been closed.
+    /// Source for the task.
     /// </summary>
-    private bool _isClosed = false;
+    private readonly TaskCompletionSource _taskSource = new();
+
+    /// <summary>
+    /// Set to true when the dialog has been closed.
+    /// </summary>
+    private bool _isClosed;
+
+    #endregion
+
+    #region Constructors
+
+    /// <summary>
+    /// Constructor.
+    /// </summary>
+    /// <param name="view">The view for the context.</param>
+    /// <param name="isModal">Indicates if the view is modal.</param>
+    public DialogContext(IView view, bool isModal)
+    {
+        View = view;
+        IsModal = isModal;
+
+        var viewModel = View.ViewModel as IDialogViewModel ??
+            throw new InvalidOperationException(
+                "An IDialogViewModel view model is required."
+            );
+
+        viewModel.Closed.Register(Close);
+    }
+
+    #endregion
+
+    #region Properties
+
+    /// <inheritdoc/>
+    public IView View { get; }
+
+    /// <inheritdoc/>
+    public bool IsModal { get; }
+
+    /// <inheritdoc/>
+    public Task Task => _taskSource.Task;
 
     #endregion
 
     #region Methods
-
-    /// <inheritdoc/>
-    public IView View { get; } = view;
-
-    /// <inheritdoc/>
-    public Task Closed { get; } = closed;
 
     /// <inheritdoc/>
     public void Close()
@@ -57,31 +84,37 @@ internal class DialogContext(
             return;
 
         _isClosed = true;
-        close();
+
+        View.ViewModel.Deactivate();
+        View.ViewModel.Dispose();
+        _closedSource.RaiseEvent();
+        _taskSource.TrySetResult();
     }
+
+    #endregion
+
+    #region Events
+
+    /// <inheritdoc/>
+    public EventToken Closed => _closedSource.Token;
+    private readonly EventTokenSource _closedSource = new();
 
     #endregion
 }
 
 /// <summary>
-/// Implementation for IDialogContext.
+/// Implementation for <see cref="IDialogContext"/>.
 /// </summary>
 /// <param name="view">The value for View property.</param>
-/// <param name="closed">The value for Closed property.</param>
-/// <param name="close">The action to invoke when Close is called.</param>
+/// <param name="isModal">Indicates if the view is modal.</param>
 /// <typeparam name="TDialogViewModel">
 /// The type of view model displayed in the dialog.
 /// </typeparam>
 internal class DialogContext<TDialogViewModel>(
     IView<TDialogViewModel> view,
-    Task closed,
-    Action close
+    bool isModal
 ) :
-    DialogContext(
-        view,
-        closed,
-        close
-    ),
+    DialogContext(view, isModal),
     IDialogContext<TDialogViewModel>
     where TDialogViewModel : IDialogViewModel
 {

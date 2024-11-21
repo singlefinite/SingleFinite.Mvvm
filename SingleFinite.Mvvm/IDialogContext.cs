@@ -32,14 +32,24 @@ public interface IDialogContext
     IView View { get; }
 
     /// <summary>
+    /// If the view is modal.
+    /// </summary>
+    bool IsModal { get; }
+
+    /// <summary>
     /// A task that completes when the dialog has been closed.
     /// </summary>
-    Task Closed { get; }
+    Task Task { get; }
 
     /// <summary>
     /// Close the dialog.
     /// </summary>
     void Close();
+
+    /// <summary>
+    /// Event that is raised when the dialog is closed.
+    /// </summary>
+    EventToken Closed { get; }
 }
 
 /// <summary>

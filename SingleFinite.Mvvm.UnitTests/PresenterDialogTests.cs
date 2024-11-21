@@ -42,24 +42,76 @@ public class PresenterDialogTests
         var dialog1Context = presenterDialog.Show<Dialog1>();
 
         Assert.IsTrue(presenterDialog.IsDialogOpen);
-        Assert.IsFalse(dialog1Context.Closed.IsCompleted);
+        Assert.IsFalse(dialog1Context.Task.IsCompleted);
 
         var dialog2Context = presenterDialog.Show<Dialog2>();
 
         Assert.IsTrue(presenterDialog.IsDialogOpen);
-        Assert.IsFalse(dialog2Context.Closed.IsCompleted);
+        Assert.IsFalse(dialog2Context.Task.IsCompleted);
 
         dialog1Context.Close();
 
         Assert.IsTrue(presenterDialog.IsDialogOpen);
-        Assert.IsTrue(dialog1Context.Closed.IsCompleted);
-        Assert.IsFalse(dialog2Context.Closed.IsCompleted);
+        Assert.IsTrue(dialog1Context.Task.IsCompleted);
+        Assert.IsFalse(dialog2Context.Task.IsCompleted);
 
         dialog2Context.Close();
 
         Assert.IsFalse(presenterDialog.IsDialogOpen);
-        Assert.IsTrue(dialog1Context.Closed.IsCompleted);
-        Assert.IsTrue(dialog2Context.Closed.IsCompleted);
+        Assert.IsTrue(dialog1Context.Task.IsCompleted);
+        Assert.IsTrue(dialog2Context.Task.IsCompleted);
+    }
+
+    [TestMethod]
+    public void Dialog_View_Model_Has_Expected_Lifecycle()
+    {
+        using var context = new TestContext();
+
+        var presenterDialog = new PresenterDialog(
+            context.ServiceProvider.GetRequiredService<IViewBuilder>()
+        );
+
+        var output = new List<string>();
+
+        var dialogContext = presenterDialog.Show<DialogLifecycle, List<string>>(output);
+
+        Assert.AreEqual(2, output.Count);
+        Assert.AreEqual("Initialize", output[0]);
+        Assert.AreEqual("Activate", output[1]);
+
+        output.Clear();
+
+        dialogContext.Close();
+
+        Assert.AreEqual(2, output.Count);
+        Assert.AreEqual("Deactivate", output[0]);
+        Assert.AreEqual("Dispose", output[1]);
+    }
+
+    [TestMethod]
+    public void Dialog_Can_Be_Closed_From_Within_View_Model()
+    {
+        using var context = new TestContext();
+
+        var presenterDialog = new PresenterDialog(
+            context.ServiceProvider.GetRequiredService<IViewBuilder>()
+        );
+
+        var output = new List<string>();
+
+        var dialogContext = presenterDialog.Show<DialogLifecycle, List<string>>(output);
+
+        Assert.AreEqual(2, output.Count);
+        Assert.AreEqual("Initialize", output[0]);
+        Assert.AreEqual("Activate", output[1]);
+
+        output.Clear();
+
+        dialogContext.View.ViewModel.CloseDialog();
+
+        Assert.AreEqual(2, output.Count);
+        Assert.AreEqual("Deactivate", output[0]);
+        Assert.AreEqual("Dispose", output[1]);
     }
 
     #region Types
@@ -82,6 +134,36 @@ public class PresenterDialogTests
     private class Dialog2View(Dialog2 dialog) : IView<Dialog2>
     {
         public Dialog2 ViewModel => dialog;
+    }
+
+    private class DialogLifecycle(List<string> output) : DialogViewModel<List<string>>
+    {
+        protected override void OnInitialize()
+        {
+            output.Add("Initialize");
+        }
+
+        protected override void OnActivate(CancellationToken cancellationToken)
+        {
+            output.Add("Activate");
+        }
+
+        protected override void OnDeactivate()
+        {
+            output.Add("Deactivate");
+        }
+
+        protected override void OnDispose()
+        {
+            output.Add("Dispose");
+        }
+
+        public void CloseDialog() => Close();
+    }
+
+    private class DialogLifecycleView(DialogLifecycle viewModel) : IView<DialogLifecycle>
+    {
+        public DialogLifecycle ViewModel => viewModel;
     }
 
     #endregion
