@@ -55,11 +55,14 @@ public static class IViewCollectionExtensions
     /// <param name="assemblies">The assemblies to scan.</param>
     public static void Scan(
         this IViewCollection viewCollection,
-        params Assembly[] assemblies
+        params IEnumerable<Assembly?> assemblies
     )
     {
         foreach (var assembly in assemblies)
         {
+            if (assembly is null)
+                continue;
+
             foreach (var definedType in assembly.DefinedTypes)
             {
                 if (definedType.IsAbstract || definedType.IsInterface)
