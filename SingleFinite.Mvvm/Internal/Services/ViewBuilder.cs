@@ -58,6 +58,8 @@ internal sealed class ViewBuilder(
             );
         }
 
+        // Dispose of scope when view model is disposed.
+        //
         viewModel.Disposed.Register(
             callback: registration =>
             {

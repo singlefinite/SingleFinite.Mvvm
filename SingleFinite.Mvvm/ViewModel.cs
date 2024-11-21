@@ -26,7 +26,10 @@ namespace SingleFinite.Mvvm;
 /// each view model getting it's own dependency injection scope.  When the view 
 /// model is disposed the dependency injection scope will be disposed.
 /// </summary>
-public abstract class ViewModel : Observable, IViewModel
+public abstract class ViewModel :
+    Observable,
+    IViewModel,
+    ILifecycle
 {
     #region Finalizers
 
@@ -69,7 +72,7 @@ public abstract class ViewModel : Observable, IViewModel
     #region Methods
 
     /// <inheritdoc/>
-    void IViewModel.Initialize()
+    void ILifecycle.Initialize()
     {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
         if (IsInitialized) return;
@@ -80,7 +83,7 @@ public abstract class ViewModel : Observable, IViewModel
     }
 
     /// <inheritdoc/>
-    void IViewModel.Activate()
+    void ILifecycle.Activate()
     {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
         if (IsActive) return;
@@ -92,7 +95,7 @@ public abstract class ViewModel : Observable, IViewModel
     }
 
     /// <inheritdoc/>
-    void IViewModel.Deactivate()
+    void ILifecycle.Deactivate()
     {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
         if (!IsActive) return;

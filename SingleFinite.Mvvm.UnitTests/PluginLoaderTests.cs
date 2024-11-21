@@ -20,6 +20,7 @@
 // SOFTWARE.
 
 using Microsoft.Extensions.DependencyInjection;
+using SingleFinite.Mvvm.Internal;
 using SingleFinite.Mvvm.Internal.Services;
 
 namespace SingleFinite.Mvvm.UnitTests;

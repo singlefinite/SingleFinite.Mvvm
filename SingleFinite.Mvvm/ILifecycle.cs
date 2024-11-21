@@ -22,18 +22,31 @@
 namespace SingleFinite.Mvvm;
 
 /// <summary>
-/// Interface for a view model.
+/// An object that can be moved to different states of a lifecycle.
 /// </summary>
-public interface IViewModel : ILifecycleObservable, IDisposable
+public interface ILifecycle : IDisposable
 {
-}
+    /// <summary>
+    /// Called immediately after this object is created.
+    /// </summary>
+    /// <exception cref="ObjectDisposedException">
+    /// Thrown if this object has been disposed.
+    /// </exception>
+    void Initialize();
 
-/// <summary>
-/// Interface for a view model that accepts context.
-/// </summary>
-/// <typeparam name="TContext">
-/// The type of context that must be provided to the view model.
-/// </typeparam>
-public interface IViewModel<TContext> : IViewModel
-{
+    /// <summary>
+    /// Called after this object has been made active.
+    /// </summary>
+    /// <exception cref="ObjectDisposedException">
+    /// Thrown if this object has been disposed.
+    /// </exception>
+    void Activate();
+
+    /// <summary>
+    /// Called after this object has been made deactive.
+    /// <exception cref="ObjectDisposedException">
+    /// Thrown if this object has been disposed.
+    /// </exception>
+    /// </summary>
+    void Deactivate();
 }
