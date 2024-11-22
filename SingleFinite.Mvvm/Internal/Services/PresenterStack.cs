@@ -51,7 +51,7 @@ internal sealed class PresenterStack(IViewBuilder viewBuilder) :
     public IView? Current { get; private set; }
 
     /// <inheritdoc/>
-    public IView[] Stack { get; private set; } = [];
+    public IViewModel[] Stack { get; private set; } = [];
 
     #endregion
 
@@ -67,7 +67,7 @@ internal sealed class PresenterStack(IViewBuilder viewBuilder) :
         var isCurrentChanged = newCurrent != Current;
 
         Current = newCurrent;
-        Stack = [.. _stack];
+        Stack = _stack.Select(view => view.ViewModel).ToArray();
 
         if (isCurrentChanged)
         {
@@ -77,15 +77,17 @@ internal sealed class PresenterStack(IViewBuilder viewBuilder) :
     }
 
     /// <summary>
-    /// Get the number of views that should be popped off of the stack so that 
-    /// the desired view is left on top.
+    /// Get the number of view models that should be popped off of the stack so
+    /// that the desired view model is left on top.
     /// </summary>
-    /// <param name="predicate">The function used to identify a view.</param>
+    /// <param name="predicate">
+    /// The function used to identify a view model.
+    /// </param>
     /// <param name="fromTop">
     /// When true, iterate from the top of the stack to the bottom when 
-    /// searching for a view.
+    /// searching for the view model.
     /// When false, iterate from the bottom of the stack to the top when 
-    /// searching for a view.
+    /// searching for the view mdoel.
     /// </param>
     /// <param name="inclusive">
     /// If true the pop count should remove the identified view from the stack 
@@ -93,16 +95,17 @@ internal sealed class PresenterStack(IViewBuilder viewBuilder) :
     /// If false the pop count should leave the identified view on the stack but
     /// remove everything above it.
     /// </param>
-    /// <returns>The number of views to pop off the stack in order to leave the 
-    /// desired view on top.</returns>
+    /// <returns>The number of view models to pop off the stack in order to
+    /// leave the desired view model on top.
+    /// </returns>
     private int FindPopCount(
-        Func<IView, bool> predicate,
+        Func<IViewModel, bool> predicate,
         bool fromTop,
         bool inclusive
     )
     {
         var query = _stack
-            .Select((view, index) => predicate(view) ? index : -1)
+            .Select((view, index) => predicate(view.ViewModel) ? index : -1)
             .Where(index => index != -1);
 
         var index = fromTop ?
@@ -116,13 +119,12 @@ internal sealed class PresenterStack(IViewBuilder viewBuilder) :
     }
 
     /// <summary>
-    /// Remove views from the stack based on the given options.
+    /// Remove view models from the stack based on the given options.
     /// </summary>
     /// <param name="popOptions">The push options to process.</param>
     /// <param name="alwaysDeactivateTop">
-    /// When true the top view in the stack will be deactivated even if the 
-    /// stack is not changed
-    /// by this method.
+    /// When true the top view model in the stack will be deactivated even if
+    /// the stack is not changed by this method.
     /// </param>
     /// <returns>true if the stack was modified, false if it wasn't.</returns>
     private bool PopTo(
@@ -165,7 +167,7 @@ internal sealed class PresenterStack(IViewBuilder viewBuilder) :
     }
 
     /// <inheritdoc/>
-    public IView Push(
+    public IViewModel Push(
         IViewModelDescriptor viewModelDescriptor,
         PopOptions? popOptions = null
     )
@@ -182,29 +184,29 @@ internal sealed class PresenterStack(IViewBuilder viewBuilder) :
 
         UpdateCurrent();
 
-        return view;
+        return view.ViewModel;
     }
 
     /// <inheritdoc/>
-    public IView<TViewModel> Push<TViewModel>(PopOptions? popOptions = null)
+    public TViewModel Push<TViewModel>(PopOptions? popOptions = null)
         where TViewModel : IViewModel =>
-        (IView<TViewModel>)Push(
+        (TViewModel)Push(
             new ViewModelDescriptor<TViewModel>(), popOptions
         );
 
     /// <inheritdoc/>
-    public IView<TViewModel> Push<TViewModel, TViewModelContext>(
+    public TViewModel Push<TViewModel, TViewModelContext>(
         TViewModelContext context,
         PopOptions? popOptions = null
     )
         where TViewModel : IViewModel<TViewModelContext> =>
-        (IView<TViewModel>)Push(
+        (TViewModel)Push(
             new ViewModelDescriptor<TViewModel, TViewModelContext>(context),
             popOptions
         );
 
     /// <inheritdoc/>
-    public IView[] PushAll(
+    public IViewModel[] PushAll(
         IEnumerable<IViewModelDescriptor> viewModelDescriptors,
         PopOptions? popOptions = null
     )
@@ -228,7 +230,7 @@ internal sealed class PresenterStack(IViewBuilder viewBuilder) :
 
         UpdateCurrent();
 
-        return [.. viewList];
+        return viewList.Select(view => view.ViewModel).ToArray();
     }
 
     /// <inheritdoc/>
@@ -269,7 +271,7 @@ internal sealed class PresenterStack(IViewBuilder viewBuilder) :
 
     /// <inheritdoc/>
     public bool PopTo(
-        Func<IView, bool> predicate,
+        Func<IViewModel, bool> predicate,
         bool fromTop = true,
         bool inclusive = false
     )

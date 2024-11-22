@@ -29,38 +29,41 @@ namespace SingleFinite.Mvvm.Services;
 public interface IPresenterFrame : IPresenter
 {
     /// <summary>
-    /// Create a view and put it on the frame.  If there is already a view on 
-    /// the frame it will be removed before
-    /// the new view is added.
+    /// Create a view model and put it on the frame.  If there is already a view
+    /// model on the frame it will be removed before the new view model is
+    /// added.
     /// </summary>
-    /// <param name="viewModelDescriptor">Describes the view to build.</param>
-    /// <returns>The newly created view.</returns>
+    /// <param name="viewModelDescriptor">
+    /// Describes the view model to build.
+    /// </param>
+    /// <returns>The newly created view model.</returns>
     /// <exception cref="ObjectDisposedException">
     /// Thrown if this presenter has been disposed.
     /// </exception>
-    IView Set(IViewModelDescriptor viewModelDescriptor);
+    IViewModel Set(IViewModelDescriptor viewModelDescriptor);
 
     /// <summary>
-    /// Create a view and put it on the frame.  If there is already a view on 
-    /// the frame it will be removed before
-    /// the new view is added.
+    /// Create a view model and put it on the frame.  If there is already a view
+    /// model on the frame it will be removed before the new view model is
+    /// added.
     /// </summary>
     /// <typeparam name="TViewModel">
-    /// The type of view model to create a view for.
+    /// The type of view model to build.
     /// </typeparam>
-    /// <returns>The newly created view.</returns>
+    /// <returns>The newly created view model.</returns>
     /// <exception cref="ObjectDisposedException">
     /// Thrown if this presenter has been disposed.
     /// </exception>
-    IView<TViewModel> Set<TViewModel>()
+    TViewModel Set<TViewModel>()
         where TViewModel : IViewModel;
 
     /// <summary>
-    /// Create a view and put it on the frame.  If there is already a view on 
-    /// the frame it will be removed before the new view is added.
+    /// Create a view model and put it on the frame.  If there is already a view
+    /// model on the frame it will be removed before the new view model is
+    /// added.
     /// </summary>
     /// <typeparam name="TViewModel">
-    /// The type of view model to create a view for.
+    /// The type of view model to build.
     /// </typeparam>
     /// <typeparam name="TViewModelContext">
     /// The type of context to be provided to the view model.
@@ -68,15 +71,15 @@ public interface IPresenterFrame : IPresenter
     /// <param name="context">
     /// The context that will be provided to the view model.
     /// </param>
-    /// <returns>The newly created view.</returns>
+    /// <returns>The newly created view model.</returns>
     /// <exception cref="ObjectDisposedException">
     /// Thrown if this presenter has been disposed.
     /// </exception>
-    IView<TViewModel> Set<TViewModel, TViewModelContext>(TViewModelContext context)
+    TViewModel Set<TViewModel, TViewModelContext>(TViewModelContext context)
         where TViewModel : IViewModel<TViewModelContext>;
 
     /// <summary>
-    /// Remove the current view if there is one.
+    /// Remove the current view model if there is one.
     /// </summary>
     void Clear();
 }

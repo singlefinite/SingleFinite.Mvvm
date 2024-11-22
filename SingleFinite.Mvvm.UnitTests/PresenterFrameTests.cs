@@ -19,10 +19,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using Microsoft.Extensions.DependencyInjection;
 using SingleFinite.Mvvm.Internal.Services;
 using SingleFinite.Mvvm.Services;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.VisualStudio.TestPlatform.Utilities;
 
 namespace SingleFinite.Mvvm.UnitTests;
 
@@ -99,9 +98,9 @@ public class PresenterFrameTests
         using var context = new TestContext();
         var presenterFrame = (PresenterFrame)context.ServiceProvider.GetRequiredService<IPresenterFrame>();
         var viewModelTestContext = new ViewModelTestContext([]);
-        var view = presenterFrame.Set<TestViewModel1, ViewModelTestContext>(viewModelTestContext);
+        var viewModel = presenterFrame.Set<TestViewModel1, ViewModelTestContext>(viewModelTestContext);
 
-        Assert.IsNotNull(view);
+        Assert.IsNotNull(viewModel);
     }
 
     [TestMethod]

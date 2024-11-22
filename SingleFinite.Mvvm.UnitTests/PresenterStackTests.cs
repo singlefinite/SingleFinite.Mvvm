@@ -19,10 +19,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using Microsoft.Extensions.DependencyInjection;
 using SingleFinite.Mvvm.Internal.Services;
 using SingleFinite.Mvvm.Services;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.VisualStudio.TestPlatform.Utilities;
 
 namespace SingleFinite.Mvvm.UnitTests;
 
@@ -113,7 +112,7 @@ public class PresenterStackTests
 
         presenterStack.PushAll([viewModelDescriptor1, viewModelDescriptor2, viewModelDescriptor3, viewModelDescriptor1]);
         var result1 = presenterStack.PopTo(
-            predicate: view => view.ViewModel is TestViewModel1,
+            predicate: viewModel => viewModel is TestViewModel1,
             fromTop: false,
             inclusive: true
         );
@@ -122,15 +121,15 @@ public class PresenterStackTests
 
         presenterStack.PushAll([viewModelDescriptor1, viewModelDescriptor2, viewModelDescriptor3, viewModelDescriptor1]);
         var result2 = presenterStack.PopTo(
-            predicate: view => view.ViewModel is TestViewModel1,
+            predicate: viewModel => viewModel is TestViewModel1,
             fromTop: true,
             inclusive: true
         );
         Assert.AreEqual(true, result1);
         Assert.AreEqual(3, presenterStack.Stack.Length);
-        Assert.AreEqual(presenterStack.Stack[0].ViewModel.GetType(), typeof(TestViewModel3));
-        Assert.AreEqual(presenterStack.Stack[1].ViewModel.GetType(), typeof(TestViewModel2));
-        Assert.AreEqual(presenterStack.Stack[2].ViewModel.GetType(), typeof(TestViewModel1));
+        Assert.AreEqual(presenterStack.Stack[0].GetType(), typeof(TestViewModel3));
+        Assert.AreEqual(presenterStack.Stack[1].GetType(), typeof(TestViewModel2));
+        Assert.AreEqual(presenterStack.Stack[2].GetType(), typeof(TestViewModel1));
     }
 
     [TestMethod]
@@ -175,9 +174,9 @@ public class PresenterStackTests
         );
 
         Assert.AreEqual(3, presenterStack.Stack.Length);
-        Assert.IsInstanceOfType<TestViewModel3>(presenterStack.Stack[0].ViewModel);
-        Assert.IsInstanceOfType<TestViewModel2>(presenterStack.Stack[1].ViewModel);
-        Assert.IsInstanceOfType<TestViewModel1>(presenterStack.Stack[2].ViewModel);
+        Assert.IsInstanceOfType<TestViewModel3>(presenterStack.Stack[0]);
+        Assert.IsInstanceOfType<TestViewModel2>(presenterStack.Stack[1]);
+        Assert.IsInstanceOfType<TestViewModel1>(presenterStack.Stack[2]);
     }
 
     [TestMethod]

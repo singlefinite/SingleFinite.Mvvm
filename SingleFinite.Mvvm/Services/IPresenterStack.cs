@@ -29,42 +29,46 @@ namespace SingleFinite.Mvvm.Services;
 public interface IPresenterStack : IPresenter
 {
     /// <summary>
-    /// The current views in the stack.
+    /// The current view models in the stack.
     /// The top of the stack is the view at index 0.
     /// </summary>
-    IView[] Stack { get; }
+    IViewModel[] Stack { get; }
 
     /// <summary>
-    /// Create a view and push it onto the top of the stack.
+    /// Create a view model and push it onto the top of the stack.
     /// </summary>
-    /// <param name="viewModelDescriptor">Describes the view to build.</param>
-    /// <param name="popOptions">
-    /// Options for popping views off the stack before pushing the new views on.
+    /// <param name="viewModelDescriptor">
+    /// Describes the view model to build.
     /// </param>
-    /// <returns>The newly created view.</returns>
-    IView Push(
+    /// <param name="popOptions">
+    /// Options for popping view models off the stack before pushing the new
+    /// view model on.
+    /// </param>
+    /// <returns>The newly created view model.</returns>
+    IViewModel Push(
         IViewModelDescriptor viewModelDescriptor,
         PopOptions? popOptions = null
     );
 
     /// <summary>
-    /// Create a view and push it onto the top of the stack.
+    /// Create a view model and push it onto the top of the stack.
     /// </summary>
     /// <typeparam name="TViewModel">
-    /// The type of view model to create a view for.
+    /// The type of view model to build.
     /// </typeparam>
     /// <param name="popOptions">
-    /// Options for popping views off the stack before pushing the new views on.
+    /// Options for popping view models off the stack before pushing the new
+    /// view model on.
     /// </param>
-    /// <returns>The newly created view.</returns>
-    IView<TViewModel> Push<TViewModel>(PopOptions? popOptions = null)
+    /// <returns>The newly created view model.</returns>
+    TViewModel Push<TViewModel>(PopOptions? popOptions = null)
         where TViewModel : IViewModel;
 
     /// <summary>
-    /// Create a view and push it onto the top of the stack.
+    /// Create a view model and push it onto the top of the stack.
     /// </summary>
     /// <typeparam name="TViewModel">
-    /// The type of view model to create a view for.
+    /// The type of view model to build.
     /// </typeparam>
     /// <typeparam name="TViewModelContext">
     /// The type of context to be provided to the view model.
@@ -73,56 +77,58 @@ public interface IPresenterStack : IPresenter
     /// The context that will be provided to the view model.
     /// </param>
     /// <param name="popOptions">
-    /// Options for popping views off the stack before pushing the new views on.
+    /// Options for popping view models off the stack before pushing the new
+    /// view model on.
     /// </param>
-    /// <returns>The newly created view.</returns>
-    IView<TViewModel> Push<TViewModel, TViewModelContext>(
+    /// <returns>The newly created view model.</returns>
+    TViewModel Push<TViewModel, TViewModelContext>(
         TViewModelContext context,
         PopOptions? popOptions = null
     )
         where TViewModel : IViewModel<TViewModelContext>;
 
     /// <summary>
-    /// Create views and push them onto the top of the stack.
+    /// Create view models and push them onto the top of the stack.
     /// </summary>
     /// <param name="viewModelDescriptors">
-    /// The description of views to push onto the top of the stack.
+    /// The description of view models to build.
     /// </param>
     /// <param name="popOptions">
-    /// Options for popping views off the stack before pushing the new views on.
+    /// Options for popping view models off the stack before pushing the new view
+    /// models on.
     /// </param>
-    /// <returns>The newly created views.</returns>
-    IView[] PushAll(
+    /// <returns>The newly created view models.</returns>
+    IViewModel[] PushAll(
         IEnumerable<IViewModelDescriptor> viewModelDescriptors,
         PopOptions? popOptions = null
     );
 
     /// <summary>
-    /// Remove the top most view from the stack.
+    /// Remove the top most view model from the stack.
     /// If the stack is empty this method will have no effect.
     /// </summary>
-    /// <returns>true if a view was removed from the stack.</returns>
+    /// <returns>true if a view model was removed from the stack.</returns>
     bool Pop();
 
     /// <summary>
-    /// Remove the top most views until the view with the given view model type 
-    /// is found.
-    /// If a matching view model isn't found the stack will remain unchanged.
+    /// Remove the top most view models until the view model with the given type 
+    /// is found.  If a matching view model isn't found the stack will remain
+    /// unchanged.
     /// </summary>
     /// <typeparam name="TViewModel">
-    /// The type of view model to look for in the views.
+    /// The type of view model to look for in the stack.
     /// </typeparam>
     /// <param name="fromTop">
     /// When true, iterate from the top of the stack to the bottom when 
-    /// searching for the view.
+    /// searching for the view model.
     /// When false, iterate from the bottom of the stack to the top when 
-    /// searching for the view.
+    /// searching for the view mdoel.
     /// </param>
     /// <param name="inclusive">
-    /// If true all views above the matching view and the matching view itself 
-    /// will be removed from the stack.  If false only the views above the 
-    /// matching view will be removed and the matching view will remain on the 
-    /// stack.
+    /// If true all view models above the matching view model and the matching
+    /// view model itself will be removed from the stack.  If false only the
+    /// view models above the matching view model will be removed and the
+    /// matching view model will remain on the stack.
     /// </param>
     /// <returns>true if a matching view was found.</returns>
     bool PopTo<TViewModel>(
@@ -131,32 +137,32 @@ public interface IPresenterStack : IPresenter
     ) where TViewModel : IViewModel;
 
     /// <summary>
-    /// Pop to the first view that satisfies the match condition.
-    /// If a matching view isn't found the stack will remain unchanged.
+    /// Pop to the first view model that satisfies the match condition.
+    /// If a matching view model isn't found the stack will remain unchanged.
     /// </summary>
     /// <param name="predicate">
-    /// The function used to determine if a view is a match.
+    /// The function used to determine if a view model is a match.
     /// </param>
     /// <param name="fromTop">
     /// When true, iterate from the top of the stack to the bottom when 
-    /// searching for the view.
+    /// searching for the view model.
     /// When false, iterate from the bottom of the stack to the top when 
-    /// searching for the view.
+    /// searching for the view mdoel.
     /// </param>
     /// <param name="inclusive">
-    /// Indicates if the matching view should also be popped.
+    /// Indicates if the matching view model should also be popped.
     /// </param>
     /// <returns>
     /// true if a match was found and the stack was changed, otherwise false.
     /// </returns>
     bool PopTo(
-        Func<IView, bool> predicate,
+        Func<IViewModel, bool> predicate,
         bool fromTop = true,
         bool inclusive = false
     );
 
     /// <summary>
-    /// Remove all views from the stack.
+    /// Remove all view models from the stack.
     /// </summary>
     void PopAll();
 }

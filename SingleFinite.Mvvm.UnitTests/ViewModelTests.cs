@@ -210,7 +210,7 @@ public class ViewModelTests
 
         public NestingViewModel CreateChild(string name)
         {
-            var child = (NestingViewModel)presenterStack.Push<NestingViewModel>().ViewModel;
+            var child = presenterStack.Push<NestingViewModel>();
             child._name = name;
             return child;
         }

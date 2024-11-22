@@ -36,8 +36,7 @@ public class PluginTests
     {
         using var context = new TestContext();
         var presenter = context.ServiceProvider.GetRequiredService<IPresenterFrame>();
-        var view = presenter.Set<ExamplePluginHost>();
-        var viewModel = (ExamplePluginHost)view.ViewModel;
+        var viewModel = presenter.Set<ExamplePluginHost>();
         var lines = viewModel.Lines;
 
         Assert.AreEqual(6, lines.Count);

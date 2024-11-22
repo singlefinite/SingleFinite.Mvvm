@@ -22,44 +22,44 @@
 namespace SingleFinite.Mvvm.Services;
 
 /// <summary>
-/// Options for popping views off of a <see cref="IPresenterStack"/>.
+/// Options for popping view models off of a <see cref="IPresenterStack"/>.
 /// </summary>
 public abstract record PopOptions
 {
     #region Types
 
     /// <summary>
-    /// Used to pop all views off of the stack.
+    /// Used to pop all view models off of the stack.
     /// </summary>
     internal record PopOptionsRemoveAll() : PopOptions;
 
     /// <summary>
-    /// Used to pop a specific number of views off of the stack.
+    /// Used to pop a specific number of view models off of the stack.
     /// </summary>
-    /// <param name="Count">The number of views to pop.</param>
+    /// <param name="Count">The number of view models to pop.</param>
     internal record PopOptionsCount(int Count) : PopOptions;
 
     /// <summary>
-    /// Used to find a specific view and pop all views on top of that view from 
-    /// the stack.
+    /// Used to find a specific view model and pop all view models on top of
+    /// that view model from the stack.
     /// </summary>
     /// <param name="Predicate">
-    /// The function used to identify the desired view.
+    /// The function used to identify the desired view model.
     /// </param>
     /// <param name="FromTop">
     /// When true, iterate from the top of the stack to the bottom when 
-    /// searching for the view.
+    /// searching for the view model.
     /// When false, iterate from the bottom of the stack to the top when 
-    /// searching for the view.
+    /// searching for the view mdoel.
     /// </param>
     /// <param name="Inclusive">
-    /// If true all views above the matching view and the matching view itself 
-    /// will be removed from the stack.  If false only the views above the 
-    /// matching view will be removed and the matching view will remain on the 
-    /// stack.
+    /// If true the pop count should remove the identified view from the stack 
+    /// and everything above it.
+    /// If false the pop count should leave the identified view on the stack but
+    /// remove everything above it.
     /// </param>
     internal record PopOptionsQuery(
-        Func<IView, bool> Predicate,
+        Func<IViewModel, bool> Predicate,
         bool FromTop,
         bool Inclusive
     ) : PopOptions;
@@ -81,74 +81,74 @@ public abstract record PopOptions
     #region Methods
 
     /// <summary>
-    /// Remove all views from the stack.
+    /// Remove all view models from the stack.
     /// </summary>
-    /// <returns>The PopOptions for removing views from the stack.</returns>
+    /// <returns>PopOptions for removing view models from the stack.</returns>
     public static PopOptions PopAll() => new PopOptionsRemoveAll();
 
     /// <summary>
-    /// Pop a specific number of views from the stack.
+    /// Pop a specific number of view models from the stack.
     /// </summary>
     /// <param name="count">
-    /// The number of views to pop from the stack.
-    /// If the count is larger than the current count of the stack all views 
-    /// will be removed from the stack.
+    /// The number of view models to pop from the stack.
+    /// If the count is larger than the current count of the stack all view 
+    /// models will be removed from the stack.
     /// </param>
-    /// <returns>The PopOptions for removing views from the stack.</returns>
+    /// <returns>PopOptions for removing view models from the stack.</returns>
     public static PopOptions PopCount(int count) => new PopOptionsCount(count);
 
     /// <summary>
-    /// Remove the top most views until the first view with the given view model
-    /// type is found.
-    /// If a matching view model isn't found the stack will remain unchanged.
+    /// Remove the top most view models until the first view model with the
+    /// given type is found.  If a matching view model isn't found the stack
+    /// will remain unchanged.
     /// </summary>
     /// <typeparam name="TViewModel">
-    /// The type of view model to look for in the views.
+    /// The type of view model to look for.
     /// </typeparam>
     /// <param name="fromTop">
     /// When true, iterate from the top of the stack to the bottom when 
-    /// searching for the view.
+    /// searching for a view.
     /// When false, iterate from the bottom of the stack to the top when 
-    /// searching for the view.
+    /// searching for a view.
     /// </param>
     /// <param name="inclusive">
-    /// If true all views above the matching view and the matching view itself 
-    /// will be removed from the stack.  If false only the views above the 
-    /// matching view will be removed and the matching view will remain on the 
-    /// stack.
+    /// If true the pop count should remove the identified view from the stack 
+    /// and everything above it.
+    /// If false the pop count should leave the identified view on the stack but
+    /// remove everything above it.
     /// </param>
-    /// <returns>The PopOptions for removing views from the stack.</returns>
+    /// <returns>PopOptions for removing view models from the stack.</returns>
     public static PopOptions PopTo<TViewModel>(
         bool fromTop = true,
         bool inclusive = false
     ) => new PopOptionsQuery(
-        Predicate: view => view.ViewModel.GetType() == typeof(TViewModel),
+        Predicate: viewModel => viewModel.GetType() == typeof(TViewModel),
         FromTop: fromTop,
         Inclusive: inclusive
     );
 
     /// <summary>
-    /// Pop to the first view that satisfies the match condition.
-    /// If a matching view isn't found the stack will remain unchanged.
+    /// Pop to the first view model that satisfies the match condition.
+    /// If a matching view model isn't found the stack will remain unchanged.
     /// </summary>
     /// <param name="predicate">
-    /// The function used to identify the desired view.
+    /// The function used to identify the desired view model.
     /// </param>
     /// <param name="fromTop">
     /// When true, iterate from the top of the stack to the bottom when 
-    /// searching for the view.
+    /// searching for a view.
     /// When false, iterate from the bottom of the stack to the top when 
-    /// searching for the view.
+    /// searching for a view.
     /// </param>
     /// <param name="inclusive">
-    /// If true all views above the matching view and the matching view itself 
-    /// will be removed from the stack.  If false only the views above the 
-    /// matching view will be removed and the matching view will remain on the 
-    /// stack.
+    /// If true the pop count should remove the identified view from the stack 
+    /// and everything above it.
+    /// If false the pop count should leave the identified view on the stack but
+    /// remove everything above it.
     /// </param>
-    /// <returns>The PopOptions for removing views from the stack.</returns>
+    /// <returns>PopOptions for removing view models from the stack.</returns>
     public static PopOptions PopTo(
-        Func<IView, bool> predicate,
+        Func<IViewModel, bool> predicate,
         bool fromTop = true,
         bool inclusive = false
     ) => new PopOptionsQuery(

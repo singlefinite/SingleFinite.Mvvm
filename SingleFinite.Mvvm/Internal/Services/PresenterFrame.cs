@@ -50,7 +50,7 @@ internal sealed class PresenterFrame(IViewBuilder viewBuilder) :
     #region Methods
 
     /// <inheritdoc/>
-    public IView Set(IViewModelDescriptor viewModelDescriptor)
+    public IViewModel Set(IViewModelDescriptor viewModelDescriptor)
     {
         ObjectDisposedException.ThrowIf(_isDisposed, this);
 
@@ -65,19 +65,19 @@ internal sealed class PresenterFrame(IViewBuilder viewBuilder) :
         if (isChanged)
             CurrentChanged.RaiseEvent(view);
 
-        return view;
+        return view.ViewModel;
     }
 
     /// <inheritdoc/>
-    public IView<TViewModel> Set<TViewModel>()
+    public TViewModel Set<TViewModel>()
         where TViewModel : IViewModel =>
-        (IView<TViewModel>)Set(new ViewModelDescriptor<TViewModel>());
+        (TViewModel)Set(new ViewModelDescriptor<TViewModel>());
 
     /// <inheritdoc/>
-    public IView<TViewModel> Set<TViewModel, TViewModelContext>(
+    public TViewModel Set<TViewModel, TViewModelContext>(
         TViewModelContext context
     ) where TViewModel : IViewModel<TViewModelContext> =>
-        (IView<TViewModel>)Set(
+        (TViewModel)Set(
             new ViewModelDescriptor<TViewModel, TViewModelContext>(context)
         );
 
