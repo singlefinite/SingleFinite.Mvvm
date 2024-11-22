@@ -26,42 +26,32 @@ namespace SingleFinite.Mvvm.Internal.Services;
 /// <summary>
 /// Implementation of <see cref="IPresenterDialog"/>.
 /// </summary>
-internal class PresenterDialog : IPresenterDialog
+/// <param name="viewBuilder">Used to build views.</param>
+internal class PresenterDialog(
+    IViewBuilder viewBuilder
+) :
+    IPresenterDialog,
+    IDisposable
 {
     #region Fields
 
     /// <summary>
-    /// Transaction used to keep track of open windows.
+    /// Set to true when this object has been disposed.
     /// </summary>
-    private readonly Transaction _transaction = new();
+    private bool _isDisposed;
 
     /// <summary>
-    /// Used to build views displayed in dialogs.
+    /// Holds the stack of dialog views with the view at index 0 considered
+    /// to be on top of the stack.
     /// </summary>
-    private readonly IViewBuilder _viewBuilder;
-
-    #endregion
-
-    #region Constructors
-
-    /// <summary>
-    /// Constructor.
-    /// </summary>
-    /// <param name="viewBuilder">Used to build views.</param>
-    public PresenterDialog(
-        IViewBuilder viewBuilder
-    )
-    {
-        _viewBuilder = viewBuilder;
-        _transaction.IsOpenChanged.Register(isOpen => IsDialogOpen = isOpen);
-    }
+    private readonly List<IView> _dialogStack = [];
 
     #endregion
 
     #region Properties
 
     /// <inheritdoc/>
-    public bool IsDialogOpen
+    public IView? Current
     {
         get;
         private set
@@ -70,101 +60,134 @@ internal class PresenterDialog : IPresenterDialog
                 return;
 
             field = value;
-            _isDialogOpenChangedSource.RaiseEvent(field);
+            _currentChangedSource.RaiseEvent(value);
         }
     }
+
+    /// <inheritdoc/>
+    public IViewModel[] Dialogs { get; private set; } = [];
 
     #endregion
 
     #region Methods
 
-    /// <inheritdoc/>
-    public IDialogContext Show(IViewModelDescriptor viewModelDescriptor) =>
-        Show<IDialogContext>(
-            createContext: () => new DialogContext(
-                view: _viewBuilder.Build(viewModelDescriptor),
-                isModal: false
-            )
-        );
+    /// <summary>
+    /// Update the Dialogs list from the current list dialog views.
+    /// </summary>
+    private void UpdateDialogs() =>
+        Dialogs = _dialogStack.Select(view => view.ViewModel).ToArray();
 
     /// <inheritdoc/>
-    public IDialogContext<TDialogViewModel> Show<TDialogViewModel>()
-        where TDialogViewModel : IDialogViewModel =>
-        Show<IDialogContext<TDialogViewModel>>(
-            createContext: () => new DialogContext<TDialogViewModel>(
-                view: _viewBuilder.Build<TDialogViewModel>(),
-                isModal: false
-            )
-        );
+    public IViewModel Show(IViewModelDescriptor viewModelDescriptor)
+    {
+        ObjectDisposedException.ThrowIf(_isDisposed, this);
+
+        if (_dialogStack.Count > 0)
+            _dialogStack[0].ViewModel.Deactivate();
+
+        var view = viewBuilder.Build(viewModelDescriptor);
+
+        _dialogStack.Insert(0, view);
+        UpdateDialogs();
+
+        view.ViewModel.Activate();
+        Current = view;
+        return view.ViewModel;
+    }
 
     /// <inheritdoc/>
-    public IDialogContext<TDialogViewModel> Show<TDialogViewModel, TDialogViewModelContext>(
-        TDialogViewModelContext context
+    public TViewModel Show<TViewModel>()
+        where TViewModel : IViewModel =>
+        (TViewModel)Show(new ViewModelDescriptor<TViewModel>());
+
+    /// <inheritdoc/>
+    public TViewModel Show<TViewModel, TViewModelContext>(TViewModelContext context)
+        where TViewModel : IViewModel<TViewModelContext> =>
+        (TViewModel)Show(new ViewModelDescriptor<TViewModel, TViewModelContext>(context));
+
+    /// <inheritdoc/>
+    public Task<IViewModel> ShowAsync(IViewModelDescriptor viewModelDescriptor)
+    {
+        var taskSource = new TaskCompletionSource<IViewModel>();
+        var viewModel = Show(viewModelDescriptor);
+        viewModel.Disposed.Register(
+            observer =>
+            {
+                observer.Dispose();
+                taskSource.TrySetResult(viewModel);
+            }
+        );
+        return taskSource.Task;
+    }
+
+    /// <inheritdoc/>
+    public async Task<TViewModel> ShowAsync<TViewModel>()
+        where TViewModel : IViewModel =>
+        (TViewModel)await ShowAsync(new ViewModelDescriptor<TViewModel>());
+
+    /// <inheritdoc/>
+    public async Task<TViewModel> ShowAsync<TViewModel, TViewModelContext>(
+        TViewModelContext context
     )
-        where TDialogViewModel : IDialogViewModel<TDialogViewModelContext> =>
-        Show<IDialogContext<TDialogViewModel>>(
-            createContext: () => new DialogContext<TDialogViewModel>(
-                view: _viewBuilder.Build<TDialogViewModel, TDialogViewModelContext>(context),
-                isModal: false
-            )
+        where TViewModel : IViewModel<TViewModelContext> =>
+        (TViewModel)await ShowAsync(
+            new ViewModelDescriptor<TViewModel, TViewModelContext>(context)
         );
 
     /// <inheritdoc/>
-    public IViewModel ShowModal(IViewModelDescriptor viewModelDescriptor) =>
-        Show<IDialogContext>(
-            createContext: () => new DialogContext(
-                view: _viewBuilder.Build(viewModelDescriptor),
-                isModal: true
-            )
-        ).View.ViewModel;
+    public void Close(IViewModel viewModel)
+    {
+        var index = _dialogStack.FindIndex(view => view.ViewModel == viewModel);
+        if (index == -1)
+            return;
+
+        if (index == 0)
+        {
+            // Remove view from top of stack and make the next dialog
+            // active.
+            //
+            viewModel.Deactivate();
+            viewModel.Dispose();
+
+            _dialogStack.RemoveAt(0);
+            UpdateDialogs();
+
+            var top = _dialogStack.FirstOrDefault();
+            top?.ViewModel?.Activate();
+            Current = top;
+        }
+        else
+        {
+            // Remove view from within the stack and leave Current unchanged.
+            //
+            viewModel.Dispose();
+
+            _dialogStack.RemoveAt(index);
+            UpdateDialogs();
+        }
+    }
 
     /// <inheritdoc/>
-    public TDialogViewModel ShowModal<TDialogViewModel>()
-        where TDialogViewModel : IDialogViewModel =>
-        Show<IDialogContext<TDialogViewModel>>(
-            createContext: () => new DialogContext<TDialogViewModel>(
-                view: _viewBuilder.Build<TDialogViewModel>(),
-                isModal: true
-            )
-        ).View.ViewModel;
-
-    /// <inheritdoc/>
-    public TDialogViewModel ShowModal<TDialogViewModel, TDialogViewModelContext>(
-        TDialogViewModelContext context
-    )
-        where TDialogViewModel : IDialogViewModel<TDialogViewModelContext> =>
-        Show<IDialogContext<TDialogViewModel>>(
-            createContext: () => new DialogContext<TDialogViewModel>(
-                view: _viewBuilder.Build<TDialogViewModel, TDialogViewModelContext>(context),
-                isModal: true
-            )
-        ).View.ViewModel;
+    public void Clear()
+    {
+        _dialogStack.FirstOrDefault()?.ViewModel?.Deactivate();
+        _dialogStack.ForEach(view => view.ViewModel.Dispose());
+        _dialogStack.Clear();
+        UpdateDialogs();
+        Current = null;
+    }
 
     /// <summary>
-    /// Show a dialog for a view.
+    /// Dispose of this object.
     /// </summary>
-    /// <typeparam name="TDialogContext">
-    /// The type of dialog context that will be returned.
-    /// </typeparam>
-    /// <param name="createContext">
-    /// Action that creates the dialog context.
-    /// </param>
-    /// <returns>The dialog context for the dialog being shown.</returns>
-    private TDialogContext Show<TDialogContext>(
-        Func<TDialogContext> createContext
-    )
-        where TDialogContext : IDialogContext
+    public void Dispose()
     {
-        var dialogContext = createContext();
+        if (_isDisposed)
+            return;
 
-        var token = _transaction.Start();
-        dialogContext.Closed.Register(token.Dispose);
+        Clear();
 
-        dialogContext.View.ViewModel.Activate();
-
-        _dialogOpenedSource.RaiseEvent(dialogContext);
-
-        return dialogContext;
+        _isDisposed = true;
     }
 
     #endregion
@@ -172,12 +195,8 @@ internal class PresenterDialog : IPresenterDialog
     #region Events
 
     /// <inheritdoc/>
-    public EventToken<bool> IsDialogOpenChanged => _isDialogOpenChangedSource.Token;
-    private readonly EventTokenSource<bool> _isDialogOpenChangedSource = new();
-
-    /// <inheritdoc/>
-    public EventToken<IDialogContext> DialogOpened => _dialogOpenedSource.Token;
-    private readonly EventTokenSource<IDialogContext> _dialogOpenedSource = new();
+    public EventToken<IView?> CurrentChanged => _currentChangedSource.Token;
+    private readonly EventTokenSource<IView?> _currentChangedSource = new();
 
     #endregion
 }

@@ -29,40 +29,6 @@ namespace SingleFinite.Mvvm.UnitTests;
 public class PresenterDialogTests
 {
     [TestMethod]
-    public void IsOpen_Is_True_While_Dialogs_Are_Not_Closed()
-    {
-        using var context = new TestContext();
-
-        var presenterDialog = new PresenterDialog(
-            context.ServiceProvider.GetRequiredService<IViewBuilder>()
-        );
-
-        Assert.IsFalse(presenterDialog.IsDialogOpen);
-
-        var dialog1Context = presenterDialog.Show<Dialog1>();
-
-        Assert.IsTrue(presenterDialog.IsDialogOpen);
-        Assert.IsFalse(dialog1Context.Task.IsCompleted);
-
-        var dialog2Context = presenterDialog.Show<Dialog2>();
-
-        Assert.IsTrue(presenterDialog.IsDialogOpen);
-        Assert.IsFalse(dialog2Context.Task.IsCompleted);
-
-        dialog1Context.Close();
-
-        Assert.IsTrue(presenterDialog.IsDialogOpen);
-        Assert.IsTrue(dialog1Context.Task.IsCompleted);
-        Assert.IsFalse(dialog2Context.Task.IsCompleted);
-
-        dialog2Context.Close();
-
-        Assert.IsFalse(presenterDialog.IsDialogOpen);
-        Assert.IsTrue(dialog1Context.Task.IsCompleted);
-        Assert.IsTrue(dialog2Context.Task.IsCompleted);
-    }
-
-    [TestMethod]
     public void Dialog_View_Model_Has_Expected_Lifecycle()
     {
         using var context = new TestContext();
@@ -73,23 +39,115 @@ public class PresenterDialogTests
 
         var output = new List<string>();
 
-        var dialogContext = presenterDialog.Show<DialogLifecycle, List<string>>(output);
+        var dialog1 = presenterDialog.Show<Dialog1Lifecycle, List<string>>(output);
+
+        Assert.AreEqual(presenterDialog.Current?.ViewModel, dialog1);
+        Assert.AreEqual(1, presenterDialog.Dialogs.Length);
+        Assert.AreEqual(dialog1, presenterDialog.Dialogs[0]);
 
         Assert.AreEqual(2, output.Count);
-        Assert.AreEqual("Initialize", output[0]);
-        Assert.AreEqual("Activate", output[1]);
-
+        Assert.AreEqual("1 Initialize", output[0]);
+        Assert.AreEqual("1 Activate", output[1]);
         output.Clear();
 
-        dialogContext.Close();
+        var dialog2 = presenterDialog.Show<Dialog2Lifecycle, List<string>>(output);
+
+        Assert.AreEqual(presenterDialog.Current?.ViewModel, dialog2);
+        Assert.AreEqual(2, presenterDialog.Dialogs.Length);
+        Assert.AreEqual(dialog2, presenterDialog.Dialogs[0]);
+        Assert.AreEqual(dialog1, presenterDialog.Dialogs[1]);
+
+        Assert.AreEqual(3, output.Count);
+        Assert.AreEqual("1 Deactivate", output[0]);
+        Assert.AreEqual("2 Initialize", output[1]);
+        Assert.AreEqual("2 Activate", output[2]);
+        output.Clear();
+
+        presenterDialog.Close(dialog2);
+
+        Assert.AreEqual(presenterDialog.Current?.ViewModel, dialog1);
+        Assert.AreEqual(1, presenterDialog.Dialogs.Length);
+        Assert.AreEqual(dialog1, presenterDialog.Dialogs[0]);
+
+        Assert.AreEqual(3, output.Count);
+        Assert.AreEqual("2 Deactivate", output[0]);
+        Assert.AreEqual("2 Dispose", output[1]);
+        Assert.AreEqual("1 Activate", output[2]);
+        output.Clear();
+
+        presenterDialog.Close(dialog1);
+
+        Assert.IsNull(presenterDialog.Current);
+        Assert.AreEqual(0, presenterDialog.Dialogs.Length);
 
         Assert.AreEqual(2, output.Count);
-        Assert.AreEqual("Deactivate", output[0]);
-        Assert.AreEqual("Dispose", output[1]);
+        Assert.AreEqual("1 Deactivate", output[0]);
+        Assert.AreEqual("1 Dispose", output[1]);
+        output.Clear();
     }
 
     [TestMethod]
-    public void Dialog_Can_Be_Closed_From_Within_View_Model()
+    public void Dialog_View_Model_Will_Dispose_All_When_Cleared()
+    {
+        using var context = new TestContext();
+
+        var presenterDialog = new PresenterDialog(
+            context.ServiceProvider.GetRequiredService<IViewBuilder>()
+        );
+
+        var dialog1 = presenterDialog.Show<Dialog1Lifecycle, List<string>>([]);
+        var dialog2 = presenterDialog.Show<Dialog1Lifecycle, List<string>>([]);
+        var dialog3 = presenterDialog.Show<Dialog1Lifecycle, List<string>>([]);
+
+        Assert.AreEqual(3, presenterDialog.Dialogs.Length);
+        Assert.IsNotNull(presenterDialog.Current);
+
+        Assert.IsFalse(dialog1.IsDisposed);
+        Assert.IsFalse(dialog2.IsDisposed);
+        Assert.IsFalse(dialog3.IsDisposed);
+
+        presenterDialog.Clear();
+
+        Assert.AreEqual(0, presenterDialog.Dialogs.Length);
+        Assert.IsNull(presenterDialog.Current);
+
+        Assert.IsTrue(dialog1.IsDisposed);
+        Assert.IsTrue(dialog2.IsDisposed);
+        Assert.IsTrue(dialog3.IsDisposed);
+    }
+
+    [TestMethod]
+    public void Dispose_Will_Clear()
+    {
+        using var context = new TestContext();
+
+        var presenterDialog = new PresenterDialog(
+            context.ServiceProvider.GetRequiredService<IViewBuilder>()
+        );
+
+        var dialog1 = presenterDialog.Show<Dialog1Lifecycle, List<string>>([]);
+        var dialog2 = presenterDialog.Show<Dialog1Lifecycle, List<string>>([]);
+        var dialog3 = presenterDialog.Show<Dialog1Lifecycle, List<string>>([]);
+
+        Assert.AreEqual(3, presenterDialog.Dialogs.Length);
+        Assert.IsNotNull(presenterDialog.Current);
+
+        Assert.IsFalse(dialog1.IsDisposed);
+        Assert.IsFalse(dialog2.IsDisposed);
+        Assert.IsFalse(dialog3.IsDisposed);
+
+        presenterDialog.Dispose();
+
+        Assert.AreEqual(0, presenterDialog.Dialogs.Length);
+        Assert.IsNull(presenterDialog.Current);
+
+        Assert.IsTrue(dialog1.IsDisposed);
+        Assert.IsTrue(dialog2.IsDisposed);
+        Assert.IsTrue(dialog3.IsDisposed);
+    }
+
+    [TestMethod]
+    public void Close_From_Middle_Of_Stack_Has_Expected_Lifecycle()
     {
         using var context = new TestContext();
 
@@ -99,71 +157,107 @@ public class PresenterDialogTests
 
         var output = new List<string>();
 
-        var dialogContext = presenterDialog.Show<DialogLifecycle, List<string>>(output);
-
-        Assert.AreEqual(2, output.Count);
-        Assert.AreEqual("Initialize", output[0]);
-        Assert.AreEqual("Activate", output[1]);
+        var dialog1 = presenterDialog.Show<Dialog1Lifecycle, List<string>>(output);
+        var dialog2 = presenterDialog.Show<Dialog2Lifecycle, List<string>>(output);
+        var dialog3 = presenterDialog.Show<Dialog3Lifecycle, List<string>>(output);
 
         output.Clear();
 
-        dialogContext.View.ViewModel.CloseDialog();
+        presenterDialog.Close(dialog2);
 
-        Assert.AreEqual(2, output.Count);
-        Assert.AreEqual("Deactivate", output[0]);
-        Assert.AreEqual("Dispose", output[1]);
+        Assert.AreEqual(presenterDialog.Current?.ViewModel, dialog3);
+        Assert.AreEqual(2, presenterDialog.Dialogs.Length);
+        Assert.AreEqual(dialog3, presenterDialog.Dialogs[0]);
+        Assert.AreEqual(dialog1, presenterDialog.Dialogs[1]);
+
+        Assert.AreEqual(1, output.Count);
+        Assert.AreEqual("2 Dispose", output[0]);
     }
 
     #region Types
 
-    private class Dialog1 : DialogViewModel
-    {
-        public void CloseDialog() => Close();
-    }
-
-    private class Dialog1View(Dialog1 dialog) : IView<Dialog1>
-    {
-        public Dialog1 ViewModel => dialog;
-    }
-
-    private class Dialog2 : DialogViewModel
-    {
-        public void CloseDialog() => Close();
-    }
-
-    private class Dialog2View(Dialog2 dialog) : IView<Dialog2>
-    {
-        public Dialog2 ViewModel => dialog;
-    }
-
-    private class DialogLifecycle(List<string> output) : DialogViewModel<List<string>>
+    private class Dialog1Lifecycle(List<string> output) : ViewModel<List<string>>
     {
         protected override void OnInitialize()
         {
-            output.Add("Initialize");
+            output.Add("1 Initialize");
         }
 
         protected override void OnActivate(CancellationToken cancellationToken)
         {
-            output.Add("Activate");
+            output.Add("1 Activate");
         }
 
         protected override void OnDeactivate()
         {
-            output.Add("Deactivate");
+            output.Add("1 Deactivate");
         }
 
         protected override void OnDispose()
         {
-            output.Add("Dispose");
+            output.Add("1 Dispose");
         }
-
-        public void CloseDialog() => Close();
     }
 
-    private class DialogLifecycleView(DialogLifecycle viewModel) : IView<DialogLifecycle>
+    private class Dialog1LifecycleView(Dialog1Lifecycle viewModel) : IView<Dialog1Lifecycle>
     {
-        public DialogLifecycle ViewModel => viewModel;
+        public Dialog1Lifecycle ViewModel => viewModel;
+    }
+
+    private class Dialog2Lifecycle(List<string> output) : ViewModel<List<string>>
+    {
+        protected override void OnInitialize()
+        {
+            output.Add("2 Initialize");
+        }
+
+        protected override void OnActivate(CancellationToken cancellationToken)
+        {
+            output.Add("2 Activate");
+        }
+
+        protected override void OnDeactivate()
+        {
+            output.Add("2 Deactivate");
+        }
+
+        protected override void OnDispose()
+        {
+            output.Add("2 Dispose");
+        }
+    }
+
+    private class DialogLifecycleView(Dialog2Lifecycle viewModel) : IView<Dialog2Lifecycle>
+    {
+        public Dialog2Lifecycle ViewModel => viewModel;
+    }
+
+    private class Dialog3Lifecycle(List<string> output) : ViewModel<List<string>>
+    {
+        protected override void OnInitialize()
+        {
+            output.Add("3 Initialize");
+        }
+
+        protected override void OnActivate(CancellationToken cancellationToken)
+        {
+            output.Add("3 Activate");
+        }
+
+        protected override void OnDeactivate()
+        {
+            output.Add("3 Deactivate");
+        }
+
+        protected override void OnDispose()
+        {
+            output.Add("3 Dispose");
+        }
+    }
+
+    private class Dialog3LifecycleView(Dialog3Lifecycle viewModel) : IView<Dialog3Lifecycle>
+    {
+        public Dialog3Lifecycle ViewModel => viewModel;
     }
 
     #endregion

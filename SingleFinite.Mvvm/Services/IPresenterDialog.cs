@@ -24,89 +24,93 @@ namespace SingleFinite.Mvvm.Services;
 /// <summary>
 /// Service used to display dialogs.
 /// </summary>
-public interface IPresenterDialog
+public interface IPresenterDialog : IPresenter
 {
     /// <summary>
-    /// If there are any open dialogs this property will be true.
+    /// All currently open dialogs in order from top to bottom with the top
+    /// most dialog at index 0.
     /// </summary>
-    bool IsDialogOpen { get; }
+    IViewModel[] Dialogs { get; }
 
     /// <summary>
-    /// Display a dialog view.
+    /// Display a dialog.
     /// </summary>
-    /// <param name="viewModelDescriptor">Describes the view to build.</param>
-    /// <returns>The context for the dialog that is shown.</returns>
-    IDialogContext Show(IViewModelDescriptor viewModelDescriptor);
+    /// <param name="viewModelDescriptor">
+    /// Describes the view model to build.
+    /// </param>
+    /// <returns>The newly created view model.</returns>
+    IViewModel Show(IViewModelDescriptor viewModelDescriptor);
 
     /// <summary>
-    /// Display a dialog view.
+    /// Display a dialog.
     /// </summary>
-    /// <typeparam name="TDialogViewModel">
-    /// The type of view model to display a dialog view for.
+    /// <typeparam name="TViewModel">
+    /// The type of view model to build.
     /// </typeparam>
-    /// <returns>The context for the dialog that is shown.</returns>
-    IDialogContext<TDialogViewModel> Show<TDialogViewModel>()
-        where TDialogViewModel : IDialogViewModel;
+    /// <returns>The newly created view model.</returns>
+    TViewModel Show<TViewModel>()
+        where TViewModel : IViewModel;
 
     /// <summary>
-    /// Display a dialog view.
-    /// This function doesn't return until the dialog has been closed.
+    /// Display a dialog.
     /// </summary>
-    /// <typeparam name="TDialogViewModel">
-    /// The type of view model to display a dialog view for.
+    /// <typeparam name="TViewModel">
+    /// The type of view model to build.
     /// </typeparam>
-    /// <typeparam name="TDialogViewModelContext">
+    /// <typeparam name="TViewModelContext">
     /// The type of context to provide to the view model.
     /// </typeparam>
-    /// <param name="context">The context to provide to the dialog.</param>
-    /// <returns>The context for the dialog that is shown.</returns>
-    IDialogContext<TDialogViewModel> Show<TDialogViewModel, TDialogViewModelContext>(
-        TDialogViewModelContext context
+    /// <param name="context">The context to provide to the view model.</param>
+    /// <returns>The newly created view model.</returns>
+    TViewModel Show<TViewModel, TViewModelContext>(
+        TViewModelContext context
     )
-        where TDialogViewModel : IDialogViewModel<TDialogViewModelContext>;
+        where TViewModel : IViewModel<TViewModelContext>;
 
     /// <summary>
-    /// Display a modal dialog view.
+    /// Display a dialog and wait until the dialog is closed.
     /// </summary>
-    /// <param name="viewModelDescriptor">Describes the view to build.</param>
-    /// <returns>The view model that was displayed in the dialog.</returns>
-    IViewModel ShowModal(IViewModelDescriptor viewModelDescriptor);
+    /// <param name="viewModelDescriptor">
+    /// Describes the view model to build.
+    /// </param>
+    /// <returns>The newly created view model.</returns>
+    Task<IViewModel> ShowAsync(IViewModelDescriptor viewModelDescriptor);
 
     /// <summary>
-    /// Display a modal dialog view.
-    /// This function doesn't return until the dialog has been closed.
+    /// Display a dialog and wait until the dialog is closed.
     /// </summary>
-    /// <typeparam name="TDialogViewModel">
-    /// The type of view model to display a dialog view for.
+    /// <typeparam name="TViewModel">
+    /// The type of view model to build.
     /// </typeparam>
-    /// <returns>The view model that was displayed in the dialog.</returns>
-    TDialogViewModel ShowModal<TDialogViewModel>()
-        where TDialogViewModel : IDialogViewModel;
+    /// <returns>The newly created view model.</returns>
+    Task<TViewModel> ShowAsync<TViewModel>()
+        where TViewModel : IViewModel;
 
     /// <summary>
-    /// Display a modal dialog view.
-    /// This function doesn't return until the dialog has been closed.
+    /// Display a dialog and wait until the dialog is closed.
     /// </summary>
-    /// <typeparam name="TDialogViewModel">
-    /// The type of view model to display a dialog view for.
+    /// <typeparam name="TViewModel">
+    /// The type of view model to build.
     /// </typeparam>
-    /// <typeparam name="TDialogViewModelContext">
+    /// <typeparam name="TViewModelContext">
     /// The type of context to provide to the view model.
     /// </typeparam>
-    /// <param name="context">The context to provide to the dialog.</param>
-    /// <returns>The view model that was displayed in the dialog.</returns>
-    TDialogViewModel ShowModal<TDialogViewModel, TDialogViewModelContext>(
-        TDialogViewModelContext context
+    /// <param name="context">The context to provide to the view model.</param>
+    /// <returns>The newly created view model.</returns>
+    Task<TViewModel> ShowAsync<TViewModel, TViewModelContext>(
+        TViewModelContext context
     )
-        where TDialogViewModel : IDialogViewModel<TDialogViewModelContext>;
+        where TViewModel : IViewModel<TViewModelContext>;
 
     /// <summary>
-    /// Event that is raised when the IsDialogOpen property changes.
+    /// Close the given view model.  If the view model isn't open this method
+    /// will have no effect.
     /// </summary>
-    EventToken<bool> IsDialogOpenChanged { get; }
+    /// <param name="viewModel">The view model to close.</param>
+    void Close(IViewModel viewModel);
 
     /// <summary>
-    /// Event that is raised when a dialog is opened.
+    /// Close all currently open view models.
     /// </summary>
-    EventToken<IDialogContext> DialogOpened { get; }
+    void Clear();
 }
