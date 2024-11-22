@@ -21,6 +21,7 @@
 
 using SingleFinite.Mvvm.Services;
 using Microsoft.Extensions.DependencyInjection;
+using System.ComponentModel;
 
 namespace SingleFinite.Mvvm.Internal.Services;
 
@@ -42,7 +43,7 @@ internal sealed class AppHost : IAppHost, IDisposable
     private readonly IServiceCollection _services;
 
     /// <summary>
-    /// Holds the actions to invoke whenever the app is started or restarted.
+    /// Holds the actions to invoke when the app is started.
     /// </summary>
     private readonly IList<Action<IServiceProvider>> _onStarted;
 
@@ -62,7 +63,7 @@ internal sealed class AppHost : IAppHost, IDisposable
     /// <param name="views">The views collection for the app.</param>
     /// <param name="plugins">The plugins collection for the app.</param>
     /// <param name="onStarted">
-    /// Actions to invoke whenever the app is started or restarted.
+    /// Actions to invoke when the app is started.
     /// </param>
     public AppHost(
         IServiceCollection services,
@@ -109,6 +110,21 @@ internal sealed class AppHost : IAppHost, IDisposable
         _startedSource.RaiseEvent();
     }
 
+    /// <inheritdoc/>
+    public bool Close()
+    {
+        if (_isDisposed)
+            return true;
+
+        var cancelEventArgs = new CancelEventArgs();
+        _closingSource.RaiseEvent(cancelEventArgs);
+
+        if (!cancelEventArgs.Cancel)
+            _closedSource.RaiseEvent();
+
+        return !cancelEventArgs.Cancel;
+    }
+
     /// <summary>
     /// Dispose of this object.
     /// </summary>
@@ -128,6 +144,14 @@ internal sealed class AppHost : IAppHost, IDisposable
     /// <inheritdoc/>
     public EventToken Started => _startedSource.Token;
     private readonly EventTokenSource _startedSource = new();
+
+    /// <inheritdoc/>
+    public EventToken<CancelEventArgs> Closing => _closingSource.Token;
+    private readonly EventTokenSource<CancelEventArgs> _closingSource = new();
+
+    /// <inheritdoc/>
+    public EventToken Closed => _closedSource.Token;
+    private readonly EventTokenSource _closedSource = new();
 
     #endregion
 }

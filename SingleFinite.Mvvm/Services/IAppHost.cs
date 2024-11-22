@@ -19,6 +19,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System.ComponentModel;
+
 namespace SingleFinite.Mvvm.Services;
 
 /// <summary>
@@ -44,7 +46,24 @@ public interface IAppHost
     void Start();
 
     /// <summary>
+    /// Request that the app be closed.  The request can be canceled by
+    /// subscribers to the Closing event.
+    /// </summary>
+    /// <returns>true if the app was stopped, false if it wasn't.</returns>
+    bool Close();
+
+    /// <summary>
     /// Raised when this app host is started.
     /// </summary>
     EventToken Started { get; }
+
+    /// <summary>
+    /// Raised when the app is being closed.
+    /// </summary>
+    EventToken<CancelEventArgs> Closing { get; }
+
+    /// <summary>
+    /// Raised after the app has been closed.
+    /// </summary>
+    EventToken Closed { get; }
 }

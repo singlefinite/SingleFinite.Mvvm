@@ -187,6 +187,46 @@ public class AppHostTests
         Assert.AreEqual(exampleService1, exampleService2);
     }
 
+    [TestMethod]
+    public void Close_Returns_True_When_Not_Canceled_And_Does_Not_Raise_Event()
+    {
+        var appHost = new AppHost(
+            services: new ServiceCollection(),
+            views: new ViewCollection(),
+            plugins: new PluginCollection(),
+            onStarted: []
+        );
+
+        var closedObserved = false;
+        appHost.Closed.Register(() => closedObserved = true);
+
+        var result = appHost.Close();
+
+        Assert.IsTrue(result);
+        Assert.IsTrue(closedObserved);
+    }
+
+    [TestMethod]
+    public void Close_Returns_False_When_Canceled_And_Raises_Event()
+    {
+        var appHost = new AppHost(
+            services: new ServiceCollection(),
+            views: new ViewCollection(),
+            plugins: new PluginCollection(),
+            onStarted: []
+        );
+
+        var closedObserved = false;
+        appHost.Closed.Register(() => closedObserved = true);
+
+        appHost.Closing.Register(args => args.Cancel = true);
+
+        var result = appHost.Close();
+
+        Assert.IsFalse(result);
+        Assert.IsFalse(closedObserved);
+    }
+
     #region Types
 
     private class DisposableCounter : IDisposable
