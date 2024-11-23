@@ -34,7 +34,19 @@ public sealed class EventTokenSource
     /// <summary>
     /// The token provided by this class.
     /// </summary>
-    public EventToken Token { get; } = new();
+    public EventToken Token { get; }
+
+    #endregion
+
+    #region Constructors
+
+    /// <summary>
+    /// Constructor.
+    /// </summary>
+    public EventTokenSource()
+    {
+        Token = new(this);
+    }
 
     #endregion
 
@@ -43,7 +55,16 @@ public sealed class EventTokenSource
     /// <summary>
     /// Raise the event for the Token.
     /// </summary>
-    public void RaiseEvent() => Token.RaiseEvent();
+    public void RaiseEvent() => EventRaised?.Invoke();
+
+    #endregion
+
+    #region Events
+
+    /// <summary>
+    /// Event that is raised when the RaiseEvent method is invoked.
+    /// </summary>
+    internal event Action? EventRaised;
 
     #endregion
 }
@@ -64,7 +85,19 @@ public sealed class EventTokenSource<TArgs>
     /// <summary>
     /// The token provided by this class.
     /// </summary>
-    public EventToken<TArgs> Token { get; } = new();
+    public EventToken<TArgs> Token { get; }
+
+    #endregion
+
+    #region Constructors
+
+    /// <summary>
+    /// Constructor.
+    /// </summary>
+    public EventTokenSource()
+    {
+        Token = new(this);
+    }
 
     #endregion
 
@@ -74,7 +107,16 @@ public sealed class EventTokenSource<TArgs>
     /// Raise the event for the Token.
     /// </summary>
     /// <param name="args">The arguments to pass with the event.</param>
-    public void RaiseEvent(TArgs args) => Token.RaiseEvent(args);
+    public void RaiseEvent(TArgs args) => EventRaised?.Invoke(args);
+
+    #endregion
+
+    #region Events
+
+    /// <summary>
+    /// Event that is raised when the RaiseEvent method is invoked.
+    /// </summary>
+    internal event Action<TArgs>? EventRaised;
 
     #endregion
 }
@@ -98,7 +140,19 @@ public sealed class EventTokenSource<TSender, TArgs>
     /// <summary>
     /// The token provided by this class.
     /// </summary>
-    public EventToken<TSender, TArgs> Token { get; } = new();
+    public EventToken<TSender, TArgs> Token { get; }
+
+    #endregion
+
+    #region Constructors
+
+    /// <summary>
+    /// Constructor.
+    /// </summary>
+    public EventTokenSource()
+    {
+        Token = new(this);
+    }
 
     #endregion
 
@@ -110,7 +164,16 @@ public sealed class EventTokenSource<TSender, TArgs>
     /// <param name="sender">The object that is raising the event.</param>
     /// <param name="args">The arguments to pass with the event.</param>
     public void RaiseEvent(TSender sender, TArgs args) =>
-        Token.RaiseEvent(sender, args);
+        EventRaised?.Invoke(sender, args);
+
+    #endregion
+
+    #region Events
+
+    /// <summary>
+    /// Event that is raised when the RaiseEvent method is invoked.
+    /// </summary>
+    internal event Action<TSender, TArgs>? EventRaised;
 
     #endregion
 }

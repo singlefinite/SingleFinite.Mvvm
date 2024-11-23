@@ -37,8 +37,10 @@ public sealed class EventToken
     /// Instances of this class are created with <see cref="EventTokenSource"/> 
     /// objects.
     /// </summary>
-    internal EventToken()
+    /// <param name="source">The source that raises the token event.</param>
+    internal EventToken(EventTokenSource source)
     {
+        source.EventRaised += RaiseEvent;
     }
 
     #endregion
@@ -88,7 +90,7 @@ public sealed class EventToken
     /// <summary>
     /// Raise the event for this token.
     /// </summary>
-    internal void RaiseEvent() => ActionEvent?.Invoke();
+    private void RaiseEvent() => ActionEvent?.Invoke();
 
     #endregion
 
@@ -119,8 +121,10 @@ public sealed class EventToken<TArgs>
     /// Instances of this class are created with <see cref="EventTokenSource"/> 
     /// objects.
     /// </summary>
-    internal EventToken()
+    /// <param name="source">The source that raises the token event.</param>
+    internal EventToken(EventTokenSource<TArgs> source)
     {
+        source.EventRaised += RaiseEvent;
     }
 
     #endregion
@@ -183,7 +187,7 @@ public sealed class EventToken<TArgs>
     /// Raise the event for this token.
     /// </summary>
     /// <param name="args">The args included with the event.</param>
-    internal void RaiseEvent(TArgs args) => ActionEvent?.Invoke(args);
+    private void RaiseEvent(TArgs args) => ActionEvent?.Invoke(args);
 
     #endregion
 
@@ -217,8 +221,10 @@ public sealed class EventToken<TSender, TArgs>
     /// Instances of this class are created with <see cref="EventTokenSource"/> 
     /// objects.
     /// </summary>
-    internal EventToken()
+    /// <param name="source">The source that raises the token event.</param>
+    internal EventToken(EventTokenSource<TSender, TArgs> source)
     {
+        source.EventRaised += RaiseEvent;
     }
 
     #endregion
@@ -284,7 +290,7 @@ public sealed class EventToken<TSender, TArgs>
     /// </summary>
     /// <param name="sender">The object that is raising the event.</param>
     /// <param name="args">The args included with the event.</param>
-    internal void RaiseEvent(TSender sender, TArgs args) =>
+    private void RaiseEvent(TSender sender, TArgs args) =>
         ActionEvent?.Invoke(sender, args);
 
     #endregion
