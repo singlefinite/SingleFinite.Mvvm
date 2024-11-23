@@ -38,12 +38,18 @@ internal sealed class PresenterFrame(IViewBuilder viewBuilder) :
     /// </summary>
     private bool _isDisposed = false;
 
+    /// <summary>
+    /// Holds the current view.  A ViewStack is used here as it supports
+    /// lifecycle management of the view.
+    /// </summary>
+    private readonly ViewStack _stack = new();
+
     #endregion
 
     #region Properties
 
     /// <inheritdoc/>
-    public IView? Current { get; private set; }
+    public IView? Current => _stack.TopView;
 
     #endregion
 
@@ -54,16 +60,11 @@ internal sealed class PresenterFrame(IViewBuilder viewBuilder) :
     {
         ObjectDisposedException.ThrowIf(_isDisposed, this);
 
-        Current?.ViewModel?.Deactivate();
-        Current?.ViewModel?.Dispose();
-        var isChanged = Current is not null;
-
         var view = viewBuilder.Build(viewModelDescriptor);
-        view.ViewModel.Activate();
-        Current = view;
-
-        if (isChanged)
-            CurrentChanged.RaiseEvent(view);
+        _stack.Push(
+            views: [view],
+            popCount: 1
+        );
 
         return view.ViewModel;
     }
@@ -85,15 +86,7 @@ internal sealed class PresenterFrame(IViewBuilder viewBuilder) :
     public void Clear()
     {
         ObjectDisposedException.ThrowIf(_isDisposed, this);
-
-        Current?.ViewModel?.Deactivate();
-        Current?.ViewModel?.Dispose();
-
-        if (Current is not null)
-        {
-            Current = null;
-            CurrentChanged.RaiseEvent(null);
-        }
+        _stack.Clear();
     }
 
     /// <summary>
@@ -114,8 +107,7 @@ internal sealed class PresenterFrame(IViewBuilder viewBuilder) :
     #region Events
 
     /// <inheritdoc/>
-    public EventToken<IView?> CurrentChanged => _currentChangedSource.Token;
-    private readonly EventTokenSource<IView?> _currentChangedSource = new();
+    public EventToken<IView?> CurrentChanged => _stack.TopViewChanged;
 
     #endregion
 }

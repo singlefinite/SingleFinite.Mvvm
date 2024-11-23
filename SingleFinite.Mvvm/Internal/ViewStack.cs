@@ -1,0 +1,266 @@
+﻿// MIT License
+// Copyright (c) 2024 Single Finite
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy 
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights 
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell 
+// copies of the Software, and to permit persons to whom the Software is 
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in 
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
+namespace SingleFinite.Mvvm.Internal;
+
+/// <summary>
+/// A mutable collection of views that manages lifecycle events.
+/// The behavior is similar to a stack however views can be removed from
+/// anywhere and not just the top.
+/// </summary>
+internal class ViewStack
+{
+    #region Properties
+
+    /// <summary>
+    /// The views in the stack.  The top most view in the stack is at index 0.
+    /// </summary>
+    public IView[] Views { get; private set; } = [];
+    private readonly List<IView> _views = [];
+
+    /// <summary>
+    /// The view models in the stack.  The top most view model is at index 0.
+    /// </summary>
+    public IViewModel[] ViewModels { get; private set; } = [];
+
+    /// <summary>
+    /// The number of views in the stack.
+    /// </summary>
+    public int Count => _views.Count;
+
+    /// <summary>
+    /// The top most view in the stack.
+    /// </summary>
+    public IView? TopView { get; private set; }
+
+    /// <summary>
+    /// The top most view model in the stack.
+    /// </summary>
+    public IViewModel? TopViewModel { get; private set; }
+
+    #endregion
+
+    #region Methods
+
+    /// <summary>
+    /// Add the given views to the top of the stack.
+    /// Views are pushed onto the stack in order so the last view in the
+    /// enumerable will become the top most view.
+    /// </summary>
+    /// <param name="views">The views to add.</param>
+    /// <param name="popCount">
+    /// The number of views to pop off the top before adding the new views.
+    /// </param>
+    public void Push(IEnumerable<IView> views, int popCount)
+    {
+        DeactivateTop();
+        Remove(0, popCount);
+        Add(views);
+        UpdateState();
+        ActivateTop();
+    }
+
+    /// <summary>
+    /// Pop the given number of views from the top.
+    /// </summary>
+    /// <param name="popCount">The number of views to pop.</param>
+    /// <returns>true if the stack was modifed, false if it wasn't.</returns>
+    public bool Pop(int popCount)
+    {
+        if (popCount <= 0)
+            return false;
+
+        DeactivateTop();
+        Remove(0, popCount);
+        UpdateState();
+        ActivateTop();
+
+        return true;
+    }
+
+    /// <summary>
+    /// Remove the views that have the given view models from the stack if
+    /// present.
+    /// </summary>
+    /// <param name="viewModels">The view models to remove.</param>
+    /// <returns>true if the stack was modifed, false if it wasn't.</returns>
+    public bool Close(params IEnumerable<IViewModel> viewModels)
+    {
+        var indices = _views
+            .Select((view, index) => viewModels.Contains(view.ViewModel) ? index : -1)
+            .Where(index => index != -1)
+            .OrderByDescending(index => index)
+            .ToList();
+
+        if (indices.Count == 0)
+            return false;
+
+        if (indices.Last() == 0)
+        {
+            DeactivateTop();
+            Remove(indices);
+            UpdateState();
+            ActivateTop();
+        }
+        else
+        {
+            Remove(indices);
+            UpdateState();
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    /// Remove all views from the stack.
+    /// </summary>
+    public void Clear()
+    {
+        DeactivateTop();
+        Remove(0, _views.Count);
+        UpdateState();
+    }
+
+    /// <summary>
+    /// Update properties for this object so the values are all in sync.
+    /// </summary>
+    private void UpdateState()
+    {
+        Views = [.. _views];
+        ViewModels = _views.Select(view => view.ViewModel).ToArray();
+
+        var newTopView = _views.FirstOrDefault();
+        if (TopView != newTopView)
+        {
+            TopView = _views.FirstOrDefault();
+            TopViewModel = _views.FirstOrDefault()?.ViewModel;
+
+            _topViewChanged.RaiseEvent(TopView);
+            _topViewModelChanged.RaiseEvent(TopViewModel);
+        }
+    }
+
+    /// <summary>
+    /// Deactivate the top most view model in the stack.
+    /// </summary>
+    private void DeactivateTop() =>
+        _views.FirstOrDefault()?.ViewModel?.Deactivate();
+
+    /// <summary>
+    /// Activate the top most view model in the stack.
+    /// </summary>
+    private void ActivateTop() =>
+        _views.FirstOrDefault()?.ViewModel?.Activate();
+
+    /// <summary>
+    /// Subscribe to events for the view model.
+    /// </summary>
+    /// <param name="viewModel">The view model to subscribe to.</param>
+    private void Subscribe(IViewModel viewModel)
+    {
+        if (viewModel is IClosable closable)
+            closable.Closed.ActionEvent += OnClosed;
+    }
+
+    /// <summary>
+    /// Unsubscribe from events for the view model.
+    /// </summary>
+    /// <param name="viewModel">The view model to unsubscribe from.</param>
+    private void Unsubscribe(IViewModel viewModel)
+    {
+        if (viewModel is IClosable closable)
+            closable.Closed.ActionEvent -= OnClosed;
+    }
+
+    /// <summary>
+    /// Add the given views to the stack.
+    /// </summary>
+    /// <param name="views">The views to add.</param>
+    private void Add(IEnumerable<IView> views)
+    {
+        foreach (var view in views)
+            Subscribe(view.ViewModel);
+
+        _views.InsertRange(0, views.Reverse());
+    }
+
+    /// <summary>
+    /// Remove the given range of views from the stack and dispose of them.
+    /// </summary>
+    /// <param name="index">The index to start removing from.</param>
+    /// <param name="count">The number of views to remove.</param>
+    private void Remove(int index, int count)
+    {
+        if (count <= 0)
+            return;
+
+        var lastIndex = Math.Min(index + count, _views.Count);
+
+        for (var i = index; i < lastIndex; i++)
+        {
+            var view = _views[i];
+            Unsubscribe(view.ViewModel);
+            view.ViewModel?.Dispose();
+        }
+
+        _views.RemoveRange(index, lastIndex - index);
+    }
+
+    /// <summary>
+    /// Remove the views at the given indicies.
+    /// </summary>
+    /// <param name="indices">
+    /// The indices of the views to remove.  They must be in descending order.
+    /// </param>
+    private void Remove(IEnumerable<int> indices)
+    {
+        foreach (var index in indices)
+            Remove(index, 1);
+    }
+
+    /// <summary>
+    /// Handle the Closed event raised by an IClosable object.
+    /// </summary>
+    /// <param name="closable">The IClosable that raised the event.</param>
+    private void OnClosed(IClosable closable)
+    {
+        if (closable is IViewModel viewModel)
+            Close(viewModel);
+    }
+
+    #endregion
+
+    #region Events
+
+    /// <summary>
+    /// Event raised when the top view has been changed.
+    /// </summary>
+    public EventToken<IView?> TopViewChanged => _topViewChanged.Token;
+    private readonly EventTokenSource<IView?> _topViewChanged = new();
+
+    /// <summary>
+    /// Event raised when the top view model has been changed.
+    /// </summary>
+    public EventToken<IViewModel?> TopViewModelChanged => _topViewModelChanged.Token;
+    private readonly EventTokenSource<IViewModel?> _topViewModelChanged = new();
+
+    #endregion
+}

@@ -41,57 +41,35 @@ internal class PresenterDialog(
     private bool _isDisposed;
 
     /// <summary>
-    /// Holds the stack of dialog views with the view at index 0 considered
-    /// to be on top of the stack.
+    /// Holds the stack of dialog views.
     /// </summary>
-    private readonly List<IView> _dialogStack = [];
+    private readonly ViewStack _stack = new();
 
     #endregion
 
     #region Properties
 
     /// <inheritdoc/>
-    public IView? Current
-    {
-        get;
-        private set
-        {
-            if (field == value)
-                return;
-
-            field = value;
-            _currentChangedSource.RaiseEvent(value);
-        }
-    }
+    public IView? Current => _stack.TopView;
 
     /// <inheritdoc/>
-    public IViewModel[] Dialogs { get; private set; } = [];
+    public IViewModel[] ViewModels => _stack.ViewModels;
 
     #endregion
 
     #region Methods
-
-    /// <summary>
-    /// Update the Dialogs list from the current list dialog views.
-    /// </summary>
-    private void UpdateDialogs() =>
-        Dialogs = _dialogStack.Select(view => view.ViewModel).ToArray();
 
     /// <inheritdoc/>
     public IViewModel Show(IViewModelDescriptor viewModelDescriptor)
     {
         ObjectDisposedException.ThrowIf(_isDisposed, this);
 
-        if (_dialogStack.Count > 0)
-            _dialogStack[0].ViewModel.Deactivate();
-
         var view = viewBuilder.Build(viewModelDescriptor);
+        _stack.Push(
+            views: [view],
+            popCount: 0
+        );
 
-        _dialogStack.Insert(0, view);
-        UpdateDialogs();
-
-        view.ViewModel.Activate();
-        Current = view;
         return view.ViewModel;
     }
 
@@ -108,6 +86,8 @@ internal class PresenterDialog(
     /// <inheritdoc/>
     public Task<IViewModel> ShowAsync(IViewModelDescriptor viewModelDescriptor)
     {
+        ObjectDisposedException.ThrowIf(_isDisposed, this);
+
         var taskSource = new TaskCompletionSource<IViewModel>();
         var viewModel = Show(viewModelDescriptor);
         viewModel.Disposed.Register(
@@ -137,44 +117,15 @@ internal class PresenterDialog(
     /// <inheritdoc/>
     public void Close(IViewModel viewModel)
     {
-        var index = _dialogStack.FindIndex(view => view.ViewModel == viewModel);
-        if (index == -1)
-            return;
-
-        if (index == 0)
-        {
-            // Remove view from top of stack and make the next dialog
-            // active.
-            //
-            viewModel.Deactivate();
-            viewModel.Dispose();
-
-            _dialogStack.RemoveAt(0);
-            UpdateDialogs();
-
-            var top = _dialogStack.FirstOrDefault();
-            top?.ViewModel?.Activate();
-            Current = top;
-        }
-        else
-        {
-            // Remove view from within the stack and leave Current unchanged.
-            //
-            viewModel.Dispose();
-
-            _dialogStack.RemoveAt(index);
-            UpdateDialogs();
-        }
+        ObjectDisposedException.ThrowIf(_isDisposed, this);
+        _stack.Close(viewModel);
     }
 
     /// <inheritdoc/>
     public void Clear()
     {
-        _dialogStack.FirstOrDefault()?.ViewModel?.Deactivate();
-        _dialogStack.ForEach(view => view.ViewModel.Dispose());
-        _dialogStack.Clear();
-        UpdateDialogs();
-        Current = null;
+        ObjectDisposedException.ThrowIf(_isDisposed, this);
+        _stack.Clear();
     }
 
     /// <summary>
@@ -195,8 +146,7 @@ internal class PresenterDialog(
     #region Events
 
     /// <inheritdoc/>
-    public EventToken<IView?> CurrentChanged => _currentChangedSource.Token;
-    private readonly EventTokenSource<IView?> _currentChangedSource = new();
+    public EventToken<IView?> CurrentChanged => _stack.TopViewChanged;
 
     #endregion
 }

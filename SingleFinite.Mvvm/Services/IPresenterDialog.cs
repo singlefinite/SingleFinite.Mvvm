@@ -30,7 +30,7 @@ public interface IPresenterDialog : IPresenter
     /// All currently open dialogs in order from top to bottom with the top
     /// most dialog at index 0.
     /// </summary>
-    IViewModel[] Dialogs { get; }
+    IViewModel[] ViewModels { get; }
 
     /// <summary>
     /// Display a dialog.

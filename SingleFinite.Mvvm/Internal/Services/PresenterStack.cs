@@ -41,40 +41,21 @@ internal sealed class PresenterStack(IViewBuilder viewBuilder) :
     /// <summary>
     /// Holds the underlying stack.
     /// </summary>
-    private readonly Stack<IView> _stack = [];
+    private readonly ViewStack _stack = new();
 
     #endregion
 
     #region Properties
 
     /// <inheritdoc/>
-    public IView? Current { get; private set; }
+    public IView? Current => _stack.TopView;
 
     /// <inheritdoc/>
-    public IViewModel[] Stack { get; private set; } = [];
+    public IViewModel[] ViewModels => _stack.ViewModels;
 
     #endregion
 
     #region Methods
-
-    /// <summary>
-    /// Update the public stack properties so they match the private writable
-    /// stack.
-    /// </summary>
-    private void UpdateCurrent()
-    {
-        var newCurrent = _stack.FirstOrDefault();
-        var isCurrentChanged = newCurrent != Current;
-
-        Current = newCurrent;
-        Stack = _stack.Select(view => view.ViewModel).ToArray();
-
-        if (isCurrentChanged)
-        {
-            Current?.ViewModel?.Activate();
-            CurrentChanged.RaiseEvent(newCurrent);
-        }
-    }
 
     /// <summary>
     /// Get the number of view models that should be popped off of the stack so
@@ -98,14 +79,14 @@ internal sealed class PresenterStack(IViewBuilder viewBuilder) :
     /// <returns>The number of view models to pop off the stack in order to
     /// leave the desired view model on top.
     /// </returns>
-    private int FindPopCount(
+    private int GetPopCount(
         Func<IViewModel, bool> predicate,
         bool fromTop,
         bool inclusive
     )
     {
-        var query = _stack
-            .Select((view, index) => predicate(view.ViewModel) ? index : -1)
+        var query = _stack.ViewModels
+            .Select((viewModel, index) => predicate(viewModel) ? index : -1)
             .Where(index => index != -1);
 
         var index = fromTop ?
@@ -118,53 +99,23 @@ internal sealed class PresenterStack(IViewBuilder viewBuilder) :
         return index + (inclusive ? 1 : 0);
     }
 
-    /// <summary>
-    /// Remove view models from the stack based on the given options.
-    /// </summary>
-    /// <param name="popOptions">The push options to process.</param>
-    /// <param name="alwaysDeactivateTop">
-    /// When true the top view model in the stack will be deactivated even if
-    /// the stack is not changed by this method.
-    /// </param>
-    /// <returns>true if the stack was modified, false if it wasn't.</returns>
-    private bool PopTo(
-        PopOptions? popOptions,
-        bool alwaysDeactivateTop
-    )
+    private int GetPopCount(PopOptions? popOptions) => popOptions switch
     {
-        var popCount = popOptions switch
-        {
-            null => 0,
-            PopOptions.PopOptionsRemoveAll => _stack.Count,
-            PopOptions.PopOptionsCount count => Math.Min(
-                count.Count,
-                _stack.Count
-            ),
-            PopOptions.PopOptionsQuery query => FindPopCount(
-                predicate: query.Predicate,
-                fromTop: query.FromTop,
-                inclusive: query.Inclusive
-            ),
-            _ => throw new InvalidOperationException(
-                $"Unexpected PopOptions type: {popOptions.GetType().FullName}"
-            )
-        };
-
-        if (popCount == 0)
-        {
-            if (alwaysDeactivateTop && _stack.Count > 0)
-                _stack.Peek().ViewModel.Deactivate();
-
-            return false;
-        }
-
-        _stack.Peek().ViewModel.Deactivate();
-
-        for (var popped = 0; popped < popCount; popped++)
-            _stack.Pop().ViewModel.Dispose();
-
-        return true;
-    }
+        null => 0,
+        PopOptions.PopOptionsRemoveAll => _stack.Count,
+        PopOptions.PopOptionsCount count => Math.Min(
+            count.Count,
+            _stack.Count
+        ),
+        PopOptions.PopOptionsQuery query => GetPopCount(
+            predicate: query.Predicate,
+            fromTop: query.FromTop,
+            inclusive: query.Inclusive
+        ),
+        _ => throw new InvalidOperationException(
+            $"Unexpected PopOptions type: {popOptions.GetType().FullName}"
+        )
+    };
 
     /// <inheritdoc/>
     public IViewModel Push(
@@ -174,15 +125,11 @@ internal sealed class PresenterStack(IViewBuilder viewBuilder) :
     {
         ObjectDisposedException.ThrowIf(_isDisposed, this);
 
-        PopTo(
-            popOptions: popOptions,
-            alwaysDeactivateTop: true
-        );
-
         var view = viewBuilder.Build(viewModelDescriptor);
-        _stack.Push(view);
-
-        UpdateCurrent();
+        _stack.Push(
+            views: [view],
+            popCount: GetPopCount(popOptions)
+        );
 
         return view.ViewModel;
     }
@@ -213,22 +160,14 @@ internal sealed class PresenterStack(IViewBuilder viewBuilder) :
     {
         ObjectDisposedException.ThrowIf(_isDisposed, this);
 
-        if (!viewModelDescriptors.Any())
-            return [];
-
-        PopTo(
-            popOptions: popOptions,
-            alwaysDeactivateTop: true
-        );
-
         var viewList = viewModelDescriptors
             .Select(viewBuilder.Build)
             .ToList();
 
-        foreach (var view in viewList)
-            _stack.Push(view);
+        if (viewList.Count == 0)
+            return [];
 
-        UpdateCurrent();
+        _stack.Push(viewList, GetPopCount(popOptions));
 
         return viewList.Select(view => view.ViewModel).ToArray();
     }
@@ -237,15 +176,7 @@ internal sealed class PresenterStack(IViewBuilder viewBuilder) :
     public bool Pop()
     {
         ObjectDisposedException.ThrowIf(_isDisposed, this);
-
-        var didPop = PopTo(
-            popOptions: PopOptions.PopCount(1),
-            alwaysDeactivateTop: false
-        );
-
-        UpdateCurrent();
-
-        return didPop;
+        return _stack.Pop(1);
     }
 
     /// <inheritdoc/>
@@ -256,17 +187,14 @@ internal sealed class PresenterStack(IViewBuilder viewBuilder) :
     {
         ObjectDisposedException.ThrowIf(_isDisposed, this);
 
-        var didPop = PopTo(
-            popOptions: PopOptions.PopTo<TViewModel>(
-                fromTop: fromTop,
-                inclusive: inclusive
-            ),
-            alwaysDeactivateTop: false
+        return _stack.Pop(
+            GetPopCount(
+                PopOptions.PopTo<TViewModel>(
+                    fromTop: fromTop,
+                    inclusive: inclusive
+                )
+            )
         );
-
-        UpdateCurrent();
-
-        return didPop;
     }
 
     /// <inheritdoc/>
@@ -278,31 +206,29 @@ internal sealed class PresenterStack(IViewBuilder viewBuilder) :
     {
         ObjectDisposedException.ThrowIf(_isDisposed, this);
 
-        var didPop = PopTo(
-            popOptions: PopOptions.PopTo(
-                predicate: predicate,
-                fromTop: fromTop,
-                inclusive: inclusive
-            ),
-            alwaysDeactivateTop: false
+        return _stack.Pop(
+            GetPopCount(
+                PopOptions.PopTo(
+                    predicate: predicate,
+                    fromTop: fromTop,
+                    inclusive: inclusive
+                )
+            )
         );
-
-        UpdateCurrent();
-
-        return didPop;
     }
 
     /// <inheritdoc/>
-    public void PopAll()
+    public void Clear()
     {
         ObjectDisposedException.ThrowIf(_isDisposed, this);
+        _stack.Clear();
+    }
 
-        PopTo(
-            popOptions: PopOptions.PopAll(),
-            alwaysDeactivateTop: false
-        );
-
-        UpdateCurrent();
+    /// <inheritdoc/>
+    public void Close(params IEnumerable<IViewModel> viewModels)
+    {
+        ObjectDisposedException.ThrowIf(_isDisposed, this);
+        _stack.Close(viewModels);
     }
 
     /// <summary>
@@ -313,7 +239,7 @@ internal sealed class PresenterStack(IViewBuilder viewBuilder) :
         if (_isDisposed)
             return;
 
-        PopAll();
+        Clear();
 
         _isDisposed = true;
     }

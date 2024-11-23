@@ -58,9 +58,9 @@ public class PresenterFrameTests
         output.Clear();
         presenterFrame.Set<TestViewModel3, ViewModelTestContext>(viewModelContext);
         Assert.AreEqual(4, output.Count);
-        Assert.AreEqual("OnStop - TestViewModel2", output[0]);
-        Assert.AreEqual("OnDispose - TestViewModel2", output[1]);
-        Assert.AreEqual("OnInit - TestViewModel3", output[2]);
+        Assert.AreEqual("OnInit - TestViewModel3", output[0]);
+        Assert.AreEqual("OnStop - TestViewModel2", output[1]);
+        Assert.AreEqual("OnDispose - TestViewModel2", output[2]);
         Assert.AreEqual("OnStart - TestViewModel3", output[3]);
 
         output.Clear();
@@ -118,6 +118,21 @@ public class PresenterFrameTests
         Assert.ThrowsException<ObjectDisposedException>(() => presenterFrame.Set(viewModelDescriptor));
     }
 
+    [TestMethod]
+    public void Closable_Event_Removes_View_Model()
+    {
+        using var context = new TestContext();
+        var presenterFrame = (PresenterFrame)context.ServiceProvider.GetRequiredService<IPresenterFrame>();
+        var viewModelTestContext = new ViewModelTestContext([]);
+        var viewModel = presenterFrame.Set<TestViewModel1, ViewModelTestContext>(viewModelTestContext);
+
+        Assert.IsNotNull(presenterFrame.Current);
+
+        viewModel.Close();
+
+        Assert.IsNull(presenterFrame.Current);
+    }
+
     #region Types
 
     private class TestView1(TestViewModel1 viewModel) : IView<TestViewModel1>
@@ -137,7 +152,7 @@ public class PresenterFrameTests
 
     private record ViewModelTestContext(List<string> Output);
 
-    private class TestViewModel1(ViewModelTestContext context) : ViewModel<ViewModelTestContext>
+    private class TestViewModel1(ViewModelTestContext context) : ViewModel<ViewModelTestContext>, IClosable
     {
         protected ViewModelTestContext Context => context;
 
@@ -145,6 +160,11 @@ public class PresenterFrameTests
         protected override void OnActivate(CancellationToken _) => Context.Output.Add($"OnStart - {nameof(TestViewModel1)}");
         protected override void OnDeactivate() => Context.Output.Add($"OnStop - {nameof(TestViewModel1)}");
         protected override void OnDispose() => Context.Output.Add($"OnDispose - {nameof(TestViewModel1)}");
+
+        public void Close() => _closedSource.RaiseEvent(this);
+
+        public EventToken<IClosable> Closed => _closedSource.Token;
+        private readonly EventTokenSource<IClosable> _closedSource = new();
     }
 
     private class TestViewModel2(ViewModelTestContext context) : TestViewModel1(context)

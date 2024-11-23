@@ -48,9 +48,9 @@ public class PresenterStackTests
         output.Clear();
         presenterStack.PushAll([viewModelDescriptor2, viewModelDescriptor3]);
         Assert.AreEqual(4, output.Count);
-        Assert.AreEqual("OnStop - TestViewModel1", output[0]);
-        Assert.AreEqual("OnInit - TestViewModel2", output[1]);
-        Assert.AreEqual("OnInit - TestViewModel3", output[2]);
+        Assert.AreEqual("OnInit - TestViewModel2", output[0]);
+        Assert.AreEqual("OnInit - TestViewModel3", output[1]);
+        Assert.AreEqual("OnStop - TestViewModel1", output[2]);
         Assert.AreEqual("OnStart - TestViewModel3", output[3]);
 
         output.Clear();
@@ -61,7 +61,7 @@ public class PresenterStackTests
         Assert.AreEqual("OnStart - TestViewModel2", output[2]);
 
         output.Clear();
-        presenterStack.PopAll();
+        presenterStack.Clear();
         Assert.AreEqual(3, output.Count);
         Assert.AreEqual("OnStop - TestViewModel2", output[0]);
         Assert.AreEqual("OnDispose - TestViewModel2", output[1]);
@@ -83,18 +83,18 @@ public class PresenterStackTests
         presenterStack.PushAll([viewModelDescriptor1, viewModelDescriptor2, viewModelDescriptor3]);
         var result1 = presenterStack.PopTo<TestViewModel1>(inclusive: true);
         Assert.AreEqual(true, result1);
-        Assert.AreEqual(0, presenterStack.Stack.Length);
+        Assert.AreEqual(0, presenterStack.ViewModels.Length);
         Assert.AreEqual(null, presenterStack.Current);
 
         presenterStack.PushAll([viewModelDescriptor1, viewModelDescriptor2]);
         var result2 = presenterStack.PopTo<TestViewModel3>(inclusive: true);
         Assert.AreEqual(false, result2);
-        Assert.AreEqual(2, presenterStack.Stack.Length);
+        Assert.AreEqual(2, presenterStack.ViewModels.Length);
         Assert.IsNotNull(presenterStack.Current);
 
         var result3 = presenterStack.PopTo<TestViewModel1>(inclusive: true);
         Assert.AreEqual(true, result3);
-        Assert.AreEqual(0, presenterStack.Stack.Length);
+        Assert.AreEqual(0, presenterStack.ViewModels.Length);
         Assert.AreEqual(null, presenterStack.Current);
     }
 
@@ -117,7 +117,7 @@ public class PresenterStackTests
             inclusive: true
         );
         Assert.AreEqual(true, result1);
-        Assert.AreEqual(0, presenterStack.Stack.Length);
+        Assert.AreEqual(0, presenterStack.ViewModels.Length);
 
         presenterStack.PushAll([viewModelDescriptor1, viewModelDescriptor2, viewModelDescriptor3, viewModelDescriptor1]);
         var result2 = presenterStack.PopTo(
@@ -126,10 +126,10 @@ public class PresenterStackTests
             inclusive: true
         );
         Assert.AreEqual(true, result1);
-        Assert.AreEqual(3, presenterStack.Stack.Length);
-        Assert.AreEqual(presenterStack.Stack[0].GetType(), typeof(TestViewModel3));
-        Assert.AreEqual(presenterStack.Stack[1].GetType(), typeof(TestViewModel2));
-        Assert.AreEqual(presenterStack.Stack[2].GetType(), typeof(TestViewModel1));
+        Assert.AreEqual(3, presenterStack.ViewModels.Length);
+        Assert.AreEqual(presenterStack.ViewModels[0].GetType(), typeof(TestViewModel3));
+        Assert.AreEqual(presenterStack.ViewModels[1].GetType(), typeof(TestViewModel2));
+        Assert.AreEqual(presenterStack.ViewModels[2].GetType(), typeof(TestViewModel1));
     }
 
     [TestMethod]
@@ -148,12 +148,12 @@ public class PresenterStackTests
 
         presenterStackInScope.PushAll([viewModelDescriptor1, viewModelDescriptor2, viewModelDescriptor3]);
         presenterStackInRoot.PushAll([viewModelDescriptor1, viewModelDescriptor2, viewModelDescriptor3]);
-        Assert.AreEqual(3, presenterStackInScope.Stack.Length);
-        Assert.AreEqual(3, presenterStackInRoot.Stack.Length);
+        Assert.AreEqual(3, presenterStackInScope.ViewModels.Length);
+        Assert.AreEqual(3, presenterStackInRoot.ViewModels.Length);
 
         scope.Dispose();
-        Assert.AreEqual(0, presenterStackInScope.Stack.Length);
-        Assert.AreEqual(3, presenterStackInRoot.Stack.Length);
+        Assert.AreEqual(0, presenterStackInScope.ViewModels.Length);
+        Assert.AreEqual(3, presenterStackInRoot.ViewModels.Length);
     }
 
     [TestMethod]
@@ -173,10 +173,10 @@ public class PresenterStackTests
             ]
         );
 
-        Assert.AreEqual(3, presenterStack.Stack.Length);
-        Assert.IsInstanceOfType<TestViewModel3>(presenterStack.Stack[0]);
-        Assert.IsInstanceOfType<TestViewModel2>(presenterStack.Stack[1]);
-        Assert.IsInstanceOfType<TestViewModel1>(presenterStack.Stack[2]);
+        Assert.AreEqual(3, presenterStack.ViewModels.Length);
+        Assert.IsInstanceOfType<TestViewModel3>(presenterStack.ViewModels[0]);
+        Assert.IsInstanceOfType<TestViewModel2>(presenterStack.ViewModels[1]);
+        Assert.IsInstanceOfType<TestViewModel1>(presenterStack.ViewModels[2]);
     }
 
     [TestMethod]
@@ -187,9 +187,26 @@ public class PresenterStackTests
         var viewModelTestContext = new ViewModelTestContext([]);
 
         var presenterStack = (PresenterStack)context.ServiceProvider.GetRequiredService<IPresenterStack>();
-        var view = presenterStack.Push<TestViewModel1, ViewModelTestContext>(viewModelTestContext);
+        var viewModel = presenterStack.Push<TestViewModel1, ViewModelTestContext>(viewModelTestContext);
 
-        Assert.IsNotNull(view);
+        Assert.IsNotNull(viewModel);
+    }
+
+    [TestMethod]
+    public void Closable_Event_Removes_View_Model()
+    {
+        using var context = new TestContext();
+
+        var viewModelTestContext = new ViewModelTestContext([]);
+
+        var presenterStack = (PresenterStack)context.ServiceProvider.GetRequiredService<IPresenterStack>();
+        var viewModel = presenterStack.Push<TestViewModel1, ViewModelTestContext>(viewModelTestContext);
+
+        Assert.IsNotNull(presenterStack.Current);
+
+        viewModel.Close();
+
+        Assert.IsNull(presenterStack.Current);
     }
 
     #region Types
@@ -211,7 +228,7 @@ public class PresenterStackTests
 
     private record ViewModelTestContext(List<string> Output);
 
-    private class TestViewModel1(ViewModelTestContext context) : ViewModel<ViewModelTestContext>
+    private class TestViewModel1(ViewModelTestContext context) : ViewModel<ViewModelTestContext>, IClosable
     {
         protected ViewModelTestContext Context => context;
 
@@ -219,6 +236,11 @@ public class PresenterStackTests
         protected override void OnActivate(CancellationToken _) => Context.Output.Add($"OnStart - {nameof(TestViewModel1)}");
         protected override void OnDeactivate() => Context.Output.Add($"OnStop - {nameof(TestViewModel1)}");
         protected override void OnDispose() => Context.Output.Add($"OnDispose - {nameof(TestViewModel1)}");
+
+        public void Close() => _closedSource.RaiseEvent(this);
+
+        public EventToken<IClosable> Closed => _closedSource.Token;
+        private readonly EventTokenSource<IClosable> _closedSource = new();
     }
 
     private class TestViewModel2(ViewModelTestContext context) : TestViewModel1(context)

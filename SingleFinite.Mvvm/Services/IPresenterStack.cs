@@ -30,9 +30,9 @@ public interface IPresenterStack : IPresenter
 {
     /// <summary>
     /// The current view models in the stack.
-    /// The top of the stack is the view at index 0.
+    /// The top of the stack is the view model at index 0.
     /// </summary>
-    IViewModel[] Stack { get; }
+    IViewModel[] ViewModels { get; }
 
     /// <summary>
     /// Create a view model and push it onto the top of the stack.
@@ -164,5 +164,13 @@ public interface IPresenterStack : IPresenter
     /// <summary>
     /// Remove all view models from the stack.
     /// </summary>
-    void PopAll();
+    void Clear();
+
+    /// <summary>
+    /// Remove the given view models from the stack.
+    /// </summary>
+    /// <param name="viewModels">
+    /// The view models to remove from the stack.
+    /// </param>
+    void Close(params IEnumerable<IViewModel> viewModels);
 }

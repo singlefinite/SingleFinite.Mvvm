@@ -217,7 +217,7 @@ public class ViewModelTests
 
         public void ClearChildren()
         {
-            presenterStack.PopAll();
+            presenterStack.Clear();
         }
     }
 

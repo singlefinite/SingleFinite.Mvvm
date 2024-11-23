@@ -42,8 +42,8 @@ public class PresenterDialogTests
         var dialog1 = presenterDialog.Show<Dialog1Lifecycle, List<string>>(output);
 
         Assert.AreEqual(presenterDialog.Current?.ViewModel, dialog1);
-        Assert.AreEqual(1, presenterDialog.Dialogs.Length);
-        Assert.AreEqual(dialog1, presenterDialog.Dialogs[0]);
+        Assert.AreEqual(1, presenterDialog.ViewModels.Length);
+        Assert.AreEqual(dialog1, presenterDialog.ViewModels[0]);
 
         Assert.AreEqual(2, output.Count);
         Assert.AreEqual("1 Initialize", output[0]);
@@ -53,21 +53,21 @@ public class PresenterDialogTests
         var dialog2 = presenterDialog.Show<Dialog2Lifecycle, List<string>>(output);
 
         Assert.AreEqual(presenterDialog.Current?.ViewModel, dialog2);
-        Assert.AreEqual(2, presenterDialog.Dialogs.Length);
-        Assert.AreEqual(dialog2, presenterDialog.Dialogs[0]);
-        Assert.AreEqual(dialog1, presenterDialog.Dialogs[1]);
+        Assert.AreEqual(2, presenterDialog.ViewModels.Length);
+        Assert.AreEqual(dialog2, presenterDialog.ViewModels[0]);
+        Assert.AreEqual(dialog1, presenterDialog.ViewModels[1]);
 
         Assert.AreEqual(3, output.Count);
-        Assert.AreEqual("1 Deactivate", output[0]);
-        Assert.AreEqual("2 Initialize", output[1]);
+        Assert.AreEqual("2 Initialize", output[0]);
+        Assert.AreEqual("1 Deactivate", output[1]);
         Assert.AreEqual("2 Activate", output[2]);
         output.Clear();
 
         presenterDialog.Close(dialog2);
 
         Assert.AreEqual(presenterDialog.Current?.ViewModel, dialog1);
-        Assert.AreEqual(1, presenterDialog.Dialogs.Length);
-        Assert.AreEqual(dialog1, presenterDialog.Dialogs[0]);
+        Assert.AreEqual(1, presenterDialog.ViewModels.Length);
+        Assert.AreEqual(dialog1, presenterDialog.ViewModels[0]);
 
         Assert.AreEqual(3, output.Count);
         Assert.AreEqual("2 Deactivate", output[0]);
@@ -78,7 +78,7 @@ public class PresenterDialogTests
         presenterDialog.Close(dialog1);
 
         Assert.IsNull(presenterDialog.Current);
-        Assert.AreEqual(0, presenterDialog.Dialogs.Length);
+        Assert.AreEqual(0, presenterDialog.ViewModels.Length);
 
         Assert.AreEqual(2, output.Count);
         Assert.AreEqual("1 Deactivate", output[0]);
@@ -99,7 +99,7 @@ public class PresenterDialogTests
         var dialog2 = presenterDialog.Show<Dialog1Lifecycle, List<string>>([]);
         var dialog3 = presenterDialog.Show<Dialog1Lifecycle, List<string>>([]);
 
-        Assert.AreEqual(3, presenterDialog.Dialogs.Length);
+        Assert.AreEqual(3, presenterDialog.ViewModels.Length);
         Assert.IsNotNull(presenterDialog.Current);
 
         Assert.IsFalse(dialog1.IsDisposed);
@@ -108,7 +108,7 @@ public class PresenterDialogTests
 
         presenterDialog.Clear();
 
-        Assert.AreEqual(0, presenterDialog.Dialogs.Length);
+        Assert.AreEqual(0, presenterDialog.ViewModels.Length);
         Assert.IsNull(presenterDialog.Current);
 
         Assert.IsTrue(dialog1.IsDisposed);
@@ -129,7 +129,7 @@ public class PresenterDialogTests
         var dialog2 = presenterDialog.Show<Dialog1Lifecycle, List<string>>([]);
         var dialog3 = presenterDialog.Show<Dialog1Lifecycle, List<string>>([]);
 
-        Assert.AreEqual(3, presenterDialog.Dialogs.Length);
+        Assert.AreEqual(3, presenterDialog.ViewModels.Length);
         Assert.IsNotNull(presenterDialog.Current);
 
         Assert.IsFalse(dialog1.IsDisposed);
@@ -138,7 +138,7 @@ public class PresenterDialogTests
 
         presenterDialog.Dispose();
 
-        Assert.AreEqual(0, presenterDialog.Dialogs.Length);
+        Assert.AreEqual(0, presenterDialog.ViewModels.Length);
         Assert.IsNull(presenterDialog.Current);
 
         Assert.IsTrue(dialog1.IsDisposed);
@@ -166,9 +166,9 @@ public class PresenterDialogTests
         presenterDialog.Close(dialog2);
 
         Assert.AreEqual(presenterDialog.Current?.ViewModel, dialog3);
-        Assert.AreEqual(2, presenterDialog.Dialogs.Length);
-        Assert.AreEqual(dialog3, presenterDialog.Dialogs[0]);
-        Assert.AreEqual(dialog1, presenterDialog.Dialogs[1]);
+        Assert.AreEqual(2, presenterDialog.ViewModels.Length);
+        Assert.AreEqual(dialog3, presenterDialog.ViewModels[0]);
+        Assert.AreEqual(dialog1, presenterDialog.ViewModels[1]);
 
         Assert.AreEqual(1, output.Count);
         Assert.AreEqual("2 Dispose", output[0]);
