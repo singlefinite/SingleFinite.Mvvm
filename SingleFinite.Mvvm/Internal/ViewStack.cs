@@ -74,8 +74,7 @@ internal class ViewStack
         DeactivateTop();
         Remove(0, popCount);
         Add(views);
-        UpdateState();
-        ActivateTop();
+        UpdateState(actiavteTop: true);
     }
 
     /// <summary>
@@ -90,8 +89,7 @@ internal class ViewStack
 
         DeactivateTop();
         Remove(0, popCount);
-        UpdateState();
-        ActivateTop();
+        UpdateState(actiavteTop: true);
 
         return true;
     }
@@ -117,8 +115,7 @@ internal class ViewStack
         {
             DeactivateTop();
             Remove(indices);
-            UpdateState();
-            ActivateTop();
+            UpdateState(actiavteTop: true);
         }
         else
         {
@@ -142,7 +139,11 @@ internal class ViewStack
     /// <summary>
     /// Update properties for this object so the values are all in sync.
     /// </summary>
-    private void UpdateState()
+    /// <param name="activateTop">
+    /// When true the top most view model will be activated after the state is
+    /// updated but before the change events are raised.
+    /// </param>
+    private void UpdateState(bool actiavteTop = false)
     {
         Views = [.. _views];
         ViewModels = _views.Select(view => view.ViewModel).ToArray();
@@ -153,8 +154,15 @@ internal class ViewStack
             TopView = _views.FirstOrDefault();
             TopViewModel = _views.FirstOrDefault()?.ViewModel;
 
+            if (actiavteTop)
+                ActivateTop();
+
             _topViewChanged.RaiseEvent(TopView);
             _topViewModelChanged.RaiseEvent(TopViewModel);
+        }
+        else if (actiavteTop)
+        {
+            ActivateTop();
         }
     }
 
