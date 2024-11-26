@@ -19,6 +19,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System.ComponentModel;
 using SingleFinite.Mvvm.Services;
 
 namespace SingleFinite.Mvvm.Internal.Services;
@@ -26,14 +27,16 @@ namespace SingleFinite.Mvvm.Internal.Services;
 /// <summary>
 /// Implementation of <see cref="IPresenterDialog"/>.
 /// </summary>
-/// <param name="viewBuilder">Used to build views.</param>
-internal class PresenterDialog(
-    IViewBuilder viewBuilder
-) :
+internal class PresenterDialog :
     IPresenterDialog,
     IDisposable
 {
     #region Fields
+
+    /// <summary>
+    /// Used to build view objects.
+    /// </summary>
+    private readonly IViewBuilder _viewBuilder;
 
     /// <summary>
     /// Set to true when this object has been disposed.
@@ -44,6 +47,26 @@ internal class PresenterDialog(
     /// Holds the stack of dialog views.
     /// </summary>
     private readonly ViewStack _stack = new();
+
+    #endregion
+
+    #region Constructors
+
+    /// <summary>
+    /// Constructor.
+    /// </summary>
+    /// <param name="viewBuilder">Used to build view objects.</param>
+    public PresenterDialog(IViewBuilder viewBuilder)
+    {
+        _viewBuilder = viewBuilder;
+
+        _stack.TopViewChanged.Register(
+            () => PropertyChanged?.Invoke(
+                sender: this,
+                e: new(nameof(Current))
+            )
+        );
+    }
 
     #endregion
 
@@ -64,7 +87,7 @@ internal class PresenterDialog(
     {
         ObjectDisposedException.ThrowIf(_isDisposed, this);
 
-        var view = viewBuilder.Build(viewModelDescriptor);
+        var view = _viewBuilder.Build(viewModelDescriptor);
         _stack.Push(
             views: [view],
             popCount: 0
@@ -147,6 +170,9 @@ internal class PresenterDialog(
 
     /// <inheritdoc/>
     public EventToken<IView?> CurrentChanged => _stack.TopViewChanged;
+
+    /// <inheritdoc/>
+    public event PropertyChangedEventHandler? PropertyChanged;
 
     #endregion
 }

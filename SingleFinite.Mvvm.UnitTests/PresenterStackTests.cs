@@ -19,6 +19,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System.ComponentModel;
 using Microsoft.Extensions.DependencyInjection;
 using SingleFinite.Mvvm.Internal.Services;
 using SingleFinite.Mvvm.Services;
@@ -66,6 +67,38 @@ public class PresenterStackTests
         Assert.AreEqual("OnStop - TestViewModel2", output[0]);
         Assert.AreEqual("OnDispose - TestViewModel2", output[1]);
         Assert.AreEqual("OnDispose - TestViewModel1", output[2]);
+    }
+
+    [TestMethod]
+    public void Change_Events_Are_Raised()
+    {
+        using var context = new TestContext();
+        var presenterStack = (PresenterStack)context.ServiceProvider.GetRequiredService<IPresenterStack>();
+
+        var currentChangedObserved = false;
+        presenterStack.CurrentChanged.Register(() => currentChangedObserved = true);
+
+        object? propertyChangedSenderObserved = null;
+        PropertyChangedEventArgs? propertyChangedArgsObserved = null;
+        presenterStack.PropertyChanged += (sender, e) =>
+        {
+            propertyChangedSenderObserved = sender;
+            propertyChangedArgsObserved = e;
+        };
+
+        var output = new List<string>();
+        var viewModelContext = new ViewModelTestContext(output);
+        var viewModelDescriptor1 = new ViewModelDescriptor<TestViewModel1, ViewModelTestContext>(viewModelContext);
+
+        Assert.IsFalse(currentChangedObserved);
+        Assert.IsNull(propertyChangedSenderObserved);
+        Assert.IsNull(propertyChangedArgsObserved);
+
+        presenterStack.Push(viewModelDescriptor1);
+
+        Assert.IsTrue(currentChangedObserved);
+        Assert.AreEqual(presenterStack, propertyChangedSenderObserved);
+        Assert.AreEqual("Current", propertyChangedArgsObserved?.PropertyName);
     }
 
     [TestMethod]

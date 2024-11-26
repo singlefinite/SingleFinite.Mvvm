@@ -19,6 +19,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System.ComponentModel;
 using Microsoft.Extensions.DependencyInjection;
 using SingleFinite.Mvvm.Internal.Services;
 using SingleFinite.Mvvm.Services;
@@ -84,6 +85,38 @@ public class PresenterDialogTests
         Assert.AreEqual("1 Deactivate", output[0]);
         Assert.AreEqual("1 Dispose", output[1]);
         output.Clear();
+    }
+
+    [TestMethod]
+    public void Change_Events_Are_Raised()
+    {
+        using var context = new TestContext();
+
+        var presenterDialog = new PresenterDialog(
+            context.ServiceProvider.GetRequiredService<IViewBuilder>()
+        );
+
+        var currentChangedObserved = false;
+        presenterDialog.CurrentChanged.Register(() => currentChangedObserved = true);
+
+        object? propertyChangedSenderObserved = null;
+        PropertyChangedEventArgs? propertyChangedArgsObserved = null;
+        presenterDialog.PropertyChanged += (sender, e) =>
+        {
+            propertyChangedSenderObserved = sender;
+            propertyChangedArgsObserved = e;
+        };
+
+        Assert.IsFalse(currentChangedObserved);
+        Assert.IsNull(propertyChangedSenderObserved);
+        Assert.IsNull(propertyChangedArgsObserved);
+
+        var output = new List<string>();
+        var dialog1 = presenterDialog.Show<Dialog1Lifecycle, List<string>>(output);
+
+        Assert.IsTrue(currentChangedObserved);
+        Assert.AreEqual(presenterDialog, propertyChangedSenderObserved);
+        Assert.AreEqual("Current", propertyChangedArgsObserved?.PropertyName);
     }
 
     [TestMethod]

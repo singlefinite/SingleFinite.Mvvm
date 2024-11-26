@@ -19,6 +19,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System.ComponentModel;
 using SingleFinite.Mvvm.Services;
 
 namespace SingleFinite.Mvvm.Internal.Services;
@@ -26,12 +27,16 @@ namespace SingleFinite.Mvvm.Internal.Services;
 /// <summary>
 /// Implementation of <see cref="IPresenterFrame"/>.
 /// </summary>
-/// <param name="viewBuilder">Used to build view objects.</param>
-internal sealed class PresenterFrame(IViewBuilder viewBuilder) :
+internal sealed class PresenterFrame :
     IPresenterFrame,
     IDisposable
 {
     #region Fields
+
+    /// <summary>
+    /// Used to build view objects.
+    /// </summary>
+    private readonly IViewBuilder _viewBuilder;
 
     /// <summary>
     /// Set to true when this object is disposed.
@@ -43,6 +48,26 @@ internal sealed class PresenterFrame(IViewBuilder viewBuilder) :
     /// lifecycle management of the view.
     /// </summary>
     private readonly ViewStack _stack = new();
+
+    #endregion
+
+    #region Constructors
+
+    /// <summary>
+    /// Constructor.
+    /// </summary>
+    /// <param name="viewBuilder">Used to build view objects.</param>
+    public PresenterFrame(IViewBuilder viewBuilder)
+    {
+        _viewBuilder = viewBuilder;
+
+        _stack.TopViewChanged.Register(
+            () => PropertyChanged?.Invoke(
+                sender: this,
+                e: new(nameof(Current))
+            )
+        );
+    }
 
     #endregion
 
@@ -60,7 +85,7 @@ internal sealed class PresenterFrame(IViewBuilder viewBuilder) :
     {
         ObjectDisposedException.ThrowIf(_isDisposed, this);
 
-        var view = viewBuilder.Build(viewModelDescriptor);
+        var view = _viewBuilder.Build(viewModelDescriptor);
         _stack.Push(
             views: [view],
             popCount: 1
@@ -108,6 +133,9 @@ internal sealed class PresenterFrame(IViewBuilder viewBuilder) :
 
     /// <inheritdoc/>
     public EventToken<IView?> CurrentChanged => _stack.TopViewChanged;
+
+    /// <inheritdoc/>
+    public event PropertyChangedEventHandler? PropertyChanged;
 
     #endregion
 }
