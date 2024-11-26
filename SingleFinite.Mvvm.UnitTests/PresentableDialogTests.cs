@@ -27,36 +27,36 @@ using SingleFinite.Mvvm.Services;
 namespace SingleFinite.Mvvm.UnitTests;
 
 [TestClass]
-public class PresenterDialogTests
+public class PresentableDialogTests
 {
     [TestMethod]
     public void Dialog_View_Model_Has_Expected_Lifecycle()
     {
         using var context = new TestContext();
 
-        var presenterDialog = new PresenterDialog(
+        var presentableDialog = new PresentableDialog(
             context.ServiceProvider.GetRequiredService<IViewBuilder>()
         );
 
         var output = new List<string>();
 
-        var dialog1 = presenterDialog.Show<Dialog1Lifecycle, List<string>>(output);
+        var dialog1 = presentableDialog.Show<Dialog1Lifecycle, List<string>>(output);
 
-        Assert.AreEqual(presenterDialog.Current?.ViewModel, dialog1);
-        Assert.AreEqual(1, presenterDialog.ViewModels.Length);
-        Assert.AreEqual(dialog1, presenterDialog.ViewModels[0]);
+        Assert.AreEqual(presentableDialog.Current?.ViewModel, dialog1);
+        Assert.AreEqual(1, presentableDialog.ViewModels.Length);
+        Assert.AreEqual(dialog1, presentableDialog.ViewModels[0]);
 
         Assert.AreEqual(2, output.Count);
         Assert.AreEqual("1 Initialize", output[0]);
         Assert.AreEqual("1 Activate", output[1]);
         output.Clear();
 
-        var dialog2 = presenterDialog.Show<Dialog2Lifecycle, List<string>>(output);
+        var dialog2 = presentableDialog.Show<Dialog2Lifecycle, List<string>>(output);
 
-        Assert.AreEqual(presenterDialog.Current?.ViewModel, dialog2);
-        Assert.AreEqual(2, presenterDialog.ViewModels.Length);
-        Assert.AreEqual(dialog2, presenterDialog.ViewModels[0]);
-        Assert.AreEqual(dialog1, presenterDialog.ViewModels[1]);
+        Assert.AreEqual(presentableDialog.Current?.ViewModel, dialog2);
+        Assert.AreEqual(2, presentableDialog.ViewModels.Length);
+        Assert.AreEqual(dialog2, presentableDialog.ViewModels[0]);
+        Assert.AreEqual(dialog1, presentableDialog.ViewModels[1]);
 
         Assert.AreEqual(3, output.Count);
         Assert.AreEqual("2 Initialize", output[0]);
@@ -64,11 +64,11 @@ public class PresenterDialogTests
         Assert.AreEqual("2 Activate", output[2]);
         output.Clear();
 
-        presenterDialog.Close(dialog2);
+        presentableDialog.Close(dialog2);
 
-        Assert.AreEqual(presenterDialog.Current?.ViewModel, dialog1);
-        Assert.AreEqual(1, presenterDialog.ViewModels.Length);
-        Assert.AreEqual(dialog1, presenterDialog.ViewModels[0]);
+        Assert.AreEqual(presentableDialog.Current?.ViewModel, dialog1);
+        Assert.AreEqual(1, presentableDialog.ViewModels.Length);
+        Assert.AreEqual(dialog1, presentableDialog.ViewModels[0]);
 
         Assert.AreEqual(3, output.Count);
         Assert.AreEqual("2 Deactivate", output[0]);
@@ -76,10 +76,10 @@ public class PresenterDialogTests
         Assert.AreEqual("1 Activate", output[2]);
         output.Clear();
 
-        presenterDialog.Close(dialog1);
+        presentableDialog.Close(dialog1);
 
-        Assert.IsNull(presenterDialog.Current);
-        Assert.AreEqual(0, presenterDialog.ViewModels.Length);
+        Assert.IsNull(presentableDialog.Current);
+        Assert.AreEqual(0, presentableDialog.ViewModels.Length);
 
         Assert.AreEqual(2, output.Count);
         Assert.AreEqual("1 Deactivate", output[0]);
@@ -92,18 +92,18 @@ public class PresenterDialogTests
     {
         using var context = new TestContext();
 
-        var presenterDialog = new PresenterDialog(
+        var presentableDialog = new PresentableDialog(
             context.ServiceProvider.GetRequiredService<IViewBuilder>()
         );
 
-        IPresenter.CurrentChangedEventArgs? observedArgs = null;
-        presenterDialog.CurrentChanged.Register(args => observedArgs = args);
+        IPresentable.CurrentChangedEventArgs? observedArgs = null;
+        presentableDialog.CurrentChanged.Register(args => observedArgs = args);
 
         var output = new List<string>();
 
         Assert.IsNull(observedArgs);
 
-        var viewModel1 = presenterDialog.Show<Dialog1Lifecycle, List<string>>(output);
+        var viewModel1 = presentableDialog.Show<Dialog1Lifecycle, List<string>>(output);
 
         Assert.IsNotNull(observedArgs);
         Assert.AreEqual(viewModel1, observedArgs.View?.ViewModel);
@@ -111,7 +111,7 @@ public class PresenterDialogTests
 
         observedArgs = null;
 
-        var viewModel2 = presenterDialog.Show<Dialog1Lifecycle, List<string>>(output);
+        var viewModel2 = presentableDialog.Show<Dialog1Lifecycle, List<string>>(output);
 
         Assert.IsNotNull(observedArgs);
         Assert.AreEqual(viewModel2, observedArgs.View?.ViewModel);
@@ -119,7 +119,7 @@ public class PresenterDialogTests
 
         observedArgs = null;
 
-        presenterDialog.Close(viewModel2);
+        presentableDialog.Close(viewModel2);
 
         Assert.IsNotNull(observedArgs);
         Assert.AreEqual(viewModel1, observedArgs.View?.ViewModel);
@@ -131,25 +131,25 @@ public class PresenterDialogTests
     {
         using var context = new TestContext();
 
-        var presenterDialog = new PresenterDialog(
+        var presentableDialog = new PresentableDialog(
             context.ServiceProvider.GetRequiredService<IViewBuilder>()
         );
 
-        var dialog1 = presenterDialog.Show<Dialog1Lifecycle, List<string>>([]);
-        var dialog2 = presenterDialog.Show<Dialog1Lifecycle, List<string>>([]);
-        var dialog3 = presenterDialog.Show<Dialog1Lifecycle, List<string>>([]);
+        var dialog1 = presentableDialog.Show<Dialog1Lifecycle, List<string>>([]);
+        var dialog2 = presentableDialog.Show<Dialog1Lifecycle, List<string>>([]);
+        var dialog3 = presentableDialog.Show<Dialog1Lifecycle, List<string>>([]);
 
-        Assert.AreEqual(3, presenterDialog.ViewModels.Length);
-        Assert.IsNotNull(presenterDialog.Current);
+        Assert.AreEqual(3, presentableDialog.ViewModels.Length);
+        Assert.IsNotNull(presentableDialog.Current);
 
         Assert.IsFalse(dialog1.IsDisposed);
         Assert.IsFalse(dialog2.IsDisposed);
         Assert.IsFalse(dialog3.IsDisposed);
 
-        presenterDialog.Clear();
+        presentableDialog.Clear();
 
-        Assert.AreEqual(0, presenterDialog.ViewModels.Length);
-        Assert.IsNull(presenterDialog.Current);
+        Assert.AreEqual(0, presentableDialog.ViewModels.Length);
+        Assert.IsNull(presentableDialog.Current);
 
         Assert.IsTrue(dialog1.IsDisposed);
         Assert.IsTrue(dialog2.IsDisposed);
@@ -161,25 +161,25 @@ public class PresenterDialogTests
     {
         using var context = new TestContext();
 
-        var presenterDialog = new PresenterDialog(
+        var presentableDialog = new PresentableDialog(
             context.ServiceProvider.GetRequiredService<IViewBuilder>()
         );
 
-        var dialog1 = presenterDialog.Show<Dialog1Lifecycle, List<string>>([]);
-        var dialog2 = presenterDialog.Show<Dialog1Lifecycle, List<string>>([]);
-        var dialog3 = presenterDialog.Show<Dialog1Lifecycle, List<string>>([]);
+        var dialog1 = presentableDialog.Show<Dialog1Lifecycle, List<string>>([]);
+        var dialog2 = presentableDialog.Show<Dialog1Lifecycle, List<string>>([]);
+        var dialog3 = presentableDialog.Show<Dialog1Lifecycle, List<string>>([]);
 
-        Assert.AreEqual(3, presenterDialog.ViewModels.Length);
-        Assert.IsNotNull(presenterDialog.Current);
+        Assert.AreEqual(3, presentableDialog.ViewModels.Length);
+        Assert.IsNotNull(presentableDialog.Current);
 
         Assert.IsFalse(dialog1.IsDisposed);
         Assert.IsFalse(dialog2.IsDisposed);
         Assert.IsFalse(dialog3.IsDisposed);
 
-        presenterDialog.Dispose();
+        presentableDialog.Dispose();
 
-        Assert.AreEqual(0, presenterDialog.ViewModels.Length);
-        Assert.IsNull(presenterDialog.Current);
+        Assert.AreEqual(0, presentableDialog.ViewModels.Length);
+        Assert.IsNull(presentableDialog.Current);
 
         Assert.IsTrue(dialog1.IsDisposed);
         Assert.IsTrue(dialog2.IsDisposed);
@@ -191,24 +191,24 @@ public class PresenterDialogTests
     {
         using var context = new TestContext();
 
-        var presenterDialog = new PresenterDialog(
+        var presentableDialog = new PresentableDialog(
             context.ServiceProvider.GetRequiredService<IViewBuilder>()
         );
 
         var output = new List<string>();
 
-        var dialog1 = presenterDialog.Show<Dialog1Lifecycle, List<string>>(output);
-        var dialog2 = presenterDialog.Show<Dialog2Lifecycle, List<string>>(output);
-        var dialog3 = presenterDialog.Show<Dialog3Lifecycle, List<string>>(output);
+        var dialog1 = presentableDialog.Show<Dialog1Lifecycle, List<string>>(output);
+        var dialog2 = presentableDialog.Show<Dialog2Lifecycle, List<string>>(output);
+        var dialog3 = presentableDialog.Show<Dialog3Lifecycle, List<string>>(output);
 
         output.Clear();
 
-        presenterDialog.Close(dialog2);
+        presentableDialog.Close(dialog2);
 
-        Assert.AreEqual(presenterDialog.Current?.ViewModel, dialog3);
-        Assert.AreEqual(2, presenterDialog.ViewModels.Length);
-        Assert.AreEqual(dialog3, presenterDialog.ViewModels[0]);
-        Assert.AreEqual(dialog1, presenterDialog.ViewModels[1]);
+        Assert.AreEqual(presentableDialog.Current?.ViewModel, dialog3);
+        Assert.AreEqual(2, presentableDialog.ViewModels.Length);
+        Assert.AreEqual(dialog3, presentableDialog.ViewModels[0]);
+        Assert.AreEqual(dialog1, presentableDialog.ViewModels[1]);
 
         Assert.AreEqual(1, output.Count);
         Assert.AreEqual("2 Dispose", output[0]);

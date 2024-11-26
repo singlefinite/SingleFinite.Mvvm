@@ -24,11 +24,11 @@ using SingleFinite.Mvvm.Services;
 namespace SingleFinite.Mvvm.Internal.Services;
 
 /// <summary>
-/// Implementation of <see cref="IPresenterDialog"/>.
+/// Implementation of <see cref="IPresentableDialog"/>.
 /// </summary>
 /// <param name="viewBuilder">Used to build view objects.</param>
-internal class PresenterDialog(IViewBuilder viewBuilder) :
-    IPresenterDialog,
+internal class PresentableDialog(IViewBuilder viewBuilder) :
+    IPresentableDialog,
     IDisposable
 {
     #region Fields
@@ -48,7 +48,7 @@ internal class PresenterDialog(IViewBuilder viewBuilder) :
     #region Properties
 
     /// <inheritdoc/>
-    public IView? Current => _stack.CurrentView;
+    public IView? Current => _stack.Current;
 
     /// <inheritdoc/>
     public IViewModel[] ViewModels => _stack.ViewModels;
@@ -144,8 +144,8 @@ internal class PresenterDialog(IViewBuilder viewBuilder) :
     #region Events
 
     /// <inheritdoc/>
-    public EventToken<IPresenter.CurrentChangedEventArgs> CurrentChanged =>
-        _stack.CurrentViewChanged;
+    public EventToken<IPresentable.CurrentChangedEventArgs> CurrentChanged =>
+        _stack.CurrentChanged;
 
     #endregion
 }

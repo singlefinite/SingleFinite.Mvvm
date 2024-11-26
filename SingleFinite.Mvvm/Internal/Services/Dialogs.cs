@@ -28,7 +28,7 @@ namespace SingleFinite.Mvvm.Internal.Services;
 /// </summary>
 /// <param name="viewBuilder">Passed to the super class.</param>
 internal class Dialogs(IViewBuilder viewBuilder) :
-    PresenterDialog(viewBuilder),
+    PresentableDialog(viewBuilder),
     IDialogs
 {
 }

@@ -22,7 +22,7 @@
 namespace SingleFinite.Mvvm.Services;
 
 /// <summary>
-/// Options for popping view models off of a <see cref="IPresenterStack"/>.
+/// Options for popping view models off of a <see cref="IPresentableStack"/>.
 /// </summary>
 public abstract record PopOptions
 {

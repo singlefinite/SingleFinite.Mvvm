@@ -26,7 +26,7 @@ namespace SingleFinite.Mvvm.Services;
 /// create and invoke the lifecycle methods for the view models that are part of
 /// the stack.
 /// </summary>
-public interface IPresenterStack : IPresenter
+public interface IPresentableStack : IPresentable
 {
     /// <summary>
     /// The current view models in the stack.

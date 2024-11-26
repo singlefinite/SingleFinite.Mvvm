@@ -27,37 +27,37 @@ using SingleFinite.Mvvm.Services;
 namespace SingleFinite.Mvvm.UnitTests;
 
 [TestClass]
-public class PresenterFrameTests
+public class PresentableItemTests
 {
     [TestMethod]
     public void Lifecycle_Events_Raised_When_Expected()
     {
         using var context = new TestContext();
-        var presenterFrame = (PresenterFrame)context.ServiceProvider.GetRequiredService<IPresenterFrame>();
+        var presentableItem = (PresentableItem)context.ServiceProvider.GetRequiredService<IPresentableItem>();
 
         var output = new List<string>();
         var viewModelContext = new ViewModelTestContext(output);
         var viewModelDescriptor1 = new ViewModelDescriptor<TestViewModel1, ViewModelTestContext>(viewModelContext);
 
-        presenterFrame.Set(viewModelDescriptor1);
+        presentableItem.Set(viewModelDescriptor1);
         Assert.AreEqual(2, output.Count);
         Assert.AreEqual("OnInit - TestViewModel1", output[0]);
         Assert.AreEqual("OnStart - TestViewModel1", output[1]);
 
         output.Clear();
-        presenterFrame.Clear();
+        presentableItem.Clear();
         Assert.AreEqual(2, output.Count);
         Assert.AreEqual("OnStop - TestViewModel1", output[0]);
         Assert.AreEqual("OnDispose - TestViewModel1", output[1]);
 
         output.Clear();
-        presenterFrame.Set<TestViewModel2, ViewModelTestContext>(viewModelContext);
+        presentableItem.Set<TestViewModel2, ViewModelTestContext>(viewModelContext);
         Assert.AreEqual(2, output.Count);
         Assert.AreEqual("OnInit - TestViewModel2", output[0]);
         Assert.AreEqual("OnStart - TestViewModel2", output[1]);
 
         output.Clear();
-        presenterFrame.Set<TestViewModel3, ViewModelTestContext>(viewModelContext);
+        presentableItem.Set<TestViewModel3, ViewModelTestContext>(viewModelContext);
         Assert.AreEqual(4, output.Count);
         Assert.AreEqual("OnInit - TestViewModel3", output[0]);
         Assert.AreEqual("OnStop - TestViewModel2", output[1]);
@@ -65,7 +65,7 @@ public class PresenterFrameTests
         Assert.AreEqual("OnStart - TestViewModel3", output[3]);
 
         output.Clear();
-        presenterFrame.Clear();
+        presentableItem.Clear();
         Assert.AreEqual(2, output.Count);
         Assert.AreEqual("OnStop - TestViewModel3", output[0]);
         Assert.AreEqual("OnDispose - TestViewModel3", output[1]);
@@ -75,10 +75,10 @@ public class PresenterFrameTests
     public void Changed_Event_Is_Raised()
     {
         using var context = new TestContext();
-        var presenterFrame = (PresenterFrame)context.ServiceProvider.GetRequiredService<IPresenterFrame>();
+        var presentableItem = (PresentableItem)context.ServiceProvider.GetRequiredService<IPresentableItem>();
 
-        IPresenter.CurrentChangedEventArgs? observedArgs = null;
-        presenterFrame.CurrentChanged.Register(args => observedArgs = args);
+        IPresentable.CurrentChangedEventArgs? observedArgs = null;
+        presentableItem.CurrentChanged.Register(args => observedArgs = args);
 
         var output = new List<string>();
         var viewModelContext = new ViewModelTestContext(output);
@@ -87,7 +87,7 @@ public class PresenterFrameTests
 
         Assert.IsNull(observedArgs);
 
-        var viewModel1 = presenterFrame.Set(viewModelDescriptor1);
+        var viewModel1 = presentableItem.Set(viewModelDescriptor1);
 
         Assert.IsNotNull(observedArgs);
         Assert.AreEqual(viewModel1, observedArgs.View?.ViewModel);
@@ -95,7 +95,7 @@ public class PresenterFrameTests
 
         observedArgs = null;
 
-        var viewModel2 = presenterFrame.Set(viewModelDescriptor2);
+        var viewModel2 = presentableItem.Set(viewModelDescriptor2);
 
         Assert.IsNotNull(observedArgs);
         Assert.AreEqual(viewModel2, observedArgs.View?.ViewModel);
@@ -103,7 +103,7 @@ public class PresenterFrameTests
 
         observedArgs = null;
 
-        presenterFrame.Clear();
+        presentableItem.Clear();
 
         Assert.IsNotNull(observedArgs);
         Assert.IsNull(observedArgs.View);
@@ -115,30 +115,30 @@ public class PresenterFrameTests
     {
         using var context = new TestContext();
         var scope = context.ServiceProvider.CreateScope();
-        var presenterFrameInScope = (PresenterFrame)scope.ServiceProvider.GetRequiredService<IPresenterFrame>();
-        var presenterFrameInRoot = (PresenterFrame)context.ServiceProvider.GetRequiredService<IPresenterFrame>();
+        var presentableItemInScope = (PresentableItem)scope.ServiceProvider.GetRequiredService<IPresentableItem>();
+        var presentableItemInRoot = (PresentableItem)context.ServiceProvider.GetRequiredService<IPresentableItem>();
 
         var output = new List<string>();
         var viewModelTestContext = new ViewModelTestContext(output);
         var viewModelDescriptor1 = new ViewModelDescriptor<TestViewModel1, ViewModelTestContext>(viewModelTestContext);
 
-        presenterFrameInScope.Set(viewModelDescriptor1);
-        presenterFrameInRoot.Set(viewModelDescriptor1);
-        Assert.IsNotNull(presenterFrameInScope.Current);
-        Assert.IsNotNull(presenterFrameInRoot.Current);
+        presentableItemInScope.Set(viewModelDescriptor1);
+        presentableItemInRoot.Set(viewModelDescriptor1);
+        Assert.IsNotNull(presentableItemInScope.Current);
+        Assert.IsNotNull(presentableItemInRoot.Current);
 
         scope.Dispose();
-        Assert.IsNull(presenterFrameInScope.Current);
-        Assert.IsNotNull(presenterFrameInRoot.Current);
+        Assert.IsNull(presentableItemInScope.Current);
+        Assert.IsNotNull(presentableItemInRoot.Current);
     }
 
     [TestMethod]
     public void Set_Method_With_Template_Creates_View_With_Template()
     {
         using var context = new TestContext();
-        var presenterFrame = (PresenterFrame)context.ServiceProvider.GetRequiredService<IPresenterFrame>();
+        var presentableItem = (PresentableItem)context.ServiceProvider.GetRequiredService<IPresentableItem>();
         var viewModelTestContext = new ViewModelTestContext([]);
-        var viewModel = presenterFrame.Set<TestViewModel1, ViewModelTestContext>(viewModelTestContext);
+        var viewModel = presentableItem.Set<TestViewModel1, ViewModelTestContext>(viewModelTestContext);
 
         Assert.IsNotNull(viewModel);
     }
@@ -147,30 +147,30 @@ public class PresenterFrameTests
     public void Set_Method_Throws_If_Disposed()
     {
         using var context = new TestContext();
-        var presenterFrame = (PresenterFrame)context.ServiceProvider.GetRequiredService<IPresenterFrame>();
+        var presentableItem = (PresentableItem)context.ServiceProvider.GetRequiredService<IPresentableItem>();
 
         var output = new List<string>();
         var viewModelContext = new ViewModelTestContext(output);
         var viewModelDescriptor = new ViewModelDescriptor<TestViewModel1, ViewModelTestContext>(viewModelContext);
 
-        presenterFrame.Dispose();
+        presentableItem.Dispose();
 
-        Assert.ThrowsException<ObjectDisposedException>(() => presenterFrame.Set(viewModelDescriptor));
+        Assert.ThrowsException<ObjectDisposedException>(() => presentableItem.Set(viewModelDescriptor));
     }
 
     [TestMethod]
     public void Closable_Event_Removes_View_Model()
     {
         using var context = new TestContext();
-        var presenterFrame = (PresenterFrame)context.ServiceProvider.GetRequiredService<IPresenterFrame>();
+        var presentableItem = (PresentableItem)context.ServiceProvider.GetRequiredService<IPresentableItem>();
         var viewModelTestContext = new ViewModelTestContext([]);
-        var viewModel = presenterFrame.Set<TestViewModel1, ViewModelTestContext>(viewModelTestContext);
+        var viewModel = presentableItem.Set<TestViewModel1, ViewModelTestContext>(viewModelTestContext);
 
-        Assert.IsNotNull(presenterFrame.Current);
+        Assert.IsNotNull(presentableItem.Current);
 
         viewModel.Close();
 
-        Assert.IsNull(presenterFrame.Current);
+        Assert.IsNull(presentableItem.Current);
     }
 
     #region Types

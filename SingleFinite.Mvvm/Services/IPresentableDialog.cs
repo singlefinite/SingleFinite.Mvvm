@@ -24,7 +24,7 @@ namespace SingleFinite.Mvvm.Services;
 /// <summary>
 /// Service used to display dialogs.
 /// </summary>
-public interface IPresenterDialog : IPresenter
+public interface IPresentableDialog : IPresentable
 {
     /// <summary>
     /// All currently open dialogs in order from top to bottom with the top

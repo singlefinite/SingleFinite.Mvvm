@@ -51,7 +51,7 @@ internal class ViewStack
     /// <summary>
     /// The current view is the top most view in the stack.
     /// </summary>
-    public IView? CurrentView { get; private set; }
+    public IView? Current { get; private set; }
 
     #endregion
 
@@ -151,16 +151,16 @@ internal class ViewStack
         Views = [.. _views];
         ViewModels = _views.Select(view => view.ViewModel).ToArray();
 
-        if (CurrentView != newTopView)
+        if (Current != newTopView)
         {
-            CurrentView = _views.FirstOrDefault();
+            Current = _views.FirstOrDefault();
 
             if (activateTop)
                 ActivateTop();
 
-            _currentViewChanged.RaiseEvent(
+            _currentChanged.RaiseEvent(
                 new(
-                    view: CurrentView,
+                    view: Current,
                     isNew: isNew
                 )
             );
@@ -264,10 +264,10 @@ internal class ViewStack
     #region Events
 
     /// <summary>
-    /// Event raised when the top view has been changed.
+    /// Event raised when the current view has been changed.
     /// </summary>
-    public EventToken<IPresenter.CurrentChangedEventArgs> CurrentViewChanged => _currentViewChanged.Token;
-    private readonly EventTokenSource<IPresenter.CurrentChangedEventArgs> _currentViewChanged = new();
+    public EventToken<IPresentable.CurrentChangedEventArgs> CurrentChanged => _currentChanged.Token;
+    private readonly EventTokenSource<IPresentable.CurrentChangedEventArgs> _currentChanged = new();
 
     #endregion
 }

@@ -34,7 +34,7 @@ public class ViewModelTests
         using var context = new TestContext();
         var scope = context.ServiceProvider.CreateLinkedScope();
 
-        var viewModel1 = new NestingViewModel(scope.ServiceProvider.GetRequiredService<IPresenterStack>());
+        var viewModel1 = new NestingViewModel(scope.ServiceProvider.GetRequiredService<IPresentableStack>());
         var viewModel2 = viewModel1.CreateChild("second");
         var viewModel3 = viewModel2.CreateChild("third");
 
@@ -203,7 +203,7 @@ public class ViewModelTests
         public NestingViewModel ViewModel => viewModel;
     }
 
-    private class NestingViewModel(IPresenterStack presenterStack) : ViewModel
+    private class NestingViewModel(IPresentableStack presenterStack) : ViewModel
     {
         private string _name = "first";
         public string Name => _name;

@@ -22,9 +22,9 @@
 namespace SingleFinite.Mvvm.Services;
 
 /// <summary>
-/// An instance of <seealso cref="IPresenterDialog"/> that is registered as a
+/// An instance of <seealso cref="IPresentableDialog"/> that is registered as a
 /// singleton.
 /// </summary>
-public interface IDialogs : IPresenterDialog
+public interface IDialogs : IPresentableDialog
 {
 }

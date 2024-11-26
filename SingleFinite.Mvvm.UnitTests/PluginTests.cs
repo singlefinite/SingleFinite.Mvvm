@@ -35,7 +35,7 @@ public class PluginTests
     public void LifeCycleEventsCalled()
     {
         using var context = new TestContext();
-        var presenter = context.ServiceProvider.GetRequiredService<IPresenterFrame>();
+        var presenter = context.ServiceProvider.GetRequiredService<IPresentableItem>();
         var viewModel = presenter.Set<ExamplePluginHost>();
         var lines = viewModel.Lines;
 

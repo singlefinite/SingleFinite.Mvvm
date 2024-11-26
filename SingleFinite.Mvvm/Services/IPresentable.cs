@@ -19,14 +19,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using System.ComponentModel;
-
 namespace SingleFinite.Mvvm.Services;
 
 /// <summary>
 /// A service that presents a view.
 /// </summary>
-public interface IPresenter
+public interface IPresentable
 {
     /// <summary>
     /// The current view to present.

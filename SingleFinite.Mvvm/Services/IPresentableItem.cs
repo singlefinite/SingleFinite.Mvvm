@@ -26,7 +26,7 @@ namespace SingleFinite.Mvvm.Services;
 /// and invoke the lifecycle methods when a view model is added and when it is 
 /// removed from the frame.
 /// </summary>
-public interface IPresenterFrame : IPresenter
+public interface IPresentableItem : IPresentable
 {
     /// <summary>
     /// Create a view model and put it on the frame.  If there is already a view

@@ -27,13 +27,13 @@ using SingleFinite.Mvvm.Services;
 namespace SingleFinite.Mvvm.UnitTests;
 
 [TestClass]
-public class PresenterStackTests
+public class PresentableStackTests
 {
     [TestMethod]
     public void Lifecycle_Events_Raised_When_Expected()
     {
         using var context = new TestContext();
-        var presenterStack = (PresenterStack)context.ServiceProvider.GetRequiredService<IPresenterStack>();
+        var presentableStack = (PresentableStack)context.ServiceProvider.GetRequiredService<IPresentableStack>();
 
         var output = new List<string>();
         var viewModelContext = new ViewModelTestContext(output);
@@ -41,13 +41,13 @@ public class PresenterStackTests
         var viewModelDescriptor2 = new ViewModelDescriptor<TestViewModel2, ViewModelTestContext>(viewModelContext);
         var viewModelDescriptor3 = new ViewModelDescriptor<TestViewModel3, ViewModelTestContext>(viewModelContext);
 
-        presenterStack.Push(viewModelDescriptor1);
+        presentableStack.Push(viewModelDescriptor1);
         Assert.AreEqual(2, output.Count);
         Assert.AreEqual("OnInit - TestViewModel1", output[0]);
         Assert.AreEqual("OnStart - TestViewModel1", output[1]);
 
         output.Clear();
-        presenterStack.PushAll([viewModelDescriptor2, viewModelDescriptor3]);
+        presentableStack.PushAll([viewModelDescriptor2, viewModelDescriptor3]);
         Assert.AreEqual(4, output.Count);
         Assert.AreEqual("OnInit - TestViewModel2", output[0]);
         Assert.AreEqual("OnInit - TestViewModel3", output[1]);
@@ -55,14 +55,14 @@ public class PresenterStackTests
         Assert.AreEqual("OnStart - TestViewModel3", output[3]);
 
         output.Clear();
-        presenterStack.PopTo<TestViewModel2>();
+        presentableStack.PopTo<TestViewModel2>();
         Assert.AreEqual(3, output.Count);
         Assert.AreEqual("OnStop - TestViewModel3", output[0]);
         Assert.AreEqual("OnDispose - TestViewModel3", output[1]);
         Assert.AreEqual("OnStart - TestViewModel2", output[2]);
 
         output.Clear();
-        presenterStack.Clear();
+        presentableStack.Clear();
         Assert.AreEqual(3, output.Count);
         Assert.AreEqual("OnStop - TestViewModel2", output[0]);
         Assert.AreEqual("OnDispose - TestViewModel2", output[1]);
@@ -73,10 +73,10 @@ public class PresenterStackTests
     public void Changed_Event_Is_Raised()
     {
         using var context = new TestContext();
-        var presenterStack = (PresenterStack)context.ServiceProvider.GetRequiredService<IPresenterStack>();
+        var presentableStack = (PresentableStack)context.ServiceProvider.GetRequiredService<IPresentableStack>();
 
-        IPresenter.CurrentChangedEventArgs? observedArgs = null;
-        presenterStack.CurrentChanged.Register(args => observedArgs = args);
+        IPresentable.CurrentChangedEventArgs? observedArgs = null;
+        presentableStack.CurrentChanged.Register(args => observedArgs = args);
 
         var output = new List<string>();
         var viewModelContext = new ViewModelTestContext(output);
@@ -85,7 +85,7 @@ public class PresenterStackTests
 
         Assert.IsNull(observedArgs);
 
-        var viewModel1 = presenterStack.Push(viewModelDescriptor1);
+        var viewModel1 = presentableStack.Push(viewModelDescriptor1);
 
         Assert.IsNotNull(observedArgs);
         Assert.AreEqual(viewModel1, observedArgs.View?.ViewModel);
@@ -93,7 +93,7 @@ public class PresenterStackTests
 
         observedArgs = null;
 
-        var viewModel2 = presenterStack.Push(viewModelDescriptor2);
+        var viewModel2 = presentableStack.Push(viewModelDescriptor2);
 
         Assert.IsNotNull(observedArgs);
         Assert.AreEqual(viewModel2, observedArgs.View?.ViewModel);
@@ -101,7 +101,7 @@ public class PresenterStackTests
 
         observedArgs = null;
 
-        presenterStack.Pop();
+        presentableStack.Pop();
 
         Assert.IsNotNull(observedArgs);
         Assert.AreEqual(viewModel1, observedArgs.View?.ViewModel);
@@ -112,7 +112,7 @@ public class PresenterStackTests
     public void PopTo_Method_With_ViewModel_Type_Pops_Views()
     {
         using var context = new TestContext();
-        var presenterStack = (PresenterStack)context.ServiceProvider.GetRequiredService<IPresenterStack>();
+        var presentableStack = (PresentableStack)context.ServiceProvider.GetRequiredService<IPresentableStack>();
 
         var output = new List<string>();
         var viewModelContext = new ViewModelTestContext(output);
@@ -120,29 +120,29 @@ public class PresenterStackTests
         var viewModelDescriptor2 = new ViewModelDescriptor<TestViewModel2, ViewModelTestContext>(viewModelContext);
         var viewModelDescriptor3 = new ViewModelDescriptor<TestViewModel3, ViewModelTestContext>(viewModelContext);
 
-        presenterStack.PushAll([viewModelDescriptor1, viewModelDescriptor2, viewModelDescriptor3]);
-        var result1 = presenterStack.PopTo<TestViewModel1>(inclusive: true);
+        presentableStack.PushAll([viewModelDescriptor1, viewModelDescriptor2, viewModelDescriptor3]);
+        var result1 = presentableStack.PopTo<TestViewModel1>(inclusive: true);
         Assert.AreEqual(true, result1);
-        Assert.AreEqual(0, presenterStack.ViewModels.Length);
-        Assert.AreEqual(null, presenterStack.Current);
+        Assert.AreEqual(0, presentableStack.ViewModels.Length);
+        Assert.AreEqual(null, presentableStack.Current);
 
-        presenterStack.PushAll([viewModelDescriptor1, viewModelDescriptor2]);
-        var result2 = presenterStack.PopTo<TestViewModel3>(inclusive: true);
+        presentableStack.PushAll([viewModelDescriptor1, viewModelDescriptor2]);
+        var result2 = presentableStack.PopTo<TestViewModel3>(inclusive: true);
         Assert.AreEqual(false, result2);
-        Assert.AreEqual(2, presenterStack.ViewModels.Length);
-        Assert.IsNotNull(presenterStack.Current);
+        Assert.AreEqual(2, presentableStack.ViewModels.Length);
+        Assert.IsNotNull(presentableStack.Current);
 
-        var result3 = presenterStack.PopTo<TestViewModel1>(inclusive: true);
+        var result3 = presentableStack.PopTo<TestViewModel1>(inclusive: true);
         Assert.AreEqual(true, result3);
-        Assert.AreEqual(0, presenterStack.ViewModels.Length);
-        Assert.AreEqual(null, presenterStack.Current);
+        Assert.AreEqual(0, presentableStack.ViewModels.Length);
+        Assert.AreEqual(null, presentableStack.Current);
     }
 
     [TestMethod]
     public void PopTo_Method_With_Query_Pops_Views()
     {
         using var context = new TestContext();
-        var presenterStack = (PresenterStack)context.ServiceProvider.GetRequiredService<IPresenterStack>();
+        var presentableStack = (PresentableStack)context.ServiceProvider.GetRequiredService<IPresentableStack>();
 
         var output = new List<string>();
         var viewModelContext = new ViewModelTestContext(output);
@@ -150,26 +150,26 @@ public class PresenterStackTests
         var viewModelDescriptor2 = new ViewModelDescriptor<TestViewModel2, ViewModelTestContext>(viewModelContext);
         var viewModelDescriptor3 = new ViewModelDescriptor<TestViewModel3, ViewModelTestContext>(viewModelContext);
 
-        presenterStack.PushAll([viewModelDescriptor1, viewModelDescriptor2, viewModelDescriptor3, viewModelDescriptor1]);
-        var result1 = presenterStack.PopTo(
+        presentableStack.PushAll([viewModelDescriptor1, viewModelDescriptor2, viewModelDescriptor3, viewModelDescriptor1]);
+        var result1 = presentableStack.PopTo(
             predicate: viewModel => viewModel is TestViewModel1,
             fromTop: false,
             inclusive: true
         );
         Assert.AreEqual(true, result1);
-        Assert.AreEqual(0, presenterStack.ViewModels.Length);
+        Assert.AreEqual(0, presentableStack.ViewModels.Length);
 
-        presenterStack.PushAll([viewModelDescriptor1, viewModelDescriptor2, viewModelDescriptor3, viewModelDescriptor1]);
-        var result2 = presenterStack.PopTo(
+        presentableStack.PushAll([viewModelDescriptor1, viewModelDescriptor2, viewModelDescriptor3, viewModelDescriptor1]);
+        var result2 = presentableStack.PopTo(
             predicate: viewModel => viewModel is TestViewModel1,
             fromTop: true,
             inclusive: true
         );
         Assert.AreEqual(true, result1);
-        Assert.AreEqual(3, presenterStack.ViewModels.Length);
-        Assert.AreEqual(presenterStack.ViewModels[0].GetType(), typeof(TestViewModel3));
-        Assert.AreEqual(presenterStack.ViewModels[1].GetType(), typeof(TestViewModel2));
-        Assert.AreEqual(presenterStack.ViewModels[2].GetType(), typeof(TestViewModel1));
+        Assert.AreEqual(3, presentableStack.ViewModels.Length);
+        Assert.AreEqual(presentableStack.ViewModels[0].GetType(), typeof(TestViewModel3));
+        Assert.AreEqual(presentableStack.ViewModels[1].GetType(), typeof(TestViewModel2));
+        Assert.AreEqual(presentableStack.ViewModels[2].GetType(), typeof(TestViewModel1));
     }
 
     [TestMethod]
@@ -177,8 +177,8 @@ public class PresenterStackTests
     {
         using var context = new TestContext();
         var scope = context.ServiceProvider.CreateScope();
-        var presenterStackInScope = (PresenterStack)scope.ServiceProvider.GetRequiredService<IPresenterStack>();
-        var presenterStackInRoot = (PresenterStack)context.ServiceProvider.GetRequiredService<IPresenterStack>();
+        var presentableStackInScope = (PresentableStack)scope.ServiceProvider.GetRequiredService<IPresentableStack>();
+        var presentableStackInRoot = (PresentableStack)context.ServiceProvider.GetRequiredService<IPresentableStack>();
 
         var output = new List<string>();
         var viewModelTestContext = new ViewModelTestContext(output);
@@ -186,14 +186,14 @@ public class PresenterStackTests
         var viewModelDescriptor2 = new ViewModelDescriptor<TestViewModel2, ViewModelTestContext>(viewModelTestContext);
         var viewModelDescriptor3 = new ViewModelDescriptor<TestViewModel3, ViewModelTestContext>(viewModelTestContext);
 
-        presenterStackInScope.PushAll([viewModelDescriptor1, viewModelDescriptor2, viewModelDescriptor3]);
-        presenterStackInRoot.PushAll([viewModelDescriptor1, viewModelDescriptor2, viewModelDescriptor3]);
-        Assert.AreEqual(3, presenterStackInScope.ViewModels.Length);
-        Assert.AreEqual(3, presenterStackInRoot.ViewModels.Length);
+        presentableStackInScope.PushAll([viewModelDescriptor1, viewModelDescriptor2, viewModelDescriptor3]);
+        presentableStackInRoot.PushAll([viewModelDescriptor1, viewModelDescriptor2, viewModelDescriptor3]);
+        Assert.AreEqual(3, presentableStackInScope.ViewModels.Length);
+        Assert.AreEqual(3, presentableStackInRoot.ViewModels.Length);
 
         scope.Dispose();
-        Assert.AreEqual(0, presenterStackInScope.ViewModels.Length);
-        Assert.AreEqual(3, presenterStackInRoot.ViewModels.Length);
+        Assert.AreEqual(0, presentableStackInScope.ViewModels.Length);
+        Assert.AreEqual(3, presentableStackInRoot.ViewModels.Length);
     }
 
     [TestMethod]
@@ -204,8 +204,8 @@ public class PresenterStackTests
         var output = new List<string>();
         var viewModelTestContext = new ViewModelTestContext(output);
 
-        var presenterStack = (PresenterStack)context.ServiceProvider.GetRequiredService<IPresenterStack>();
-        presenterStack.PushAll(
+        var presentableStack = (PresentableStack)context.ServiceProvider.GetRequiredService<IPresentableStack>();
+        presentableStack.PushAll(
             [
                 new ViewModelDescriptor<TestViewModel1, ViewModelTestContext>(viewModelTestContext),
                 new ViewModelDescriptor<TestViewModel2, ViewModelTestContext>(viewModelTestContext),
@@ -213,10 +213,10 @@ public class PresenterStackTests
             ]
         );
 
-        Assert.AreEqual(3, presenterStack.ViewModels.Length);
-        Assert.IsInstanceOfType<TestViewModel3>(presenterStack.ViewModels[0]);
-        Assert.IsInstanceOfType<TestViewModel2>(presenterStack.ViewModels[1]);
-        Assert.IsInstanceOfType<TestViewModel1>(presenterStack.ViewModels[2]);
+        Assert.AreEqual(3, presentableStack.ViewModels.Length);
+        Assert.IsInstanceOfType<TestViewModel3>(presentableStack.ViewModels[0]);
+        Assert.IsInstanceOfType<TestViewModel2>(presentableStack.ViewModels[1]);
+        Assert.IsInstanceOfType<TestViewModel1>(presentableStack.ViewModels[2]);
     }
 
     [TestMethod]
@@ -226,8 +226,8 @@ public class PresenterStackTests
 
         var viewModelTestContext = new ViewModelTestContext([]);
 
-        var presenterStack = (PresenterStack)context.ServiceProvider.GetRequiredService<IPresenterStack>();
-        var viewModel = presenterStack.Push<TestViewModel1, ViewModelTestContext>(viewModelTestContext);
+        var presentableStack = (PresentableStack)context.ServiceProvider.GetRequiredService<IPresentableStack>();
+        var viewModel = presentableStack.Push<TestViewModel1, ViewModelTestContext>(viewModelTestContext);
 
         Assert.IsNotNull(viewModel);
     }
@@ -239,14 +239,14 @@ public class PresenterStackTests
 
         var viewModelTestContext = new ViewModelTestContext([]);
 
-        var presenterStack = (PresenterStack)context.ServiceProvider.GetRequiredService<IPresenterStack>();
-        var viewModel = presenterStack.Push<TestViewModel1, ViewModelTestContext>(viewModelTestContext);
+        var presentableStack = (PresentableStack)context.ServiceProvider.GetRequiredService<IPresentableStack>();
+        var viewModel = presentableStack.Push<TestViewModel1, ViewModelTestContext>(viewModelTestContext);
 
-        Assert.IsNotNull(presenterStack.Current);
+        Assert.IsNotNull(presentableStack.Current);
 
         viewModel.Close();
 
-        Assert.IsNull(presenterStack.Current);
+        Assert.IsNull(presentableStack.Current);
     }
 
     #region Types

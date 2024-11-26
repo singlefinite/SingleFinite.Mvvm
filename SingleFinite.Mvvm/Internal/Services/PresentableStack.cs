@@ -24,11 +24,11 @@ using SingleFinite.Mvvm.Services;
 namespace SingleFinite.Mvvm.Internal.Services;
 
 /// <summary>
-/// Implementation of <see cref="IPresenterStack"/>.
+/// Implementation of <see cref="IPresentableStack"/>.
 /// </summary>
 /// <param name="viewBuilder">Used to build view objects.</param>
-internal sealed class PresenterStack(IViewBuilder viewBuilder) :
-    IPresenterStack,
+internal sealed class PresentableStack(IViewBuilder viewBuilder) :
+    IPresentableStack,
     IDisposable
 {
     #region Fields
@@ -48,7 +48,7 @@ internal sealed class PresenterStack(IViewBuilder viewBuilder) :
     #region Properties
 
     /// <inheritdoc/>
-    public IView? Current => _stack.CurrentView;
+    public IView? Current => _stack.Current;
 
     /// <inheritdoc/>
     public IViewModel[] ViewModels => _stack.ViewModels;
@@ -249,8 +249,8 @@ internal sealed class PresenterStack(IViewBuilder viewBuilder) :
     #region Events
 
     /// <inheritdoc/>
-    public EventToken<IPresenter.CurrentChangedEventArgs> CurrentChanged =>
-        _stack.CurrentViewChanged;
+    public EventToken<IPresentable.CurrentChangedEventArgs> CurrentChanged =>
+        _stack.CurrentChanged;
 
     #endregion
 }
