@@ -26,7 +26,7 @@ namespace SingleFinite.Mvvm.Services;
 /// <summary>
 /// A service that presents a view.
 /// </summary>
-public interface IPresenter : INotifyPropertyChanged
+public interface IPresenter
 {
     /// <summary>
     /// The current view to present.
@@ -36,5 +36,32 @@ public interface IPresenter : INotifyPropertyChanged
     /// <summary>
     /// Event that is raised when the current view has changed.
     /// </summary>
-    EventToken<IView?> CurrentChanged { get; }
+    EventToken<CurrentChangedEventArgs> CurrentChanged { get; }
+
+    /// <summary>
+    /// Arguments for the CurrentChanged event.
+    /// </summary>
+    /// <param name="view">The current view.</param>
+    /// <param name="isNew">
+    /// If the current view became the current view because it was just added,
+    /// this is true.  If the current view became the current view because
+    /// other views were removed, this is false.
+    /// </param>
+    public class CurrentChangedEventArgs(
+        IView? view,
+        bool isNew
+    ) : EventArgs
+    {
+        /// <summary>
+        /// The current view.
+        /// </summary>
+        public IView? View => view;
+
+        /// <summary>
+        /// If the current view became the current view because it was just added,
+        /// this is true.  If the current view became the current view because
+        /// other views were removed, this is false.
+        /// </summary>
+        public bool IsNew => isNew;
+    }
 }

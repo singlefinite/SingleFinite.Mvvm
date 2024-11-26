@@ -19,7 +19,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using System.ComponentModel;
 using SingleFinite.Mvvm.Services;
 
 namespace SingleFinite.Mvvm.Internal.Services;
@@ -27,16 +26,12 @@ namespace SingleFinite.Mvvm.Internal.Services;
 /// <summary>
 /// Implementation of <see cref="IPresenterStack"/>.
 /// </summary>
-internal sealed class PresenterStack :
+/// <param name="viewBuilder">Used to build view objects.</param>
+internal sealed class PresenterStack(IViewBuilder viewBuilder) :
     IPresenterStack,
     IDisposable
 {
     #region Fields
-
-    /// <summary>
-    /// Used to build view objects.
-    /// </summary>
-    private readonly IViewBuilder _viewBuilder;
 
     /// <summary>
     /// Set to true when this object is disposed.
@@ -50,30 +45,10 @@ internal sealed class PresenterStack :
 
     #endregion
 
-    #region Constructors
-
-    /// <summary>
-    /// Constructor.
-    /// </summary>
-    /// <param name="viewBuilder">Used to build view objects.</param>
-    public PresenterStack(IViewBuilder viewBuilder)
-    {
-        _viewBuilder = viewBuilder;
-
-        _stack.TopViewChanged.Register(
-            () => PropertyChanged?.Invoke(
-                sender: this,
-                e: new(nameof(Current))
-            )
-        );
-    }
-
-    #endregion
-
     #region Properties
 
     /// <inheritdoc/>
-    public IView? Current => _stack.TopView;
+    public IView? Current => _stack.CurrentView;
 
     /// <inheritdoc/>
     public IViewModel[] ViewModels => _stack.ViewModels;
@@ -150,7 +125,7 @@ internal sealed class PresenterStack :
     {
         ObjectDisposedException.ThrowIf(_isDisposed, this);
 
-        var view = _viewBuilder.Build(viewModelDescriptor);
+        var view = viewBuilder.Build(viewModelDescriptor);
         _stack.Push(
             views: [view],
             popCount: GetPopCount(popOptions)
@@ -186,7 +161,7 @@ internal sealed class PresenterStack :
         ObjectDisposedException.ThrowIf(_isDisposed, this);
 
         var viewList = viewModelDescriptors
-            .Select(_viewBuilder.Build)
+            .Select(viewBuilder.Build)
             .ToList();
 
         if (viewList.Count == 0)
@@ -274,10 +249,8 @@ internal sealed class PresenterStack :
     #region Events
 
     /// <inheritdoc/>
-    public EventToken<IView?> CurrentChanged => _stack.TopViewChanged;
-
-    /// <inheritdoc/>
-    public event PropertyChangedEventHandler? PropertyChanged;
+    public EventToken<IPresenter.CurrentChangedEventArgs> CurrentChanged =>
+        _stack.CurrentViewChanged;
 
     #endregion
 }

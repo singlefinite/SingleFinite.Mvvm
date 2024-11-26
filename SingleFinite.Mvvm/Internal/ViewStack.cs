@@ -19,6 +19,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using SingleFinite.Mvvm.Services;
+
 namespace SingleFinite.Mvvm.Internal;
 
 /// <summary>
@@ -47,14 +49,9 @@ internal class ViewStack
     public int Count => _views.Count;
 
     /// <summary>
-    /// The top most view in the stack.
+    /// The current view is the top most view in the stack.
     /// </summary>
-    public IView? TopView { get; private set; }
-
-    /// <summary>
-    /// The top most view model in the stack.
-    /// </summary>
-    public IViewModel? TopViewModel { get; private set; }
+    public IView? CurrentView { get; private set; }
 
     #endregion
 
@@ -148,20 +145,25 @@ internal class ViewStack
     /// </param>
     private void UpdateState(bool activateTop = false)
     {
+        var newTopView = _views.FirstOrDefault();
+        var isNew = newTopView is not null && !Views.Contains(newTopView);
+
         Views = [.. _views];
         ViewModels = _views.Select(view => view.ViewModel).ToArray();
 
-        var newTopView = _views.FirstOrDefault();
-        if (TopView != newTopView)
+        if (CurrentView != newTopView)
         {
-            TopView = _views.FirstOrDefault();
-            TopViewModel = _views.FirstOrDefault()?.ViewModel;
+            CurrentView = _views.FirstOrDefault();
 
             if (activateTop)
                 ActivateTop();
 
-            _topViewChanged.RaiseEvent(TopView);
-            _topViewModelChanged.RaiseEvent(TopViewModel);
+            _currentViewChanged.RaiseEvent(
+                new(
+                    view: CurrentView,
+                    isNew: isNew
+                )
+            );
         }
         else if (activateTop)
         {
@@ -264,14 +266,8 @@ internal class ViewStack
     /// <summary>
     /// Event raised when the top view has been changed.
     /// </summary>
-    public EventToken<IView?> TopViewChanged => _topViewChanged.Token;
-    private readonly EventTokenSource<IView?> _topViewChanged = new();
-
-    /// <summary>
-    /// Event raised when the top view model has been changed.
-    /// </summary>
-    public EventToken<IViewModel?> TopViewModelChanged => _topViewModelChanged.Token;
-    private readonly EventTokenSource<IViewModel?> _topViewModelChanged = new();
+    public EventToken<IPresenter.CurrentChangedEventArgs> CurrentViewChanged => _currentViewChanged.Token;
+    private readonly EventTokenSource<IPresenter.CurrentChangedEventArgs> _currentViewChanged = new();
 
     #endregion
 }

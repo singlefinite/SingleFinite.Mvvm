@@ -19,7 +19,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using System.ComponentModel;
 using SingleFinite.Mvvm.Services;
 
 namespace SingleFinite.Mvvm.Internal.Services;
@@ -27,16 +26,12 @@ namespace SingleFinite.Mvvm.Internal.Services;
 /// <summary>
 /// Implementation of <see cref="IPresenterDialog"/>.
 /// </summary>
-internal class PresenterDialog :
+/// <param name="viewBuilder">Used to build view objects.</param>
+internal class PresenterDialog(IViewBuilder viewBuilder) :
     IPresenterDialog,
     IDisposable
 {
     #region Fields
-
-    /// <summary>
-    /// Used to build view objects.
-    /// </summary>
-    private readonly IViewBuilder _viewBuilder;
 
     /// <summary>
     /// Set to true when this object has been disposed.
@@ -50,30 +45,10 @@ internal class PresenterDialog :
 
     #endregion
 
-    #region Constructors
-
-    /// <summary>
-    /// Constructor.
-    /// </summary>
-    /// <param name="viewBuilder">Used to build view objects.</param>
-    public PresenterDialog(IViewBuilder viewBuilder)
-    {
-        _viewBuilder = viewBuilder;
-
-        _stack.TopViewChanged.Register(
-            () => PropertyChanged?.Invoke(
-                sender: this,
-                e: new(nameof(Current))
-            )
-        );
-    }
-
-    #endregion
-
     #region Properties
 
     /// <inheritdoc/>
-    public IView? Current => _stack.TopView;
+    public IView? Current => _stack.CurrentView;
 
     /// <inheritdoc/>
     public IViewModel[] ViewModels => _stack.ViewModels;
@@ -87,7 +62,7 @@ internal class PresenterDialog :
     {
         ObjectDisposedException.ThrowIf(_isDisposed, this);
 
-        var view = _viewBuilder.Build(viewModelDescriptor);
+        var view = viewBuilder.Build(viewModelDescriptor);
         _stack.Push(
             views: [view],
             popCount: 0
@@ -169,10 +144,8 @@ internal class PresenterDialog :
     #region Events
 
     /// <inheritdoc/>
-    public EventToken<IView?> CurrentChanged => _stack.TopViewChanged;
-
-    /// <inheritdoc/>
-    public event PropertyChangedEventHandler? PropertyChanged;
+    public EventToken<IPresenter.CurrentChangedEventArgs> CurrentChanged =>
+        _stack.CurrentViewChanged;
 
     #endregion
 }

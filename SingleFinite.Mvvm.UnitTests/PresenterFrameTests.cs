@@ -72,35 +72,42 @@ public class PresenterFrameTests
     }
 
     [TestMethod]
-    public void Change_Events_Are_Raised()
+    public void Changed_Event_Is_Raised()
     {
         using var context = new TestContext();
         var presenterFrame = (PresenterFrame)context.ServiceProvider.GetRequiredService<IPresenterFrame>();
 
-        var currentChangedObserved = false;
-        presenterFrame.CurrentChanged.Register(() => currentChangedObserved = true);
-
-        object? propertyChangedSenderObserved = null;
-        PropertyChangedEventArgs? propertyChangedArgsObserved = null;
-        presenterFrame.PropertyChanged += (sender, e) =>
-        {
-            propertyChangedSenderObserved = sender;
-            propertyChangedArgsObserved = e;
-        };
+        IPresenter.CurrentChangedEventArgs? observedArgs = null;
+        presenterFrame.CurrentChanged.Register(args => observedArgs = args);
 
         var output = new List<string>();
         var viewModelContext = new ViewModelTestContext(output);
         var viewModelDescriptor1 = new ViewModelDescriptor<TestViewModel1, ViewModelTestContext>(viewModelContext);
+        var viewModelDescriptor2 = new ViewModelDescriptor<TestViewModel2, ViewModelTestContext>(viewModelContext);
 
-        Assert.IsFalse(currentChangedObserved);
-        Assert.IsNull(propertyChangedSenderObserved);
-        Assert.IsNull(propertyChangedArgsObserved);
+        Assert.IsNull(observedArgs);
 
-        presenterFrame.Set(viewModelDescriptor1);
+        var viewModel1 = presenterFrame.Set(viewModelDescriptor1);
 
-        Assert.IsTrue(currentChangedObserved);
-        Assert.AreEqual(presenterFrame, propertyChangedSenderObserved);
-        Assert.AreEqual("Current", propertyChangedArgsObserved?.PropertyName);
+        Assert.IsNotNull(observedArgs);
+        Assert.AreEqual(viewModel1, observedArgs.View?.ViewModel);
+        Assert.IsTrue(observedArgs.IsNew);
+
+        observedArgs = null;
+
+        var viewModel2 = presenterFrame.Set(viewModelDescriptor2);
+
+        Assert.IsNotNull(observedArgs);
+        Assert.AreEqual(viewModel2, observedArgs.View?.ViewModel);
+        Assert.IsTrue(observedArgs.IsNew);
+
+        observedArgs = null;
+
+        presenterFrame.Clear();
+
+        Assert.IsNotNull(observedArgs);
+        Assert.IsNull(observedArgs.View);
+        Assert.IsFalse(observedArgs.IsNew);
     }
 
     [TestMethod]

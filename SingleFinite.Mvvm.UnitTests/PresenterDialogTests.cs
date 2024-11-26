@@ -88,7 +88,7 @@ public class PresenterDialogTests
     }
 
     [TestMethod]
-    public void Change_Events_Are_Raised()
+    public void Changed_Event_Is_Raised()
     {
         using var context = new TestContext();
 
@@ -96,27 +96,34 @@ public class PresenterDialogTests
             context.ServiceProvider.GetRequiredService<IViewBuilder>()
         );
 
-        var currentChangedObserved = false;
-        presenterDialog.CurrentChanged.Register(() => currentChangedObserved = true);
-
-        object? propertyChangedSenderObserved = null;
-        PropertyChangedEventArgs? propertyChangedArgsObserved = null;
-        presenterDialog.PropertyChanged += (sender, e) =>
-        {
-            propertyChangedSenderObserved = sender;
-            propertyChangedArgsObserved = e;
-        };
-
-        Assert.IsFalse(currentChangedObserved);
-        Assert.IsNull(propertyChangedSenderObserved);
-        Assert.IsNull(propertyChangedArgsObserved);
+        IPresenter.CurrentChangedEventArgs? observedArgs = null;
+        presenterDialog.CurrentChanged.Register(args => observedArgs = args);
 
         var output = new List<string>();
-        var dialog1 = presenterDialog.Show<Dialog1Lifecycle, List<string>>(output);
 
-        Assert.IsTrue(currentChangedObserved);
-        Assert.AreEqual(presenterDialog, propertyChangedSenderObserved);
-        Assert.AreEqual("Current", propertyChangedArgsObserved?.PropertyName);
+        Assert.IsNull(observedArgs);
+
+        var viewModel1 = presenterDialog.Show<Dialog1Lifecycle, List<string>>(output);
+
+        Assert.IsNotNull(observedArgs);
+        Assert.AreEqual(viewModel1, observedArgs.View?.ViewModel);
+        Assert.IsTrue(observedArgs.IsNew);
+
+        observedArgs = null;
+
+        var viewModel2 = presenterDialog.Show<Dialog1Lifecycle, List<string>>(output);
+
+        Assert.IsNotNull(observedArgs);
+        Assert.AreEqual(viewModel2, observedArgs.View?.ViewModel);
+        Assert.IsTrue(observedArgs.IsNew);
+
+        observedArgs = null;
+
+        presenterDialog.Close(viewModel2);
+
+        Assert.IsNotNull(observedArgs);
+        Assert.AreEqual(viewModel1, observedArgs.View?.ViewModel);
+        Assert.IsFalse(observedArgs.IsNew);
     }
 
     [TestMethod]
