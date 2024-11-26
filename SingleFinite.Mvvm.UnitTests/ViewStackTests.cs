@@ -354,6 +354,26 @@ public class ViewStackTests
         output.Clear();
     }
 
+    [TestMethod]
+    public void Push_Empty_Collection_Has_No_Effect()
+    {
+        var output = new List<string>();
+        var viewStack = new ViewStack();
+        viewStack.TopViewChanged.Register(view => output.Add(view?.ToString() ?? "null"));
+        viewStack.TopViewModelChanged.Register(viewModel => output.Add(viewModel?.ToString() ?? "null"));
+        var view1 = new TestView(new TestViewModel("1", []));
+        var view2 = new TestView(new TestViewModel("2", []));
+        var view3 = new TestView(new TestViewModel("3", []));
+
+        viewStack.Push([view1, view2, view3], 0);
+        output.Clear();
+
+        viewStack.Push([], 2);
+
+        Assert.AreEqual(0, output.Count);
+        Assert.AreEqual(view3, viewStack.TopView);
+    }
+
     #region Types
 
     private class TestViewModel(string name, List<string> output) : ViewModel, IClosable

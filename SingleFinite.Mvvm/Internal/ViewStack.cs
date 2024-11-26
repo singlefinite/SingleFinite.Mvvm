@@ -71,6 +71,9 @@ internal class ViewStack
     /// </param>
     public void Push(IEnumerable<IView> views, int popCount)
     {
+        if (!views.Any())
+            return;
+
         DeactivateTop();
         Remove(0, popCount);
         Add(views);
