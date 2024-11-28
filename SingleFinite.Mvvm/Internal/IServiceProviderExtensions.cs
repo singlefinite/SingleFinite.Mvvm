@@ -45,8 +45,8 @@ internal static class IServiceProviderExtensions
         var childScope = serviceProvider.CreateScope();
         var childCancellationToken = childScope.ServiceProvider.GetRequiredService<ICancellationTokenProvider>().CancellationToken;
         var parentCancellationToken = serviceProvider.GetRequiredService<ICancellationTokenProvider>().CancellationToken;
-        var registration = parentCancellationToken.Register(() => childScope.Dispose());
-        childCancellationToken.Register(() => registration.Dispose());
+        var parentCancellationObserver = parentCancellationToken.Register(childScope.Dispose);
+        childCancellationToken.Register(parentCancellationObserver.Dispose);
         return childScope;
     }
 }

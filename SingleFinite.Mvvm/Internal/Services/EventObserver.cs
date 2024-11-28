@@ -38,10 +38,9 @@ internal sealed class EventObserver : IEventObserver, IDisposable
     private bool _isDisposed = false;
 
     /// <summary>
-    /// Holds disposable objects that will be unregister callbacks when 
-    /// disposed.
+    /// Holds disposable objects that will unregister callbacks when disposed.
     /// </summary>
-    private readonly List<IDisposable> _registrationList = [];
+    private readonly List<IDisposable> _observerList = [];
 
     #endregion
 
@@ -59,7 +58,7 @@ internal sealed class EventObserver : IEventObserver, IDisposable
     }
 
     /// <inheritdoc/>
-    public IDisposable ObserveWithRegistration(
+    public IDisposable ObserveWithUnregister(
         EventToken token,
         Action<IDisposable> callback,
         CancellationToken? cancellationToken = null
@@ -110,7 +109,7 @@ internal sealed class EventObserver : IEventObserver, IDisposable
     }
 
     /// <inheritdoc/>
-    public IDisposable ObserveWithRegistration<TArgs>(
+    public IDisposable ObserveWithUnregister<TArgs>(
         EventToken<TArgs> token,
         Action<TArgs, IDisposable> callback,
         CancellationToken? cancellationToken = null
@@ -121,7 +120,7 @@ internal sealed class EventObserver : IEventObserver, IDisposable
     }
 
     /// <inheritdoc/>
-    public IDisposable ObserveWithRegistration<TArgs, TCallbackArgs>(
+    public IDisposable ObserveWithUnregister<TArgs, TCallbackArgs>(
         EventToken<TArgs> token,
         Action<TCallbackArgs, IDisposable> callback,
         CancellationToken? cancellationToken = null
@@ -129,10 +128,10 @@ internal sealed class EventObserver : IEventObserver, IDisposable
     {
         ObjectDisposedException.ThrowIf(_isDisposed, this);
 
-        void Handler(TArgs args, IDisposable registration)
+        void Handler(TArgs args, IDisposable observer)
         {
             if (args is TCallbackArgs callbackArgs)
-                callback(callbackArgs, registration);
+                callback(callbackArgs, observer);
         }
 
         return Register(token.Register(Handler), cancellationToken);
@@ -179,7 +178,7 @@ internal sealed class EventObserver : IEventObserver, IDisposable
     }
 
     /// <inheritdoc/>
-    public IDisposable ObserveWithRegistration<TSender, TArgs>(
+    public IDisposable ObserveWithUnregister<TSender, TArgs>(
         EventToken<TSender, TArgs> token,
         Action<TSender, TArgs, IDisposable> callback,
         CancellationToken? cancellationToken = null
@@ -190,7 +189,7 @@ internal sealed class EventObserver : IEventObserver, IDisposable
     }
 
     /// <inheritdoc/>
-    public IDisposable ObserveWithRegistration<TSender, TArgs, TCallbackArgs>(
+    public IDisposable ObserveWithUnregister<TSender, TArgs, TCallbackArgs>(
         EventToken<TSender, TArgs> token,
         Action<TSender, TCallbackArgs, IDisposable> callback,
         CancellationToken? cancellationToken = null
@@ -198,10 +197,10 @@ internal sealed class EventObserver : IEventObserver, IDisposable
     {
         ObjectDisposedException.ThrowIf(_isDisposed, this);
 
-        void Handler(TSender sender, TArgs args, IDisposable registration)
+        void Handler(TSender sender, TArgs args, IDisposable observer)
         {
             if (args is TCallbackArgs callbackArgs)
-                callback(sender, callbackArgs, registration);
+                callback(sender, callbackArgs, observer);
         }
 
         return Register(token.Register(Handler), cancellationToken);
@@ -233,7 +232,7 @@ internal sealed class EventObserver : IEventObserver, IDisposable
     }
 
     /// <inheritdoc/>
-    public IDisposable ObservePropertyChangingWithRegistration(
+    public IDisposable ObservePropertyChangingWithUnregister(
         INotifyPropertyChanging owner,
         Func<object> property,
         Action<IDisposable> callback,
@@ -244,20 +243,20 @@ internal sealed class EventObserver : IEventObserver, IDisposable
     {
         ObjectDisposedException.ThrowIf(_isDisposed, this);
 
-        IDisposable? registration = null;
+        IDisposable? observer = null;
         void Handler(object? sender, PropertyChangingEventArgs e)
         {
-            callback(registration.Require());
+            callback(observer.Require());
         }
 
         var propertyName = ParsePropertyName(propertyExpression);
         owner.PropertyChanging += Handler;
-        registration = Register(
+        observer = Register(
             new ActionOnDispose(() => owner.PropertyChanging -= Handler),
             cancellationToken
         );
 
-        return registration;
+        return observer;
     }
 
     /// <inheritdoc/>
@@ -285,7 +284,7 @@ internal sealed class EventObserver : IEventObserver, IDisposable
         );
     }
 
-    public IDisposable ObservePropertyChangedWithRegistration(
+    public IDisposable ObservePropertyChangedWithUnregister(
         INotifyPropertyChanged owner,
         Func<object> property,
         Action<IDisposable> callback,
@@ -296,20 +295,20 @@ internal sealed class EventObserver : IEventObserver, IDisposable
     {
         ObjectDisposedException.ThrowIf(_isDisposed, this);
 
-        IDisposable? registration = null;
+        IDisposable? observer = null;
         void Handler(object? sender, PropertyChangedEventArgs e)
         {
-            callback(registration.Require());
+            callback(observer.Require());
         }
 
         var propertyName = ParsePropertyName(propertyExpression);
         owner.PropertyChanged += Handler;
-        registration = Register(
+        observer = Register(
             new ActionOnDispose(() => owner.PropertyChanged -= Handler),
             cancellationToken
         );
 
-        return registration;
+        return observer;
     }
 
     /// <inheritdoc/>
@@ -336,47 +335,46 @@ internal sealed class EventObserver : IEventObserver, IDisposable
         if (_isDisposed)
             return;
 
-        var registrations = _registrationList.ToArray();
-        foreach (var registration in registrations)
-            registration.Dispose();
+        var observers = _observerList.ToArray();
+        foreach (var observer in observers)
+            observer.Dispose();
 
-        _registrationList.Clear();
+        _observerList.Clear();
 
         _isDisposed = true;
     }
 
     /// <summary>
-    /// Add a new registration to the registration list that will remove itself 
-    /// when disposed and then dispose of the given event registration.
+    /// Add the given observer to the observer list.
     /// </summary>
-    /// <param name="eventRegistration">
-    /// The event registration to dispose after removing the registration from 
-    /// the list.
+    /// <param name="observer">
+    /// The observer to to add to the observer list.
     /// </param>
-    /// <param name="cancellationToken">Optional token that when cancelled will 
-    /// unregister the callback.</param>
+    /// <param name="cancellationToken">
+    /// Optional token that when cancelled will dispose of the observer.
+    /// </param>
     /// <returns>
-    /// A disposable that removes itself from the registration list when 
-    /// disposed.
+    /// A disposable that when is disposed will remove the observer from the
+    /// list and dispose of the observer.
     /// </returns>
     private ActionOnDispose Register(
-        IDisposable eventRegistration,
+        IDisposable observer,
         CancellationToken? cancellationToken
     )
     {
-        ActionOnDispose? registration = null;
-        registration = new ActionOnDispose(() =>
+        ActionOnDispose? removeObserver = null;
+        removeObserver = new ActionOnDispose(() =>
         {
-            if (registration != null)
-                _registrationList.Remove(registration);
-            eventRegistration.Dispose();
+            if (removeObserver != null)
+                _observerList.Remove(removeObserver);
+            observer.Dispose();
         });
 
-        _registrationList.Add(registration);
+        _observerList.Add(removeObserver);
 
-        cancellationToken?.Register(() => registration.Dispose());
+        cancellationToken?.Register(() => removeObserver.Dispose());
 
-        return registration;
+        return removeObserver;
     }
 
     /// <summary>
@@ -404,7 +402,7 @@ internal sealed class EventObserver : IEventObserver, IDisposable
                 paramName: nameof(propertyExpression)
             );
 
-        return propertyExpression.Substring(dotIndex + 1);
+        return propertyExpression[(dotIndex + 1)..];
     }
 
     #endregion

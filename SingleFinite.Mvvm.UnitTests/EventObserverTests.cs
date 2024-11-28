@@ -158,7 +158,7 @@ public class EventObserverTests
 
         List<int> observedTestEvent = [];
 
-        var registration = eventObserver.ObservePropertyChanging(
+        var observer = eventObserver.ObservePropertyChanging(
             owner: testClass,
             property: () => testClass.Number,
             callback: () => { observedTestEvent.Add(testClass.Number); }
@@ -177,7 +177,7 @@ public class EventObserverTests
         Assert.AreEqual(0, observedTestEvent[0]);
         Assert.AreEqual(1, observedTestEvent[1]);
 
-        registration.Dispose();
+        observer.Dispose();
 
         testClass.Number = 3;
 
@@ -194,34 +194,34 @@ public class EventObserverTests
         var cancellationTokenSource = new CancellationTokenSource();
 
         var observedTestEvent = 0;
-        var disposeOfPassedInRegistration = false;
+        var disposeOfPassedInObserver = false;
 
-        var registration1 = eventObserver.ObservePropertyChanging(
+        var observer1 = eventObserver.ObservePropertyChanging(
             owner: testClass,
             property: () => testClass.Number,
             callback: () => { observedTestEvent++; }
         );
 
-        var registration2 = eventObserver.ObservePropertyChanging(
+        var observer2 = eventObserver.ObservePropertyChanging(
             owner: testClass,
             property: () => testClass.Number,
             callback: () => { observedTestEvent++; },
             cancellationToken: cancellationTokenSource.Token
         );
 
-        eventObserver.ObservePropertyChangingWithRegistration(
+        eventObserver.ObservePropertyChangingWithUnregister(
             owner: testClass,
             property: () => testClass.Number,
-            callback: registration =>
+            callback: observer =>
             {
-                if (disposeOfPassedInRegistration)
-                    registration.Dispose();
+                if (disposeOfPassedInObserver)
+                    observer.Dispose();
                 else
                     observedTestEvent++;
             }
         );
 
-        var registration4 = eventObserver.ObservePropertyChanging(
+        var observer4 = eventObserver.ObservePropertyChanging(
             owner: testClass,
             property: () => testClass.Number,
             callback: () => { observedTestEvent++; }
@@ -232,7 +232,7 @@ public class EventObserverTests
         Assert.AreEqual(4, observedTestEvent);
         observedTestEvent = 0;
 
-        registration1.Dispose();
+        observer1.Dispose();
         testClass.Number = 2;
 
         Assert.AreEqual(3, observedTestEvent);
@@ -244,7 +244,7 @@ public class EventObserverTests
         Assert.AreEqual(2, observedTestEvent);
         observedTestEvent = 0;
 
-        disposeOfPassedInRegistration = true;
+        disposeOfPassedInObserver = true;
         testClass.Number = 4;
 
         Assert.AreEqual(1, observedTestEvent);
@@ -264,7 +264,7 @@ public class EventObserverTests
 
         List<int> observedTestEvent = [];
 
-        var registration = eventObserver.ObservePropertyChanged(
+        var observer = eventObserver.ObservePropertyChanged(
             owner: testClass,
             property: () => testClass.Number,
             callback: () => { observedTestEvent.Add(testClass.Number); }
@@ -283,7 +283,7 @@ public class EventObserverTests
         Assert.AreEqual(1, observedTestEvent[0]);
         Assert.AreEqual(2, observedTestEvent[1]);
 
-        registration.Dispose();
+        observer.Dispose();
 
         testClass.Number = 3;
 
@@ -300,34 +300,34 @@ public class EventObserverTests
         var cancellationTokenSource = new CancellationTokenSource();
 
         var observedTestEvent = 0;
-        var disposeOfPassedInRegistration = false;
+        var disposeOfPassedInObserver = false;
 
-        var registration1 = eventObserver.ObservePropertyChanged(
+        var observer1 = eventObserver.ObservePropertyChanged(
             owner: testClass,
             property: () => testClass.Number,
             callback: () => { observedTestEvent++; }
         );
 
-        var registration2 = eventObserver.ObservePropertyChanged(
+        var observer2 = eventObserver.ObservePropertyChanged(
             owner: testClass,
             property: () => testClass.Number,
             callback: () => { observedTestEvent++; },
             cancellationToken: cancellationTokenSource.Token
         );
 
-        eventObserver.ObservePropertyChangedWithRegistration(
+        eventObserver.ObservePropertyChangedWithUnregister(
             owner: testClass,
             property: () => testClass.Number,
-            callback: registration =>
+            callback: observer =>
             {
-                if (disposeOfPassedInRegistration)
-                    registration.Dispose();
+                if (disposeOfPassedInObserver)
+                    observer.Dispose();
                 else
                     observedTestEvent++;
             }
         );
 
-        var registration4 = eventObserver.ObservePropertyChanged(
+        var observer4 = eventObserver.ObservePropertyChanged(
             owner: testClass,
             property: () => testClass.Number,
             callback: () => { observedTestEvent++; }
@@ -338,7 +338,7 @@ public class EventObserverTests
         Assert.AreEqual(4, observedTestEvent);
         observedTestEvent = 0;
 
-        registration1.Dispose();
+        observer1.Dispose();
         testClass.Number = 2;
 
         Assert.AreEqual(3, observedTestEvent);
@@ -350,7 +350,7 @@ public class EventObserverTests
         Assert.AreEqual(2, observedTestEvent);
         observedTestEvent = 0;
 
-        disposeOfPassedInRegistration = true;
+        disposeOfPassedInObserver = true;
         testClass.Number = 4;
 
         Assert.AreEqual(1, observedTestEvent);

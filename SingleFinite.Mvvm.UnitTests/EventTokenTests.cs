@@ -43,7 +43,7 @@ public class EventTokenTests
     {
         var observedNumber = 0;
         var eventTokenSource = new EventTokenSource<int>();
-        var registration = eventTokenSource.Token.Register(args => observedNumber = args);
+        var observer = eventTokenSource.Token.Register(args => observedNumber = args);
 
         Assert.AreEqual(0, observedNumber);
 
@@ -51,7 +51,7 @@ public class EventTokenTests
 
         Assert.AreEqual(81, observedNumber);
 
-        registration.Dispose();
+        observer.Dispose();
 
         eventTokenSource.RaiseEvent(99);
 
@@ -63,7 +63,7 @@ public class EventTokenTests
     {
         var observedNumber = 0;
         var eventTokenSource = new EventTokenSource<int>();
-        var registration = eventTokenSource.Token.Register(
+        var observer = eventTokenSource.Token.Register(
             (args, disposable) =>
             {
                 observedNumber = args;

@@ -48,11 +48,11 @@ public sealed class EventToken
     #region Methods
 
     /// <summary>
-    /// Register the action to call when this event is raised.
+    /// Register an action to call when this event is raised.
     /// </summary>
     /// <param name="callback">The callback to register.</param>
     /// <returns>
-    /// A registration object that when disposed will unregister the callback.
+    /// An observer object that when disposed will unregister the callback.
     /// </returns>
     public IDisposable Register(Action callback)
     {
@@ -61,7 +61,7 @@ public sealed class EventToken
     }
 
     /// <summary>
-    /// Register the action to call when this event is raised.
+    /// Register an action to call when this event is raised.
     /// A disposable is passed to the callback that when disposed will 
     /// unregister the callback.
     /// </summary>
@@ -69,22 +69,22 @@ public sealed class EventToken
     /// The action that will be called when the event has been raised.
     /// </param>
     /// <returns>
-    /// A registration object that when disposed will unregister the callback.
+    /// An observer object that when disposed will unregister the callback.
     /// </returns>
     public IDisposable Register(Action<IDisposable> callback)
     {
-        IDisposable? registration = null;
+        IDisposable? observer = null;
 
         void Handler()
         {
-            callback(registration.Require());
+            callback(observer.Require());
         }
 
-        registration = new ActionOnDispose(() => ActionEvent -= Handler);
+        observer = new ActionOnDispose(() => ActionEvent -= Handler);
 
         ActionEvent += Handler;
 
-        return registration;
+        return observer;
     }
 
     /// <summary>
@@ -132,11 +132,11 @@ public sealed class EventToken<TArgs>
     #region Methods
 
     /// <summary>
-    /// Register the action to call when this event is raised.
+    /// Register an action to call when this event is raised.
     /// </summary>
     /// <param name="callback">The callback to register.</param>
     /// <returns>
-    /// A registration object that when disposed will unregister the callback.
+    /// An observer object that when disposed will unregister the callback.
     /// </returns>
     public IDisposable Register(Action callback)
     {
@@ -146,11 +146,11 @@ public sealed class EventToken<TArgs>
     }
 
     /// <summary>
-    /// Register the action to call when this event is raised.
+    /// Register an action to call when this event is raised.
     /// </summary>
     /// <param name="callback">The callback to register.</param>
     /// <returns>
-    /// A registration object that when disposed will unregister the callback.
+    /// An observer object that when disposed will unregister the callback.
     /// </returns>
     public IDisposable Register(Action<TArgs> callback)
     {
@@ -159,28 +159,28 @@ public sealed class EventToken<TArgs>
     }
 
     /// <summary>
-    /// Register the action to call when this event is raised.
+    /// Register an action to call when this event is raised.
     /// A disposable is passed to the callback that when disposed will 
     /// unregister the callback.
     /// </summary>
     /// <param name="callback">The callback to register.</param>
     /// <returns>
-    /// A registration object that when disposed will unregister the callback.
+    /// An observer object that when disposed will unregister the callback.
     /// </returns>
     public IDisposable Register(Action<TArgs, IDisposable> callback)
     {
-        IDisposable? registration = null;
+        IDisposable? observer = null;
 
         void Handler(TArgs args)
         {
-            callback(args, registration.Require());
+            callback(args, observer.Require());
         }
 
-        registration = new ActionOnDispose(() => ActionEvent -= Handler);
+        observer = new ActionOnDispose(() => ActionEvent -= Handler);
 
         ActionEvent += Handler;
 
-        return registration;
+        return observer;
     }
 
     /// <summary>
@@ -232,11 +232,11 @@ public sealed class EventToken<TSender, TArgs>
     #region Methods
 
     /// <summary>
-    /// Register the action to call when this event is raised.
+    /// Register an action to call when this event is raised.
     /// </summary>
     /// <param name="callback">The callback to register.</param>
     /// <returns>
-    /// A registration object that when disposed will unregister the callback.
+    /// An observer object that when disposed will unregister the callback.
     /// </returns>
     public IDisposable Register(Action callback)
     {
@@ -246,11 +246,11 @@ public sealed class EventToken<TSender, TArgs>
     }
 
     /// <summary>
-    /// Register the action to call when this event is raised.
+    /// Register an action to call when this event is raised.
     /// </summary>
     /// <param name="callback">The callback to register.</param>
     /// <returns>
-    /// A registration object that when disposed will unregister the callback.
+    /// An observer object that when disposed will unregister the callback.
     /// </returns>
     public IDisposable Register(Action<TSender, TArgs> callback)
     {
@@ -259,7 +259,7 @@ public sealed class EventToken<TSender, TArgs>
     }
 
     /// <summary>
-    /// Register the action to call when this event is raised.
+    /// Register an action to call when this event is raised.
     /// A disposable is passed to the callback that when disposed will 
     /// unregister the callback.
     /// </summary>
@@ -267,22 +267,22 @@ public sealed class EventToken<TSender, TArgs>
     /// The action that will be called when the event has been raised.
     /// </param>
     /// <returns>
-    /// A registration object that when disposed will unregister the callback.
+    /// An observer object that when disposed will unregister the callback.
     /// </returns>
     public IDisposable Register(Action<TSender, TArgs, IDisposable> callback)
     {
-        IDisposable? registration = null;
+        IDisposable? observer = null;
 
         void Handler(TSender sender, TArgs args)
         {
-            callback(sender, args, registration.Require());
+            callback(sender, args, observer.Require());
         }
 
-        registration = new ActionOnDispose(() => ActionEvent -= Handler);
+        observer = new ActionOnDispose(() => ActionEvent -= Handler);
 
         ActionEvent += Handler;
 
-        return registration;
+        return observer;
     }
 
     /// <summary>

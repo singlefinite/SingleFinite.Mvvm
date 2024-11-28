@@ -73,7 +73,7 @@ public interface IEventObserver
     /// <returns>
     /// A disposable object that when disposed will unregister the callback.
     /// </returns>
-    IDisposable ObserveWithRegistration(
+    IDisposable ObserveWithUnregister(
         EventToken token,
         Action<IDisposable> callback,
         CancellationToken? cancellationToken = null
@@ -184,7 +184,7 @@ public interface IEventObserver
     /// <returns>
     /// A disposable object that when disposed will unregister the callback.
     /// </returns>
-    IDisposable ObserveWithRegistration<TArgs>(
+    IDisposable ObserveWithUnregister<TArgs>(
         EventToken<TArgs> token,
         Action<TArgs, IDisposable> callback,
         CancellationToken? cancellationToken = null
@@ -217,7 +217,7 @@ public interface IEventObserver
     /// <returns>
     /// A disposable object that when disposed will unregister the callback.
     /// </returns>
-    IDisposable ObserveWithRegistration<TArgs, TCallbackArgs>(
+    IDisposable ObserveWithUnregister<TArgs, TCallbackArgs>(
         EventToken<TArgs> token,
         Action<TCallbackArgs, IDisposable> callback,
         CancellationToken? cancellationToken = null
@@ -341,7 +341,7 @@ public interface IEventObserver
     /// <returns>
     /// A disposable object that when disposed will unregister the callback.
     /// </returns>
-    IDisposable ObserveWithRegistration<TSender, TArgs>(
+    IDisposable ObserveWithUnregister<TSender, TArgs>(
         EventToken<TSender, TArgs> token,
         Action<TSender, TArgs, IDisposable> callback,
         CancellationToken? cancellationToken = null
@@ -378,7 +378,7 @@ public interface IEventObserver
     /// <returns>
     /// A disposable object that when disposed will unregister the callback.
     /// </returns>
-    IDisposable ObserveWithRegistration<TSender, TArgs, TCallbackArgs>(
+    IDisposable ObserveWithUnregister<TSender, TArgs, TCallbackArgs>(
         EventToken<TSender, TArgs> token,
         Action<TSender, TCallbackArgs, IDisposable> callback,
         CancellationToken? cancellationToken = null
@@ -440,7 +440,7 @@ public interface IEventObserver
     /// <returns>
     /// A disposable object that when disposed will unregister the callback.
     /// </returns>
-    IDisposable ObservePropertyChangingWithRegistration(
+    IDisposable ObservePropertyChangingWithUnregister(
         INotifyPropertyChanging owner,
         Func<object> property,
         Action<IDisposable> callback,
@@ -506,7 +506,7 @@ public interface IEventObserver
     /// <returns>
     /// A disposable object that when disposed will unregister the callback.
     /// </returns>
-    IDisposable ObservePropertyChangedWithRegistration(
+    IDisposable ObservePropertyChangedWithUnregister(
         INotifyPropertyChanged owner,
         Func<object> property,
         Action<IDisposable> callback,
