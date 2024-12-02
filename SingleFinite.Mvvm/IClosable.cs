@@ -30,5 +30,5 @@ public interface IClosable
     /// Event that is raised when the object should be closed.
     /// This object should be passed with the event.
     /// </summary>
-    EventToken<IClosable> Closed { get; }
+    Observable<IClosable> Closed { get; }
 }

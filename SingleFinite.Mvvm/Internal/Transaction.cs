@@ -109,22 +109,22 @@ internal class Transaction
     /// <summary>
     /// Event that is raised when the IsOpen property changes.
     /// </summary>
-    public EventToken<bool> IsOpenChanged => _isOpenChangedSource.Token;
-    private readonly EventTokenSource<bool> _isOpenChangedSource = new();
+    public Observable<bool> IsOpenChanged => _isOpenChangedSource.Observable;
+    private readonly ObservableSource<bool> _isOpenChangedSource = new();
 
     /// <summary>
     /// Event that is raised when the IsOpen property changes from false to 
     /// true.
     /// </summary>
-    public EventToken Opened => _openedSource.Token;
-    private readonly EventTokenSource _openedSource = new();
+    public Observable Opened => _openedSource.Observable;
+    private readonly ObservableSource _openedSource = new();
 
     /// <summary>
     /// Event that is raised when the IsOpen property changes from true to 
     /// false.
     /// </summary>
-    public EventToken Closed => _closedSource.Token;
-    private readonly EventTokenSource _closedSource = new();
+    public Observable Closed => _closedSource.Observable;
+    private readonly ObservableSource _closedSource = new();
 
     #endregion
 }

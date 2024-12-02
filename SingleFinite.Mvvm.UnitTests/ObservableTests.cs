@@ -25,157 +25,50 @@ namespace SingleFinite.Mvvm.UnitTests;
 public class ObservableTests
 {
     [TestMethod]
-    public void Property_Changes_Raise_PropertyChanged_Events()
+    public void Observe_Method_Invokes_Callback_When_Event_Raised()
     {
-        var testClass = new TestClass();
-        var observedEvents = new List<string?>();
+        var observedNumber = 0;
+        var observableSource = new ObservableSource<int>();
+        observableSource.Observable.Observe(args => observedNumber = args);
 
-        testClass.PropertyChanged += (sender, args) =>
-        {
-            observedEvents.Add(args.PropertyName);
-        };
+        Assert.AreEqual(0, observedNumber);
 
-        testClass.FieldOne = "hello";
-        Assert.AreEqual(1, observedEvents.Count);
-        Assert.AreEqual("FieldOne", observedEvents[0]);
-        observedEvents.Clear();
+        observableSource.RaiseEvent(81);
 
-        testClass.FieldOne = "hello";
-        Assert.AreEqual(0, observedEvents.Count);
-        observedEvents.Clear();
-
-        testClass.FieldOne = "changed";
-        Assert.AreEqual(1, observedEvents.Count);
-        Assert.AreEqual("FieldOne", observedEvents[0]);
-        observedEvents.Clear();
+        Assert.AreEqual(81, observedNumber);
     }
 
     [TestMethod]
-    public void OnStateChanged_Updates_Other_Properties()
+    public void Dispose_Method_Removes_Callback()
     {
-        var testClass = new TestOnStateChangedClass();
+        var observedNumber = 0;
+        var observableSource = new ObservableSource<int>();
+        var observer = observableSource.Observable.Observe(args => observedNumber = args);
 
-        Assert.AreEqual(0, testClass.FieldOne);
-        Assert.AreEqual(0, testClass.FieldTwo);
-        Assert.AreEqual(0, testClass.FieldThree);
+        Assert.AreEqual(0, observedNumber);
 
-        testClass.FieldOne = 9;
+        observableSource.RaiseEvent(81);
 
-        Assert.AreEqual(9, testClass.FieldOne);
-        Assert.AreEqual(9, testClass.FieldTwo);
-        Assert.AreEqual(9, testClass.FieldThree);
+        Assert.AreEqual(81, observedNumber);
+
+        observer.Dispose();
+
+        observableSource.RaiseEvent(99);
+
+        Assert.AreEqual(81, observedNumber);
     }
 
     [TestMethod]
-    public void OnStateChanged_Raises_PropertyChange_Events_In_Order()
+    public void Observe_Method_Raises_Event_When_Event_Raised()
     {
-        var output = new List<string?>();
-        var testClass = new TestOnStateChangedClass();
-        testClass.PropertyChanging += (_, args) => output.Add($"PropertyChanging: {args.PropertyName} {testClass.CurrentValuesAsString}");
-        testClass.PropertyChanged += (_, args) => output.Add($"PropertyChanged: {args.PropertyName} {testClass.CurrentValuesAsString}");
+        var observedNumber = 0;
+        var observableSource = new ObservableSource<int>();
+        observableSource.Observable.Event += args => observedNumber = args;
 
-        testClass.FieldOne = 9;
+        Assert.AreEqual(0, observedNumber);
 
-        Assert.AreEqual(6, output.Count);
-        Assert.AreEqual("PropertyChanging: FieldOne 0,0,0", output[0]);
-        Assert.AreEqual("PropertyChanging: FieldTwo 9,0,0", output[1]);
-        Assert.AreEqual("PropertyChanging: FieldThree 9,9,0", output[2]);
-        Assert.AreEqual("PropertyChanged: FieldOne 9,9,9", output[3]);
-        Assert.AreEqual("PropertyChanged: FieldTwo 9,9,9", output[4]);
-        Assert.AreEqual("PropertyChanged: FieldThree 9,9,9", output[5]);
+        observableSource.RaiseEvent(81);
+
+        Assert.AreEqual(81, observedNumber);
     }
-
-    [TestMethod]
-    public void OnStateChanged_Prevents_Recursive_Calls()
-    {
-        var testClass = new TestOnStateChangedRecurseClass();
-
-        Assert.AreEqual(0, testClass.FieldOne);
-        Assert.AreEqual(0, testClass.FieldTwo);
-
-        testClass.FieldOne = 1;
-
-        Assert.AreEqual(1, testClass.FieldOne);
-        Assert.AreEqual(2, testClass.FieldTwo);
-    }
-
-    #region Types
-
-    private class TestClass : Observable
-    {
-        public string FieldOne
-        {
-            get;
-            set => ChangeProperty(ref field, value);
-        } = "";
-
-        public int FieldTwo
-        {
-            get;
-            set => ChangeProperty(ref field, value);
-        }
-
-        public double FieldThree
-        {
-            get;
-            set => ChangeProperty(ref field, value);
-        }
-    }
-
-    private class TestOnStateChangedClass : Observable
-    {
-        public int FieldOne
-        {
-            get;
-            set => ChangeProperty(ref field, value);
-        }
-
-        public int FieldTwo
-        {
-            get;
-            set => ChangeProperty(ref field, value);
-        }
-
-        public int FieldThree
-        {
-            get;
-            set => ChangeProperty(ref field, value);
-        }
-
-        public string CurrentValuesAsString
-        {
-            get => $"{FieldOne},{FieldTwo},{FieldThree}";
-        }
-
-        protected override void OnStateChanged()
-        {
-            if (FieldOne > FieldTwo)
-                FieldTwo = FieldOne;
-
-            if (FieldTwo > FieldThree)
-                FieldThree = FieldTwo;
-        }
-    }
-
-    private class TestOnStateChangedRecurseClass : Observable
-    {
-        public int FieldOne
-        {
-            get;
-            set => ChangeProperty(ref field, value);
-        }
-
-        public int FieldTwo
-        {
-            get;
-            set => ChangeProperty(ref field, value);
-        }
-
-        protected override void OnStateChanged()
-        {
-            FieldTwo = FieldOne + 1;
-        }
-    }
-
-    #endregion
 }

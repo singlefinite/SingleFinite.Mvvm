@@ -142,16 +142,16 @@ internal sealed class AppHost : IAppHost, IDisposable
     #region Events
 
     /// <inheritdoc/>
-    public EventToken Started => _startedSource.Token;
-    private readonly EventTokenSource _startedSource = new();
+    public Observable Started => _startedSource.Observable;
+    private readonly ObservableSource _startedSource = new();
 
     /// <inheritdoc/>
-    public EventToken<CancelEventArgs> Closing => _closingSource.Token;
-    private readonly EventTokenSource<CancelEventArgs> _closingSource = new();
+    public Observable<CancelEventArgs> Closing => _closingSource.Observable;
+    private readonly ObservableSource<CancelEventArgs> _closingSource = new();
 
     /// <inheritdoc/>
-    public EventToken Closed => _closedSource.Token;
-    private readonly EventTokenSource _closedSource = new();
+    public Observable Closed => _closedSource.Observable;
+    private readonly ObservableSource _closedSource = new();
 
     #endregion
 }

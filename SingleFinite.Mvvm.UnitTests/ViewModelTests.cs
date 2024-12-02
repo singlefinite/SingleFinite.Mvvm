@@ -60,10 +60,10 @@ public class ViewModelTests
         var viewModel = new SimpleViewModel();
         var viewModelInterface = (IViewModel)viewModel;
 
-        viewModel.Initialized.Register(() => onInitializeCount++);
-        viewModel.Activated.Register(() => onActivateCount++);
-        viewModel.Deactivated.Register(() => onDeactivateCount++);
-        viewModel.Disposed.Register(() => onDisposeCount++);
+        viewModel.Initialized.Observe(() => onInitializeCount++);
+        viewModel.Activated.Observe(() => onActivateCount++);
+        viewModel.Deactivated.Observe(() => onDeactivateCount++);
+        viewModel.Disposed.Observe(() => onDisposeCount++);
 
         Assert.AreEqual(0, onInitializeCount);
         Assert.AreEqual(0, onActivateCount);
@@ -184,7 +184,7 @@ public class ViewModelTests
         protected override void OnInitialize()
         {
             eventObserver.Observe(
-                token: NumberChanged,
+                observable: NumberChanged,
                 callback: number => Text = $"Number {number}"
             );
         }
@@ -194,8 +194,8 @@ public class ViewModelTests
             backgroundDispatcher.Run(action);
         }
 
-        private readonly EventTokenSource<int> _numberChanged = new();
-        public EventToken<int> NumberChanged => _numberChanged.Token;
+        public Observable<int> NumberChanged => _numberChanged.Observable;
+        private readonly ObservableSource<int> _numberChanged = new();
     }
 
     private class NestingView(NestingViewModel viewModel) : IView<NestingViewModel>

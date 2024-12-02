@@ -84,7 +84,7 @@ public class AppHostTests
             onStarted: []
         );
 
-        appHost.Started.Register(() => onStartedCount++);
+        appHost.Started.Observe(() => onStartedCount++);
 
         Assert.AreEqual(0, onStartedCount);
 
@@ -168,7 +168,7 @@ public class AppHostTests
             onStarted: []
         );
 
-        appHost.Started.Register(() => onStartedCount++);
+        appHost.Started.Observe(() => onStartedCount++);
 
         appHost.Start();
 
@@ -198,7 +198,7 @@ public class AppHostTests
         );
 
         var closedObserved = false;
-        appHost.Closed.Register(() => closedObserved = true);
+        appHost.Closed.Observe(() => closedObserved = true);
 
         var result = appHost.Close();
 
@@ -217,9 +217,9 @@ public class AppHostTests
         );
 
         var closedObserved = false;
-        appHost.Closed.Register(() => closedObserved = true);
+        appHost.Closed.Observe(() => closedObserved = true);
 
-        appHost.Closing.Register(args => args.Cancel = true);
+        appHost.Closing.Observe(args => args.Cancel = true);
 
         var result = appHost.Close();
 

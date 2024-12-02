@@ -55,15 +55,15 @@ public interface IAppHost
     /// <summary>
     /// Raised when this app host is started.
     /// </summary>
-    EventToken Started { get; }
+    Observable Started { get; }
 
     /// <summary>
     /// Raised when the app is being closed.
     /// </summary>
-    EventToken<CancelEventArgs> Closing { get; }
+    Observable<CancelEventArgs> Closing { get; }
 
     /// <summary>
     /// Raised after the app has been closed.
     /// </summary>
-    EventToken Closed { get; }
+    Observable Closed { get; }
 }

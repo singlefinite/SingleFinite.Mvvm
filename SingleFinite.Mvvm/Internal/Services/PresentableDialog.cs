@@ -88,13 +88,9 @@ internal class PresentableDialog(IViewBuilder viewBuilder) :
 
         var taskSource = new TaskCompletionSource<IViewModel>();
         var viewModel = Show(viewModelDescriptor);
-        viewModel.Disposed.Register(
-            observer =>
-            {
-                observer.Dispose();
-                taskSource.TrySetResult(viewModel);
-            }
-        );
+        viewModel.Disposed
+            .Observe(() => taskSource.TrySetResult(viewModel))
+            .Once();
         return taskSource.Task;
     }
 
@@ -144,7 +140,7 @@ internal class PresentableDialog(IViewBuilder viewBuilder) :
     #region Events
 
     /// <inheritdoc/>
-    public EventToken<IPresentable.CurrentChangedEventArgs> CurrentChanged =>
+    public Observable<IPresentable.CurrentChangedEventArgs> CurrentChanged =>
         _stack.CurrentChanged;
 
     #endregion

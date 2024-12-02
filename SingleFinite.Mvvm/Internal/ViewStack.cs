@@ -190,7 +190,7 @@ internal class ViewStack
     private void Subscribe(IViewModel viewModel)
     {
         if (viewModel is IClosable closable)
-            closable.Closed.ActionEvent += OnClosed;
+            closable.Closed.Event += OnClosed;
     }
 
     /// <summary>
@@ -200,7 +200,7 @@ internal class ViewStack
     private void Unsubscribe(IViewModel viewModel)
     {
         if (viewModel is IClosable closable)
-            closable.Closed.ActionEvent -= OnClosed;
+            closable.Closed.Event -= OnClosed;
     }
 
     /// <summary>
@@ -266,8 +266,8 @@ internal class ViewStack
     /// <summary>
     /// Event raised when the current view has been changed.
     /// </summary>
-    public EventToken<IPresentable.CurrentChangedEventArgs> CurrentChanged => _currentChanged.Token;
-    private readonly EventTokenSource<IPresentable.CurrentChangedEventArgs> _currentChanged = new();
+    public Observable<IPresentable.CurrentChangedEventArgs> CurrentChanged => _currentChanged.Observable;
+    private readonly ObservableSource<IPresentable.CurrentChangedEventArgs> _currentChanged = new();
 
     #endregion
 }

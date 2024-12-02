@@ -30,20 +30,20 @@ public interface ILifecycleObservable
     /// <summary>
     /// Event raised when this object has been initialized.
     /// </summary>
-    EventToken Initialized { get; }
+    Observable Initialized { get; }
 
     /// <summary>
     /// Event raised when this object has been activated.
     /// </summary>
-    EventToken Activated { get; }
+    Observable Activated { get; }
 
     /// <summary>
     /// Event raised when this object has been deactivated.
     /// </summary>
-    EventToken Deactivated { get; }
+    Observable Deactivated { get; }
 
     /// <summary>
     /// Event raised when this object has been disposed.
     /// </summary>
-    EventToken Disposed { get; }
+    Observable Disposed { get; }
 }

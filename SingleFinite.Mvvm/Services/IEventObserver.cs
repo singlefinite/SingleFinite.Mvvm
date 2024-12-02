@@ -35,10 +35,7 @@ public interface IEventObserver
     /// Setup an event callback that will be unregistered when the dependency 
     /// injection scope that this service belongs to is disposed.
     /// </summary>
-    /// <param name="token">The event to register the callback to.</param>
-    /// <param name="callback">
-    /// The callback that will be registered to the event.
-    /// </param>
+    /// <param name="observable">The event to register the callback to.</param>
     /// <param name="cancellationToken">
     /// Optional token that when cancelled will unregister the callback.
     /// </param>
@@ -46,11 +43,10 @@ public interface IEventObserver
     /// Thrown if the service has been disposed.
     /// </exception>
     /// <returns>
-    /// A disposable object that when disposed will unregister the callback.
+    /// An observer object that when disposed will unregister the callback.
     /// </returns>
-    IDisposable Observe(
-        EventToken token,
-        Action callback,
+    IObserver Observe(
+        Observable observable,
         CancellationToken? cancellationToken = null
     );
 
@@ -58,11 +54,9 @@ public interface IEventObserver
     /// Setup an event callback that will be unregistered when the dependency 
     /// injection scope that this service belongs to is disposed.
     /// </summary>
-    /// <param name="token">The event to register the callback to.</param>
+    /// <param name="observable">The event to register the callback to.</param>
     /// <param name="callback">
     /// The callback that will be registered to the event.
-    /// A disposable is passed to the callback that when disposed will 
-    /// unregister the callback.
     /// </param>
     /// <param name="cancellationToken">
     /// Optional token that when cancelled will unregister the callback.
@@ -71,11 +65,11 @@ public interface IEventObserver
     /// Thrown if the service has been disposed.
     /// </exception>
     /// <returns>
-    /// A disposable object that when disposed will unregister the callback.
+    /// An observer object that when disposed will unregister the callback.
     /// </returns>
-    IDisposable ObserveWithUnregister(
-        EventToken token,
-        Action<IDisposable> callback,
+    IObserver Observe(
+        Observable observable,
+        Action callback,
         CancellationToken? cancellationToken = null
     );
 
@@ -86,7 +80,29 @@ public interface IEventObserver
     /// <typeparam name="TArgs">
     /// The type of arguments included with raised events.
     /// </typeparam>
-    /// <param name="token">The event to register the callback to.</param>
+    /// <param name="observable">The event to register the callback to.</param>
+    /// <param name="cancellationToken">
+    /// Optional token that when cancelled will unregister the callback.
+    /// </param>
+    /// <exception cref="ObjectDisposedException">
+    /// Thrown if the service has been disposed.
+    /// </exception>
+    /// <returns>
+    /// An observer that when disposed will unregister the callback.
+    /// </returns>
+    IObserver<TArgs> Observe<TArgs>(
+        Observable<TArgs> observable,
+        CancellationToken? cancellationToken = null
+    );
+
+    /// <summary>
+    /// Setup an event callback that will be unregistered when the dependency 
+    /// injection scope that this service belongs to is disposed.
+    /// </summary>
+    /// <typeparam name="TArgs">
+    /// The type of arguments included with raised events.
+    /// </typeparam>
+    /// <param name="observable">The event to register the callback to.</param>
     /// <param name="callback">
     /// The callback that will be registered to the event.
     /// </param>
@@ -97,10 +113,10 @@ public interface IEventObserver
     /// Thrown if the service has been disposed.
     /// </exception>
     /// <returns>
-    /// A disposable object that when disposed will unregister the callback.
+    /// An observer that when disposed will unregister the callback.
     /// </returns>
-    IDisposable Observe<TArgs>(
-        EventToken<TArgs> token,
+    IObserver<TArgs> Observe<TArgs>(
+        Observable<TArgs> observable,
         Action<TArgs> callback,
         CancellationToken? cancellationToken = null
     );
@@ -109,13 +125,13 @@ public interface IEventObserver
     /// Setup an event callback that will be unregistered when the dependency 
     /// injection scope that this service belongs to is disposed.
     /// </summary>
+    /// <typeparam name="TSender">
+    /// The type of object that will raise events.
+    /// </typeparam>
     /// <typeparam name="TArgs">
     /// The type of arguments included with raised events.
     /// </typeparam>
-    /// <param name="token">The event to register the callback to.</param>
-    /// <param name="callback">
-    /// The callback that will be registered to the event.
-    /// </param>
+    /// <param name="observable">The event to register the callback to.</param>
     /// <param name="cancellationToken">
     /// Optional token that when cancelled will unregister the callback.
     /// </param>
@@ -123,105 +139,12 @@ public interface IEventObserver
     /// Thrown if the service has been disposed.
     /// </exception>
     /// <returns>
-    /// A disposable object that when disposed will unregister the callback.
+    /// An observer that when disposed will unregister the callback.
     /// </returns>
-    IDisposable Observe<TArgs>(
-        EventToken<TArgs> token,
-        Action callback,
+    IObserver<TSender, TArgs> Observe<TSender, TArgs>(
+        Observable<TSender, TArgs> observable,
         CancellationToken? cancellationToken = null
     );
-
-    /// <summary>
-    /// Setup an event callback that will be unregistered when the dependency 
-    /// injection scope that this service belongs to is disposed.
-    /// </summary>
-    /// <typeparam name="TArgs">
-    /// The type of arguments included with raised events.
-    /// </typeparam>
-    /// <typeparam name="TCallbackArgs">
-    /// The type of arguments the callback expects.
-    /// If an event is raised with arguments that can't be cast to this type the
-    /// callback will not be invoked.
-    /// </typeparam>
-    /// <param name="token">The event to register the callback to.</param>
-    /// <param name="callback">
-    /// The callback that will be registered to the event.
-    /// </param>
-    /// <param name="cancellationToken">
-    /// Optional token that when cancelled will unregister the callback.
-    /// </param>
-    /// <exception cref="ObjectDisposedException">
-    /// Thrown if the service has been disposed.
-    /// </exception>
-    /// <returns>
-    /// A disposable object that when disposed will unregister the callback.
-    /// </returns>
-    IDisposable Observe<TArgs, TCallbackArgs>(
-        EventToken<TArgs> token,
-        Action<TCallbackArgs> callback,
-        CancellationToken? cancellationToken = null
-    ) where TCallbackArgs : TArgs;
-
-    /// <summary>
-    /// Setup an event callback that will be unregistered when the dependency 
-    /// injection scope that this service belongs to is disposed.
-    /// </summary>
-    /// <typeparam name="TArgs">
-    /// The type of arguments included with raised events.
-    /// </typeparam>
-    /// <param name="token">The event to register the callback to.</param>
-    /// <param name="callback">
-    /// The callback that will be registered to the event.
-    /// A disposable is passed to the callback that when disposed will 
-    /// unregister the callback.
-    /// </param>
-    /// <param name="cancellationToken">
-    /// Optional token that when cancelled will unregister the callback.
-    /// </param>
-    /// <exception cref="ObjectDisposedException">
-    /// Thrown if the service has been disposed.
-    /// </exception>
-    /// <returns>
-    /// A disposable object that when disposed will unregister the callback.
-    /// </returns>
-    IDisposable ObserveWithUnregister<TArgs>(
-        EventToken<TArgs> token,
-        Action<TArgs, IDisposable> callback,
-        CancellationToken? cancellationToken = null
-    );
-
-    /// <summary>
-    /// Setup an event callback that will be unregistered when the dependency 
-    /// injection scope that this service belongs to is disposed.
-    /// </summary>
-    /// <typeparam name="TArgs">
-    /// The type of arguments included with raised events.
-    /// </typeparam>
-    /// <typeparam name="TCallbackArgs">
-    /// The type of arguments the callback expects.
-    /// If an event is raised with arguments that can't be cast to this type the
-    /// callback will not be invoked.
-    /// </typeparam>
-    /// <param name="token">The event to register the callback to.</param>
-    /// <param name="callback">
-    /// The callback that will be registered to the event.
-    /// A disposable is passed to the callback that when disposed will 
-    /// unregister the callback.
-    /// </param>
-    /// <param name="cancellationToken">
-    /// Optional token that when cancelled will unregister the callback.
-    /// </param>
-    /// <exception cref="ObjectDisposedException">
-    /// Thrown if the service has been disposed.
-    /// </exception>
-    /// <returns>
-    /// A disposable object that when disposed will unregister the callback.
-    /// </returns>
-    IDisposable ObserveWithUnregister<TArgs, TCallbackArgs>(
-        EventToken<TArgs> token,
-        Action<TCallbackArgs, IDisposable> callback,
-        CancellationToken? cancellationToken = null
-    ) where TCallbackArgs : TArgs;
 
     /// <summary>
     /// Setup an event callback that will be unregistered when the dependency 
@@ -233,7 +156,7 @@ public interface IEventObserver
     /// <typeparam name="TArgs">
     /// The type of arguments included with raised events.
     /// </typeparam>
-    /// <param name="token">The event to register the callback to.</param>
+    /// <param name="observable">The event to register the callback to.</param>
     /// <param name="callback">
     /// The callback that will be registered to the event.
     /// </param>
@@ -244,145 +167,36 @@ public interface IEventObserver
     /// Thrown if the service has been disposed.
     /// </exception>
     /// <returns>
-    /// A disposable object that when disposed will unregister the callback.
+    /// An observer that when disposed will unregister the callback.
     /// </returns>
-    IDisposable Observe<TSender, TArgs>(
-        EventToken<TSender, TArgs> token,
+    IObserver<TSender, TArgs> Observe<TSender, TArgs>(
+        Observable<TSender, TArgs> observable,
         Action<TSender, TArgs> callback,
         CancellationToken? cancellationToken = null
     );
 
     /// <summary>
-    /// Setup an event callback that will be unregistered when the dependency 
-    /// injection scope that this service belongs to is disposed.
+    /// Setup a PropertyChanging event callback that will be unregistered when 
+    /// the dependency injection scope that this service belongs to is disposed.
     /// </summary>
-    /// <typeparam name="TSender">
-    /// The type of object that will raise events.
-    /// </typeparam>
-    /// <typeparam name="TArgs">
-    /// The type of arguments included with raised events.
-    /// </typeparam>
-    /// <param name="token">The event to register the callback to.</param>
-    /// <param name="callback">
-    /// The callback that will be registered to the event.
+    /// <param name="owner">
+    /// The object that owns the property to observe the changes on.
     /// </param>
+    /// <param name="callback">
+    /// The callback that will be registered to the event.  The name of the
+    /// changing property will be passed to the callback.
+    /// </param>    
     /// <param name="cancellationToken">
     /// Optional token that when cancelled will unregister the callback.
     /// </param>
-    /// <exception cref="ObjectDisposedException">
-    /// Thrown if the service has been disposed.
-    /// </exception>
     /// <returns>
-    /// A disposable object that when disposed will unregister the callback.
+    /// An observer that when disposed will unregister the callback.
     /// </returns>
-    IDisposable Observe<TSender, TArgs>(
-        EventToken<TSender, TArgs> token,
-        Action callback,
+    IObserver<string?> ObservePropertyChanging(
+        INotifyPropertyChanging owner,
+        Action<string?> callback,
         CancellationToken? cancellationToken = null
     );
-
-    /// <summary>
-    /// Setup an event callback that will be unregistered when the dependency 
-    /// injection scope that this service belongs to is disposed.
-    /// </summary>
-    /// <typeparam name="TSender">
-    /// The type of object that will raise events.
-    /// </typeparam>
-    /// <typeparam name="TArgs">
-    /// The type of arguments included with raised events.
-    /// </typeparam>
-    /// <typeparam name="TCallbackArgs">
-    /// The type of arguments the callback expects.
-    /// If an event is raised with arguments that can't be cast to this type the
-    /// callback will not be invoked.
-    /// </typeparam>
-    /// <param name="token">The event to register the callback to.</param>
-    /// <param name="callback">
-    /// The callback that will be registered to the event.
-    /// </param>
-    /// <param name="cancellationToken">
-    /// Optional token that when cancelled will unregister the callback.
-    /// </param>
-    /// <exception cref="ObjectDisposedException">
-    /// Thrown if the service has been disposed.
-    /// </exception>
-    /// <returns>
-    /// A disposable object that when disposed will unregister the callback.
-    /// </returns>
-    IDisposable Observe<TSender, TArgs, TCallbackArgs>(
-        EventToken<TSender, TArgs> token,
-        Action<TSender, TCallbackArgs> callback,
-        CancellationToken? cancellationToken = null
-    ) where TCallbackArgs : TArgs;
-
-    /// <summary>
-    /// Setup an event callback that will be unregistered when the dependency 
-    /// injection scope that this service belongs to is disposed or after the 
-    /// event has been raised once.
-    /// </summary>
-    /// <typeparam name="TSender">
-    /// The type of object that will raise events.
-    /// </typeparam>
-    /// <typeparam name="TArgs">
-    /// The type of arguments included with raised events.
-    /// </typeparam>
-    /// <param name="token">The event to register the callback to.</param>
-    /// <param name="callback">
-    /// The callback that will be registered to the event.
-    /// A disposable is passed to the callback that when disposed will 
-    /// unregister the callback.
-    /// </param>
-    /// <param name="cancellationToken">
-    /// Optional token that when cancelled will unregister the callback.
-    /// </param>
-    /// <exception cref="ObjectDisposedException">
-    /// Thrown if the service has been disposed.
-    /// </exception>
-    /// <returns>
-    /// A disposable object that when disposed will unregister the callback.
-    /// </returns>
-    IDisposable ObserveWithUnregister<TSender, TArgs>(
-        EventToken<TSender, TArgs> token,
-        Action<TSender, TArgs, IDisposable> callback,
-        CancellationToken? cancellationToken = null
-    );
-
-    /// <summary>
-    /// Setup an event callback that will be unregistered when the dependency 
-    /// injection scope that this service belongs to is disposed or after the 
-    /// event has been raised once.
-    /// </summary>
-    /// <typeparam name="TSender">
-    /// The type of object that will raise events.
-    /// </typeparam>
-    /// <typeparam name="TArgs">
-    /// The type of arguments included with raised events.
-    /// </typeparam>
-    /// <typeparam name="TCallbackArgs">
-    /// The type of arguments the callback expects.
-    /// If an event is raised with arguments that can't be cast to this type the
-    /// callback will not be invoked.
-    /// </typeparam>
-    /// <param name="token">The event to register the callback to.</param>
-    /// <param name="callback">
-    /// The callback that will be registered to the event.
-    /// A disposable is passed to the callback that when disposed will 
-    /// unregister the callback.
-    /// </param>
-    /// <param name="cancellationToken">
-    /// Optional token that when cancelled will unregister the callback.
-    /// </param>
-    /// <exception cref="ObjectDisposedException">
-    /// Thrown if the service has been disposed.
-    /// </exception>
-    /// <returns>
-    /// A disposable object that when disposed will unregister the callback.
-    /// </returns>
-    IDisposable ObserveWithUnregister<TSender, TArgs, TCallbackArgs>(
-        EventToken<TSender, TArgs> token,
-        Action<TSender, TCallbackArgs, IDisposable> callback,
-        CancellationToken? cancellationToken = null
-    ) where TCallbackArgs : TArgs;
 
     /// <summary>
     /// Setup a PropertyChanging event callback that will be unregistered when 
@@ -405,9 +219,9 @@ public interface IEventObserver
     /// When left as null the compiler will set this from the property argument.
     /// </param>
     /// <returns>
-    /// A disposable object that when disposed will unregister the callback.
+    /// An observer that when disposed will unregister the callback.
     /// </returns>
-    IDisposable ObservePropertyChanging(
+    IObserver ObservePropertyChanging(
         INotifyPropertyChanging owner,
         Func<object> property,
         Action callback,
@@ -417,36 +231,26 @@ public interface IEventObserver
     );
 
     /// <summary>
-    /// Setup a PropertyChanging event callback that will be unregistered when 
+    /// Setup a PropertyChanged event callback that will be unregistered when 
     /// the dependency injection scope that this service belongs to is disposed.
     /// </summary>
     /// <param name="owner">
-    /// The object that owns the property to observe the changes on.</param>
-    /// <param name="property">
-    /// An expression in the form of `() => owner.property` that identifies the 
-    /// property to listen for changes on.
+    /// The object that owns the property to observe the changes on.
     /// </param>
     /// <param name="callback">
-    /// The callback that will be registered to the event.
-    /// A disposable is passed to the callback that when disposed will 
-    /// unregister the callback.
+    /// The callback that will be registered to the event.  The name of the
+    /// changing property will be passed to the callback.
     /// </param>    
     /// <param name="cancellationToken">
     /// Optional token that when cancelled will unregister the callback.
     /// </param>
-    /// <param name="propertyExpression">
-    /// When left as null the compiler will set this from the property argument.
-    /// </param>
     /// <returns>
-    /// A disposable object that when disposed will unregister the callback.
+    /// An observer that when disposed will unregister the callback.
     /// </returns>
-    IDisposable ObservePropertyChangingWithUnregister(
-        INotifyPropertyChanging owner,
-        Func<object> property,
-        Action<IDisposable> callback,
-        CancellationToken? cancellationToken = null,
-        [CallerArgumentExpression(nameof(property))]
-        string? propertyExpression = null
+    IObserver<string?> ObservePropertyChanged(
+        INotifyPropertyChanged owner,
+        Action<string?> callback,
+        CancellationToken? cancellationToken = null
     );
 
     /// <summary>
@@ -470,46 +274,12 @@ public interface IEventObserver
     /// When left as null the compiler will set this from the property argument.
     /// </param>
     /// <returns>
-    /// A disposable object that when disposed will unregister the callback.
+    /// An observer that when disposed will unregister the callback.
     /// </returns>
-    IDisposable ObservePropertyChanged(
+    IObserver ObservePropertyChanged(
         INotifyPropertyChanged owner,
         Func<object> property,
         Action callback,
-        CancellationToken? cancellationToken = null,
-        [CallerArgumentExpression(nameof(property))]
-        string? propertyExpression = null
-    );
-
-    /// <summary>
-    /// Setup a PropertyChanged event callback that will be unregistered when 
-    /// the dependency injection scope that this service belongs to is disposed.
-    /// </summary>
-    /// <param name="owner">
-    /// The object that owns the property to observe the changes on.
-    /// </param>
-    /// <param name="property">
-    /// An expression in the form of `() => owner.property` that identifies the 
-    /// property to listen for changes on.
-    /// </param>
-    /// <param name="callback">
-    /// The callback that will be registered to the event.
-    /// A disposable is passed to the callback that when disposed will 
-    /// unregister the callback.
-    /// </param>    
-    /// <param name="cancellationToken">
-    /// Optional token that when cancelled will unregister the callback.
-    /// </param>
-    /// <param name="propertyExpression">
-    /// When left as null the compiler will set this from the property argument.
-    /// </param>
-    /// <returns>
-    /// A disposable object that when disposed will unregister the callback.
-    /// </returns>
-    IDisposable ObservePropertyChangedWithUnregister(
-        INotifyPropertyChanged owner,
-        Func<object> property,
-        Action<IDisposable> callback,
         CancellationToken? cancellationToken = null,
         [CallerArgumentExpression(nameof(property))]
         string? propertyExpression = null
@@ -538,7 +308,7 @@ public interface IEventObserver
     /// Thrown if the service has been disposed.
     /// </exception>
     /// <returns>
-    /// A disposable object that when disposed will unregister the callback.
+    /// A disposable that when disposed will unregister the callback.
     /// </returns>
     IDisposable Observe<TDelegate>(
         Action<TDelegate> register,

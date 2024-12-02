@@ -21,6 +21,7 @@
 
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using SingleFinite.Mvvm.Internal.Observers;
 using SingleFinite.Mvvm.Services;
 
 namespace SingleFinite.Mvvm.Internal.Services;
@@ -47,167 +48,145 @@ internal sealed class EventObserver : IEventObserver, IDisposable
     #region Methods
 
     /// <inheritdoc/>
-    public IDisposable Observe(
-        EventToken token,
+    public IObserver Observe(
+        Observable observable,
+        CancellationToken? cancellationToken = null
+    )
+    {
+        ObjectDisposedException.ThrowIf(_isDisposed, this);
+
+        var observer = new ObserverDisposeListener(
+            parent: observable.Observe()
+        );
+
+        void DisposedHandler()
+        {
+            _observerList.Remove(observer);
+            observer.Disposed -= DisposedHandler;
+        }
+
+        observer.Disposed += DisposedHandler;
+
+        _observerList.Add(observer);
+        cancellationToken?.Register(observer.Dispose);
+
+        return observer;
+    }
+
+    /// <inheritdoc/>
+    public IObserver Observe(
+        Observable observable,
         Action callback,
         CancellationToken? cancellationToken = null
-    )
-    {
-        ObjectDisposedException.ThrowIf(_isDisposed, this);
-        return Register(token.Register(callback), cancellationToken);
-    }
+    ) => Observe(observable, cancellationToken).OnEach(callback);
 
     /// <inheritdoc/>
-    public IDisposable ObserveWithUnregister(
-        EventToken token,
-        Action<IDisposable> callback,
+    public IObserver<TArgs> Observe<TArgs>(
+        Observable<TArgs> observable,
         CancellationToken? cancellationToken = null
     )
     {
         ObjectDisposedException.ThrowIf(_isDisposed, this);
-        return Register(token.Register(callback), cancellationToken);
+
+        var observer = new ObserverDisposeListener<TArgs>(
+            parent: observable.Observe()
+        );
+
+        void DisposedHandler()
+        {
+            _observerList.Remove(observer);
+            observer.Disposed -= DisposedHandler;
+        }
+
+        observer.Disposed += DisposedHandler;
+
+        _observerList.Add(observer);
+        cancellationToken?.Register(observer.Dispose);
+
+        return observer;
     }
 
     /// <inheritdoc/>
-    public IDisposable Observe<TArgs>(
-        EventToken<TArgs> token,
+    public IObserver<TArgs> Observe<TArgs>(
+        Observable<TArgs> observable,
         Action<TArgs> callback,
         CancellationToken? cancellationToken = null
-    )
-    {
-        ObjectDisposedException.ThrowIf(_isDisposed, this);
-        return Register(token.Register(callback), cancellationToken);
-    }
+    ) => Observe<TArgs>(observable, cancellationToken).OnEach(callback);
 
     /// <inheritdoc/>
-    public IDisposable Observe<TArgs>(
-        EventToken<TArgs> token,
-        Action callback,
+    public IObserver<TSender, TArgs> Observe<TSender, TArgs>(
+        Observable<TSender, TArgs> observable,
         CancellationToken? cancellationToken = null
     )
     {
         ObjectDisposedException.ThrowIf(_isDisposed, this);
-        return Register(token.Register(callback), cancellationToken);
-    }
 
-    /// <inheritdoc/>
-    public IDisposable Observe<TArgs, TCallbackArgs>(
-        EventToken<TArgs> token,
-        Action<TCallbackArgs> callback,
-        CancellationToken? cancellationToken = null
-    ) where TCallbackArgs : TArgs
-    {
-        ObjectDisposedException.ThrowIf(_isDisposed, this);
+        var observer = new ObserverDisposeListener<TSender, TArgs>(
+            parent: observable.Observe()
+        );
 
-        void Handler(TArgs args)
+        void DisposedHandler()
         {
-            if (args is TCallbackArgs callbackArgs)
-                callback(callbackArgs);
+            _observerList.Remove(observer);
+            observer.Disposed -= DisposedHandler;
         }
 
-        return Register(token.Register(Handler), cancellationToken);
+        observer.Disposed += DisposedHandler;
+
+        _observerList.Add(observer);
+        cancellationToken?.Register(observer.Dispose);
+
+        return observer;
     }
 
     /// <inheritdoc/>
-    public IDisposable ObserveWithUnregister<TArgs>(
-        EventToken<TArgs> token,
-        Action<TArgs, IDisposable> callback,
-        CancellationToken? cancellationToken = null
-    )
-    {
-        ObjectDisposedException.ThrowIf(_isDisposed, this);
-        return Register(token.Register(callback), cancellationToken);
-    }
-
-    /// <inheritdoc/>
-    public IDisposable ObserveWithUnregister<TArgs, TCallbackArgs>(
-        EventToken<TArgs> token,
-        Action<TCallbackArgs, IDisposable> callback,
-        CancellationToken? cancellationToken = null
-    ) where TCallbackArgs : TArgs
-    {
-        ObjectDisposedException.ThrowIf(_isDisposed, this);
-
-        void Handler(TArgs args, IDisposable observer)
-        {
-            if (args is TCallbackArgs callbackArgs)
-                callback(callbackArgs, observer);
-        }
-
-        return Register(token.Register(Handler), cancellationToken);
-    }
-
-    /// <inheritdoc/>
-    public IDisposable Observe<TSender, TArgs>(
-        EventToken<TSender, TArgs> token,
+    public IObserver<TSender, TArgs> Observe<TSender, TArgs>(
+        Observable<TSender, TArgs> observable,
         Action<TSender, TArgs> callback,
         CancellationToken? cancellationToken = null
-    )
-    {
-        ObjectDisposedException.ThrowIf(_isDisposed, this);
-        return Register(token.Register(callback), cancellationToken);
-    }
+    ) => Observe(observable, cancellationToken).OnEach(callback);
 
     /// <inheritdoc/>
-    public IDisposable Observe<TSender, TArgs>(
-        EventToken<TSender, TArgs> token,
-        Action callback,
+    public IObserver<string?> ObservePropertyChanging(
+        INotifyPropertyChanging owner,
+        Action<string?> callback,
         CancellationToken? cancellationToken = null
     )
     {
         ObjectDisposedException.ThrowIf(_isDisposed, this);
-        return Register(token.Register(callback), cancellationToken);
-    }
 
-    /// <inheritdoc/>
-    public IDisposable Observe<TSender, TArgs, TCallbackArgs>(
-        EventToken<TSender, TArgs> token,
-        Action<TSender, TCallbackArgs> callback,
-        CancellationToken? cancellationToken = null
-    ) where TCallbackArgs : TArgs
-    {
-        ObjectDisposedException.ThrowIf(_isDisposed, this);
+        var observableSource = new ObservableSource<string?>();
 
-        void Handler(TSender sender, TArgs args)
+        void Handler(object? sender, PropertyChangingEventArgs e)
         {
-            if (args is TCallbackArgs callbackArgs)
-                callback(sender, callbackArgs);
+            observableSource.RaiseEvent(e.PropertyName);
         }
 
-        return Register(token.Register(Handler), cancellationToken);
-    }
+        owner.PropertyChanging += Handler;
 
-    /// <inheritdoc/>
-    public IDisposable ObserveWithUnregister<TSender, TArgs>(
-        EventToken<TSender, TArgs> token,
-        Action<TSender, TArgs, IDisposable> callback,
-        CancellationToken? cancellationToken = null
-    )
-    {
-        ObjectDisposedException.ThrowIf(_isDisposed, this);
-        return Register(token.Register(callback), cancellationToken);
-    }
+        var observer = new ObserverDisposeListener<string?>(
+            parent: new ObserverSource<string?>(
+                observable: observableSource.Observable
+            )
+        );
 
-    /// <inheritdoc/>
-    public IDisposable ObserveWithUnregister<TSender, TArgs, TCallbackArgs>(
-        EventToken<TSender, TArgs> token,
-        Action<TSender, TCallbackArgs, IDisposable> callback,
-        CancellationToken? cancellationToken = null
-    ) where TCallbackArgs : TArgs
-    {
-        ObjectDisposedException.ThrowIf(_isDisposed, this);
-
-        void Handler(TSender sender, TArgs args, IDisposable observer)
+        void DisposedHandler()
         {
-            if (args is TCallbackArgs callbackArgs)
-                callback(sender, callbackArgs, observer);
+            _observerList.Remove(observer);
+            owner.PropertyChanging -= Handler;
+            observer.Disposed -= DisposedHandler;
         }
 
-        return Register(token.Register(Handler), cancellationToken);
+        observer.Disposed += DisposedHandler;
+
+        _observerList.Add(observer);
+        cancellationToken?.Register(observer.Dispose);
+
+        return observer.OnEach(callback);
     }
 
     /// <inheritdoc/>
-    public IDisposable ObservePropertyChanging(
+    public IObserver ObservePropertyChanging(
         INotifyPropertyChanging owner,
         Func<object> property,
         Action callback,
@@ -218,49 +197,76 @@ internal sealed class EventObserver : IEventObserver, IDisposable
     {
         ObjectDisposedException.ThrowIf(_isDisposed, this);
 
+        var observableSource = new ObservableSource();
+
         void Handler(object? sender, PropertyChangingEventArgs e)
         {
-            callback();
+            observableSource.RaiseEvent();
         }
 
         var propertyName = ParsePropertyName(propertyExpression);
         owner.PropertyChanging += Handler;
-        return Register(
-            new ActionOnDispose(() => owner.PropertyChanging -= Handler),
-            cancellationToken
+
+        var observer = new ObserverDisposeListener(
+            parent: new ObserverSource(observable: observableSource.Observable)
         );
+
+        void DisposedHandler()
+        {
+            _observerList.Remove(observer);
+            owner.PropertyChanging -= Handler;
+            observer.Disposed -= DisposedHandler;
+        }
+
+        observer.Disposed += DisposedHandler;
+
+        _observerList.Add(observer);
+        cancellationToken?.Register(observer.Dispose);
+
+        return observer.OnEach(callback);
     }
 
     /// <inheritdoc/>
-    public IDisposable ObservePropertyChangingWithUnregister(
-        INotifyPropertyChanging owner,
-        Func<object> property,
-        Action<IDisposable> callback,
-        CancellationToken? cancellationToken = null,
-        [CallerArgumentExpression(nameof(property))]
-        string? propertyExpression = null
+    public IObserver<string?> ObservePropertyChanged(
+        INotifyPropertyChanged owner,
+        Action<string?> callback,
+        CancellationToken? cancellationToken = null
     )
     {
         ObjectDisposedException.ThrowIf(_isDisposed, this);
 
-        IDisposable? observer = null;
-        void Handler(object? sender, PropertyChangingEventArgs e)
+        var observableSource = new ObservableSource<string?>();
+
+        void Handler(object? sender, PropertyChangedEventArgs e)
         {
-            callback(observer.Require());
+            observableSource.RaiseEvent(e.PropertyName);
         }
 
-        var propertyName = ParsePropertyName(propertyExpression);
-        owner.PropertyChanging += Handler;
-        observer = Register(
-            new ActionOnDispose(() => owner.PropertyChanging -= Handler),
-            cancellationToken
+        owner.PropertyChanged += Handler;
+
+        var observer = new ObserverDisposeListener<string?>(
+            parent: new ObserverSource<string?>(
+                observable: observableSource.Observable
+            )
         );
 
-        return observer;
+        void DisposedHandler()
+        {
+            _observerList.Remove(observer);
+            owner.PropertyChanged -= Handler;
+            observer.Disposed -= DisposedHandler;
+        }
+
+        observer.Disposed += DisposedHandler;
+
+        _observerList.Add(observer);
+        cancellationToken?.Register(observer.Dispose);
+
+        return observer.OnEach(callback);
     }
 
     /// <inheritdoc/>
-    public IDisposable ObservePropertyChanged(
+    public IObserver ObservePropertyChanged(
         INotifyPropertyChanged owner,
         Func<object> property,
         Action callback,
@@ -271,44 +277,33 @@ internal sealed class EventObserver : IEventObserver, IDisposable
     {
         ObjectDisposedException.ThrowIf(_isDisposed, this);
 
+        var observableSource = new ObservableSource();
+
         void Handler(object? sender, PropertyChangedEventArgs e)
         {
-            callback();
+            observableSource.RaiseEvent();
         }
 
         var propertyName = ParsePropertyName(propertyExpression);
         owner.PropertyChanged += Handler;
-        return Register(
-            new ActionOnDispose(() => owner.PropertyChanged -= Handler),
-            cancellationToken
+
+        var observer = new ObserverDisposeListener(
+            parent: new ObserverSource(observable: observableSource.Observable)
         );
-    }
 
-    public IDisposable ObservePropertyChangedWithUnregister(
-        INotifyPropertyChanged owner,
-        Func<object> property,
-        Action<IDisposable> callback,
-        CancellationToken? cancellationToken = null,
-        [CallerArgumentExpression(nameof(property))]
-        string? propertyExpression = null
-    )
-    {
-        ObjectDisposedException.ThrowIf(_isDisposed, this);
-
-        IDisposable? observer = null;
-        void Handler(object? sender, PropertyChangedEventArgs e)
+        void DisposedHandler()
         {
-            callback(observer.Require());
+            _observerList.Remove(observer);
+            owner.PropertyChanged -= Handler;
+            observer.Disposed -= DisposedHandler;
         }
 
-        var propertyName = ParsePropertyName(propertyExpression);
-        owner.PropertyChanged += Handler;
-        observer = Register(
-            new ActionOnDispose(() => owner.PropertyChanged -= Handler),
-            cancellationToken
-        );
+        observer.Disposed += DisposedHandler;
 
-        return observer;
+        _observerList.Add(observer);
+        cancellationToken?.Register(observer.Dispose);
+
+        return observer.OnEach(callback);
     }
 
     /// <inheritdoc/>
@@ -321,14 +316,22 @@ internal sealed class EventObserver : IEventObserver, IDisposable
     {
         ObjectDisposedException.ThrowIf(_isDisposed, this);
         register(handler);
-        return Register(
-            new ActionOnDispose(() => unregister(handler)),
-            cancellationToken
-        );
+
+        IDisposable? disposable = null;
+        disposable = new ActionOnDispose(() =>
+        {
+            _observerList.Remove(disposable.Require());
+            unregister(handler);
+        });
+
+        _observerList.Add(disposable);
+        cancellationToken?.Register(disposable.Dispose);
+
+        return disposable;
     }
 
     /// <summary>
-    /// Unregister all callbacks.
+    /// Dispose of all observers created through this service.
     /// </summary>
     public void Dispose()
     {
@@ -342,39 +345,6 @@ internal sealed class EventObserver : IEventObserver, IDisposable
         _observerList.Clear();
 
         _isDisposed = true;
-    }
-
-    /// <summary>
-    /// Add the given observer to the observer list.
-    /// </summary>
-    /// <param name="observer">
-    /// The observer to to add to the observer list.
-    /// </param>
-    /// <param name="cancellationToken">
-    /// Optional token that when cancelled will dispose of the observer.
-    /// </param>
-    /// <returns>
-    /// A disposable that when is disposed will remove the observer from the
-    /// list and dispose of the observer.
-    /// </returns>
-    private ActionOnDispose Register(
-        IDisposable observer,
-        CancellationToken? cancellationToken
-    )
-    {
-        ActionOnDispose? removeObserver = null;
-        removeObserver = new ActionOnDispose(() =>
-        {
-            if (removeObserver != null)
-                _observerList.Remove(removeObserver);
-            observer.Dispose();
-        });
-
-        _observerList.Add(removeObserver);
-
-        cancellationToken?.Register(() => removeObserver.Dispose());
-
-        return removeObserver;
     }
 
     /// <summary>

@@ -78,7 +78,7 @@ public class PresentableItemTests
         var presentableItem = (PresentableItem)context.ServiceProvider.GetRequiredService<IPresentableItem>();
 
         IPresentable.CurrentChangedEventArgs? observedArgs = null;
-        presentableItem.CurrentChanged.Register(args => observedArgs = args);
+        presentableItem.CurrentChanged.Observe(args => observedArgs = args);
 
         var output = new List<string>();
         var viewModelContext = new ViewModelTestContext(output);
@@ -203,8 +203,8 @@ public class PresentableItemTests
 
         public void Close() => _closedSource.RaiseEvent(this);
 
-        public EventToken<IClosable> Closed => _closedSource.Token;
-        private readonly EventTokenSource<IClosable> _closedSource = new();
+        public Observable<IClosable> Closed => _closedSource.Observable;
+        private readonly ObservableSource<IClosable> _closedSource = new();
     }
 
     private class TestViewModel2(ViewModelTestContext context) : TestViewModel1(context)

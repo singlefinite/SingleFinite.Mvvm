@@ -19,51 +19,30 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using SingleFinite.Mvvm.Internal;
+using SingleFinite.Mvvm.Internal.Observers;
 
 namespace SingleFinite.Mvvm;
 
 /// <summary>
-/// This class implements the <see cref="INotifyPropertyChanged"/> and 
-/// <see cref="INotifyPropertyChanging"/> interfaces and provides methods that 
-/// inheriting classes can use to raise PropertyChanged and PropertyChanging 
-/// events.
+/// This class wraps an event to make registering and unregistering callbacks 
+/// for the event more convenient when working with dependency injection scopes.
+/// Observable instances are created by instances of the 
+/// <see cref="ObservableSource"/> class.
 /// </summary>
-public abstract class Observable :
-    INotifyPropertyChanged,
-    INotifyPropertyChanging
+public sealed class Observable
 {
-    #region Fields
-
-    /// <summary>
-    /// Used to prevent PropertyChanged events from being raised until this 
-    /// object has finished being updated.
-    /// </summary>
-    private readonly Transaction _transaction = new();
-
-    /// <summary>
-    /// Buffer that holds actions for raising PropertyChanged events when an 
-    /// open transaction is closed.
-    /// </summary>
-    private readonly ActionBuffer<string> _transactionBuffer = new();
-
-    /// <summary>
-    /// Flag that gets set to true while the UpdateState method is executing.
-    /// </summary>
-    private bool _isUpdatingState = false;
-
-    #endregion
-
     #region Constructors
 
     /// <summary>
-    /// Constructor.
+    /// Instances of this class are created with <see cref="ObservableSource"/> 
+    /// objects.
     /// </summary>
-    public Observable()
+    /// <param name="source">
+    /// The source that raises the observable event.
+    /// </param>
+    internal Observable(ObservableSource source)
     {
-        _transaction.Closed.Register(OnTransactionClosed);
+        source.Event += RaiseEvent;
     }
 
     #endregion
@@ -71,162 +50,185 @@ public abstract class Observable :
     #region Methods
 
     /// <summary>
-    /// Call the OnStateChanged methods with the PropertyChanged events
-    /// disabled.
-    /// If this method is called while a previous call is still in progress, the
-    /// new call will be ignored.
+    /// Create an observer for this observable.
     /// </summary>
-    protected void UpdateState()
-    {
-        if (_isUpdatingState)
-            return;
-
-        try
-        {
-            _isUpdatingState = true;
-            OnStateChanged();
-        }
-        finally
-        {
-            _isUpdatingState = false;
-        }
-    }
+    /// <returns>
+    /// An observer that runs when the event for this observable is raised.
+    /// </returns>
+    public IObserver Observe() => new ObserverSource(this);
 
     /// <summary>
-    /// This method is called whenever one or more PropertyChanged events are 
-    /// raised by this object.  To prevent infinite recursion, the 
-    /// PropertyChanged events that are raised as a result of changes to 
-    /// properties made by this method will be suppressed until this method has 
-    /// exited.  When the suppressed PropertyChanged events are raised they will
-    /// not trigger this method being called again.
+    /// Create an observer for this observable.
+    /// This is a convience method that is equivalent to calling
+    /// Observe().OnEach.
     /// </summary>
-    protected virtual void OnStateChanged()
-    {
-    }
+    /// <param name="callback">
+    /// The callback to invoke whenever the event for this observable is raised.
+    /// </param>
+    /// <returns>
+    /// An observer that runs when the event for this observable is raised.
+    /// </returns>
+    public IObserver Observe(Action callback) =>
+        new ObserverSource(this).OnEach(callback);
 
     /// <summary>
-    /// Raise any pending PropertyChanged events when a transaction has been 
-    /// closed.
+    /// Raise the event for this observable.
     /// </summary>
-    private void OnTransactionClosed()
-    {
-        _transactionBuffer.Flush();
-    }
-
-    /// <summary>
-    /// Raise the PropertyChanging event.
-    /// </summary>
-    /// <param name="name">
-    /// The name to provide with the PropertyChanging event args.
-    /// </param>
-    private void RaisePropertyChanging(string name)
-    {
-        PropertyChanging?.Invoke(
-            sender: this,
-            e: new PropertyChangingEventArgs(name)
-        );
-    }
-
-    /// <summary>
-    /// Raise the PropertyChanged event.
-    /// </summary>
-    /// <param name="name">
-    /// The name to provide with the PropertyChanged event args.
-    /// </param>
-    private void RaisePropertyChanged(string name)
-    {
-        PropertyChanged?.Invoke(
-            sender: this,
-            e: new PropertyChangedEventArgs(name)
-        );
-    }
-
-    /// <summary>
-    /// Update the given currentValue with the newValue and raise the
-    /// PropertyChanging and PropertyChanged events.  If the currentValue is 
-    /// equal to the newValue the currentValue will not be updated and the 
-    /// PropertyChanging and PropertyChanged events will not be raised.
-    /// </summary>
-    /// <typeparam name="TValue">The type of value.</typeparam>
-    /// <param name="field">
-    /// The reference to the property field which may be changed.
-    /// </param>
-    /// <param name="value">The new value to set the property field to.</param>
-    /// <param name="onPropertyChanging">
-    /// If the new value will change the property, invoke this action before 
-    /// changing the value and after raising the PropertyChanging event.  Note 
-    /// that if a transaction is open this action will only be called the first 
-    /// time.  If this method is called again with the same property name while 
-    /// the same transaction is open it will not be called again.
-    /// </param>
-    /// <param name="onPropertyChanged">
-    /// If the new value changes the property, invoke this action after changing
-    /// the value and raising the PropertyChanged event.  Note that if a 
-    /// transaction is open this action will not be invoked until the 
-    /// transaction has been closed.
-    /// </param>
-    /// <param name="name">
-    /// The name provided with the PropertyChanging and PropertyChanged event 
-    /// args.  Leave unset to use the name of the calling member.
-    /// </param>
-    protected void ChangeProperty<TValue>(
-        ref TValue field,
-        TValue value,
-        Action? onPropertyChanging = null,
-        Action? onPropertyChanged = null,
-        [CallerMemberName] string? name = default
-    )
-    {
-        ArgumentNullException.ThrowIfNull(name);
-
-        if (object.Equals(field, value))
-            return;
-
-        if (_transaction.IsOpen)
-        {
-            void OnNotify()
-            {
-                RaisePropertyChanged(name);
-                onPropertyChanged?.Invoke();
-            };
-
-            if (_transactionBuffer.AddOrReplace(name, OnNotify))
-            {
-                RaisePropertyChanging(name);
-                onPropertyChanging?.Invoke();
-            }
-
-            field = value;
-        }
-        else
-        {
-            using var token = _transaction.Start();
-
-            RaisePropertyChanging(name);
-            onPropertyChanging?.Invoke();
-
-            field = value;
-
-            UpdateState();
-
-            RaisePropertyChanged(name);
-            onPropertyChanged?.Invoke();
-        }
-    }
+    private void RaiseEvent() => Event?.Invoke();
 
     #endregion
 
     #region Events
 
     /// <summary>
-    /// Raised when a property value is about to be changed.
+    /// The underlying event.
     /// </summary>
-    public event PropertyChangingEventHandler? PropertyChanging;
-
-    /// <summary>
-    /// Raised when a property value has changed.
-    /// </summary>
-    public event PropertyChangedEventHandler? PropertyChanged;
+    public event Action? Event;
 
     #endregion
 }
+
+/// <summary>
+/// This class wraps an event to make registering and unregistering callbacks 
+/// for the event more convenient when working with dependency injection scopes.
+/// Observable instances are created by instances of the 
+/// <see cref="ObservableSource"/> class.
+/// </summary>
+/// <typeparam name="TArgs">
+/// The type of arguments passed with the event.
+/// </typeparam>
+public sealed class Observable<TArgs>
+{
+    #region Constructors
+
+    /// <summary>
+    /// Instances of this class are created with <see cref="ObservableSource"/> 
+    /// objects.
+    /// </summary>
+    /// <param name="source">
+    /// The source that raises the observable event.
+    /// </param>
+    internal Observable(ObservableSource<TArgs> source)
+    {
+        source.Event += RaiseEvent;
+    }
+
+    #endregion
+
+    #region Methods
+
+    /// <summary>
+    /// Create an observer for this observable.
+    /// </summary>
+    /// <returns>
+    /// An observer that runs when the event for this observable is raised.
+    /// </returns>
+    public IObserver<TArgs> Observe() => new ObserverSource<TArgs>(this);
+
+    /// <summary>
+    /// Create an observer for this observable.
+    /// This is a convience method that is equivalent to calling
+    /// Observe().OnEach.
+    /// </summary>
+    /// <param name="callback">
+    /// The callback to invoke whenever the event for this observable is raised.
+    /// </param>
+    /// <returns>
+    /// An observer that runs when the event for this observable is raised.
+    /// </returns>
+    public IObserver<TArgs> Observe(Action<TArgs> callback) =>
+        new ObserverSource<TArgs>(this).OnEach(callback);
+
+    /// <summary>
+    /// Raise the event for this observable.
+    /// </summary>
+    /// <param name="args">The args included with the event.</param>
+    private void RaiseEvent(TArgs args) => Event?.Invoke(args);
+
+    #endregion
+
+    #region Events
+
+    /// <summary>
+    /// The underlying event.
+    /// </summary>
+    public event Action<TArgs>? Event;
+
+    #endregion
+}
+
+/// <summary>
+/// This class wraps an event to make registering and unregistering callbacks 
+/// for the event more convenient when working with dependency injection scopes.
+/// Observable instances are created by instances of the 
+/// <see cref="ObservableSource"/> class.
+/// </summary>
+/// <typeparam name="TSender">
+/// The type of sender that raises the event.
+/// </typeparam>
+/// <typeparam name="TArgs">
+/// The type of arguments passed with the event.
+/// </typeparam>
+public sealed class Observable<TSender, TArgs>
+{
+    #region Constructors
+
+    /// <summary>
+    /// Instances of this class are created with <see cref="ObservableSource"/> 
+    /// objects.
+    /// </summary>
+    /// <param name="source">
+    /// The source that raises the observable event.
+    /// </param>
+    internal Observable(ObservableSource<TSender, TArgs> source)
+    {
+        source.Event += RaiseEvent;
+    }
+
+    #endregion
+
+    #region Methods
+
+    /// <summary>
+    /// Create an observer for this observable.
+    /// </summary>
+    /// <returns>
+    /// An observer that runs when the event for this observable is raised.
+    /// </returns>
+    public IObserver<TSender, TArgs> Observe() =>
+        new ObserverSource<TSender, TArgs>(this);
+
+    /// <summary>
+    /// Create an observer for this observable.
+    /// This is a convience method that is equivalent to calling
+    /// Observe().OnEach.
+    /// </summary>
+    /// <param name="callback">
+    /// The callback to invoke whenever the event for this observable is raised.
+    /// </param>
+    /// <returns>
+    /// An observer that runs when the event for this observable is raised.
+    /// </returns>
+    public IObserver<TSender, TArgs> Observe(Action<TSender, TArgs> callback) =>
+        new ObserverSource<TSender, TArgs>(this).OnEach(callback);
+
+    /// <summary>
+    /// Raise the event for this observable.
+    /// </summary>
+    /// <param name="sender">The object that is raising the event.</param>
+    /// <param name="args">The args included with the event.</param>
+    private void RaiseEvent(TSender sender, TArgs args) =>
+        Event?.Invoke(sender, args);
+
+    #endregion
+
+    #region Events
+
+    /// <summary>
+    /// The underlying event.
+    /// </summary>
+    public event Action<TSender, TArgs>? Event;
+
+    #endregion
+}
+

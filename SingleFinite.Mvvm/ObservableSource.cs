@@ -22,19 +22,19 @@
 namespace SingleFinite.Mvvm;
 
 /// <summary>
-/// The source for an <see cref="EventToken"/>.  Instances of this class can be 
-/// kept private within its owner while the EventToken is shared publicly 
+/// The source for an <see cref="Observable"/>.  Instances of this class can be 
+/// kept private within its owner while the observable is shared publicly 
 /// outside of the owner.  Since events are only raised through this class it 
 /// prevents events from being raised outside of the owning class.
 /// </summary>
-public sealed class EventTokenSource
+public sealed class ObservableSource
 {
     #region Properties
 
     /// <summary>
-    /// The token provided by this class.
+    /// The observable provided by this class.
     /// </summary>
-    public EventToken Token { get; }
+    public Observable Observable { get; }
 
     #endregion
 
@@ -43,9 +43,9 @@ public sealed class EventTokenSource
     /// <summary>
     /// Constructor.
     /// </summary>
-    public EventTokenSource()
+    public ObservableSource()
     {
-        Token = new(this);
+        Observable = new(this);
     }
 
     #endregion
@@ -53,9 +53,9 @@ public sealed class EventTokenSource
     #region Methods
 
     /// <summary>
-    /// Raise the event for the Token.
+    /// Raise the event for the observable.
     /// </summary>
-    public void RaiseEvent() => EventRaised?.Invoke();
+    public void RaiseEvent() => Event?.Invoke();
 
     #endregion
 
@@ -64,28 +64,28 @@ public sealed class EventTokenSource
     /// <summary>
     /// Event that is raised when the RaiseEvent method is invoked.
     /// </summary>
-    internal event Action? EventRaised;
+    internal event Action? Event;
 
     #endregion
 }
 
 /// <summary>
-/// The source for an <see cref="EventToken"/>.  Instances of this class can be 
-/// kept private within its owner while the EventToken is shared publicly 
+/// The source for an <see cref="Observable"/>.  Instances of this class can be 
+/// kept private within its owner while the observable is shared publicly 
 /// outside of the owner.  Since events are only raised through this class it 
 /// prevents events from being raised outside of the owning class.
 /// </summary>
 /// <typeparam name="TArgs">
 /// The type of arguments passed with the event.
 /// </typeparam>
-public sealed class EventTokenSource<TArgs>
+public sealed class ObservableSource<TArgs>
 {
     #region Properties
 
     /// <summary>
-    /// The token provided by this class.
+    /// The observable provided by this class.
     /// </summary>
-    public EventToken<TArgs> Token { get; }
+    public Observable<TArgs> Observable { get; }
 
     #endregion
 
@@ -94,9 +94,9 @@ public sealed class EventTokenSource<TArgs>
     /// <summary>
     /// Constructor.
     /// </summary>
-    public EventTokenSource()
+    public ObservableSource()
     {
-        Token = new(this);
+        Observable = new(this);
     }
 
     #endregion
@@ -104,10 +104,10 @@ public sealed class EventTokenSource<TArgs>
     #region Methods
 
     /// <summary>
-    /// Raise the event for the Token.
+    /// Raise the event for the observable.
     /// </summary>
     /// <param name="args">The arguments to pass with the event.</param>
-    public void RaiseEvent(TArgs args) => EventRaised?.Invoke(args);
+    public void RaiseEvent(TArgs args) => Event?.Invoke(args);
 
     #endregion
 
@@ -116,14 +116,14 @@ public sealed class EventTokenSource<TArgs>
     /// <summary>
     /// Event that is raised when the RaiseEvent method is invoked.
     /// </summary>
-    internal event Action<TArgs>? EventRaised;
+    internal event Action<TArgs>? Event;
 
     #endregion
 }
 
 /// <summary>
-/// The source for an <see cref="EventToken"/>.  Instances of this class can be 
-/// kept private within its owner while the EventToken is shared publicly 
+/// The source for an <see cref="Observable"/>.  Instances of this class can be 
+/// kept private within its owner while the observable is shared publicly 
 /// outside of the owner.  Since events are only raised through this class it 
 /// prevents events from being raised outside of the owning class.
 /// </summary>
@@ -133,14 +133,14 @@ public sealed class EventTokenSource<TArgs>
 /// <typeparam name="TArgs">
 /// The type of arguments passed with the event.
 /// </typeparam>
-public sealed class EventTokenSource<TSender, TArgs>
+public sealed class ObservableSource<TSender, TArgs>
 {
     #region Properties
 
     /// <summary>
-    /// The token provided by this class.
+    /// The observable provided by this class.
     /// </summary>
-    public EventToken<TSender, TArgs> Token { get; }
+    public Observable<TSender, TArgs> Observable { get; }
 
     #endregion
 
@@ -149,9 +149,9 @@ public sealed class EventTokenSource<TSender, TArgs>
     /// <summary>
     /// Constructor.
     /// </summary>
-    public EventTokenSource()
+    public ObservableSource()
     {
-        Token = new(this);
+        Observable = new(this);
     }
 
     #endregion
@@ -159,12 +159,12 @@ public sealed class EventTokenSource<TSender, TArgs>
     #region Methods
 
     /// <summary>
-    /// Raise the event for the Token.
+    /// Raise the event for the observable.
     /// </summary>
     /// <param name="sender">The object that is raising the event.</param>
     /// <param name="args">The arguments to pass with the event.</param>
     public void RaiseEvent(TSender sender, TArgs args) =>
-        EventRaised?.Invoke(sender, args);
+        Event?.Invoke(sender, args);
 
     #endregion
 
@@ -173,7 +173,7 @@ public sealed class EventTokenSource<TSender, TArgs>
     /// <summary>
     /// Event that is raised when the RaiseEvent method is invoked.
     /// </summary>
-    internal event Action<TSender, TArgs>? EventRaised;
+    internal event Action<TSender, TArgs>? Event;
 
     #endregion
 }

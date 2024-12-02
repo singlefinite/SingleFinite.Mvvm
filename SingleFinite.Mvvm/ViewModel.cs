@@ -27,7 +27,7 @@ namespace SingleFinite.Mvvm;
 /// model is disposed the dependency injection scope will be disposed.
 /// </summary>
 public abstract class ViewModel :
-    Observable,
+    Component,
     IViewModel,
     ILifecycle
 {
@@ -79,7 +79,7 @@ public abstract class ViewModel :
 
         IsInitialized = true;
         OnInitialize();
-        _initializedEventTokenSource.RaiseEvent();
+        _initializedSource.RaiseEvent();
     }
 
     /// <inheritdoc/>
@@ -91,7 +91,7 @@ public abstract class ViewModel :
         _activeCancellationTokenSource = new();
         IsActive = true;
         OnActivate(_activeCancellationTokenSource.Token);
-        _activatedEventTokenSource.RaiseEvent();
+        _activatedSource.RaiseEvent();
     }
 
     /// <inheritdoc/>
@@ -106,7 +106,7 @@ public abstract class ViewModel :
 
         IsActive = false;
         OnDeactivate();
-        _deactivatedEventTokenSource.RaiseEvent();
+        _deactivatedSource.RaiseEvent();
     }
 
     /// <summary>
@@ -134,7 +134,7 @@ public abstract class ViewModel :
         if (isDisposing)
             OnDispose();
 
-        _disposedEventTokenSource.RaiseEvent();
+        _disposedSource.RaiseEvent();
     }
 
     /// <summary>
@@ -174,20 +174,20 @@ public abstract class ViewModel :
     #region Events
 
     /// <inheritdoc/>
-    public EventToken Initialized => _initializedEventTokenSource.Token;
-    private readonly EventTokenSource _initializedEventTokenSource = new();
+    public Observable Initialized => _initializedSource.Observable;
+    private readonly ObservableSource _initializedSource = new();
 
     /// <inheritdoc/>
-    public EventToken Activated => _activatedEventTokenSource.Token;
-    private readonly EventTokenSource _activatedEventTokenSource = new();
+    public Observable Activated => _activatedSource.Observable;
+    private readonly ObservableSource _activatedSource = new();
 
     /// <inheritdoc/>
-    public EventToken Deactivated => _deactivatedEventTokenSource.Token;
-    private readonly EventTokenSource _deactivatedEventTokenSource = new();
+    public Observable Deactivated => _deactivatedSource.Observable;
+    private readonly ObservableSource _deactivatedSource = new();
 
     /// <inheritdoc/>
-    public EventToken Disposed => _disposedEventTokenSource.Token;
-    private readonly EventTokenSource _disposedEventTokenSource = new();
+    public Observable Disposed => _disposedSource.Observable;
+    private readonly ObservableSource _disposedSource = new();
 
     #endregion
 }

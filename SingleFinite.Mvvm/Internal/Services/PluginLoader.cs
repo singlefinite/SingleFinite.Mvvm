@@ -55,17 +55,17 @@ internal class PluginLoader(
             var plugin = (IPlugin)builder.Build(descriptor.PluginType);
 
             eventObserver.Observe(
-                token: pluginHost.Activated,
+                observable: pluginHost.Activated,
                 callback: plugin.Activate
             );
 
             eventObserver.Observe(
-                token: pluginHost.Deactivated,
+                observable: pluginHost.Deactivated,
                 callback: plugin.Deactivate
             );
 
             eventObserver.Observe(
-                token: pluginHost.Disposed,
+                observable: pluginHost.Disposed,
                 callback: plugin.Dispose
             );
 

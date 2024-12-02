@@ -107,7 +107,7 @@ internal sealed class PresentableItem(IViewBuilder viewBuilder) :
     #region Events
 
     /// <inheritdoc/>
-    public EventToken<IPresentable.CurrentChangedEventArgs> CurrentChanged =>
+    public Observable<IPresentable.CurrentChangedEventArgs> CurrentChanged =>
         _stack.CurrentChanged;
 
     #endregion

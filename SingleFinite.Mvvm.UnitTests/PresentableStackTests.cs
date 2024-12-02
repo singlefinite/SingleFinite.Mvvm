@@ -76,7 +76,7 @@ public class PresentableStackTests
         var presentableStack = (PresentableStack)context.ServiceProvider.GetRequiredService<IPresentableStack>();
 
         IPresentable.CurrentChangedEventArgs? observedArgs = null;
-        presentableStack.CurrentChanged.Register(args => observedArgs = args);
+        presentableStack.CurrentChanged.Observe(args => observedArgs = args);
 
         var output = new List<string>();
         var viewModelContext = new ViewModelTestContext(output);
@@ -279,8 +279,8 @@ public class PresentableStackTests
 
         public void Close() => _closedSource.RaiseEvent(this);
 
-        public EventToken<IClosable> Closed => _closedSource.Token;
-        private readonly EventTokenSource<IClosable> _closedSource = new();
+        public Observable<IClosable> Closed => _closedSource.Observable;
+        private readonly ObservableSource<IClosable> _closedSource = new();
     }
 
     private class TestViewModel2(ViewModelTestContext context) : TestViewModel1(context)

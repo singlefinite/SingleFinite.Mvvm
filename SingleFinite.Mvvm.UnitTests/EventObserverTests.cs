@@ -53,7 +53,7 @@ public class EventObserverTests
     }
 
     [TestMethod]
-    public void Dispose_Method_Unregisters_Token_Callbacks()
+    public void Dispose_Method_Unregisters_Observable_Callbacks()
     {
         var scopedEventObserver = new EventObserver();
         var testClass = new TestClassWithEvent();
@@ -62,7 +62,7 @@ public class EventObserverTests
         var observedTestEvent = 0;
 
         scopedEventObserver.Observe(
-            token: testClass.EventToken,
+            observable: testClass.Observable,
             callback: (sender, args) =>
             {
                 observedSender = sender;
@@ -91,7 +91,7 @@ public class EventObserverTests
         using var cancellationTokenSource = new CancellationTokenSource();
 
         eventObserver.Observe(
-            token: testClass.EventToken,
+            observable: testClass.Observable,
             callback: (sender, args) =>
             {
                 observedSender = sender;
@@ -112,46 +112,7 @@ public class EventObserverTests
     }
 
     [TestMethod]
-    public void RaiseEvent_Method_Only_Invokes_Callbacks_With_Compatible_Arg_Types()
-    {
-        var eventSource = new EventTokenSource<IMessage>();
-        var eventObserver = new EventObserver();
-        var lines = new List<string>();
-
-        eventObserver.Observe<IMessage, ParentMessage>(
-            token: eventSource.Token,
-            callback: message => lines.Add($"Parent -> {message.Line}")
-        );
-        eventObserver.Observe<IMessage, ChildMessage>(
-            token: eventSource.Token,
-            callback: message => lines.Add($"Child -> {message.Line}")
-        );
-        eventObserver.Observe<IMessage, GrandChildMessage>(
-            token: eventSource.Token,
-            callback: message => lines.Add($"GrandChild -> {message.Line}")
-        );
-
-        eventSource.RaiseEvent(new ParentMessage());
-        Assert.AreEqual(1, lines.Count);
-        Assert.AreEqual("Parent -> Parent", lines[0]);
-        lines.Clear();
-
-        eventSource.RaiseEvent(new ChildMessage());
-        Assert.AreEqual(2, lines.Count);
-        Assert.AreEqual("Parent -> Child", lines[0]);
-        Assert.AreEqual("Child -> Child", lines[1]);
-        lines.Clear();
-
-        eventSource.RaiseEvent(new GrandChildMessage());
-        Assert.AreEqual(3, lines.Count);
-        Assert.AreEqual("Parent -> GrandChild", lines[0]);
-        Assert.AreEqual("Child -> GrandChild", lines[1]);
-        Assert.AreEqual("GrandChild -> GrandChild", lines[2]);
-        lines.Clear();
-    }
-
-    [TestMethod]
-    public void PropertyChanging_Events_Invoke_Callbacks()
+    public void PropertyChanging_Events_Invoke_Name_Callbacks()
     {
         var eventObserver = new EventObserver();
         var testClass = new TestClassWithNotify();
@@ -187,6 +148,40 @@ public class EventObserverTests
     }
 
     [TestMethod]
+    public void PropertyChanging_Events_Invoke_Unamed_Callbacks()
+    {
+        var eventObserver = new EventObserver();
+        var testClass = new TestClassWithNotify();
+
+        List<string?> observedTestEvent = [];
+
+        var observer = eventObserver.ObservePropertyChanging(
+            owner: testClass,
+            callback: name => { observedTestEvent.Add(name); }
+        );
+
+        Assert.AreEqual(0, observedTestEvent.Count);
+
+        testClass.Number = 1;
+
+        Assert.AreEqual(1, observedTestEvent.Count);
+        Assert.AreEqual("Number", observedTestEvent[0]);
+        observedTestEvent.Clear();
+
+        testClass.Text = "hi";
+
+        Assert.AreEqual(1, observedTestEvent.Count);
+        Assert.AreEqual("Text", observedTestEvent[0]);
+        observedTestEvent.Clear();
+
+        observer.Dispose();
+
+        testClass.Number = 3;
+
+        Assert.AreEqual(0, observedTestEvent.Count);
+    }
+
+    [TestMethod]
     public void Dispose_Method_Unregisters_PropertyChanging_Event_Callbacks()
     {
         var eventObserver = new EventObserver();
@@ -194,7 +189,7 @@ public class EventObserverTests
         var cancellationTokenSource = new CancellationTokenSource();
 
         var observedTestEvent = 0;
-        var disposeOfPassedInObserver = false;
+        var disposeOfObserver = false;
 
         var observer1 = eventObserver.ObservePropertyChanging(
             owner: testClass,
@@ -209,17 +204,15 @@ public class EventObserverTests
             cancellationToken: cancellationTokenSource.Token
         );
 
-        eventObserver.ObservePropertyChangingWithUnregister(
+        eventObserver.ObservePropertyChanging(
             owner: testClass,
             property: () => testClass.Number,
-            callback: observer =>
+            callback: () =>
             {
-                if (disposeOfPassedInObserver)
-                    observer.Dispose();
-                else
+                if (!disposeOfObserver)
                     observedTestEvent++;
             }
-        );
+        ).DisposeIf(() => disposeOfObserver);
 
         var observer4 = eventObserver.ObservePropertyChanging(
             owner: testClass,
@@ -244,7 +237,7 @@ public class EventObserverTests
         Assert.AreEqual(2, observedTestEvent);
         observedTestEvent = 0;
 
-        disposeOfPassedInObserver = true;
+        disposeOfObserver = true;
         testClass.Number = 4;
 
         Assert.AreEqual(1, observedTestEvent);
@@ -257,7 +250,7 @@ public class EventObserverTests
     }
 
     [TestMethod]
-    public void PropertyChanged_Events_Invoke_Callbacks()
+    public void PropertyChanged_Events_Invoke_Named_Callbacks()
     {
         var eventObserver = new EventObserver();
         var testClass = new TestClassWithNotify();
@@ -293,6 +286,40 @@ public class EventObserverTests
     }
 
     [TestMethod]
+    public void PropertyChanged_Events_Invoke_Unamed_Callbacks()
+    {
+        var eventObserver = new EventObserver();
+        var testClass = new TestClassWithNotify();
+
+        List<string?> observedTestEvent = [];
+
+        var observer = eventObserver.ObservePropertyChanged(
+            owner: testClass,
+            callback: name => { observedTestEvent.Add(name); }
+        );
+
+        Assert.AreEqual(0, observedTestEvent.Count);
+
+        testClass.Number = 1;
+
+        Assert.AreEqual(1, observedTestEvent.Count);
+        Assert.AreEqual("Number", observedTestEvent[0]);
+        observedTestEvent.Clear();
+
+        testClass.Text = "hi";
+
+        Assert.AreEqual(1, observedTestEvent.Count);
+        Assert.AreEqual("Text", observedTestEvent[0]);
+        observedTestEvent.Clear();
+
+        observer.Dispose();
+
+        testClass.Number = 3;
+
+        Assert.AreEqual(0, observedTestEvent.Count);
+    }
+
+    [TestMethod]
     public void Dispose_Method_Unregisters_PropertyChanged_Event_Callbacks()
     {
         var eventObserver = new EventObserver();
@@ -300,7 +327,7 @@ public class EventObserverTests
         var cancellationTokenSource = new CancellationTokenSource();
 
         var observedTestEvent = 0;
-        var disposeOfPassedInObserver = false;
+        var disposeOfObserver = false;
 
         var observer1 = eventObserver.ObservePropertyChanged(
             owner: testClass,
@@ -315,17 +342,15 @@ public class EventObserverTests
             cancellationToken: cancellationTokenSource.Token
         );
 
-        eventObserver.ObservePropertyChangedWithUnregister(
+        eventObserver.ObservePropertyChanged(
             owner: testClass,
             property: () => testClass.Number,
-            callback: observer =>
+            callback: () =>
             {
-                if (disposeOfPassedInObserver)
-                    observer.Dispose();
-                else
+                if (!disposeOfObserver)
                     observedTestEvent++;
             }
-        );
+        ).DisposeIf(() => disposeOfObserver);
 
         var observer4 = eventObserver.ObservePropertyChanged(
             owner: testClass,
@@ -350,7 +375,7 @@ public class EventObserverTests
         Assert.AreEqual(2, observedTestEvent);
         observedTestEvent = 0;
 
-        disposeOfPassedInObserver = true;
+        disposeOfObserver = true;
         testClass.Number = 4;
 
         Assert.AreEqual(1, observedTestEvent);
@@ -360,24 +385,6 @@ public class EventObserverTests
         testClass.Number = 5;
 
         Assert.AreEqual(0, observedTestEvent);
-    }
-
-    [TestMethod]
-    public void Observe_Event_With_Args_Using_Callback_Without_Args()
-    {
-        var eventObserver = new EventObserver();
-        var testClass = new TestClassWithEvent();
-
-        var observed = false;
-
-        eventObserver.Observe(
-            token: testClass.EventToken,
-            callback: () => observed = true
-        );
-
-        testClass.RaiseTestToken(99);
-
-        Assert.IsTrue(observed);
     }
 
     #region Types
@@ -406,11 +413,11 @@ public class EventObserverTests
     {
         public void RaiseTestToken(int args)
         {
-            _eventTokenSource.RaiseEvent(this, args);
+            _observableSource.RaiseEvent(this, args);
         }
 
-        private readonly EventTokenSource<TestClassWithEvent, int> _eventTokenSource = new();
-        public EventToken<TestClassWithEvent, int> EventToken => _eventTokenSource.Token;
+        public Observable<TestClassWithEvent, int> Observable => _observableSource.Observable;
+        private readonly ObservableSource<TestClassWithEvent, int> _observableSource = new();
 
         public void RaiseTestEvent(int x)
         {
@@ -426,18 +433,31 @@ public class EventObserverTests
     {
         public int Number
         {
-            get => _number;
+            get => field;
             set
             {
-                if (_number == value)
+                if (field == value)
                     return;
 
                 PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(nameof(Number)));
-                _number = value;
+                field = value;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Number)));
             }
         }
-        private int _number = 0;
+
+        public string? Text
+        {
+            get => field;
+            set
+            {
+                if (field == value)
+                    return;
+
+                PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(nameof(Text)));
+                field = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Text)));
+            }
+        }
 
         public event PropertyChangingEventHandler? PropertyChanging;
 
