@@ -22,28 +22,31 @@
 namespace SingleFinite.Mvvm;
 
 /// <summary>
-/// An object that can be observed moving through different states in a
-/// lifecycle.
+/// An object that can be moved to different states of a lifecycle.
 /// </summary>
-public interface ILifecycleObservable
+public interface ILifecycleAware : IDisposable
 {
     /// <summary>
-    /// Event raised when this object has been initialized.
+    /// Called immediately after this object is created.
     /// </summary>
-    Observable Initialized { get; }
+    /// <exception cref="ObjectDisposedException">
+    /// Thrown if this object has been disposed.
+    /// </exception>
+    void Initialize();
 
     /// <summary>
-    /// Event raised when this object has been activated.
+    /// Called after this object has been made active.
     /// </summary>
-    Observable Activated { get; }
+    /// <exception cref="ObjectDisposedException">
+    /// Thrown if this object has been disposed.
+    /// </exception>
+    void Activate();
 
     /// <summary>
-    /// Event raised when this object has been deactivated.
+    /// Called after this object has been made deactive.
+    /// <exception cref="ObjectDisposedException">
+    /// Thrown if this object has been disposed.
+    /// </exception>
     /// </summary>
-    Observable Deactivated { get; }
-
-    /// <summary>
-    /// Event raised when this object has been disposed.
-    /// </summary>
-    Observable Disposed { get; }
+    void Deactivate();
 }

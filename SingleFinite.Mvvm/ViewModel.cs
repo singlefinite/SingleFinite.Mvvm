@@ -29,7 +29,7 @@ namespace SingleFinite.Mvvm;
 public abstract class ViewModel :
     Component,
     IViewModel,
-    ILifecycle
+    ILifecycleAware
 {
     #region Finalizers
 
@@ -55,12 +55,23 @@ public abstract class ViewModel :
     /// <summary>
     /// Indicates if this view model has been initialized.
     /// </summary>
-    protected bool IsInitialized { get; private set; }
+    public bool IsInitialized { get; private set; }
 
     /// <summary>
     /// Indicates if this view model is currently active.
     /// </summary>
-    public bool IsActive { get; private set; }
+    public bool IsActive
+    {
+        get => field;
+        private set
+        {
+            if (field == value)
+                return;
+
+            field = value;
+            _isActiveChangedSource.RaiseEvent(field);
+        }
+    }
 
     /// <summary>
     /// Indicates if this view model has been disposed.
@@ -72,7 +83,7 @@ public abstract class ViewModel :
     #region Methods
 
     /// <inheritdoc/>
-    void ILifecycle.Initialize()
+    void ILifecycleAware.Initialize()
     {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
         if (IsInitialized) return;
@@ -83,7 +94,7 @@ public abstract class ViewModel :
     }
 
     /// <inheritdoc/>
-    void ILifecycle.Activate()
+    void ILifecycleAware.Activate()
     {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
         if (IsActive) return;
@@ -95,7 +106,7 @@ public abstract class ViewModel :
     }
 
     /// <inheritdoc/>
-    void ILifecycle.Deactivate()
+    void ILifecycleAware.Deactivate()
     {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
         if (!IsActive) return;
@@ -188,6 +199,10 @@ public abstract class ViewModel :
     /// <inheritdoc/>
     public Observable Disposed => _disposedSource.Observable;
     private readonly ObservableSource _disposedSource = new();
+
+    /// <inheritdoc/>
+    public Observable<bool> IsActiveChanged => _isActiveChangedSource.Observable;
+    private ObservableSource<bool> _isActiveChangedSource = new();
 
     #endregion
 }

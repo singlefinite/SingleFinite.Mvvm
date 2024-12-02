@@ -19,8 +19,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using System.ComponentModel;
-
 namespace SingleFinite.Mvvm.Internal;
 
 /// <summary>
@@ -42,7 +40,7 @@ internal class Transaction
     #region Properties
 
     /// <summary>
-    /// If there are any undisposed objects returned by the Open method this 
+    /// If there are any undisposed objects returned by the Start method this 
     /// property will be true.
     /// </summary>
     public bool IsOpen

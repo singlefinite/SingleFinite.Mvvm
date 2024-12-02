@@ -56,6 +56,7 @@ public class ViewModelTests
         var onActivateCount = 0;
         var onDeactivateCount = 0;
         var onDisposeCount = 0;
+        var isActiveChanged = new List<bool>();
 
         var viewModel = new SimpleViewModel();
         var viewModelInterface = (IViewModel)viewModel;
@@ -64,11 +65,13 @@ public class ViewModelTests
         viewModel.Activated.Observe(() => onActivateCount++);
         viewModel.Deactivated.Observe(() => onDeactivateCount++);
         viewModel.Disposed.Observe(() => onDisposeCount++);
+        viewModel.IsActiveChanged.Observe(isActiveChanged.Add);
 
         Assert.AreEqual(0, onInitializeCount);
         Assert.AreEqual(0, onActivateCount);
         Assert.AreEqual(0, onDeactivateCount);
         Assert.AreEqual(0, onDisposeCount);
+        Assert.AreEqual(0, isActiveChanged.Count);
 
         Assert.IsFalse(viewModel.IsActive);
         Assert.IsFalse(viewModel.IsDisposed);
@@ -79,6 +82,7 @@ public class ViewModelTests
         Assert.AreEqual(0, onActivateCount);
         Assert.AreEqual(0, onDeactivateCount);
         Assert.AreEqual(0, onDisposeCount);
+        Assert.AreEqual(0, isActiveChanged.Count);
 
         Assert.IsFalse(viewModel.IsActive);
         Assert.IsFalse(viewModel.IsDisposed);
@@ -89,6 +93,7 @@ public class ViewModelTests
         Assert.AreEqual(0, onActivateCount);
         Assert.AreEqual(0, onDeactivateCount);
         Assert.AreEqual(0, onDisposeCount);
+        Assert.AreEqual(0, isActiveChanged.Count);
 
         Assert.IsFalse(viewModel.IsActive);
         Assert.IsFalse(viewModel.IsDisposed);
@@ -100,6 +105,10 @@ public class ViewModelTests
         Assert.AreEqual(0, onDeactivateCount);
         Assert.AreEqual(0, onDisposeCount);
 
+        Assert.AreEqual(1, isActiveChanged.Count);
+        Assert.AreEqual(true, isActiveChanged[0]);
+        isActiveChanged.Clear();
+
         Assert.IsTrue(viewModel.IsActive);
         Assert.IsFalse(viewModel.IsDisposed);
 
@@ -109,6 +118,7 @@ public class ViewModelTests
         Assert.AreEqual(1, onActivateCount);
         Assert.AreEqual(0, onDeactivateCount);
         Assert.AreEqual(0, onDisposeCount);
+        Assert.AreEqual(0, isActiveChanged.Count);
 
         Assert.IsTrue(viewModel.IsActive);
         Assert.IsFalse(viewModel.IsDisposed);
@@ -119,6 +129,10 @@ public class ViewModelTests
         Assert.AreEqual(1, onActivateCount);
         Assert.AreEqual(1, onDeactivateCount);
         Assert.AreEqual(0, onDisposeCount);
+
+        Assert.AreEqual(1, isActiveChanged.Count);
+        Assert.AreEqual(false, isActiveChanged[0]);
+        isActiveChanged.Clear();
 
         Assert.IsFalse(viewModel.IsActive);
         Assert.IsFalse(viewModel.IsDisposed);
@@ -129,6 +143,7 @@ public class ViewModelTests
         Assert.AreEqual(1, onActivateCount);
         Assert.AreEqual(1, onDeactivateCount);
         Assert.AreEqual(0, onDisposeCount);
+        Assert.AreEqual(0, isActiveChanged.Count);
 
         Assert.IsFalse(viewModel.IsActive);
         Assert.IsFalse(viewModel.IsDisposed);
@@ -139,6 +154,7 @@ public class ViewModelTests
         Assert.AreEqual(1, onActivateCount);
         Assert.AreEqual(1, onDeactivateCount);
         Assert.AreEqual(1, onDisposeCount);
+        Assert.AreEqual(0, isActiveChanged.Count);
 
         Assert.IsFalse(viewModel.IsActive);
         Assert.IsTrue(viewModel.IsDisposed);
@@ -149,6 +165,7 @@ public class ViewModelTests
         Assert.AreEqual(1, onActivateCount);
         Assert.AreEqual(1, onDeactivateCount);
         Assert.AreEqual(1, onDisposeCount);
+        Assert.AreEqual(0, isActiveChanged.Count);
 
         Assert.IsFalse(viewModel.IsActive);
         Assert.IsTrue(viewModel.IsDisposed);

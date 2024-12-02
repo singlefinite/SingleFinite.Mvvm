@@ -24,7 +24,7 @@ namespace SingleFinite.Mvvm;
 /// <summary>
 /// Interface for a view model.
 /// </summary>
-public interface IViewModel : ILifecycleObservable, IDisposable
+public interface IViewModel : ILifecycle, IDisposable
 {
 }
 

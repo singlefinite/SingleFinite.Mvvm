@@ -22,31 +22,49 @@
 namespace SingleFinite.Mvvm;
 
 /// <summary>
-/// An object that can be moved to different states of a lifecycle.
+/// An object that can be observed moving through different states in a
+/// lifecycle.
 /// </summary>
-public interface ILifecycle : IDisposable
+public interface ILifecycle
 {
     /// <summary>
-    /// Called immediately after this object is created.
+    /// Indicates if this view model has been initialized.
     /// </summary>
-    /// <exception cref="ObjectDisposedException">
-    /// Thrown if this object has been disposed.
-    /// </exception>
-    void Initialize();
+    bool IsInitialized { get; }
 
     /// <summary>
-    /// Called after this object has been made active.
+    /// Indicates if this view model is currently active.
     /// </summary>
-    /// <exception cref="ObjectDisposedException">
-    /// Thrown if this object has been disposed.
-    /// </exception>
-    void Activate();
+    bool IsActive { get; }
 
     /// <summary>
-    /// Called after this object has been made deactive.
-    /// <exception cref="ObjectDisposedException">
-    /// Thrown if this object has been disposed.
-    /// </exception>
+    /// Indicates if this view model has been disposed.
     /// </summary>
-    void Deactivate();
+    bool IsDisposed { get; }
+
+    /// <summary>
+    /// Event raised when this object has been initialized.
+    /// </summary>
+    Observable Initialized { get; }
+
+    /// <summary>
+    /// Event raised when this object has been activated.
+    /// </summary>
+    Observable Activated { get; }
+
+    /// <summary>
+    /// Event raised when this object has been deactivated.
+    /// </summary>
+    Observable Deactivated { get; }
+
+    /// <summary>
+    /// Event raised when this object has been disposed.
+    /// </summary>
+    Observable Disposed { get; }
+
+    /// <summary>
+    /// Event raised when the IsActive property is changed.
+    /// The new IsActive value is passed as arguments with the event.
+    /// </summary>
+    Observable<bool> IsActiveChanged { get; }
 }

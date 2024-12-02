@@ -147,7 +147,7 @@ public class ComponentTests
             get => $"{FieldOne},{FieldTwo},{FieldThree}";
         }
 
-        protected override void OnChanged()
+        protected override void OnUpdated()
         {
             if (FieldOne > FieldTwo)
                 FieldTwo = FieldOne;
@@ -171,7 +171,7 @@ public class ComponentTests
             set => ChangeProperty(ref field, value);
         }
 
-        protected override void OnChanged()
+        protected override void OnUpdated()
         {
             FieldTwo = FieldOne + 1;
         }

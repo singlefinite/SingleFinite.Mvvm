@@ -31,26 +31,26 @@ internal static class IViewModelExtensions
     /// </summary>
     /// <param name="viewModel">The view model to invoke the method on.</param>
     public static void Initialize(this IViewModel viewModel) =>
-        (viewModel as ILifecycle)?.Initialize();
+        (viewModel as ILifecycleAware)?.Initialize();
 
     /// <summary>
     /// Invoke the ILifecycle.Activate method.
     /// </summary>
     /// <param name="viewModel">The view model to invoke the method on.</param>
     public static void Activate(this IViewModel viewModel) =>
-        (viewModel as ILifecycle)?.Activate();
+        (viewModel as ILifecycleAware)?.Activate();
 
     /// <summary>
     /// Invoke the ILifecycle.Deactivate method.
     /// </summary>
     /// <param name="viewModel">The view model to invoke the method on.</param>
     public static void Deactivate(this IViewModel viewModel) =>
-        (viewModel as ILifecycle)?.Deactivate();
+        (viewModel as ILifecycleAware)?.Deactivate();
 
     /// <summary>
     /// Invoke the ILifecycle.Dispose method.
     /// </summary>
     /// <param name="viewModel">The view model to invoke the method on.</param>
     public static void Dispose(this IViewModel viewModel) =>
-        (viewModel as ILifecycle)?.Dispose();
+        (viewModel as ILifecycleAware)?.Dispose();
 }

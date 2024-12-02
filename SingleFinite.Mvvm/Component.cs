@@ -71,7 +71,7 @@ public abstract class Component :
     #region Methods
 
     /// <summary>
-    /// Call the OnChanged method with the PropertyChanged events disabled.
+    /// Call the OnUpdated method with the PropertyChanged events disabled.
     /// If this method is called while a previous call is still in progress, the
     /// new call will be ignored.
     /// </summary>
@@ -83,7 +83,7 @@ public abstract class Component :
         try
         {
             _isUpdating = true;
-            OnChanged();
+            OnUpdated();
         }
         finally
         {
@@ -99,7 +99,7 @@ public abstract class Component :
     /// exited.  When the suppressed PropertyChanged events are raised they will
     /// not trigger this method being called again.
     /// </summary>
-    protected virtual void OnChanged()
+    protected virtual void OnUpdated()
     {
     }
 
