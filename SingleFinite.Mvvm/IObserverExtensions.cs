@@ -218,13 +218,19 @@ public static class IObserverExtensions
     /// The callback invoked to determine if the observer chain should be
     /// disposed.  If the callback returns true the observer chain is disposed.
     /// </param>
+    /// <param name="continueOnDispose">
+    /// When set to true the next observer in the observer chain will be invoked
+    /// even when predicate returns true and this observer chain will be
+    /// disposed.  Default is false.
+    /// </param>
     /// <returns>
     /// A new observer that has been added to the chain of observers.
     /// </returns>
     public static IObserver DisposeIf(
         this IObserver observer,
-        Func<bool> predicate
-    ) => new ObserverDisposeIf(observer, predicate);
+        Func<bool> predicate,
+        bool continueOnDispose = false
+    ) => new ObserverDisposeIf(observer, predicate, continueOnDispose);
 
     /// <summary>
     /// Dispose of the observer chain if the predicate is matched.
@@ -237,13 +243,19 @@ public static class IObserverExtensions
     /// The callback invoked to determine if the observer chain should be
     /// disposed.  If the callback returns true the observer chain is disposed.
     /// </param>
+    /// <param name="continueOnDispose">
+    /// When set to true the next observer in the observer chain will be invoked
+    /// even when predicate returns true and this observer chain will be
+    /// disposed.  Default is false.
+    /// </param>
     /// <returns>
     /// A new observer that has been added to the chain of observers.
     /// </returns>
     public static IObserver<TArgs> DisposeIf<TArgs>(
         this IObserver<TArgs> observer,
-        Func<TArgs, bool> predicate
-    ) => new ObserverDisposeIf<TArgs>(observer, predicate);
+        Func<TArgs, bool> predicate,
+        bool continueOnDispose = false
+    ) => new ObserverDisposeIf<TArgs>(observer, predicate, continueOnDispose);
 
     /// <summary>
     /// Dispose of the observer chain if the predicate is matched.
@@ -259,13 +271,19 @@ public static class IObserverExtensions
     /// The callback invoked to determine if the observer chain should be
     /// disposed.  If the callback returns true the observer chain is disposed.
     /// </param>
+    /// <param name="continueOnDispose">
+    /// When set to true the next observer in the observer chain will be invoked
+    /// even when predicate returns true and this observer chain will be
+    /// disposed.  Default is false.
+    /// </param>
     /// <returns>
     /// A new observer that has been added to the chain of observers.
     /// </returns>
     public static IObserver<TSender, TArgs> DisposeIf<TSender, TArgs>(
         this IObserver<TSender, TArgs> observer,
-        Func<TSender, TArgs, bool> predicate
-    ) => new ObserverDisposeIf<TSender, TArgs>(observer, predicate);
+        Func<TSender, TArgs, bool> predicate,
+        bool continueOnDispose = false
+    ) => new ObserverDisposeIf<TSender, TArgs>(observer, predicate, continueOnDispose);
 
     /// <summary>
     /// Dispose of the observer chain when the first event is observed.
@@ -276,7 +294,11 @@ public static class IObserverExtensions
     /// </returns>
     public static IObserver Once(
         this IObserver observer
-    ) => DisposeIf(observer, () => true);
+    ) => DisposeIf(
+        observer,
+        predicate: () => true,
+        continueOnDispose: true
+    );
 
     /// <summary>
     /// Dispose of the observer chain when the first event is observed.
@@ -290,7 +312,11 @@ public static class IObserverExtensions
     /// </returns>
     public static IObserver<TArgs> Once<TArgs>(
         this IObserver<TArgs> observer
-    ) => DisposeIf(observer, _ => true);
+    ) => DisposeIf(
+        observer,
+        predicate: _ => true,
+        continueOnDispose: true
+    );
 
     /// <summary>
     /// Dispose of the observer chain when the first event is observed.
@@ -307,5 +333,153 @@ public static class IObserverExtensions
     /// </returns>
     public static IObserver<TSender, TArgs> Once<TSender, TArgs>(
         this IObserver<TSender, TArgs> observer
-    ) => DisposeIf(observer, (_, _) => true);
+    ) => DisposeIf(
+        observer,
+        predicate: (_, _) => true,
+        continueOnDispose: true
+    );
+
+    /// <summary>
+    /// Invoke the given callback whenever an exception thrown below this
+    /// observer in the chain is thrown.  Caught exceptions will not move past
+    /// this observer.
+    /// </summary>
+    /// <param name="observer">The observer to extend.</param>
+    /// <param name="callback">
+    /// The callback to invoke when an exception is caught.
+    /// </param>
+    /// <returns>
+    /// A new observer that has been added to the chain of observers.
+    /// </returns>
+    public static IObserver Catch(
+        this IObserver observer,
+        Action<Exception> callback
+    ) => new ObserverCatch(
+        observer,
+        ex =>
+        {
+            callback(ex);
+            return true;
+        }
+    );
+
+    /// <summary>
+    /// Invoke the given callback whenever an exception thrown below this
+    /// observer in the chain is thrown.  Caught exceptions will not move past
+    /// this observer.
+    /// </summary>
+    /// <typeparam name="TArgs">
+    /// The type of arguments passed into the observer.
+    /// </typeparam>
+    /// <param name="observer">The observer to extend.</param>
+    /// <param name="callback">
+    /// The callback to invoke when an exception is caught.
+    /// </param>
+    /// <returns>
+    /// A new observer that has been added to the chain of observers.
+    /// </returns>
+    public static IObserver<TArgs> Catch<TArgs>(
+        this IObserver<TArgs> observer,
+        Action<TArgs, Exception> callback
+    ) => new ObserverCatch<TArgs>(
+        observer,
+        (args, ex) =>
+        {
+            callback(args, ex);
+            return true;
+        }
+    );
+
+    /// <summary>
+    /// Invoke the given callback whenever an exception thrown below this
+    /// observer in the chain is thrown.  Caught exceptions will not move past
+    /// this observer.
+    /// </summary>
+    /// <typeparam name="TSender">
+    /// The type of sender passed into the observer.
+    /// </typeparam>
+    /// <typeparam name="TArgs">
+    /// The type of arguments passed into the observer.
+    /// </typeparam>
+    /// <param name="observer">The observer to extend.</param>
+    /// <param name="callback">
+    /// The callback to invoke when an exception is caught.
+    /// </param>
+    /// <returns>
+    /// A new observer that has been added to the chain of observers.
+    /// </returns>
+    public static IObserver<TSender, TArgs> Catch<TSender, TArgs>(
+        this IObserver<TSender, TArgs> observer,
+        Action<TSender, TArgs, Exception> callback
+    ) => new ObserverCatch<TSender, TArgs>(
+        observer,
+        (sender, args, ex) =>
+        {
+            callback(sender, args, ex);
+            return true;
+        }
+    );
+
+    /// <summary>
+    /// Invoke the given callback whenever an exception thrown below this
+    /// observer in the chain is thrown.
+    /// </summary>
+    /// <param name="observer">The observer to extend.</param>
+    /// <param name="callback">
+    /// The callback to invoke when an exception is caught.  If the exception
+    /// is handled by this callback it should return true which will prevent
+    /// the exception from moving further up the observer chain.
+    /// </param>
+    /// <returns>
+    /// A new observer that has been added to the chain of observers.
+    /// </returns>
+    public static IObserver OnError(
+        this IObserver observer,
+        Func<Exception, bool> callback
+    ) => new ObserverCatch(observer, callback);
+
+    /// <summary>
+    /// Invoke the given callback whenever an exception thrown below this
+    /// observer in the chain is thrown.
+    /// </summary>
+    /// <typeparam name="TArgs">
+    /// The type of arguments passed into the observer.
+    /// </typeparam>
+    /// <param name="observer">The observer to extend.</param>
+    /// <param name="callback">
+    /// The callback to invoke when an exception is caught.  If the exception
+    /// is handled by this callback it should return true which will prevent
+    /// the exception from moving further up the observer chain.
+    /// </param>
+    /// <returns>
+    /// A new observer that has been added to the chain of observers.
+    /// </returns>
+    public static IObserver<TArgs> OnError<TArgs>(
+        this IObserver<TArgs> observer,
+        Func<TArgs, Exception, bool> callback
+    ) => new ObserverCatch<TArgs>(observer, callback);
+
+    /// <summary>
+    /// Invoke the given callback whenever an exception thrown below this
+    /// observer in the chain is thrown.
+    /// </summary>
+    /// <typeparam name="TSender">
+    /// The type of sender passed into the observer.
+    /// </typeparam>
+    /// <typeparam name="TArgs">
+    /// The type of arguments passed into the observer.
+    /// </typeparam>
+    /// <param name="observer">The observer to extend.</param>
+    /// <param name="callback">
+    /// The callback to invoke when an exception is caught.  If the exception
+    /// is handled by this callback it should return true which will prevent
+    /// the exception from moving further up the observer chain.
+    /// </param>
+    /// <returns>
+    /// A new observer that has been added to the chain of observers.
+    /// </returns>
+    public static IObserver<TSender, TArgs> OnError<TSender, TArgs>(
+        this IObserver<TSender, TArgs> observer,
+        Func<TSender, TArgs, Exception, bool> callback
+    ) => new ObserverCatch<TSender, TArgs>(observer, callback);
 }

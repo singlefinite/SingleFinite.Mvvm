@@ -159,6 +159,41 @@ public class ObserverTests
     }
 
     [TestMethod]
+    public void Dispose_If_Continue_On_Disposed_Runs_As_Expected()
+    {
+        var observedNames = new List<string>();
+
+        var observableSource = new ObservableSource<ExampleArgs>();
+        var observable = observableSource.Observable;
+
+        var observer = observable
+            .Observe()
+            .OnEach(args => observedNames.Add(args.Name))
+            .DisposeIf(args => args.Name == "stop", continueOnDispose: true)
+            .OnEach(args => observedNames.Add($"{args.Name}!"));
+
+        Assert.AreEqual(0, observedNames.Count);
+
+        observableSource.RaiseEvent(new("Hello", 0));
+
+        Assert.AreEqual(2, observedNames.Count);
+        Assert.AreEqual("Hello", observedNames[0]);
+        Assert.AreEqual("Hello!", observedNames[1]);
+        observedNames.Clear();
+
+        observableSource.RaiseEvent(new("stop", 0));
+
+        Assert.AreEqual(2, observedNames.Count);
+        Assert.AreEqual("stop", observedNames[0]);
+        Assert.AreEqual("stop!", observedNames[1]);
+        observedNames.Clear();
+
+        observableSource.RaiseEvent(new("World", 0));
+
+        Assert.AreEqual(0, observedNames.Count);
+    }
+
+    [TestMethod]
     public void Of_Type_Runs_As_Expected()
     {
         var observedNames = new List<string>();
@@ -240,19 +275,111 @@ public class ObserverTests
             .Observe()
             .OnEach(args => observedNames.Add(args.Name))
             .Once()
-            .OnEach(args => observedNames.Add(args.Name));
+            .OnEach(args => observedNames.Add($"{args.Name}!"));
 
         Assert.AreEqual(0, observedNames.Count);
 
         observableSource.RaiseEvent(new("Hello", 0));
 
-        Assert.AreEqual(1, observedNames.Count);
+        Assert.AreEqual(2, observedNames.Count);
         Assert.AreEqual("Hello", observedNames[0]);
+        Assert.AreEqual("Hello!", observedNames[1]);
         observedNames.Clear();
 
         observableSource.RaiseEvent(new("World", 0));
 
         Assert.AreEqual(0, observedNames.Count);
+    }
+
+    [TestMethod]
+    public void OnError_Catches_Exceptions()
+    {
+        var observedExceptions = new List<Exception>();
+        var observedNames = new List<string>();
+
+        var observableSource = new ObservableSource<ExampleArgs>();
+        var observable = observableSource.Observable;
+
+        var observer = observable
+            .Observe()
+            .Catch((_, ex) => observedExceptions.Add(ex))
+            .OnEach(args =>
+            {
+                if (args.Age == 99)
+                    throw new InvalidOperationException("err");
+            })
+            .OnEach(args => observedNames.Add(args.Name));
+
+        observableSource.RaiseEvent(new ExampleArgs("Hello", 99));
+
+        Assert.AreEqual(1, observedExceptions.Count);
+        Assert.IsInstanceOfType<InvalidOperationException>(observedExceptions[0]);
+        Assert.AreEqual(0, observedNames.Count);
+
+        observedExceptions.Clear();
+        observedNames.Clear();
+
+        observableSource.RaiseEvent(new ExampleArgs("Hi", 10));
+
+        Assert.AreEqual(0, observedExceptions.Count);
+        Assert.AreEqual(1, observedNames.Count);
+        Assert.AreEqual("Hi", observedNames[0]);
+    }
+
+    [TestMethod]
+    public void OnError_Moves_Past_When_Not_Handled()
+    {
+        var observedUnhandledExceptions = new List<Exception>();
+        var observedExceptions = new List<Exception>();
+        var observedNames = new List<string>();
+
+        var observableSource = new ObservableSource<ExampleArgs>();
+        var observable = observableSource.Observable;
+
+        var observer = observable
+            .Observe()
+            .Catch((_, ex) => observedUnhandledExceptions.Add(ex))
+            .OnError((args, ex) =>
+            {
+                observedExceptions.Add(ex);
+                return args.Age > 50;
+            })
+            .OnEach(args =>
+            {
+                if (args.Age == 99 || args.Age == 11)
+                    throw new InvalidOperationException("err");
+            })
+            .OnEach(args => observedNames.Add(args.Name));
+
+        observableSource.RaiseEvent(new ExampleArgs("Hello", 99));
+
+        Assert.AreEqual(0, observedUnhandledExceptions.Count);
+        Assert.AreEqual(1, observedExceptions.Count);
+        Assert.IsInstanceOfType<InvalidOperationException>(observedExceptions[0]);
+        Assert.AreEqual(0, observedNames.Count);
+
+        observedUnhandledExceptions.Clear();
+        observedExceptions.Clear();
+        observedNames.Clear();
+
+        observableSource.RaiseEvent(new ExampleArgs("World", 11));
+
+        Assert.AreEqual(1, observedUnhandledExceptions.Count);
+        Assert.IsInstanceOfType<InvalidOperationException>(observedUnhandledExceptions[0]);
+        Assert.AreEqual(1, observedExceptions.Count);
+        Assert.IsInstanceOfType<InvalidOperationException>(observedExceptions[0]);
+        Assert.AreEqual(0, observedNames.Count);
+
+        observedUnhandledExceptions.Clear();
+        observedExceptions.Clear();
+        observedNames.Clear();
+
+        observableSource.RaiseEvent(new ExampleArgs("Hi", 10));
+
+        Assert.AreEqual(0, observedUnhandledExceptions.Count);
+        Assert.AreEqual(0, observedExceptions.Count);
+        Assert.AreEqual(1, observedNames.Count);
+        Assert.AreEqual("Hi", observedNames[0]);
     }
 
     #region Types

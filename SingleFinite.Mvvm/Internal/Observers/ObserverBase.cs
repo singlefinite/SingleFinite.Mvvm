@@ -47,7 +47,7 @@ internal abstract class ObserverBase : IObserver
         _parent.Event += () =>
         {
             if (OnEvent())
-                Event?.Invoke();
+                RaiseNextEvent();
         };
     }
 
@@ -65,6 +65,11 @@ internal abstract class ObserverBase : IObserver
     /// event.
     /// </returns>
     protected abstract bool OnEvent();
+
+    /// <summary>
+    /// Raise the Event for this observer which moves execution down the chain.
+    /// </summary>
+    protected void RaiseNextEvent() => Event?.Invoke();
 
     /// <summary>
     /// Invoke the parent Dispose method.  The expectation is that the dispose
@@ -112,7 +117,7 @@ internal abstract class ObserverBase<TArgs> : IObserver<TArgs>
         _parent.Event += args =>
         {
             if (OnEvent(args))
-                Event?.Invoke(args);
+                RaiseNextEvent(args);
         };
     }
 
@@ -130,6 +135,12 @@ internal abstract class ObserverBase<TArgs> : IObserver<TArgs>
     /// event.
     /// </returns>
     protected abstract bool OnEvent(TArgs args);
+
+    /// <summary>
+    /// Raise the Event for this observer which moves execution down the chain.
+    /// </summary>
+    /// <param name="args">The args to pass with the event.</param>
+    protected void RaiseNextEvent(TArgs args) => Event?.Invoke(args);
 
     /// <summary>
     /// Invoke the parent Dispose method.  The expectation is that the dispose
@@ -195,6 +206,14 @@ internal abstract class ObserverBase<TSender, TArgs> : IObserver<TSender, TArgs>
     /// event.
     /// </returns>
     protected abstract bool OnEvent(TSender sender, TArgs args);
+
+    /// <summary>
+    /// Raise the Event for this observer which moves execution down the chain.
+    /// </summary>
+    /// <param name="sender">The sender to pass with the event.</param>
+    /// <param name="args">The args to pass with the event.</param>
+    protected void RaiseNextEvent(TSender sender, TArgs args) =>
+        Event?.Invoke(sender, args);
 
     /// <summary>
     /// Invoke the parent Dispose method.  The expectation is that the dispose

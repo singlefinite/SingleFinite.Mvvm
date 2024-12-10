@@ -29,9 +29,14 @@ namespace SingleFinite.Mvvm.Internal.Observers;
 /// <param name="predicate">
 /// The condition that when met will dispose of the oberver chain.
 /// </param>
+/// <param name="continueOnDispose">
+/// If true the next observer in the observer chain will be invoked even when
+/// predicate returns true.
+/// </param>
 internal class ObserverDisposeIf(
     IObserver parent,
-    Func<bool> predicate
+    Func<bool> predicate,
+    bool continueOnDispose
 ) : ObserverBase(parent)
 {
     #region Methods
@@ -48,7 +53,7 @@ internal class ObserverDisposeIf(
         if (willDispose)
             Dispose();
 
-        return !willDispose;
+        return continueOnDispose || !willDispose;
     }
 
     #endregion
@@ -65,9 +70,14 @@ internal class ObserverDisposeIf(
 /// <param name="predicate">
 /// The condition that when met will dispose of the oberver chain.
 /// </param>
+/// <param name="continueOnDispose">
+/// If true the next observer in the observer chain will be invoked even when
+/// predicate returns true.
+/// </param>
 internal class ObserverDisposeIf<TArgs>(
     IObserver<TArgs> parent,
-    Func<TArgs, bool> predicate
+    Func<TArgs, bool> predicate,
+    bool continueOnDispose
 ) : ObserverBase<TArgs>(parent)
 {
     #region Methods
@@ -85,7 +95,7 @@ internal class ObserverDisposeIf<TArgs>(
         if (willDispose)
             Dispose();
 
-        return !willDispose;
+        return continueOnDispose || !willDispose;
     }
 
     #endregion
@@ -105,9 +115,14 @@ internal class ObserverDisposeIf<TArgs>(
 /// <param name="predicate">
 /// The condition that when met will dispose of the oberver chain.
 /// </param>
+/// <param name="continueOnDispose">
+/// If true the next observer in the observer chain will be invoked even when
+/// predicate returns true.
+/// </param>
 internal class ObserverDisposeIf<TSender, TArgs>(
     IObserver<TSender, TArgs> parent,
-    Func<TSender, TArgs, bool> predicate
+    Func<TSender, TArgs, bool> predicate,
+    bool continueOnDispose
 ) : ObserverBase<TSender, TArgs>(parent)
 {
     #region Methods
@@ -126,7 +141,7 @@ internal class ObserverDisposeIf<TSender, TArgs>(
         if (willDispose)
             Dispose();
 
-        return !willDispose;
+        return continueOnDispose || !willDispose;
     }
 
     #endregion
