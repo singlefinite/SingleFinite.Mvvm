@@ -25,8 +25,8 @@ namespace SingleFinite.Mvvm.Internal;
 
 /// <summary>
 /// A mutable collection of views that manages lifecycle events.
-/// The behavior is similar to a stack however views can be removed from
-/// anywhere and not just the top.
+/// The behavior is similar to a stack however views can be added and removed
+/// from anywhere and not just the top.
 /// </summary>
 internal class ViewStack
 {
@@ -63,18 +63,61 @@ internal class ViewStack
     /// enumerable will become the top most view.
     /// </summary>
     /// <param name="views">The views to add.</param>
+    public void Push(params IEnumerable<IView> views) => Push(
+        popCount: 0,
+        views: views
+    );
+
+    /// <summary>
+    /// Add the given views to the top of the stack.
+    /// Views are pushed onto the stack in order so the last view in the
+    /// enumerable will become the top most view.
+    /// </summary>
     /// <param name="popCount">
     /// The number of views to pop off the top before adding the new views.
     /// </param>
-    public void Push(IEnumerable<IView> views, int popCount)
+    /// <param name="views">The views to add.</param>
+    public void Push(int popCount, params IEnumerable<IView> views)
     {
         if (!views.Any())
             return;
 
         DeactivateTop();
-        Remove(0, popCount);
-        Add(views);
+        Remove(
+            index: 0,
+            count: popCount
+        );
+        Insert(
+            index: 0,
+            views: views
+        );
         UpdateState(activateTop: true);
+    }
+
+    /// <summary>
+    /// Add the given views to the stack at the given index.
+    /// Views are added onto the stack in order so the last view in the
+    /// enumerable will become the top most view.
+    /// </summary>
+    /// <param name="index">The index to add the views to.</param>
+    /// <param name="views">The views to add.</param>
+    public void Add(int index, params IEnumerable<IView> views)
+    {
+        if (index < 0 || index > Count)
+            throw new IndexOutOfRangeException(nameof(index));
+
+        if (index == 0)
+        {
+            Push(
+                popCount: 0,
+                views: views
+            );
+        }
+        else
+        {
+            Insert(index, views);
+            UpdateState();
+        }
     }
 
     /// <summary>
@@ -88,7 +131,10 @@ internal class ViewStack
             return false;
 
         DeactivateTop();
-        Remove(0, popCount);
+        Remove(
+            index: 0,
+            count: popCount
+        );
         UpdateState(activateTop: true);
 
         return true;
@@ -132,7 +178,10 @@ internal class ViewStack
     public void Clear()
     {
         DeactivateTop();
-        Remove(0, _views.Count);
+        Remove(
+            index: 0,
+            count: _views.Count
+        );
         UpdateState();
     }
 
@@ -206,13 +255,14 @@ internal class ViewStack
     /// <summary>
     /// Add the given views to the stack.
     /// </summary>
+    /// <param name="index">The index to insert the views at.</param>
     /// <param name="views">The views to add.</param>
-    private void Add(IEnumerable<IView> views)
+    private void Insert(int index, IEnumerable<IView> views)
     {
         foreach (var view in views)
             Subscribe(view.ViewModel);
 
-        _views.InsertRange(0, views.Reverse());
+        _views.InsertRange(index, views.Reverse());
     }
 
     /// <summary>

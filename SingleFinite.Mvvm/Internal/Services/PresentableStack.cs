@@ -99,6 +99,20 @@ internal sealed class PresentableStack(IViewBuilder viewBuilder) :
         return index + (inclusive ? 1 : 0);
     }
 
+    /// <summary>
+    /// Get the number of view models that should be popped off of the stack
+    /// based on the pop options.
+    /// </summary>
+    /// <param name="popOptions">
+    /// The options that determine the number of view models to pop off the
+    /// stack.
+    /// </param>
+    /// <returns>
+    /// The number of view models that should be popped off the stack.
+    /// </returns>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown if an unknown pop options type is provided.
+    /// </exception>
     private int GetPopCount(PopOptions? popOptions) => popOptions switch
     {
         null => 0,
@@ -167,7 +181,67 @@ internal sealed class PresentableStack(IViewBuilder viewBuilder) :
         if (viewList.Count == 0)
             return [];
 
-        _stack.Push(viewList, GetPopCount(popOptions));
+        _stack.Push(GetPopCount(popOptions), viewList);
+
+        return viewList.Select(view => view.ViewModel).ToArray();
+    }
+
+    /// <inheritdoc/>
+    public IViewModel Add(
+        int index,
+        IViewModelDescriptor viewModelDescriptor,
+        PopOptions? popOptions = null
+    )
+    {
+        ObjectDisposedException.ThrowIf(_isDisposed, this);
+
+        var view = viewBuilder.Build(viewModelDescriptor);
+        _stack.Add(
+            index: index,
+            views: [view]
+        );
+
+        return view.ViewModel;
+    }
+
+    /// <inheritdoc/>
+    public TViewModel Add<TViewModel>(int index, PopOptions? popOptions = null)
+        where TViewModel : IViewModel =>
+        (TViewModel)Add(
+            index,
+            new ViewModelDescriptor<TViewModel>()
+        );
+
+    /// <inheritdoc/>
+    public TViewModel Add<TViewModel, TViewModelContext>(
+        int index,
+        TViewModelContext context,
+        PopOptions? popOptions = null
+    )
+        where TViewModel : IViewModel<TViewModelContext> =>
+        (TViewModel)Add(
+            index,
+            new ViewModelDescriptor<TViewModel, TViewModelContext>(context),
+            popOptions
+        );
+
+    /// <inheritdoc/>
+    public IViewModel[] AddAll(
+        int index,
+        IEnumerable<IViewModelDescriptor> viewModelDescriptors,
+        PopOptions? popOptions = null
+    )
+    {
+        ObjectDisposedException.ThrowIf(_isDisposed, this);
+
+        var viewList = viewModelDescriptors
+            .Select(viewBuilder.Build)
+            .ToList();
+
+        if (viewList.Count == 0)
+            return [];
+
+        _stack.Add(index, viewList);
 
         return viewList.Select(view => view.ViewModel).ToArray();
     }

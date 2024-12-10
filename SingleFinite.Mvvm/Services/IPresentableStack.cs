@@ -104,6 +104,82 @@ public interface IPresentableStack : IPresentable
     );
 
     /// <summary>
+    /// Create a view model and add it to the stack at the given index.
+    /// </summary>
+    /// <param name="index">The index to add the view model at.</param>
+    /// <param name="viewModelDescriptor">
+    /// Describes the view model to build.
+    /// </param>
+    /// <param name="popOptions">
+    /// Options for popping view models off the stack before pushing the new
+    /// view model on.
+    /// </param>
+    /// <returns>The newly created view model.</returns>
+    IViewModel Add(
+        int index,
+        IViewModelDescriptor viewModelDescriptor,
+        PopOptions? popOptions = null
+    );
+
+    /// <summary>
+    /// Create a view model and add it to the stack at the given index.
+    /// </summary>
+    /// <typeparam name="TViewModel">
+    /// The type of view model to build.
+    /// </typeparam>
+    /// <param name="index">The index to add the view model at.</param>
+    /// <param name="popOptions">
+    /// Options for popping view models off the stack before pushing the new
+    /// view model on.
+    /// </param>
+    /// <returns>The newly created view model.</returns>
+    TViewModel Add<TViewModel>(int index, PopOptions? popOptions = null)
+        where TViewModel : IViewModel;
+
+    /// <summary>
+    /// Create a view model and add it to the stack at the given index.
+    /// </summary>
+    /// <typeparam name="TViewModel">
+    /// The type of view model to build.
+    /// </typeparam>
+    /// <typeparam name="TViewModelContext">
+    /// The type of context to be provided to the view model.
+    /// </typeparam>
+    /// <param name="index">The index to add the view model at.</param>
+    /// <param name="context">
+    /// The context that will be provided to the view model.
+    /// </param>
+    /// <param name="popOptions">
+    /// Options for popping view models off the stack before pushing the new
+    /// view model on.
+    /// </param>
+    /// <returns>The newly created view model.</returns>
+    TViewModel Add<TViewModel, TViewModelContext>(
+        int index,
+        TViewModelContext context,
+        PopOptions? popOptions = null
+    )
+        where TViewModel : IViewModel<TViewModelContext>;
+
+    /// <summary>
+    /// Create view models and add them to the stack at the given index.
+    /// </summary>
+    /// <param name="index">The index to add the view model at.</param>
+    /// <param name="viewModelDescriptors">
+    /// The description of view models to build.
+    /// </param>
+    /// <param name="popOptions">
+    /// Options for popping view models off the stack before pushing the new view
+    /// models on.
+    /// </param>
+    /// <returns>The newly created view models.</returns>
+    IViewModel[] AddAll(
+        int index,
+        IEnumerable<IViewModelDescriptor> viewModelDescriptors,
+        PopOptions? popOptions = null
+    );
+
+    /// <summary>
     /// Remove the top most view model from the stack.
     /// If the stack is empty this method will have no effect.
     /// </summary>

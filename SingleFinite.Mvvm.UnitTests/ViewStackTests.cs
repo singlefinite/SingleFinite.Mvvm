@@ -39,7 +39,7 @@ public class ViewStackTests
         Assert.AreEqual(0, viewStack.Views.Length);
         Assert.AreEqual(0, viewStack.ViewModels.Length);
 
-        viewStack.Push([view1], 0);
+        viewStack.Push(view1);
 
         Assert.AreEqual(view1, viewStack.Current);
         Assert.AreEqual(1, viewStack.Views.Length);
@@ -49,7 +49,7 @@ public class ViewStackTests
         Assert.AreEqual("1 Activate", output[0]);
         output.Clear();
 
-        viewStack.Push([view2], 0);
+        viewStack.Push(view2);
 
         Assert.AreEqual(view2, viewStack.Current);
         Assert.AreEqual(2, viewStack.Views.Length);
@@ -60,7 +60,7 @@ public class ViewStackTests
         Assert.AreEqual("2 Activate", output[1]);
         output.Clear();
 
-        viewStack.Push([view3], 0);
+        viewStack.Push(view3);
 
         Assert.AreEqual(view3, viewStack.Current);
         Assert.AreEqual(3, viewStack.Views.Length);
@@ -116,7 +116,7 @@ public class ViewStackTests
         var view2 = new TestView(new TestViewModel("2", output));
         var view3 = new TestView(new TestViewModel("3", output));
 
-        viewStack.Push([view1, view2, view3], 0);
+        viewStack.Push(view1, view2, view3);
 
         Assert.AreEqual(view3, viewStack.Current);
         Assert.AreEqual(3, viewStack.Views.Length);
@@ -133,6 +133,92 @@ public class ViewStackTests
     }
 
     [TestMethod]
+    public void Add_To_Top_Of_Stack()
+    {
+        var output = new List<string>();
+        var viewStack = new ViewStack();
+        var view1 = new TestView(new TestViewModel("1", output));
+        var view2 = new TestView(new TestViewModel("2", output));
+        var view3 = new TestView(new TestViewModel("3", output));
+
+        viewStack.Push(view1);
+        viewStack.Add(0, view2, view3);
+
+        Assert.AreEqual(view3, viewStack.Current);
+        Assert.AreEqual(3, viewStack.Views.Length);
+        Assert.AreEqual(3, viewStack.ViewModels.Length);
+        Assert.AreEqual(view3, viewStack.Views[0]);
+        Assert.AreEqual(view2, viewStack.Views[1]);
+        Assert.AreEqual(view1, viewStack.Views[2]);
+        Assert.AreEqual(view3.ViewModel, viewStack.Views[0].ViewModel);
+        Assert.AreEqual(view2.ViewModel, viewStack.Views[1].ViewModel);
+        Assert.AreEqual(view1.ViewModel, viewStack.Views[2].ViewModel);
+    }
+
+    [TestMethod]
+    public void Add_To_Bottom_Of_Stack()
+    {
+        var output = new List<string>();
+        var viewStack = new ViewStack();
+        var view1 = new TestView(new TestViewModel("1", output));
+        var view2 = new TestView(new TestViewModel("2", output));
+        var view3 = new TestView(new TestViewModel("3", output));
+
+        viewStack.Push(view1);
+        viewStack.Add(1, view2, view3);
+
+        Assert.AreEqual(view1, viewStack.Current);
+        Assert.AreEqual(3, viewStack.Views.Length);
+        Assert.AreEqual(3, viewStack.ViewModels.Length);
+        Assert.AreEqual(view1, viewStack.Views[0]);
+        Assert.AreEqual(view3, viewStack.Views[1]);
+        Assert.AreEqual(view2, viewStack.Views[2]);
+        Assert.AreEqual(view1.ViewModel, viewStack.Views[0].ViewModel);
+        Assert.AreEqual(view3.ViewModel, viewStack.Views[1].ViewModel);
+        Assert.AreEqual(view2.ViewModel, viewStack.Views[2].ViewModel);
+    }
+
+    [TestMethod]
+    public void Add_To_Middle_Of_Stack()
+    {
+        var output = new List<string>();
+        var viewStack = new ViewStack();
+        var view1 = new TestView(new TestViewModel("1", output));
+        var view2 = new TestView(new TestViewModel("2", output));
+        var view3 = new TestView(new TestViewModel("3", output));
+
+        viewStack.Push(view1, view2);
+        viewStack.Add(1, view3);
+
+        Assert.AreEqual(view2, viewStack.Current);
+        Assert.AreEqual(3, viewStack.Views.Length);
+        Assert.AreEqual(3, viewStack.ViewModels.Length);
+        Assert.AreEqual(view2, viewStack.Views[0]);
+        Assert.AreEqual(view3, viewStack.Views[1]);
+        Assert.AreEqual(view1, viewStack.Views[2]);
+        Assert.AreEqual(view2.ViewModel, viewStack.Views[0].ViewModel);
+        Assert.AreEqual(view3.ViewModel, viewStack.Views[1].ViewModel);
+        Assert.AreEqual(view1.ViewModel, viewStack.Views[2].ViewModel);
+    }
+
+    [TestMethod]
+    public void Add_With_Invalid_Index_Throws()
+    {
+        var output = new List<string>();
+        var viewStack = new ViewStack();
+        var view1 = new TestView(new TestViewModel("1", output));
+        var view2 = new TestView(new TestViewModel("2", output));
+        var view3 = new TestView(new TestViewModel("3", output));
+
+        viewStack.Push(view1, view2);
+
+        Assert.ThrowsException<IndexOutOfRangeException>(() =>
+        {
+            viewStack.Add(3, view3);
+        });
+    }
+
+    [TestMethod]
     public void Pop_Multiple_Views_Has_Expected_Lifecycle_Events()
     {
         var output = new List<string>();
@@ -141,7 +227,7 @@ public class ViewStackTests
         var view2 = new TestView(new TestViewModel("2", output));
         var view3 = new TestView(new TestViewModel("3", output));
 
-        viewStack.Push([view1, view2, view3], 0);
+        viewStack.Push(view1, view2, view3);
         output.Clear();
 
         viewStack.Pop(2);
@@ -168,7 +254,7 @@ public class ViewStackTests
         var view2 = new TestView(new TestViewModel("2", output));
         var view3 = new TestView(new TestViewModel("3", output));
 
-        viewStack.Push([view1, view2, view3], 0);
+        viewStack.Push(view1, view2, view3);
         output.Clear();
 
         viewStack.Close(view3.ViewModel);
@@ -192,7 +278,7 @@ public class ViewStackTests
         var view2 = new TestView(new TestViewModel("2", output));
         var view3 = new TestView(new TestViewModel("3", output));
 
-        viewStack.Push([view1, view2, view3], 0);
+        viewStack.Push(view1, view2, view3);
         output.Clear();
 
         viewStack.Close(view2.ViewModel);
@@ -214,7 +300,7 @@ public class ViewStackTests
         var view2 = new TestView(new TestViewModel("2", output));
         var view3 = new TestView(new TestViewModel("3", output));
 
-        viewStack.Push([view1, view2, view3], 0);
+        viewStack.Push(view1, view2, view3);
         output.Clear();
 
         viewStack.Close(view1.ViewModel);
@@ -237,7 +323,7 @@ public class ViewStackTests
         var view3 = new TestView(new TestViewModel("3", output));
         var view4 = new TestView(new TestViewModel("4", output));
 
-        viewStack.Push([view1, view2, view3, view4], 0);
+        viewStack.Push(view1, view2, view3, view4);
         output.Clear();
 
         viewStack.Close(view3.ViewModel, view1.ViewModel);
@@ -264,7 +350,7 @@ public class ViewStackTests
         var view2 = new TestView(new TestViewModel("2", output));
         var view3 = new TestView(new TestViewModel("3", output));
 
-        viewStack.Push([view1, view2, view3], 0);
+        viewStack.Push(view1, view2, view3);
         output.Clear();
 
         viewStack.Clear();
@@ -289,7 +375,7 @@ public class ViewStackTests
         var view2 = new TestView(new TestViewModel("2", output));
         var view3 = new TestView(new TestViewModel("3", output));
 
-        viewStack.Push([view1, view2, view3], 0);
+        viewStack.Push(view1, view2, view3);
         output.Clear();
 
         view2.ViewModel.Close();
@@ -318,7 +404,7 @@ public class ViewStackTests
         var view2 = new TestView(new TestViewModel("2", []));
         var view3 = new TestView(new TestViewModel("3", []));
 
-        viewStack.Push([view1, view2, view3], 0);
+        viewStack.Push(view1, view2, view3);
 
         Assert.AreEqual(1, output.Count);
         Assert.AreEqual("View:ViewModel:3,True", output[0]);
@@ -347,10 +433,10 @@ public class ViewStackTests
         var view2 = new TestView(new TestViewModel("2", []));
         var view3 = new TestView(new TestViewModel("3", []));
 
-        viewStack.Push([view1, view2, view3], 0);
+        viewStack.Push(view1, view2, view3);
         output.Clear();
 
-        viewStack.Push([], 2);
+        viewStack.Push(2, []);
 
         Assert.AreEqual(0, output.Count);
         Assert.AreEqual(view3, viewStack.Current);

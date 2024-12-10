@@ -70,6 +70,32 @@ public class PresentableStackTests
     }
 
     [TestMethod]
+    public void Add_To_Middle_Of_Stack()
+    {
+        using var context = new TestContext();
+        var presentableStack = (PresentableStack)context.ServiceProvider.GetRequiredService<IPresentableStack>();
+
+        var output = new List<string>();
+        var viewModelContext = new ViewModelTestContext(output);
+        var viewModelDescriptor1 = new ViewModelDescriptor<TestViewModel1, ViewModelTestContext>(viewModelContext);
+        var viewModelDescriptor2 = new ViewModelDescriptor<TestViewModel2, ViewModelTestContext>(viewModelContext);
+        var viewModelDescriptor3 = new ViewModelDescriptor<TestViewModel3, ViewModelTestContext>(viewModelContext);
+
+        presentableStack.PushAll([viewModelDescriptor1, viewModelDescriptor2]);
+        Assert.AreEqual(3, output.Count);
+        Assert.AreEqual("OnInit - TestViewModel1", output[0]);
+        Assert.AreEqual("OnInit - TestViewModel2", output[1]);
+        Assert.AreEqual("OnStart - TestViewModel2", output[2]);
+
+        output.Clear();
+        presentableStack.Add(1, viewModelDescriptor3);
+        Assert.AreEqual(1, output.Count);
+        Assert.AreEqual("OnInit - TestViewModel3", output[0]);
+
+        Assert.IsTrue(presentableStack.Current?.ViewModel is TestViewModel2);
+    }
+
+    [TestMethod]
     public void Changed_Event_Is_Raised()
     {
         using var context = new TestContext();
