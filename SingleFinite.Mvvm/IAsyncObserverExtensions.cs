@@ -48,6 +48,29 @@ public static class IAsyncObserverExtensions
     /// <summary>
     /// Invoke the given callback whenever the observable event is raised.
     /// </summary>
+    /// <param name="observer">The observer to extend.</param>
+    /// <param name="callback">
+    /// The callback to invoke when the observable event is raised.
+    /// </param>
+    /// <returns>
+    /// A new observer that has been added to the chain of observers.
+    /// </returns>
+    public static IAsyncObserver OnEach(
+        this IAsyncObserver observer,
+        Action callback
+    ) =>
+        new AsyncObserverForEach(
+            observer,
+            () =>
+            {
+                callback();
+                return Task.CompletedTask;
+            }
+        );
+
+    /// <summary>
+    /// Invoke the given callback whenever the observable event is raised.
+    /// </summary>
     /// <typeparam name="TArgs">
     /// The type of arguments passed into the observer.
     /// </typeparam>
@@ -62,6 +85,31 @@ public static class IAsyncObserverExtensions
         this IAsyncObserver<TArgs> observer,
         Func<TArgs, Task> callback
     ) => new AsyncObserverForEach<TArgs>(observer, callback);
+
+    /// <summary>
+    /// Invoke the given callback whenever the observable event is raised.
+    /// </summary>
+    /// <typeparam name="TArgs">
+    /// The type of arguments passed into the observer.
+    /// </typeparam>
+    /// <param name="observer">The observer to extend.</param>
+    /// <param name="callback">
+    /// The callback to invoke when the observable event is raised.
+    /// </param>
+    /// <returns>
+    /// A new observer that has been added to the chain of observers.
+    /// </returns>
+    public static IAsyncObserver<TArgs> OnEach<TArgs>(
+        this IAsyncObserver<TArgs> observer,
+        Action<TArgs> callback
+    ) => new AsyncObserverForEach<TArgs>(
+        observer,
+        args =>
+        {
+            callback(args);
+            return Task.CompletedTask;
+        }
+    );
 
     /// <summary>
     /// Invoke the given callback whenever the observable event is raised.
@@ -85,6 +133,34 @@ public static class IAsyncObserverExtensions
     ) => new AsyncObserverForEach<TSender, TArgs>(observer, callback);
 
     /// <summary>
+    /// Invoke the given callback whenever the observable event is raised.
+    /// </summary>
+    /// <typeparam name="TSender">
+    /// The type of sender passed into the observer.
+    /// </typeparam>
+    /// <typeparam name="TArgs">
+    /// The type of arguments passed into the observer.
+    /// </typeparam>
+    /// <param name="observer">The observer to extend.</param>
+    /// <param name="callback">
+    /// The callback to invoke when the observable event is raised.
+    /// </param>
+    /// <returns>
+    /// A new observer that has been added to the chain of observers.
+    /// </returns>
+    public static IAsyncObserver<TSender, TArgs> OnEach<TSender, TArgs>(
+        this IAsyncObserver<TSender, TArgs> observer,
+        Action<TSender, TArgs> callback
+    ) => new AsyncObserverForEach<TSender, TArgs>(
+        observer,
+        (sender, args) =>
+        {
+            callback(sender, args);
+            return Task.CompletedTask;
+        }
+    );
+
+    /// <summary>
     /// Select a value to pass to chained observers.
     /// </summary>
     /// <typeparam name="TArgsOut">
@@ -102,6 +178,28 @@ public static class IAsyncObserverExtensions
         this IAsyncObserver observer,
         Func<Task<TArgsOut>> selector
     ) => new AsyncObserverSelect<TArgsOut>(observer, selector);
+
+    /// <summary>
+    /// Select a value to pass to chained observers.
+    /// </summary>
+    /// <typeparam name="TArgsOut">
+    /// The type of arguments that will be passed to chained observers.
+    /// </typeparam>
+    /// <param name="observer">The observer to extend.</param>
+    /// <param name="selector">
+    /// The callback to invoke to select the arguments to pass to chained
+    /// observers.
+    /// </param>
+    /// <returns>
+    /// A new observer that has been added to the chain of observers.
+    /// </returns>
+    public static IAsyncObserver<TArgsOut> Select<TArgsOut>(
+        this IAsyncObserver observer,
+        Func<TArgsOut> selector
+    ) => new AsyncObserverSelect<TArgsOut>(
+        observer,
+        () => Task.FromResult(selector())
+    );
 
     /// <summary>
     /// Select a value to pass to chained observers.
@@ -124,6 +222,31 @@ public static class IAsyncObserverExtensions
         this IAsyncObserver<TArgsIn> observer,
         Func<TArgsIn, Task<TArgsOut>> selector
     ) => new AsyncObserverSelect<TArgsIn, TArgsOut>(observer, selector);
+
+    /// <summary>
+    /// Select a value to pass to chained observers.
+    /// </summary>
+    /// <typeparam name="TArgsIn">
+    /// The type of arguments passed into the observer.
+    /// </typeparam>
+    /// <typeparam name="TArgsOut">
+    /// The type of arguments that will be passed to chained observers.
+    /// </typeparam>
+    /// <param name="observer">The observer to extend.</param>
+    /// <param name="selector">
+    /// The callback to invoke to select the arguments to pass to chained
+    /// observers.
+    /// </param>
+    /// <returns>
+    /// A new observer that has been added to the chain of observers.
+    /// </returns>
+    public static IAsyncObserver<TArgsOut> Select<TArgsIn, TArgsOut>(
+        this IAsyncObserver<TArgsIn> observer,
+        Func<TArgsIn, TArgsOut> selector
+    ) => new AsyncObserverSelect<TArgsIn, TArgsOut>(
+        observer,
+        (args) => Task.FromResult(selector(args))
+    );
 
     /// <summary>
     /// Select a value to pass to chained observers.
@@ -151,6 +274,34 @@ public static class IAsyncObserverExtensions
     ) => new AsyncObserverSelect<TSender, TArgsIn, TArgsOut>(observer, selector);
 
     /// <summary>
+    /// Select a value to pass to chained observers.
+    /// </summary>
+    /// <typeparam name="TSender">
+    /// The type of sender passed into the observer.
+    /// </typeparam>
+    /// <typeparam name="TArgsIn">
+    /// The type of arguments passed into the observer.
+    /// </typeparam>
+    /// <typeparam name="TArgsOut">
+    /// The type of arguments that will be passed to chained observers.
+    /// </typeparam>
+    /// <param name="observer">The observer to extend.</param>
+    /// <param name="selector">
+    /// The callback to invoke to select the arguments to pass to chained
+    /// observers.
+    /// </param>
+    /// <returns>
+    /// A new observer that has been added to the chain of observers.
+    /// </returns>
+    public static IAsyncObserver<TSender, TArgsOut> Select<TSender, TArgsIn, TArgsOut>(
+        this IAsyncObserver<TSender, TArgsIn> observer,
+        Func<TSender, TArgsIn, TArgsOut> selector
+    ) => new AsyncObserverSelect<TSender, TArgsIn, TArgsOut>(
+        observer,
+        (sender, args) => Task.FromResult(selector(sender, args))
+    );
+
+    /// <summary>
     /// Filter out observable events that don't match the predicate and prevent
     /// them from being passed down the observer chain.
     /// </summary>
@@ -167,6 +318,27 @@ public static class IAsyncObserverExtensions
         this IAsyncObserver observer,
         Func<Task<bool>> predicate
     ) => new AsyncObserverWhere(observer, predicate);
+
+    /// <summary>
+    /// Filter out observable events that don't match the predicate and prevent
+    /// them from being passed down the observer chain.
+    /// </summary>
+    /// <param name="observer">The observer to extend.</param>
+    /// <param name="predicate">
+    /// The callback invoked to determine if the observable event should be
+    /// filtered out.  If the callback returns false the observable event will
+    /// be filtered out.
+    /// </param>
+    /// <returns>
+    /// A new observer that has been added to the chain of observers.
+    /// </returns>
+    public static IAsyncObserver Where(
+        this IAsyncObserver observer,
+        Func<bool> predicate
+    ) => new AsyncObserverWhere(
+        observer,
+        () => Task.FromResult(predicate())
+    );
 
     /// <summary>
     /// Filter out observable events that don't match the predicate and prevent
@@ -193,6 +365,30 @@ public static class IAsyncObserverExtensions
     /// Filter out observable events that don't match the predicate and prevent
     /// them from being passed down the observer chain.
     /// </summary>
+    /// <typeparam name="TArgs">
+    /// The type of arguments passed into the observer.
+    /// </typeparam>
+    /// <param name="observer">The observer to extend.</param>
+    /// <param name="predicate">
+    /// The callback invoked to determine if the observable event should be
+    /// filtered out.  If the callback returns false the observable event will
+    /// be filtered out.
+    /// </param>
+    /// <returns>
+    /// A new observer that has been added to the chain of observers.
+    /// </returns>
+    public static IAsyncObserver<TArgs> Where<TArgs>(
+        this IAsyncObserver<TArgs> observer,
+        Func<TArgs, bool> predicate
+    ) => new AsyncObserverWhere<TArgs>(
+        observer,
+        args => Task.FromResult(predicate(args))
+    );
+
+    /// <summary>
+    /// Filter out observable events that don't match the predicate and prevent
+    /// them from being passed down the observer chain.
+    /// </summary>
     /// <typeparam name="TSender">
     /// The type of sender passed into the observer.
     /// </typeparam>
@@ -212,6 +408,33 @@ public static class IAsyncObserverExtensions
         this IAsyncObserver<TSender, TArgs> observer,
         Func<TSender, TArgs, Task<bool>> predicate
     ) => new AsyncObserverWhere<TSender, TArgs>(observer, predicate);
+
+    /// <summary>
+    /// Filter out observable events that don't match the predicate and prevent
+    /// them from being passed down the observer chain.
+    /// </summary>
+    /// <typeparam name="TSender">
+    /// The type of sender passed into the observer.
+    /// </typeparam>
+    /// <typeparam name="TArgs">
+    /// The type of arguments passed into the observer.
+    /// </typeparam>
+    /// <param name="observer">The observer to extend.</param>
+    /// <param name="predicate">
+    /// The callback invoked to determine if the observable event should be
+    /// filtered out.  If the callback returns false the observable event will
+    /// be filtered out.
+    /// </param>
+    /// <returns>
+    /// A new observer that has been added to the chain of observers.
+    /// </returns>
+    public static IAsyncObserver<TSender, TArgs> Where<TSender, TArgs>(
+        this IAsyncObserver<TSender, TArgs> observer,
+        Func<TSender, TArgs, bool> predicate
+    ) => new AsyncObserverWhere<TSender, TArgs>(
+        observer,
+        (sender, args) => Task.FromResult(predicate(sender, args))
+    );
 
     /// <summary>
     /// Dispose of the observer chain if the predicate is matched.
@@ -234,6 +457,32 @@ public static class IAsyncObserverExtensions
         Func<Task<bool>> predicate,
         bool continueOnDispose = false
     ) => new AsyncObserverDisposeIf(observer, predicate, continueOnDispose);
+
+    /// <summary>
+    /// Dispose of the observer chain if the predicate is matched.
+    /// </summary>
+    /// <param name="observer">The observer to extend.</param>
+    /// <param name="predicate">
+    /// The callback invoked to determine if the observer chain should be
+    /// disposed.  If the callback returns true the observer chain is disposed.
+    /// </param>
+    /// <param name="continueOnDispose">
+    /// When set to true the next observer in the observer chain will be invoked
+    /// even when predicate returns true and this observer chain will be
+    /// disposed.  Default is false.
+    /// </param>
+    /// <returns>
+    /// A new observer that has been added to the chain of observers.
+    /// </returns>
+    public static IAsyncObserver DisposeIf(
+        this IAsyncObserver observer,
+        Func<bool> predicate,
+        bool continueOnDispose = false
+    ) => new AsyncObserverDisposeIf(
+        observer,
+        () => Task.FromResult(predicate()),
+        continueOnDispose
+    );
 
     /// <summary>
     /// Dispose of the observer chain if the predicate is matched.
@@ -267,6 +516,35 @@ public static class IAsyncObserverExtensions
     /// <summary>
     /// Dispose of the observer chain if the predicate is matched.
     /// </summary>
+    /// <typeparam name="TArgs">
+    /// The type of arguments passed into the observer.
+    /// </typeparam>
+    /// <param name="observer">The observer to extend.</param>
+    /// <param name="predicate">
+    /// The callback invoked to determine if the observer chain should be
+    /// disposed.  If the callback returns true the observer chain is disposed.
+    /// </param>
+    /// <param name="continueOnDispose">
+    /// When set to true the next observer in the observer chain will be invoked
+    /// even when predicate returns true and this observer chain will be
+    /// disposed.  Default is false.
+    /// </param>
+    /// <returns>
+    /// A new observer that has been added to the chain of observers.
+    /// </returns>
+    public static IAsyncObserver<TArgs> DisposeIf<TArgs>(
+        this IAsyncObserver<TArgs> observer,
+        Func<TArgs, bool> predicate,
+        bool continueOnDispose = false
+    ) => new AsyncObserverDisposeIf<TArgs>(
+        observer,
+        args => Task.FromResult(predicate(args)),
+        continueOnDispose
+    );
+
+    /// <summary>
+    /// Dispose of the observer chain if the predicate is matched.
+    /// </summary>
     /// <typeparam name="TSender">
     /// The type of sender passed into the observer.
     /// </typeparam>
@@ -293,6 +571,38 @@ public static class IAsyncObserverExtensions
     ) => new AsyncObserverDisposeIf<TSender, TArgs>(
         observer,
         predicate,
+        continueOnDispose
+    );
+
+    /// <summary>
+    /// Dispose of the observer chain if the predicate is matched.
+    /// </summary>
+    /// <typeparam name="TSender">
+    /// The type of sender passed into the observer.
+    /// </typeparam>
+    /// <typeparam name="TArgs">
+    /// The type of arguments passed into the observer.
+    /// </typeparam>
+    /// <param name="observer">The observer to extend.</param>
+    /// <param name="predicate">
+    /// The callback invoked to determine if the observer chain should be
+    /// disposed.  If the callback returns true the observer chain is disposed.
+    /// </param>
+    /// <param name="continueOnDispose">
+    /// When set to true the next observer in the observer chain will be invoked
+    /// even when predicate returns true and this observer chain will be
+    /// disposed.  Default is false.
+    /// </param>
+    /// <returns>
+    /// A new observer that has been added to the chain of observers.
+    /// </returns>
+    public static IAsyncObserver<TSender, TArgs> DisposeIf<TSender, TArgs>(
+        this IAsyncObserver<TSender, TArgs> observer,
+        Func<TSender, TArgs, bool> predicate,
+        bool continueOnDispose = false
+    ) => new AsyncObserverDisposeIf<TSender, TArgs>(
+        observer,
+        (sender, args) => Task.FromResult(predicate(sender, args)),
         continueOnDispose
     );
 
@@ -379,6 +689,30 @@ public static class IAsyncObserverExtensions
     /// observer in the chain is thrown.  Caught exceptions will not move past
     /// this observer.
     /// </summary>
+    /// <param name="observer">The observer to extend.</param>
+    /// <param name="callback">
+    /// The callback to invoke when an exception is caught.
+    /// </param>
+    /// <returns>
+    /// A new observer that has been added to the chain of observers.
+    /// </returns>
+    public static IAsyncObserver Catch(
+        this IAsyncObserver observer,
+        Action<Exception> callback
+    ) => new AsyncObserverCatch(
+        observer,
+        ex =>
+        {
+            callback(ex);
+            return Task.FromResult(true);
+        }
+    );
+
+    /// <summary>
+    /// Invoke the given callback whenever an exception thrown below this
+    /// observer in the chain is thrown.  Caught exceptions will not move past
+    /// this observer.
+    /// </summary>
     /// <typeparam name="TArgs">
     /// The type of arguments passed into the observer.
     /// </typeparam>
@@ -398,6 +732,33 @@ public static class IAsyncObserverExtensions
         {
             await callback(args, ex);
             return true;
+        }
+    );
+
+    /// <summary>
+    /// Invoke the given callback whenever an exception thrown below this
+    /// observer in the chain is thrown.  Caught exceptions will not move past
+    /// this observer.
+    /// </summary>
+    /// <typeparam name="TArgs">
+    /// The type of arguments passed into the observer.
+    /// </typeparam>
+    /// <param name="observer">The observer to extend.</param>
+    /// <param name="callback">
+    /// The callback to invoke when an exception is caught.
+    /// </param>
+    /// <returns>
+    /// A new observer that has been added to the chain of observers.
+    /// </returns>
+    public static IAsyncObserver<TArgs> Catch<TArgs>(
+        this IAsyncObserver<TArgs> observer,
+        Action<TArgs, Exception> callback
+    ) => new AsyncObserverCatch<TArgs>(
+        observer,
+        (args, ex) =>
+        {
+            callback(args, ex);
+            return Task.FromResult(true);
         }
     );
 
@@ -433,6 +794,36 @@ public static class IAsyncObserverExtensions
 
     /// <summary>
     /// Invoke the given callback whenever an exception thrown below this
+    /// observer in the chain is thrown.  Caught exceptions will not move past
+    /// this observer.
+    /// </summary>
+    /// <typeparam name="TSender">
+    /// The type of sender passed into the observer.
+    /// </typeparam>
+    /// <typeparam name="TArgs">
+    /// The type of arguments passed into the observer.
+    /// </typeparam>
+    /// <param name="observer">The observer to extend.</param>
+    /// <param name="callback">
+    /// The callback to invoke when an exception is caught.
+    /// </param>
+    /// <returns>
+    /// A new observer that has been added to the chain of observers.
+    /// </returns>
+    public static IAsyncObserver<TSender, TArgs> Catch<TSender, TArgs>(
+        this IAsyncObserver<TSender, TArgs> observer,
+        Action<TSender, TArgs, Exception> callback
+    ) => new AsyncObserverCatch<TSender, TArgs>(
+        observer,
+        (sender, args, ex) =>
+        {
+            callback(sender, args, ex);
+            return Task.FromResult(true);
+        }
+    );
+
+    /// <summary>
+    /// Invoke the given callback whenever an exception thrown below this
     /// observer in the chain is thrown.
     /// </summary>
     /// <param name="observer">The observer to extend.</param>
@@ -448,6 +839,27 @@ public static class IAsyncObserverExtensions
         this IAsyncObserver observer,
         Func<Exception, Task<bool>> callback
     ) => new AsyncObserverCatch(observer, callback);
+
+    /// <summary>
+    /// Invoke the given callback whenever an exception thrown below this
+    /// observer in the chain is thrown.
+    /// </summary>
+    /// <param name="observer">The observer to extend.</param>
+    /// <param name="callback">
+    /// The callback to invoke when an exception is caught.  If the exception
+    /// is handled by this callback it should return true which will prevent
+    /// the exception from moving further up the observer chain.
+    /// </param>
+    /// <returns>
+    /// A new observer that has been added to the chain of observers.
+    /// </returns>
+    public static IAsyncObserver Catch(
+        this IAsyncObserver observer,
+        Func<Exception, bool> callback
+    ) => new AsyncObserverCatch(
+        observer,
+        ex => Task.FromResult(callback(ex))
+    );
 
     /// <summary>
     /// Invoke the given callback whenever an exception thrown below this
@@ -474,6 +886,30 @@ public static class IAsyncObserverExtensions
     /// Invoke the given callback whenever an exception thrown below this
     /// observer in the chain is thrown.
     /// </summary>
+    /// <typeparam name="TArgs">
+    /// The type of arguments passed into the observer.
+    /// </typeparam>
+    /// <param name="observer">The observer to extend.</param>
+    /// <param name="callback">
+    /// The callback to invoke when an exception is caught.  If the exception
+    /// is handled by this callback it should return true which will prevent
+    /// the exception from moving further up the observer chain.
+    /// </param>
+    /// <returns>
+    /// A new observer that has been added to the chain of observers.
+    /// </returns>
+    public static IAsyncObserver<TArgs> Catch<TArgs>(
+        this IAsyncObserver<TArgs> observer,
+        Func<TArgs, Exception, bool> callback
+    ) => new AsyncObserverCatch<TArgs>(
+        observer,
+        (args, ex) => Task.FromResult(callback(args, ex))
+    );
+
+    /// <summary>
+    /// Invoke the given callback whenever an exception thrown below this
+    /// observer in the chain is thrown.
+    /// </summary>
     /// <typeparam name="TSender">
     /// The type of sender passed into the observer.
     /// </typeparam>
@@ -493,4 +929,31 @@ public static class IAsyncObserverExtensions
         this IAsyncObserver<TSender, TArgs> observer,
         Func<TSender, TArgs, Exception, Task<bool>> callback
     ) => new AsyncObserverCatch<TSender, TArgs>(observer, callback);
+
+    /// <summary>
+    /// Invoke the given callback whenever an exception thrown below this
+    /// observer in the chain is thrown.
+    /// </summary>
+    /// <typeparam name="TSender">
+    /// The type of sender passed into the observer.
+    /// </typeparam>
+    /// <typeparam name="TArgs">
+    /// The type of arguments passed into the observer.
+    /// </typeparam>
+    /// <param name="observer">The observer to extend.</param>
+    /// <param name="callback">
+    /// The callback to invoke when an exception is caught.  If the exception
+    /// is handled by this callback it should return true which will prevent
+    /// the exception from moving further up the observer chain.
+    /// </param>
+    /// <returns>
+    /// A new observer that has been added to the chain of observers.
+    /// </returns>
+    public static IAsyncObserver<TSender, TArgs> Catch<TSender, TArgs>(
+        this IAsyncObserver<TSender, TArgs> observer,
+        Func<TSender, TArgs, Exception, bool> callback
+    ) => new AsyncObserverCatch<TSender, TArgs>(
+        observer,
+        (sender, args, ex) => Task.FromResult(callback(sender, args, ex))
+    );
 }
