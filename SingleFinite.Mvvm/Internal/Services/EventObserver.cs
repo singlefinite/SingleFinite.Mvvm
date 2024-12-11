@@ -147,6 +147,105 @@ internal sealed class EventObserver : IEventObserver, IDisposable
     ) => Observe(observable, cancellationToken).OnEach(callback);
 
     /// <inheritdoc/>
+    public IAsyncObserver Observe(
+        AsyncObservable observable,
+        CancellationToken? cancellationToken = null
+    )
+    {
+        ObjectDisposedException.ThrowIf(_isDisposed, this);
+
+        var observer = new AsyncObserverDisposeListener(
+            parent: observable.Observe()
+        );
+
+        void DisposedHandler()
+        {
+            _observerList.Remove(observer);
+            observer.Disposed -= DisposedHandler;
+        }
+
+        observer.Disposed += DisposedHandler;
+
+        _observerList.Add(observer);
+        cancellationToken?.Register(observer.Dispose);
+
+        return observer;
+    }
+
+    /// <inheritdoc/>
+    public IAsyncObserver Observe(
+        AsyncObservable observable,
+        Func<Task> callback,
+        CancellationToken? cancellationToken = null
+    ) => Observe(observable, cancellationToken).OnEach(callback);
+
+    /// <inheritdoc/>
+    public IAsyncObserver<TArgs> Observe<TArgs>(
+        AsyncObservable<TArgs> observable,
+        CancellationToken? cancellationToken = null
+    )
+    {
+        ObjectDisposedException.ThrowIf(_isDisposed, this);
+
+        var observer = new AsyncObserverDisposeListener<TArgs>(
+            parent: observable.Observe()
+        );
+
+        void DisposedHandler()
+        {
+            _observerList.Remove(observer);
+            observer.Disposed -= DisposedHandler;
+        }
+
+        observer.Disposed += DisposedHandler;
+
+        _observerList.Add(observer);
+        cancellationToken?.Register(observer.Dispose);
+
+        return observer;
+    }
+
+    /// <inheritdoc/>
+    public IAsyncObserver<TArgs> Observe<TArgs>(
+        AsyncObservable<TArgs> observable,
+        Func<TArgs, Task> callback,
+        CancellationToken? cancellationToken = null
+    ) => Observe<TArgs>(observable, cancellationToken).OnEach(callback);
+
+    /// <inheritdoc/>
+    public IAsyncObserver<TSender, TArgs> Observe<TSender, TArgs>(
+        AsyncObservable<TSender, TArgs> observable,
+        CancellationToken? cancellationToken = null
+    )
+    {
+        ObjectDisposedException.ThrowIf(_isDisposed, this);
+
+        var observer = new AsyncObserverDisposeListener<TSender, TArgs>(
+            parent: observable.Observe()
+        );
+
+        void DisposedHandler()
+        {
+            _observerList.Remove(observer);
+            observer.Disposed -= DisposedHandler;
+        }
+
+        observer.Disposed += DisposedHandler;
+
+        _observerList.Add(observer);
+        cancellationToken?.Register(observer.Dispose);
+
+        return observer;
+    }
+
+    /// <inheritdoc/>
+    public IAsyncObserver<TSender, TArgs> Observe<TSender, TArgs>(
+        AsyncObservable<TSender, TArgs> observable,
+        Func<TSender, TArgs, Task> callback,
+        CancellationToken? cancellationToken = null
+    ) => Observe(observable, cancellationToken).OnEach(callback);
+
+    /// <inheritdoc/>
     public IObserver<string?> ObservePropertyChanging(
         INotifyPropertyChanging owner,
         Action<string?> callback,

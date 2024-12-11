@@ -112,6 +112,71 @@ public class EventObserverTests
     }
 
     [TestMethod]
+    public async Task Dispose_Method_Unregisters_Observable_Callbacks_Async()
+    {
+        var scopedEventObserver = new EventObserver();
+        var testClass = new TestClassWithEvent();
+
+        TestClassWithEvent? observedSender = null;
+        var observedTestEvent = 0;
+
+        scopedEventObserver.Observe(
+            observable: testClass.AsyncObservable,
+            callback: async (sender, args) =>
+            {
+                await Task.Run(() =>
+                {
+                    observedSender = sender;
+                    observedTestEvent += args;
+                });
+            }
+        );
+
+        await testClass.RaiseTestTokenAsync(1);
+        Assert.AreEqual(testClass, observedSender);
+        Assert.AreEqual(1, observedTestEvent);
+
+        scopedEventObserver.Dispose();
+        await testClass.RaiseTestTokenAsync(1);
+        Assert.AreEqual(testClass, observedSender);
+        Assert.AreEqual(1, observedTestEvent);
+    }
+
+    [TestMethod]
+    public async Task Cancelled_CancellationToken_Unregisters_Callbacks_Async()
+    {
+        var eventObserver = new EventObserver();
+        var testClass = new TestClassWithEvent();
+
+        TestClassWithEvent? observedSender = null;
+        var observedTestEvent = 0;
+        using var cancellationTokenSource = new CancellationTokenSource();
+
+        eventObserver.Observe(
+            observable: testClass.AsyncObservable,
+            callback: async (sender, args) =>
+            {
+                await Task.Run(() =>
+                {
+                    observedSender = sender;
+                    observedTestEvent += args;
+                });
+            },
+            cancellationToken: cancellationTokenSource.Token
+        );
+
+        await testClass.RaiseTestTokenAsync(1);
+        Assert.AreEqual(testClass, observedSender);
+        Assert.AreEqual(1, observedTestEvent);
+
+        cancellationTokenSource.Cancel();
+        await testClass.RaiseTestTokenAsync(1);
+
+        Assert.AreEqual(testClass, observedSender);
+        Assert.AreEqual(1, observedTestEvent);
+    }
+
+    [TestMethod]
     public void PropertyChanging_Events_Invoke_Name_Callbacks()
     {
         var eventObserver = new EventObserver();
@@ -416,8 +481,14 @@ public class EventObserverTests
             _observableSource.RaiseEvent(this, args);
         }
 
+        public Task RaiseTestTokenAsync(int args) =>
+            _asyncObservableSource.RaiseEventAsync(this, args);
+
         public Observable<TestClassWithEvent, int> Observable => _observableSource.Observable;
         private readonly ObservableSource<TestClassWithEvent, int> _observableSource = new();
+
+        public AsyncObservable<TestClassWithEvent, int> AsyncObservable => _asyncObservableSource.Observable;
+        private readonly AsyncObservableSource<TestClassWithEvent, int> _asyncObservableSource = new();
 
         public void RaiseTestEvent(int x)
         {

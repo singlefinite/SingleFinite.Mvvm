@@ -176,6 +176,150 @@ public interface IEventObserver
     );
 
     /// <summary>
+    /// Setup an event callback that will be unregistered when the dependency 
+    /// injection scope that this service belongs to is disposed.
+    /// </summary>
+    /// <param name="observable">The event to register the callback to.</param>
+    /// <param name="cancellationToken">
+    /// Optional token that when cancelled will unregister the callback.
+    /// </param>
+    /// <exception cref="ObjectDisposedException">
+    /// Thrown if the service has been disposed.
+    /// </exception>
+    /// <returns>
+    /// An observer object that when disposed will unregister the callback.
+    /// </returns>
+    IAsyncObserver Observe(
+        AsyncObservable observable,
+        CancellationToken? cancellationToken = null
+    );
+
+    /// <summary>
+    /// Setup an event callback that will be unregistered when the dependency 
+    /// injection scope that this service belongs to is disposed.
+    /// </summary>
+    /// <param name="observable">The event to register the callback to.</param>
+    /// <param name="callback">
+    /// The callback that will be registered to the event.
+    /// </param>
+    /// <param name="cancellationToken">
+    /// Optional token that when cancelled will unregister the callback.
+    /// </param>
+    /// <exception cref="ObjectDisposedException">
+    /// Thrown if the service has been disposed.
+    /// </exception>
+    /// <returns>
+    /// An observer object that when disposed will unregister the callback.
+    /// </returns>
+    IAsyncObserver Observe(
+        AsyncObservable observable,
+        Func<Task> callback,
+        CancellationToken? cancellationToken = null
+    );
+
+    /// <summary>
+    /// Setup an event callback that will be unregistered when the dependency 
+    /// injection scope that this service belongs to is disposed.
+    /// </summary>
+    /// <typeparam name="TArgs">
+    /// The type of arguments included with raised events.
+    /// </typeparam>
+    /// <param name="observable">The event to register the callback to.</param>
+    /// <param name="cancellationToken">
+    /// Optional token that when cancelled will unregister the callback.
+    /// </param>
+    /// <exception cref="ObjectDisposedException">
+    /// Thrown if the service has been disposed.
+    /// </exception>
+    /// <returns>
+    /// An observer that when disposed will unregister the callback.
+    /// </returns>
+    IAsyncObserver<TArgs> Observe<TArgs>(
+        AsyncObservable<TArgs> observable,
+        CancellationToken? cancellationToken = null
+    );
+
+    /// <summary>
+    /// Setup an event callback that will be unregistered when the dependency 
+    /// injection scope that this service belongs to is disposed.
+    /// </summary>
+    /// <typeparam name="TArgs">
+    /// The type of arguments included with raised events.
+    /// </typeparam>
+    /// <param name="observable">The event to register the callback to.</param>
+    /// <param name="callback">
+    /// The callback that will be registered to the event.
+    /// </param>
+    /// <param name="cancellationToken">
+    /// Optional token that when cancelled will unregister the callback.
+    /// </param>
+    /// <exception cref="ObjectDisposedException">
+    /// Thrown if the service has been disposed.
+    /// </exception>
+    /// <returns>
+    /// An observer that when disposed will unregister the callback.
+    /// </returns>
+    IAsyncObserver<TArgs> Observe<TArgs>(
+        AsyncObservable<TArgs> observable,
+        Func<TArgs, Task> callback,
+        CancellationToken? cancellationToken = null
+    );
+
+    /// <summary>
+    /// Setup an event callback that will be unregistered when the dependency 
+    /// injection scope that this service belongs to is disposed.
+    /// </summary>
+    /// <typeparam name="TSender">
+    /// The type of object that will raise events.
+    /// </typeparam>
+    /// <typeparam name="TArgs">
+    /// The type of arguments included with raised events.
+    /// </typeparam>
+    /// <param name="observable">The event to register the callback to.</param>
+    /// <param name="cancellationToken">
+    /// Optional token that when cancelled will unregister the callback.
+    /// </param>
+    /// <exception cref="ObjectDisposedException">
+    /// Thrown if the service has been disposed.
+    /// </exception>
+    /// <returns>
+    /// An observer that when disposed will unregister the callback.
+    /// </returns>
+    IAsyncObserver<TSender, TArgs> Observe<TSender, TArgs>(
+        AsyncObservable<TSender, TArgs> observable,
+        CancellationToken? cancellationToken = null
+    );
+
+    /// <summary>
+    /// Setup an event callback that will be unregistered when the dependency 
+    /// injection scope that this service belongs to is disposed.
+    /// </summary>
+    /// <typeparam name="TSender">
+    /// The type of object that will raise events.
+    /// </typeparam>
+    /// <typeparam name="TArgs">
+    /// The type of arguments included with raised events.
+    /// </typeparam>
+    /// <param name="observable">The event to register the callback to.</param>
+    /// <param name="callback">
+    /// The callback that will be registered to the event.
+    /// </param>
+    /// <param name="cancellationToken">
+    /// Optional token that when cancelled will unregister the callback.
+    /// </param>
+    /// <exception cref="ObjectDisposedException">
+    /// Thrown if the service has been disposed.
+    /// </exception>
+    /// <returns>
+    /// An observer that when disposed will unregister the callback.
+    /// </returns>
+    IAsyncObserver<TSender, TArgs> Observe<TSender, TArgs>(
+        AsyncObservable<TSender, TArgs> observable,
+        Func<TSender, TArgs, Task> callback,
+        CancellationToken? cancellationToken = null
+    );
+
+    /// <summary>
     /// Setup a PropertyChanging event callback that will be unregistered when 
     /// the dependency injection scope that this service belongs to is disposed.
     /// </summary>
