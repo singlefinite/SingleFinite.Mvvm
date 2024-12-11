@@ -111,13 +111,13 @@ internal sealed class AppHost : IAppHost, IDisposable
     }
 
     /// <inheritdoc/>
-    public bool Close()
+    public async Task<bool> CloseAsync()
     {
         if (_isDisposed)
             return true;
 
         var cancelEventArgs = new CancelEventArgs();
-        _closingSource.RaiseEvent(cancelEventArgs);
+        await _closingSource.RaiseEventAsync(cancelEventArgs);
 
         if (!cancelEventArgs.Cancel)
             _closedSource.RaiseEvent();
@@ -146,8 +146,8 @@ internal sealed class AppHost : IAppHost, IDisposable
     private readonly ObservableSource _startedSource = new();
 
     /// <inheritdoc/>
-    public Observable<CancelEventArgs> Closing => _closingSource.Observable;
-    private readonly ObservableSource<CancelEventArgs> _closingSource = new();
+    public AsyncObservable<CancelEventArgs> Closing => _closingSource.Observable;
+    private readonly AsyncObservableSource<CancelEventArgs> _closingSource = new();
 
     /// <inheritdoc/>
     public Observable Closed => _closedSource.Observable;

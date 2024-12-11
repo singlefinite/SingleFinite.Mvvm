@@ -50,7 +50,7 @@ public interface IAppHost
     /// subscribers to the Closing event.
     /// </summary>
     /// <returns>true if the app was stopped, false if it wasn't.</returns>
-    bool Close();
+    Task<bool> CloseAsync();
 
     /// <summary>
     /// Raised when this app host is started.
@@ -60,7 +60,7 @@ public interface IAppHost
     /// <summary>
     /// Raised when the app is being closed.
     /// </summary>
-    Observable<CancelEventArgs> Closing { get; }
+    AsyncObservable<CancelEventArgs> Closing { get; }
 
     /// <summary>
     /// Raised after the app has been closed.

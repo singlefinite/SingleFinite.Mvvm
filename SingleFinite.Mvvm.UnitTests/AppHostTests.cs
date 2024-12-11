@@ -188,7 +188,7 @@ public class AppHostTests
     }
 
     [TestMethod]
-    public void Close_Returns_True_When_Not_Canceled_And_Does_Not_Raise_Event()
+    public async Task Close_Returns_True_When_Not_Canceled_And_Does_Not_Raise_Event_Async()
     {
         var appHost = new AppHost(
             services: new ServiceCollection(),
@@ -200,14 +200,14 @@ public class AppHostTests
         var closedObserved = false;
         appHost.Closed.Observe(() => closedObserved = true);
 
-        var result = appHost.Close();
+        var result = await appHost.CloseAsync();
 
         Assert.IsTrue(result);
         Assert.IsTrue(closedObserved);
     }
 
     [TestMethod]
-    public void Close_Returns_False_When_Canceled_And_Raises_Event()
+    public async Task Close_Returns_False_When_Canceled_And_Raises_Event_Async()
     {
         var appHost = new AppHost(
             services: new ServiceCollection(),
@@ -219,9 +219,12 @@ public class AppHostTests
         var closedObserved = false;
         appHost.Closed.Observe(() => closedObserved = true);
 
-        appHost.Closing.Observe(args => args.Cancel = true);
+        appHost.Closing.Observe(async args =>
+        {
+            await Task.Run(() => args.Cancel = true);
+        });
 
-        var result = appHost.Close();
+        var result = await appHost.CloseAsync();
 
         Assert.IsFalse(result);
         Assert.IsFalse(closedObserved);
