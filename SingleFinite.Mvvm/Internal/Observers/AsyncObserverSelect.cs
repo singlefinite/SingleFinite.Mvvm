@@ -30,12 +30,12 @@ namespace SingleFinite.Mvvm.Internal.Observers;
 /// </typeparam>
 /// <param name="parent">The parent to this observer.</param>
 /// <param name="selector">The callback used to select the value.</param>
-internal class ObserverSelect<TArgsOut>(
-    IObserver parent,
-    Func<TArgsOut> selector
+internal class AsyncObserverSelect<TArgsOut>(
+    IAsyncObserver parent,
+    Func<Task<TArgsOut>> selector
 ) :
-    ObserverBase(parent),
-    IObserver<TArgsOut>
+    AsyncObserverBase(parent),
+    IAsyncObserver<TArgsOut>
 {
     #region Methods
 
@@ -46,10 +46,11 @@ internal class ObserverSelect<TArgsOut>(
     /// This method always returns false since the selected value will be passed
     /// on through a new event that is specific to the value type.
     /// </returns>
-    protected override bool OnEvent()
+    protected async override Task<bool> OnEventAsync()
     {
-        var value = selector();
-        MappedEvent?.Invoke(value);
+        var value = await selector();
+        if (MappedEvent is not null)
+            await MappedEvent.Invoke(value);
         return false;
     }
 
@@ -61,12 +62,12 @@ internal class ObserverSelect<TArgsOut>(
     /// This event is raised when a value is selected for an observed event to
     /// pass down the observer chain.
     /// </summary>
-    event Action<TArgsOut> IObserver<TArgsOut>.Event
+    event Func<TArgsOut, Task> IAsyncObserver<TArgsOut>.Event
     {
         add => MappedEvent += value;
         remove => MappedEvent -= value;
     }
-    private event Action<TArgsOut>? MappedEvent;
+    private event Func<TArgsOut, Task>? MappedEvent;
 
     #endregion
 }
@@ -83,12 +84,12 @@ internal class ObserverSelect<TArgsOut>(
 /// </typeparam>
 /// <param name="parent">The parent to this observer.</param>
 /// <param name="callback">The callback used to select the value.</param>
-internal class ObserverSelect<TArgsIn, TArgsOut>(
-    IObserver<TArgsIn> parent,
-    Func<TArgsIn, TArgsOut> callback
+internal class AsyncObserverSelect<TArgsIn, TArgsOut>(
+    IAsyncObserver<TArgsIn> parent,
+    Func<TArgsIn, Task<TArgsOut>> callback
 ) :
-    ObserverBase<TArgsIn>(parent),
-    IObserver<TArgsOut>
+    AsyncObserverBase<TArgsIn>(parent),
+    IAsyncObserver<TArgsOut>
 {
     #region Methods
 
@@ -103,10 +104,11 @@ internal class ObserverSelect<TArgsIn, TArgsOut>(
     /// This method always returns false since the selected value will be passed
     /// on through a new event that is specific to the value type.
     /// </returns>
-    protected override bool OnEvent(TArgsIn args)
+    protected async override Task<bool> OnEventAsync(TArgsIn args)
     {
-        var value = callback(args);
-        MappedEvent?.Invoke(value);
+        var value = await callback(args);
+        if (MappedEvent is not null)
+            await MappedEvent.Invoke(value);
         return false;
     }
 
@@ -118,12 +120,12 @@ internal class ObserverSelect<TArgsIn, TArgsOut>(
     /// This event is raised when a value is selected for an observed event to
     /// pass down the observer chain.
     /// </summary>
-    event Action<TArgsOut> IObserver<TArgsOut>.Event
+    event Func<TArgsOut, Task> IAsyncObserver<TArgsOut>.Event
     {
         add => MappedEvent += value;
         remove => MappedEvent -= value;
     }
-    private event Action<TArgsOut>? MappedEvent;
+    private event Func<TArgsOut, Task>? MappedEvent;
 
     #endregion
 }
@@ -143,12 +145,12 @@ internal class ObserverSelect<TArgsIn, TArgsOut>(
 /// </typeparam>
 /// <param name="parent">The parent to this observer.</param>
 /// <param name="callback">The callback used to select the value.</param>
-internal class ObserverSelect<TSender, TArgsIn, TArgsOut>(
-    IObserver<TSender, TArgsIn> parent,
-    Func<TSender, TArgsIn, TArgsOut> callback
+internal class AsyncObserverSelect<TSender, TArgsIn, TArgsOut>(
+    IAsyncObserver<TSender, TArgsIn> parent,
+    Func<TSender, TArgsIn, Task<TArgsOut>> callback
 ) :
-    ObserverBase<TSender, TArgsIn>(parent),
-    IObserver<TSender, TArgsOut>
+    AsyncObserverBase<TSender, TArgsIn>(parent),
+    IAsyncObserver<TSender, TArgsOut>
 {
     #region Methods
 
@@ -167,10 +169,11 @@ internal class ObserverSelect<TSender, TArgsIn, TArgsOut>(
     /// This method always returns false since the selected value will be passed
     /// on through a new event that is specific to the value type.
     /// </returns>
-    protected override bool OnEvent(TSender sender, TArgsIn args)
+    protected async override Task<bool> OnEventAsync(TSender sender, TArgsIn args)
     {
-        var value = callback(sender, args);
-        MappedEvent?.Invoke(sender, value);
+        var value = await callback(sender, args);
+        if (MappedEvent is not null)
+            await MappedEvent.Invoke(sender, value);
         return false;
     }
 
@@ -182,12 +185,12 @@ internal class ObserverSelect<TSender, TArgsIn, TArgsOut>(
     /// This event is raised when a value is selected for an observed event to
     /// pass down the observer chain.
     /// </summary>
-    event Action<TSender, TArgsOut> IObserver<TSender, TArgsOut>.Event
+    event Func<TSender, TArgsOut, Task> IAsyncObserver<TSender, TArgsOut>.Event
     {
         add => MappedEvent += value;
         remove => MappedEvent -= value;
     }
-    private event Action<TSender, TArgsOut>? MappedEvent;
+    private event Func<TSender, TArgsOut, Task>? MappedEvent;
 
     #endregion
 }

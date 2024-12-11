@@ -27,7 +27,7 @@ namespace SingleFinite.Mvvm;
 /// Methods that modify how an observable event is handled.  Observers are
 /// chained together to create different handler logic.
 /// </summary>
-public static class IObserverExtensions
+public static class IAsyncObserverExtensions
 {
     /// <summary>
     /// Invoke the given callback whenever the observable event is raised.
@@ -39,8 +39,11 @@ public static class IObserverExtensions
     /// <returns>
     /// A new observer that has been added to the chain of observers.
     /// </returns>
-    public static IObserver OnEach(this IObserver observer, Action callback) =>
-        new ObserverForEach(observer, callback);
+    public static IAsyncObserver OnEach(
+        this IAsyncObserver observer,
+        Func<Task> callback
+    ) =>
+        new AsyncObserverForEach(observer, callback);
 
     /// <summary>
     /// Invoke the given callback whenever the observable event is raised.
@@ -55,10 +58,10 @@ public static class IObserverExtensions
     /// <returns>
     /// A new observer that has been added to the chain of observers.
     /// </returns>
-    public static IObserver<TArgs> OnEach<TArgs>(
-        this IObserver<TArgs> observer,
-        Action<TArgs> callback
-    ) => new ObserverForEach<TArgs>(observer, callback);
+    public static IAsyncObserver<TArgs> OnEach<TArgs>(
+        this IAsyncObserver<TArgs> observer,
+        Func<TArgs, Task> callback
+    ) => new AsyncObserverForEach<TArgs>(observer, callback);
 
     /// <summary>
     /// Invoke the given callback whenever the observable event is raised.
@@ -76,10 +79,10 @@ public static class IObserverExtensions
     /// <returns>
     /// A new observer that has been added to the chain of observers.
     /// </returns>
-    public static IObserver<TSender, TArgs> OnEach<TSender, TArgs>(
-        this IObserver<TSender, TArgs> observer,
-        Action<TSender, TArgs> callback
-    ) => new ObserverForEach<TSender, TArgs>(observer, callback);
+    public static IAsyncObserver<TSender, TArgs> OnEach<TSender, TArgs>(
+        this IAsyncObserver<TSender, TArgs> observer,
+        Func<TSender, TArgs, Task> callback
+    ) => new AsyncObserverForEach<TSender, TArgs>(observer, callback);
 
     /// <summary>
     /// Select a value to pass to chained observers.
@@ -95,10 +98,10 @@ public static class IObserverExtensions
     /// <returns>
     /// A new observer that has been added to the chain of observers.
     /// </returns>
-    public static IObserver<TArgsOut> Select<TArgsOut>(
-        this IObserver observer,
-        Func<TArgsOut> selector
-    ) => new ObserverSelect<TArgsOut>(observer, selector);
+    public static IAsyncObserver<TArgsOut> Select<TArgsOut>(
+        this IAsyncObserver observer,
+        Func<Task<TArgsOut>> selector
+    ) => new AsyncObserverSelect<TArgsOut>(observer, selector);
 
     /// <summary>
     /// Select a value to pass to chained observers.
@@ -117,10 +120,10 @@ public static class IObserverExtensions
     /// <returns>
     /// A new observer that has been added to the chain of observers.
     /// </returns>
-    public static IObserver<TArgsOut> Select<TArgsIn, TArgsOut>(
-        this IObserver<TArgsIn> observer,
-        Func<TArgsIn, TArgsOut> selector
-    ) => new ObserverSelect<TArgsIn, TArgsOut>(observer, selector);
+    public static IAsyncObserver<TArgsOut> Select<TArgsIn, TArgsOut>(
+        this IAsyncObserver<TArgsIn> observer,
+        Func<TArgsIn, Task<TArgsOut>> selector
+    ) => new AsyncObserverSelect<TArgsIn, TArgsOut>(observer, selector);
 
     /// <summary>
     /// Select a value to pass to chained observers.
@@ -142,10 +145,10 @@ public static class IObserverExtensions
     /// <returns>
     /// A new observer that has been added to the chain of observers.
     /// </returns>
-    public static IObserver<TSender, TArgsOut> Select<TSender, TArgsIn, TArgsOut>(
-        this IObserver<TSender, TArgsIn> observer,
-        Func<TSender, TArgsIn, TArgsOut> selector
-    ) => new ObserverSelect<TSender, TArgsIn, TArgsOut>(observer, selector);
+    public static IAsyncObserver<TSender, TArgsOut> Select<TSender, TArgsIn, TArgsOut>(
+        this IAsyncObserver<TSender, TArgsIn> observer,
+        Func<TSender, TArgsIn, Task<TArgsOut>> selector
+    ) => new AsyncObserverSelect<TSender, TArgsIn, TArgsOut>(observer, selector);
 
     /// <summary>
     /// Filter out observable events that don't match the predicate and prevent
@@ -160,10 +163,10 @@ public static class IObserverExtensions
     /// <returns>
     /// A new observer that has been added to the chain of observers.
     /// </returns>
-    public static IObserver Where(
-        this IObserver observer,
-        Func<bool> predicate
-    ) => new ObserverWhere(observer, predicate);
+    public static IAsyncObserver Where(
+        this IAsyncObserver observer,
+        Func<Task<bool>> predicate
+    ) => new AsyncObserverWhere(observer, predicate);
 
     /// <summary>
     /// Filter out observable events that don't match the predicate and prevent
@@ -181,10 +184,10 @@ public static class IObserverExtensions
     /// <returns>
     /// A new observer that has been added to the chain of observers.
     /// </returns>
-    public static IObserver<TArgs> Where<TArgs>(
-        this IObserver<TArgs> observer,
-        Func<TArgs, bool> predicate
-    ) => new ObserverWhere<TArgs>(observer, predicate);
+    public static IAsyncObserver<TArgs> Where<TArgs>(
+        this IAsyncObserver<TArgs> observer,
+        Func<TArgs, Task<bool>> predicate
+    ) => new AsyncObserverWhere<TArgs>(observer, predicate);
 
     /// <summary>
     /// Filter out observable events that don't match the predicate and prevent
@@ -205,10 +208,10 @@ public static class IObserverExtensions
     /// <returns>
     /// A new observer that has been added to the chain of observers.
     /// </returns>
-    public static IObserver<TSender, TArgs> Where<TSender, TArgs>(
-        this IObserver<TSender, TArgs> observer,
-        Func<TSender, TArgs, bool> predicate
-    ) => new ObserverWhere<TSender, TArgs>(observer, predicate);
+    public static IAsyncObserver<TSender, TArgs> Where<TSender, TArgs>(
+        this IAsyncObserver<TSender, TArgs> observer,
+        Func<TSender, TArgs, Task<bool>> predicate
+    ) => new AsyncObserverWhere<TSender, TArgs>(observer, predicate);
 
     /// <summary>
     /// Dispose of the observer chain if the predicate is matched.
@@ -226,11 +229,11 @@ public static class IObserverExtensions
     /// <returns>
     /// A new observer that has been added to the chain of observers.
     /// </returns>
-    public static IObserver DisposeIf(
-        this IObserver observer,
-        Func<bool> predicate,
+    public static IAsyncObserver DisposeIf(
+        this IAsyncObserver observer,
+        Func<Task<bool>> predicate,
         bool continueOnDispose = false
-    ) => new ObserverDisposeIf(observer, predicate, continueOnDispose);
+    ) => new AsyncObserverDisposeIf(observer, predicate, continueOnDispose);
 
     /// <summary>
     /// Dispose of the observer chain if the predicate is matched.
@@ -251,11 +254,15 @@ public static class IObserverExtensions
     /// <returns>
     /// A new observer that has been added to the chain of observers.
     /// </returns>
-    public static IObserver<TArgs> DisposeIf<TArgs>(
-        this IObserver<TArgs> observer,
-        Func<TArgs, bool> predicate,
+    public static IAsyncObserver<TArgs> DisposeIf<TArgs>(
+        this IAsyncObserver<TArgs> observer,
+        Func<TArgs, Task<bool>> predicate,
         bool continueOnDispose = false
-    ) => new ObserverDisposeIf<TArgs>(observer, predicate, continueOnDispose);
+    ) => new AsyncObserverDisposeIf<TArgs>(
+        observer,
+        predicate,
+        continueOnDispose
+    );
 
     /// <summary>
     /// Dispose of the observer chain if the predicate is matched.
@@ -279,11 +286,15 @@ public static class IObserverExtensions
     /// <returns>
     /// A new observer that has been added to the chain of observers.
     /// </returns>
-    public static IObserver<TSender, TArgs> DisposeIf<TSender, TArgs>(
-        this IObserver<TSender, TArgs> observer,
-        Func<TSender, TArgs, bool> predicate,
+    public static IAsyncObserver<TSender, TArgs> DisposeIf<TSender, TArgs>(
+        this IAsyncObserver<TSender, TArgs> observer,
+        Func<TSender, TArgs, Task<bool>> predicate,
         bool continueOnDispose = false
-    ) => new ObserverDisposeIf<TSender, TArgs>(observer, predicate, continueOnDispose);
+    ) => new AsyncObserverDisposeIf<TSender, TArgs>(
+        observer,
+        predicate,
+        continueOnDispose
+    );
 
     /// <summary>
     /// Dispose of the observer chain when the first event is observed.
@@ -292,11 +303,11 @@ public static class IObserverExtensions
     /// <returns>
     /// A new observer that has been added to the chain of observers.
     /// </returns>
-    public static IObserver Once(
-        this IObserver observer
+    public static IAsyncObserver Once(
+        this IAsyncObserver observer
     ) => DisposeIf(
         observer,
-        predicate: () => true,
+        predicate: () => Task.FromResult(true),
         continueOnDispose: true
     );
 
@@ -310,11 +321,11 @@ public static class IObserverExtensions
     /// <returns>
     /// A new observer that has been added to the chain of observers.
     /// </returns>
-    public static IObserver<TArgs> Once<TArgs>(
-        this IObserver<TArgs> observer
+    public static IAsyncObserver<TArgs> Once<TArgs>(
+        this IAsyncObserver<TArgs> observer
     ) => DisposeIf(
         observer,
-        predicate: _ => true,
+        predicate: _ => Task.FromResult(true),
         continueOnDispose: true
     );
 
@@ -331,11 +342,11 @@ public static class IObserverExtensions
     /// <returns>
     /// A new observer that has been added to the chain of observers.
     /// </returns>
-    public static IObserver<TSender, TArgs> Once<TSender, TArgs>(
-        this IObserver<TSender, TArgs> observer
+    public static IAsyncObserver<TSender, TArgs> Once<TSender, TArgs>(
+        this IAsyncObserver<TSender, TArgs> observer
     ) => DisposeIf(
         observer,
-        predicate: (_, _) => true,
+        predicate: (_, _) => Task.FromResult(true),
         continueOnDispose: true
     );
 
@@ -351,14 +362,14 @@ public static class IObserverExtensions
     /// <returns>
     /// A new observer that has been added to the chain of observers.
     /// </returns>
-    public static IObserver Catch(
-        this IObserver observer,
-        Action<Exception> callback
-    ) => new ObserverCatch(
+    public static IAsyncObserver Catch(
+        this IAsyncObserver observer,
+        Func<Exception, Task> callback
+    ) => new AsyncObserverCatch(
         observer,
-        ex =>
+        async ex =>
         {
-            callback(ex);
+            await callback(ex);
             return true;
         }
     );
@@ -378,14 +389,14 @@ public static class IObserverExtensions
     /// <returns>
     /// A new observer that has been added to the chain of observers.
     /// </returns>
-    public static IObserver<TArgs> Catch<TArgs>(
-        this IObserver<TArgs> observer,
-        Action<TArgs, Exception> callback
-    ) => new ObserverCatch<TArgs>(
+    public static IAsyncObserver<TArgs> Catch<TArgs>(
+        this IAsyncObserver<TArgs> observer,
+        Func<TArgs, Exception, Task> callback
+    ) => new AsyncObserverCatch<TArgs>(
         observer,
-        (args, ex) =>
+        async (args, ex) =>
         {
-            callback(args, ex);
+            await callback(args, ex);
             return true;
         }
     );
@@ -408,14 +419,14 @@ public static class IObserverExtensions
     /// <returns>
     /// A new observer that has been added to the chain of observers.
     /// </returns>
-    public static IObserver<TSender, TArgs> Catch<TSender, TArgs>(
-        this IObserver<TSender, TArgs> observer,
-        Action<TSender, TArgs, Exception> callback
-    ) => new ObserverCatch<TSender, TArgs>(
+    public static IAsyncObserver<TSender, TArgs> Catch<TSender, TArgs>(
+        this IAsyncObserver<TSender, TArgs> observer,
+        Func<TSender, TArgs, Exception, Task> callback
+    ) => new AsyncObserverCatch<TSender, TArgs>(
         observer,
-        (sender, args, ex) =>
+        async (sender, args, ex) =>
         {
-            callback(sender, args, ex);
+            await callback(sender, args, ex);
             return true;
         }
     );
@@ -433,10 +444,10 @@ public static class IObserverExtensions
     /// <returns>
     /// A new observer that has been added to the chain of observers.
     /// </returns>
-    public static IObserver Catch(
-        this IObserver observer,
-        Func<Exception, bool> callback
-    ) => new ObserverCatch(observer, callback);
+    public static IAsyncObserver Catch(
+        this IAsyncObserver observer,
+        Func<Exception, Task<bool>> callback
+    ) => new AsyncObserverCatch(observer, callback);
 
     /// <summary>
     /// Invoke the given callback whenever an exception thrown below this
@@ -454,10 +465,10 @@ public static class IObserverExtensions
     /// <returns>
     /// A new observer that has been added to the chain of observers.
     /// </returns>
-    public static IObserver<TArgs> Catch<TArgs>(
-        this IObserver<TArgs> observer,
-        Func<TArgs, Exception, bool> callback
-    ) => new ObserverCatch<TArgs>(observer, callback);
+    public static IAsyncObserver<TArgs> Catch<TArgs>(
+        this IAsyncObserver<TArgs> observer,
+        Func<TArgs, Exception, Task<bool>> callback
+    ) => new AsyncObserverCatch<TArgs>(observer, callback);
 
     /// <summary>
     /// Invoke the given callback whenever an exception thrown below this
@@ -478,8 +489,8 @@ public static class IObserverExtensions
     /// <returns>
     /// A new observer that has been added to the chain of observers.
     /// </returns>
-    public static IObserver<TSender, TArgs> Catch<TSender, TArgs>(
-        this IObserver<TSender, TArgs> observer,
-        Func<TSender, TArgs, Exception, bool> callback
-    ) => new ObserverCatch<TSender, TArgs>(observer, callback);
+    public static IAsyncObserver<TSender, TArgs> Catch<TSender, TArgs>(
+        this IAsyncObserver<TSender, TArgs> observer,
+        Func<TSender, TArgs, Exception, Task<bool>> callback
+    ) => new AsyncObserverCatch<TSender, TArgs>(observer, callback);
 }

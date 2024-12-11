@@ -27,22 +27,22 @@ namespace SingleFinite.Mvvm;
 /// This class wraps an event to make registering and unregistering callbacks 
 /// for the event more convenient when working with dependency injection scopes.
 /// Observable instances are created by instances of the 
-/// <see cref="ObservableSource"/> class.
+/// <see cref="AsyncObservableSource"/> class.
 /// </summary>
-public sealed class Observable
+public sealed class AsyncObservable
 {
     #region Constructors
 
     /// <summary>
-    /// Instances of this class are created with <see cref="ObservableSource"/> 
-    /// objects.
+    /// Instances of this class are created with
+    /// <see cref="AsyncObservableSource"/> objects.
     /// </summary>
     /// <param name="source">
     /// The source that raises the observable event.
     /// </param>
-    internal Observable(ObservableSource source)
+    internal AsyncObservable(AsyncObservableSource source)
     {
-        source.Event += RaiseEvent;
+        source.Event += RaiseEventAsync;
     }
 
     #endregion
@@ -55,7 +55,7 @@ public sealed class Observable
     /// <returns>
     /// An observer that runs when the event for this observable is raised.
     /// </returns>
-    public IObserver Observe() => new ObserverSource(this);
+    public IAsyncObserver Observe() => new AsyncObserverSource(this);
 
     /// <summary>
     /// Create an observer for this observable.
@@ -68,13 +68,14 @@ public sealed class Observable
     /// <returns>
     /// An observer that runs when the event for this observable is raised.
     /// </returns>
-    public IObserver Observe(Action callback) =>
-        new ObserverSource(this).OnEach(callback);
+    public IAsyncObserver Observe(Func<Task> callback) =>
+        new AsyncObserverSource(this).OnEach(callback);
 
     /// <summary>
     /// Raise the event for this observable.
     /// </summary>
-    private void RaiseEvent() => Event?.Invoke();
+    /// <returns>The running task.</returns>
+    private Task RaiseEventAsync() => Event?.Invoke() ?? Task.CompletedTask;
 
     #endregion
 
@@ -83,7 +84,7 @@ public sealed class Observable
     /// <summary>
     /// The underlying event.
     /// </summary>
-    public event Action? Event;
+    public event Func<Task>? Event;
 
     #endregion
 }
@@ -92,25 +93,25 @@ public sealed class Observable
 /// This class wraps an event to make registering and unregistering callbacks 
 /// for the event more convenient when working with dependency injection scopes.
 /// Observable instances are created by instances of the 
-/// <see cref="ObservableSource{TArgs}"/> class.
+/// <see cref="AsyncObservableSource{TArgs}"/> class.
 /// </summary>
 /// <typeparam name="TArgs">
 /// The type of arguments passed with the event.
 /// </typeparam>
-public sealed class Observable<TArgs>
+public sealed class AsyncObservable<TArgs>
 {
     #region Constructors
 
     /// <summary>
-    /// Instances of this class are created with <see cref="ObservableSource"/> 
-    /// objects.
+    /// Instances of this class are created with
+    /// <see cref="AsyncObservableSource"/> objects.
     /// </summary>
     /// <param name="source">
     /// The source that raises the observable event.
     /// </param>
-    internal Observable(ObservableSource<TArgs> source)
+    internal AsyncObservable(AsyncObservableSource<TArgs> source)
     {
-        source.Event += RaiseEvent;
+        source.Event += RaiseEventAsync;
     }
 
     #endregion
@@ -123,7 +124,8 @@ public sealed class Observable<TArgs>
     /// <returns>
     /// An observer that runs when the event for this observable is raised.
     /// </returns>
-    public IObserver<TArgs> Observe() => new ObserverSource<TArgs>(this);
+    public IAsyncObserver<TArgs> Observe() =>
+        new AsyncObserverSource<TArgs>(this);
 
     /// <summary>
     /// Create an observer for this observable.
@@ -136,14 +138,16 @@ public sealed class Observable<TArgs>
     /// <returns>
     /// An observer that runs when the event for this observable is raised.
     /// </returns>
-    public IObserver<TArgs> Observe(Action<TArgs> callback) =>
-        new ObserverSource<TArgs>(this).OnEach(callback);
+    public IAsyncObserver<TArgs> Observe(Func<TArgs, Task> callback) =>
+        new AsyncObserverSource<TArgs>(this).OnEach(callback);
 
     /// <summary>
     /// Raise the event for this observable.
     /// </summary>
     /// <param name="args">The args included with the event.</param>
-    private void RaiseEvent(TArgs args) => Event?.Invoke(args);
+    /// <returns>The running task.</returns>
+    private Task RaiseEventAsync(TArgs args) =>
+        Event?.Invoke(args) ?? Task.CompletedTask;
 
     #endregion
 
@@ -152,7 +156,7 @@ public sealed class Observable<TArgs>
     /// <summary>
     /// The underlying event.
     /// </summary>
-    public event Action<TArgs>? Event;
+    public event Func<TArgs, Task>? Event;
 
     #endregion
 }
@@ -161,7 +165,7 @@ public sealed class Observable<TArgs>
 /// This class wraps an event to make registering and unregistering callbacks 
 /// for the event more convenient when working with dependency injection scopes.
 /// Observable instances are created by instances of the 
-/// <see cref="ObservableSource{TSender, TArgs}"/> class.
+/// <see cref="AsyncObservableSource{TSender, TArgs}"/> class.
 /// </summary>
 /// <typeparam name="TSender">
 /// The type of sender that raises the event.
@@ -169,20 +173,20 @@ public sealed class Observable<TArgs>
 /// <typeparam name="TArgs">
 /// The type of arguments passed with the event.
 /// </typeparam>
-public sealed class Observable<TSender, TArgs>
+public sealed class AsyncObservable<TSender, TArgs>
 {
     #region Constructors
 
     /// <summary>
-    /// Instances of this class are created with <see cref="ObservableSource"/> 
-    /// objects.
+    /// Instances of this class are created with
+    /// <see cref="AsyncObservableSource"/> objects.
     /// </summary>
     /// <param name="source">
     /// The source that raises the observable event.
     /// </param>
-    internal Observable(ObservableSource<TSender, TArgs> source)
+    internal AsyncObservable(AsyncObservableSource<TSender, TArgs> source)
     {
-        source.Event += RaiseEvent;
+        source.Event += RaiseEventAsync;
     }
 
     #endregion
@@ -195,8 +199,8 @@ public sealed class Observable<TSender, TArgs>
     /// <returns>
     /// An observer that runs when the event for this observable is raised.
     /// </returns>
-    public IObserver<TSender, TArgs> Observe() =>
-        new ObserverSource<TSender, TArgs>(this);
+    public IAsyncObserver<TSender, TArgs> Observe() =>
+        new AsyncObserverSource<TSender, TArgs>(this);
 
     /// <summary>
     /// Create an observer for this observable.
@@ -209,16 +213,19 @@ public sealed class Observable<TSender, TArgs>
     /// <returns>
     /// An observer that runs when the event for this observable is raised.
     /// </returns>
-    public IObserver<TSender, TArgs> Observe(Action<TSender, TArgs> callback) =>
-        new ObserverSource<TSender, TArgs>(this).OnEach(callback);
+    public IAsyncObserver<TSender, TArgs> Observe(
+        Func<TSender, TArgs, Task> callback
+    ) =>
+        new AsyncObserverSource<TSender, TArgs>(this).OnEach(callback);
 
     /// <summary>
     /// Raise the event for this observable.
     /// </summary>
     /// <param name="sender">The object that is raising the event.</param>
     /// <param name="args">The args included with the event.</param>
-    private void RaiseEvent(TSender sender, TArgs args) =>
-        Event?.Invoke(sender, args);
+    /// <returns>The running task.</returns>
+    private Task RaiseEventAsync(TSender sender, TArgs args) =>
+        Event?.Invoke(sender, args) ?? Task.CompletedTask;
 
     #endregion
 
@@ -227,8 +234,7 @@ public sealed class Observable<TSender, TArgs>
     /// <summary>
     /// The underlying event.
     /// </summary>
-    public event Action<TSender, TArgs>? Event;
+    public event Func<TSender, TArgs, Task>? Event;
 
     #endregion
 }
-

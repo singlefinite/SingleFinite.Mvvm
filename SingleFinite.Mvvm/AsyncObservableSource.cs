@@ -22,19 +22,19 @@
 namespace SingleFinite.Mvvm;
 
 /// <summary>
-/// The source for an <see cref="Observable"/>.  Instances of this class can be 
-/// kept private within its owner while the observable is shared publicly 
+/// The source for an <see cref="AsyncObservable"/>.  Instances of this class
+/// can be kept private within its owner while the observable is shared publicly 
 /// outside of the owner.  Since events are only raised through this class it 
 /// prevents events from being raised outside of the owning class.
 /// </summary>
-public sealed class ObservableSource
+public sealed class AsyncObservableSource
 {
     #region Properties
 
     /// <summary>
     /// The observable provided by this class.
     /// </summary>
-    public Observable Observable { get; }
+    public AsyncObservable Observable { get; }
 
     #endregion
 
@@ -43,7 +43,7 @@ public sealed class ObservableSource
     /// <summary>
     /// Constructor.
     /// </summary>
-    public ObservableSource()
+    public AsyncObservableSource()
     {
         Observable = new(this);
     }
@@ -55,7 +55,8 @@ public sealed class ObservableSource
     /// <summary>
     /// Raise the event for the observable.
     /// </summary>
-    public void RaiseEvent() => Event?.Invoke();
+    /// <returns>The running task.</returns>
+    public Task RaiseEventAsync() => Event?.Invoke() ?? Task.CompletedTask;
 
     #endregion
 
@@ -64,28 +65,28 @@ public sealed class ObservableSource
     /// <summary>
     /// Event that is raised when the RaiseEvent method is invoked.
     /// </summary>
-    internal event Action? Event;
+    internal event Func<Task>? Event;
 
     #endregion
 }
 
 /// <summary>
-/// The source for an <see cref="Observable{TArgs}"/>.  Instances of this class
-/// can be kept private within its owner while the observable is shared publicly 
-/// outside of the owner.  Since events are only raised through this class it 
-/// prevents events from being raised outside of the owning class.
+/// The source for an <see cref="AsyncObservableSource{TArgs}"/>.  Instances of
+/// this class can be kept private within its owner while the observable is
+/// shared publicly outside of the owner.  Since events are only raised through
+/// this class it prevents events from being raised outside of the owning class.
 /// </summary>
 /// <typeparam name="TArgs">
 /// The type of arguments passed with the event.
 /// </typeparam>
-public sealed class ObservableSource<TArgs>
+public sealed class AsyncObservableSource<TArgs>
 {
     #region Properties
 
     /// <summary>
     /// The observable provided by this class.
     /// </summary>
-    public Observable<TArgs> Observable { get; }
+    public AsyncObservable<TArgs> Observable { get; }
 
     #endregion
 
@@ -94,7 +95,7 @@ public sealed class ObservableSource<TArgs>
     /// <summary>
     /// Constructor.
     /// </summary>
-    public ObservableSource()
+    public AsyncObservableSource()
     {
         Observable = new(this);
     }
@@ -107,7 +108,9 @@ public sealed class ObservableSource<TArgs>
     /// Raise the event for the observable.
     /// </summary>
     /// <param name="args">The arguments to pass with the event.</param>
-    public void RaiseEvent(TArgs args) => Event?.Invoke(args);
+    /// <returns>The running task.</returns>
+    public Task RaiseEventAsync(TArgs args) =>
+        Event?.Invoke(args) ?? Task.CompletedTask;
 
     #endregion
 
@@ -116,16 +119,17 @@ public sealed class ObservableSource<TArgs>
     /// <summary>
     /// Event that is raised when the RaiseEvent method is invoked.
     /// </summary>
-    internal event Action<TArgs>? Event;
+    internal event Func<TArgs, Task>? Event;
 
     #endregion
 }
 
 /// <summary>
-/// The source for an <see cref="Observable{TSender, TArgs}"/>.  Instances of
-/// this class can be kept private within its owner while the observable is
-/// shared publicly outside of the owner.  Since events are only raised through
-/// this class it prevents events from being raised outside of the owning class.
+/// The source for an <see cref="AsyncObservableSource{TSender, TArgs}"/>.
+/// Instances of this class can be kept private within its owner while the
+/// observable is shared publicly outside of the owner.  Since events are only
+/// raised through this class it prevents events from being raised outside of
+/// the owning class.
 /// </summary>
 /// <typeparam name="TSender">
 /// The type of sender that raises the event.
@@ -133,14 +137,14 @@ public sealed class ObservableSource<TArgs>
 /// <typeparam name="TArgs">
 /// The type of arguments passed with the event.
 /// </typeparam>
-public sealed class ObservableSource<TSender, TArgs>
+public sealed class AsyncObservableSource<TSender, TArgs>
 {
     #region Properties
 
     /// <summary>
     /// The observable provided by this class.
     /// </summary>
-    public Observable<TSender, TArgs> Observable { get; }
+    public AsyncObservable<TSender, TArgs> Observable { get; }
 
     #endregion
 
@@ -149,7 +153,7 @@ public sealed class ObservableSource<TSender, TArgs>
     /// <summary>
     /// Constructor.
     /// </summary>
-    public ObservableSource()
+    public AsyncObservableSource()
     {
         Observable = new(this);
     }
@@ -163,8 +167,9 @@ public sealed class ObservableSource<TSender, TArgs>
     /// </summary>
     /// <param name="sender">The object that is raising the event.</param>
     /// <param name="args">The arguments to pass with the event.</param>
-    public void RaiseEvent(TSender sender, TArgs args) =>
-        Event?.Invoke(sender, args);
+    /// <returns>The running task.</returns>
+    public Task RaiseEventAsync(TSender sender, TArgs args) =>
+        Event?.Invoke(sender, args) ?? Task.CompletedTask;
 
     #endregion
 
@@ -173,7 +178,7 @@ public sealed class ObservableSource<TSender, TArgs>
     /// <summary>
     /// Event that is raised when the RaiseEvent method is invoked.
     /// </summary>
-    internal event Action<TSender, TArgs>? Event;
+    internal event Func<TSender, TArgs, Task>? Event;
 
     #endregion
 }
