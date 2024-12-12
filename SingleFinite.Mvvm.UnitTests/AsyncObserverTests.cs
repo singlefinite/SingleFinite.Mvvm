@@ -331,7 +331,7 @@ public class AsyncObserverTests
     }
 
     [TestMethod]
-    public async Task OnError_Catches_Exceptions_Async()
+    public async Task Catch_Catches_Exceptions_Async()
     {
         var observedExceptions = new List<Exception>();
         var observedNames = new List<string>();
@@ -375,7 +375,7 @@ public class AsyncObserverTests
     }
 
     [TestMethod]
-    public async Task OnError_Moves_Past_When_Not_Handled_Async()
+    public async Task Catch_Moves_Past_When_Not_Handled_Async()
     {
         var observedUnhandledExceptions = new List<Exception>();
         var observedExceptions = new List<Exception>();
@@ -440,6 +440,38 @@ public class AsyncObserverTests
         Assert.AreEqual(0, observedExceptions.Count);
         Assert.AreEqual(1, observedNames.Count);
         Assert.AreEqual("Hi", observedNames[0]);
+    }
+
+    [TestMethod]
+    public async Task Limit_Limits_The_Number_Of_Executing_Observers()
+    {
+        var observedNames = new List<string>();
+
+        var observableSource = new AsyncObservableSource<ExampleArgs>();
+        var observable = observableSource.Observable;
+
+        var observer = observable
+            .Observe()
+            .Limit(
+                maxConcurrent: 1,
+                maxBuffer: 0
+            )
+            .OnEach(async args =>
+            {
+                await Task.Delay(500);
+                observedNames.Add(args.Name);
+            });
+
+        Assert.AreEqual(0, observedNames.Count);
+
+        var firstEventTask = observableSource.RaiseEventAsync(new("Hello", 0));
+        var secondEventTask = observableSource.RaiseEventAsync(new("World", 0));
+
+        await firstEventTask;
+        await secondEventTask;
+
+        Assert.AreEqual(1, observedNames.Count);
+        Assert.AreEqual("Hello", observedNames[0]);
     }
 
     #region Types

@@ -292,7 +292,7 @@ public class ObserverTests
     }
 
     [TestMethod]
-    public void OnError_Catches_Exceptions()
+    public void Catch_Catches_Exceptions()
     {
         var observedExceptions = new List<Exception>();
         var observedNames = new List<string>();
@@ -327,7 +327,7 @@ public class ObserverTests
     }
 
     [TestMethod]
-    public void OnError_Moves_Past_When_Not_Handled()
+    public void Catch_Moves_Past_When_Not_Handled()
     {
         var observedUnhandledExceptions = new List<Exception>();
         var observedExceptions = new List<Exception>();

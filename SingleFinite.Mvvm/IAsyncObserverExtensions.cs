@@ -956,4 +956,112 @@ public static class IAsyncObserverExtensions
         observer,
         (sender, args, ex) => Task.FromResult(callback(sender, args, ex))
     );
+
+    /// <summary>
+    /// Limit the number of observers that can be executing at the same time.
+    /// </summary>
+    /// <param name="observer">The observer to extend.</param>
+    /// <param name="maxConcurrent">
+    /// The max number of observers allowed to be executing at the same time.
+    /// If a new event occurs and there are already max number of observers
+    /// executing the event will be buffered until enough executing observers
+    /// complete to allow the new event to be passed on.  Must be zero or
+    /// greater or an exception will be thrown.
+    /// </param>
+    /// <param name="maxBuffer">
+    /// The max number of events that will be buffered if there are already max
+    /// number of concurrent observers executing.  If a new event occurs and there
+    /// are already max number of events buffered the event will be ignored.  If
+    /// this is set to -1 there is no limit.  Default is -1.
+    /// </param>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// Thrown if maxConcurrent is less than zero.
+    /// </exception>
+    /// <returns>
+    /// A new observer that has been added to the chain of observers.
+    /// </returns>
+    public static IAsyncObserver Limit(
+        this IAsyncObserver observer,
+        int maxConcurrent,
+        int maxBuffer = -1
+    ) => new AsyncObserverLimit(
+        observer,
+        maxConcurrent,
+        maxBuffer
+    );
+
+    /// <summary>
+    /// Limit the number of observers that can be executing at the same time.
+    /// </summary>
+    /// <typeparam name="TArgs">
+    /// The type of arguments passed into the observer.
+    /// </typeparam>
+    /// <param name="observer">The observer to extend.</param>
+    /// <param name="maxConcurrent">
+    /// The max number of observers allowed to be executing at the same time.
+    /// If a new event occurs and there are already max number of observers
+    /// executing the event will be buffered until enough executing observers
+    /// complete to allow the new event to be passed on.  Must be zero or
+    /// greater or an exception will be thrown.
+    /// </param>
+    /// <param name="maxBuffer">
+    /// The max number of events that will be buffered if there are already max
+    /// number of concurrent observers executing.  If a new event occurs and there
+    /// are already max number of events buffered the event will be ignored.  If
+    /// this is set to -1 there is no limit.  Default is -1.
+    /// </param>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// Thrown if maxConcurrent is less than zero.
+    /// </exception>
+    /// <returns>
+    /// A new observer that has been added to the chain of observers.
+    /// </returns>
+    public static IAsyncObserver<TArgs> Limit<TArgs>(
+        this IAsyncObserver<TArgs> observer,
+        int maxConcurrent,
+        int maxBuffer = -1
+    ) => new AsyncObserverLimit<TArgs>(
+        observer,
+        maxConcurrent,
+        maxBuffer
+    );
+
+    /// <summary>
+    /// Limit the number of observers that can be executing at the same time.
+    /// </summary>
+    /// <typeparam name="TSender">
+    /// The type of sender passed into the observer.
+    /// </typeparam>
+    /// <typeparam name="TArgs">
+    /// The type of arguments passed into the observer.
+    /// </typeparam>
+    /// <param name="observer">The observer to extend.</param>
+    /// <param name="maxConcurrent">
+    /// The max number of observers allowed to be executing at the same time.
+    /// If a new event occurs and there are already max number of observers
+    /// executing the event will be buffered until enough executing observers
+    /// complete to allow the new event to be passed on.  Must be zero or
+    /// greater or an exception will be thrown.
+    /// </param>
+    /// <param name="maxBuffer">
+    /// The max number of events that will be buffered if there are already max
+    /// number of concurrent observers executing.  If a new event occurs and there
+    /// are already max number of events buffered the event will be ignored.  If
+    /// this is set to -1 there is no limit.  Default is -1.
+    /// </param>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// Thrown if maxConcurrent is less than zero.
+    /// </exception>
+    /// <returns>
+    /// A new observer that has been added to the chain of observers.
+    /// </returns>
+    public static IAsyncObserver<TSender, TArgs> Limit<TSender, TArgs>(
+        this IAsyncObserver<TSender, TArgs> observer,
+        int maxConcurrent,
+        int maxBuffer = -1
+    ) => new AsyncObserverLimit<TSender, TArgs>(
+        observer,
+        maxConcurrent,
+        maxBuffer
+    );
 }
