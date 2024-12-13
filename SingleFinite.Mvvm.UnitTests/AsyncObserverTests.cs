@@ -341,9 +341,9 @@ public class AsyncObserverTests
 
         var observer = observable
             .Observe()
-            .Catch(async (_, ex) =>
+            .Catch(async (_, exArgs) =>
             {
-                await Task.Run(() => observedExceptions.Add(ex));
+                await Task.Run(() => observedExceptions.Add(exArgs.Exception));
             })
             .OnEach(async args =>
             {
@@ -386,16 +386,16 @@ public class AsyncObserverTests
 
         var observer = observable
             .Observe()
-            .Catch(async (_, ex) =>
+            .Catch(async (_, exArgs) =>
             {
-                await Task.Run(() => observedUnhandledExceptions.Add(ex));
+                await Task.Run(() => observedUnhandledExceptions.Add(exArgs.Exception));
             })
-            .Catch((args, ex) =>
+            .Catch((args, exArgs) =>
             {
                 return Task.Run(() =>
                 {
-                    observedExceptions.Add(ex);
-                    return args.Age > 50;
+                    observedExceptions.Add(exArgs.Exception);
+                    exArgs.IsHandled = args.Age > 50;
                 });
             })
             .OnEach(async args =>

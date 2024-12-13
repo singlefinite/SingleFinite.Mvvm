@@ -36,10 +36,16 @@ namespace SingleFinite.Mvvm.Internal.Services;
 /// <param name="cancellationTokenProvider">
 /// The service that provides the CancellationToken used by this service.
 /// </param>
+/// <param name="exceptionHandler">
+/// Used to handle exceptions that are thrown when invoking actions passed to
+/// the Run method.
+/// </param>
 internal abstract class DispatcherWithCancellationBase<TDispatcher>(
     TDispatcher dispatcher,
-    ICancellationTokenProvider cancellationTokenProvider
-) : DispatcherBase, IDispatcherWithCancellation
+    ICancellationTokenProvider cancellationTokenProvider,
+    IExceptionHandler exceptionHandler
+) : DispatcherBase(exceptionHandler),
+    IDispatcherWithCancellation
     where TDispatcher : IDispatcher
 {
     #region Methods
@@ -138,12 +144,34 @@ internal abstract class DispatcherWithCancellationBase<TDispatcher>(
     public void Run(
         Action<CancellationToken> action,
         params CancellationToken[] cancellationTokens
+    ) => Run(
+        action,
+        onError: null,
+        cancellationTokens
+    );
+
+    /// <inheritdoc/>
+    public void Run(
+        Action<CancellationToken> action,
+        Action<ExceptionEventArgs>? onError,
+        params CancellationToken[] cancellationTokens
     )
     {
         _ = RunAsync(
             func: cancellationToken =>
             {
-                action(cancellationToken);
+                try
+                {
+                    action(cancellationToken);
+                }
+                catch (Exception ex)
+                {
+                    var args = new ExceptionEventArgs(ex);
+                    onError?.Invoke(args);
+                    if (!args.IsHandled)
+                        HandleError(ex);
+                }
+
                 return Task.CompletedTask;
             },
             cancellationTokens: cancellationTokens

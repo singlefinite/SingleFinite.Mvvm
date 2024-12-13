@@ -662,27 +662,22 @@ public static class IAsyncObserverExtensions
 
     /// <summary>
     /// Invoke the given callback whenever an exception thrown below this
-    /// observer in the chain is thrown.  Caught exceptions will not move past
-    /// this observer.
+    /// observer in the chain is thrown.
     /// </summary>
     /// <param name="observer">The observer to extend.</param>
     /// <param name="callback">
-    /// The callback to invoke when an exception is caught.
+    /// The callback to invoke whenever an exception is caught.  If the
+    /// exception is not handled it will be rethrown and continue up the chain.
+    /// By default the exception is considered handled unless the IsHandled
+    /// property of the ExceptionEventArgs is changed to false.
     /// </param>
     /// <returns>
     /// A new observer that has been added to the chain of observers.
     /// </returns>
     public static IAsyncObserver Catch(
         this IAsyncObserver observer,
-        Func<Exception, Task> callback
-    ) => new AsyncObserverCatch(
-        observer,
-        async ex =>
-        {
-            await callback(ex);
-            return true;
-        }
-    );
+        Func<ExceptionEventArgs, Task> callback
+    ) => new AsyncObserverCatch(observer, callback);
 
     /// <summary>
     /// Invoke the given callback whenever an exception thrown below this
@@ -691,134 +686,23 @@ public static class IAsyncObserverExtensions
     /// </summary>
     /// <param name="observer">The observer to extend.</param>
     /// <param name="callback">
-    /// The callback to invoke when an exception is caught.
+    /// The callback to invoke whenever an exception is caught.  If the
+    /// exception is not handled it will be rethrown and continue up the chain.
+    /// By default the exception is considered handled unless the IsHandled
+    /// property of the ExceptionEventArgs is changed to false.
     /// </param>
     /// <returns>
     /// A new observer that has been added to the chain of observers.
     /// </returns>
     public static IAsyncObserver Catch(
         this IAsyncObserver observer,
-        Action<Exception> callback
+        Action<ExceptionEventArgs> callback
     ) => new AsyncObserverCatch(
         observer,
         ex =>
         {
             callback(ex);
-            return Task.FromResult(true);
-        }
-    );
-
-    /// <summary>
-    /// Invoke the given callback whenever an exception thrown below this
-    /// observer in the chain is thrown.  Caught exceptions will not move past
-    /// this observer.
-    /// </summary>
-    /// <typeparam name="TArgs">
-    /// The type of arguments passed into the observer.
-    /// </typeparam>
-    /// <param name="observer">The observer to extend.</param>
-    /// <param name="callback">
-    /// The callback to invoke when an exception is caught.
-    /// </param>
-    /// <returns>
-    /// A new observer that has been added to the chain of observers.
-    /// </returns>
-    public static IAsyncObserver<TArgs> Catch<TArgs>(
-        this IAsyncObserver<TArgs> observer,
-        Func<TArgs, Exception, Task> callback
-    ) => new AsyncObserverCatch<TArgs>(
-        observer,
-        async (args, ex) =>
-        {
-            await callback(args, ex);
-            return true;
-        }
-    );
-
-    /// <summary>
-    /// Invoke the given callback whenever an exception thrown below this
-    /// observer in the chain is thrown.  Caught exceptions will not move past
-    /// this observer.
-    /// </summary>
-    /// <typeparam name="TArgs">
-    /// The type of arguments passed into the observer.
-    /// </typeparam>
-    /// <param name="observer">The observer to extend.</param>
-    /// <param name="callback">
-    /// The callback to invoke when an exception is caught.
-    /// </param>
-    /// <returns>
-    /// A new observer that has been added to the chain of observers.
-    /// </returns>
-    public static IAsyncObserver<TArgs> Catch<TArgs>(
-        this IAsyncObserver<TArgs> observer,
-        Action<TArgs, Exception> callback
-    ) => new AsyncObserverCatch<TArgs>(
-        observer,
-        (args, ex) =>
-        {
-            callback(args, ex);
-            return Task.FromResult(true);
-        }
-    );
-
-    /// <summary>
-    /// Invoke the given callback whenever an exception thrown below this
-    /// observer in the chain is thrown.  Caught exceptions will not move past
-    /// this observer.
-    /// </summary>
-    /// <typeparam name="TSender">
-    /// The type of sender passed into the observer.
-    /// </typeparam>
-    /// <typeparam name="TArgs">
-    /// The type of arguments passed into the observer.
-    /// </typeparam>
-    /// <param name="observer">The observer to extend.</param>
-    /// <param name="callback">
-    /// The callback to invoke when an exception is caught.
-    /// </param>
-    /// <returns>
-    /// A new observer that has been added to the chain of observers.
-    /// </returns>
-    public static IAsyncObserver<TSender, TArgs> Catch<TSender, TArgs>(
-        this IAsyncObserver<TSender, TArgs> observer,
-        Func<TSender, TArgs, Exception, Task> callback
-    ) => new AsyncObserverCatch<TSender, TArgs>(
-        observer,
-        async (sender, args, ex) =>
-        {
-            await callback(sender, args, ex);
-            return true;
-        }
-    );
-
-    /// <summary>
-    /// Invoke the given callback whenever an exception thrown below this
-    /// observer in the chain is thrown.  Caught exceptions will not move past
-    /// this observer.
-    /// </summary>
-    /// <typeparam name="TSender">
-    /// The type of sender passed into the observer.
-    /// </typeparam>
-    /// <typeparam name="TArgs">
-    /// The type of arguments passed into the observer.
-    /// </typeparam>
-    /// <param name="observer">The observer to extend.</param>
-    /// <param name="callback">
-    /// The callback to invoke when an exception is caught.
-    /// </param>
-    /// <returns>
-    /// A new observer that has been added to the chain of observers.
-    /// </returns>
-    public static IAsyncObserver<TSender, TArgs> Catch<TSender, TArgs>(
-        this IAsyncObserver<TSender, TArgs> observer,
-        Action<TSender, TArgs, Exception> callback
-    ) => new AsyncObserverCatch<TSender, TArgs>(
-        observer,
-        (sender, args, ex) =>
-        {
-            callback(sender, args, ex);
-            return Task.FromResult(true);
+            return Task.CompletedTask;
         }
     );
 
@@ -826,60 +710,22 @@ public static class IAsyncObserverExtensions
     /// Invoke the given callback whenever an exception thrown below this
     /// observer in the chain is thrown.
     /// </summary>
-    /// <param name="observer">The observer to extend.</param>
-    /// <param name="callback">
-    /// The callback to invoke when an exception is caught.  If the exception
-    /// is handled by this callback it should return true which will prevent
-    /// the exception from moving further up the observer chain.
-    /// </param>
-    /// <returns>
-    /// A new observer that has been added to the chain of observers.
-    /// </returns>
-    public static IAsyncObserver Catch(
-        this IAsyncObserver observer,
-        Func<Exception, Task<bool>> callback
-    ) => new AsyncObserverCatch(observer, callback);
-
-    /// <summary>
-    /// Invoke the given callback whenever an exception thrown below this
-    /// observer in the chain is thrown.
-    /// </summary>
-    /// <param name="observer">The observer to extend.</param>
-    /// <param name="callback">
-    /// The callback to invoke when an exception is caught.  If the exception
-    /// is handled by this callback it should return true which will prevent
-    /// the exception from moving further up the observer chain.
-    /// </param>
-    /// <returns>
-    /// A new observer that has been added to the chain of observers.
-    /// </returns>
-    public static IAsyncObserver Catch(
-        this IAsyncObserver observer,
-        Func<Exception, bool> callback
-    ) => new AsyncObserverCatch(
-        observer,
-        ex => Task.FromResult(callback(ex))
-    );
-
-    /// <summary>
-    /// Invoke the given callback whenever an exception thrown below this
-    /// observer in the chain is thrown.
-    /// </summary>
     /// <typeparam name="TArgs">
     /// The type of arguments passed into the observer.
     /// </typeparam>
     /// <param name="observer">The observer to extend.</param>
     /// <param name="callback">
-    /// The callback to invoke when an exception is caught.  If the exception
-    /// is handled by this callback it should return true which will prevent
-    /// the exception from moving further up the observer chain.
+    /// The callback to invoke whenever an exception is caught.  If the
+    /// exception is not handled it will be rethrown and continue up the chain.
+    /// By default the exception is considered handled unless the IsHandled
+    /// property of the ExceptionEventArgs is changed to false.
     /// </param>
     /// <returns>
     /// A new observer that has been added to the chain of observers.
     /// </returns>
     public static IAsyncObserver<TArgs> Catch<TArgs>(
         this IAsyncObserver<TArgs> observer,
-        Func<TArgs, Exception, Task<bool>> callback
+        Func<TArgs, ExceptionEventArgs, Task> callback
     ) => new AsyncObserverCatch<TArgs>(observer, callback);
 
     /// <summary>
@@ -891,19 +737,24 @@ public static class IAsyncObserverExtensions
     /// </typeparam>
     /// <param name="observer">The observer to extend.</param>
     /// <param name="callback">
-    /// The callback to invoke when an exception is caught.  If the exception
-    /// is handled by this callback it should return true which will prevent
-    /// the exception from moving further up the observer chain.
+    /// The callback to invoke whenever an exception is caught.  If the
+    /// exception is not handled it will be rethrown and continue up the chain.
+    /// By default the exception is considered handled unless the IsHandled
+    /// property of the ExceptionEventArgs is changed to false.
     /// </param>
     /// <returns>
     /// A new observer that has been added to the chain of observers.
     /// </returns>
     public static IAsyncObserver<TArgs> Catch<TArgs>(
         this IAsyncObserver<TArgs> observer,
-        Func<TArgs, Exception, bool> callback
+        Action<TArgs, ExceptionEventArgs> callback
     ) => new AsyncObserverCatch<TArgs>(
         observer,
-        (args, ex) => Task.FromResult(callback(args, ex))
+        (args, ex) =>
+        {
+            callback(args, ex);
+            return Task.CompletedTask;
+        }
     );
 
     /// <summary>
@@ -918,16 +769,17 @@ public static class IAsyncObserverExtensions
     /// </typeparam>
     /// <param name="observer">The observer to extend.</param>
     /// <param name="callback">
-    /// The callback to invoke when an exception is caught.  If the exception
-    /// is handled by this callback it should return true which will prevent
-    /// the exception from moving further up the observer chain.
+    /// The callback to invoke whenever an exception is caught.  If the
+    /// exception is not handled it will be rethrown and continue up the chain.
+    /// By default the exception is considered handled unless the IsHandled
+    /// property of the ExceptionEventArgs is changed to false.
     /// </param>
     /// <returns>
     /// A new observer that has been added to the chain of observers.
     /// </returns>
     public static IAsyncObserver<TSender, TArgs> Catch<TSender, TArgs>(
         this IAsyncObserver<TSender, TArgs> observer,
-        Func<TSender, TArgs, Exception, Task<bool>> callback
+        Func<TSender, TArgs, ExceptionEventArgs, Task> callback
     ) => new AsyncObserverCatch<TSender, TArgs>(observer, callback);
 
     /// <summary>
@@ -942,19 +794,24 @@ public static class IAsyncObserverExtensions
     /// </typeparam>
     /// <param name="observer">The observer to extend.</param>
     /// <param name="callback">
-    /// The callback to invoke when an exception is caught.  If the exception
-    /// is handled by this callback it should return true which will prevent
-    /// the exception from moving further up the observer chain.
+    /// The callback to invoke whenever an exception is caught.  If the
+    /// exception is not handled it will be rethrown and continue up the chain.
+    /// By default the exception is considered handled unless the IsHandled
+    /// property of the ExceptionEventArgs is changed to false.
     /// </param>
     /// <returns>
     /// A new observer that has been added to the chain of observers.
     /// </returns>
     public static IAsyncObserver<TSender, TArgs> Catch<TSender, TArgs>(
         this IAsyncObserver<TSender, TArgs> observer,
-        Func<TSender, TArgs, Exception, bool> callback
+        Action<TSender, TArgs, ExceptionEventArgs> callback
     ) => new AsyncObserverCatch<TSender, TArgs>(
         observer,
-        (sender, args, ex) => Task.FromResult(callback(sender, args, ex))
+        (sender, args, ex) =>
+        {
+            callback(sender, args, ex);
+            return Task.CompletedTask;
+        }
     );
 
     /// <summary>

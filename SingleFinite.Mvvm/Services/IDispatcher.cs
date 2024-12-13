@@ -68,5 +68,11 @@ public interface IDispatcher
     /// away without waiting for the action to complete execution.
     /// </summary>
     /// <param name="action">The action to execute.</param>
-    void Run(Action action);
+    /// <param name="onError">
+    /// Callback that is invoked if the action generates an exception.
+    /// </param>
+    void Run(
+        Action action,
+        Action<ExceptionEventArgs>? onError = null
+    );
 }

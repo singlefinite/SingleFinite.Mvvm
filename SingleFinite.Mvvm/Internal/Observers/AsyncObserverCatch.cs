@@ -26,14 +26,14 @@ namespace SingleFinite.Mvvm.Internal.Observers;
 /// </summary>
 /// <param name="parent">The parent to this observer.</param>
 /// <param name="callback">
-/// The callback to invoke whenever an exception is caught.
-/// If the callback returns false the exception will continue up the observer
-/// chain.  If the callback returns true the exception will not continue up
-/// the observer chain.
+/// The callback to invoke whenever an exception is caught.  If the
+/// exception is not handled it will be rethrown and continue up the chain.
+/// By default the exception is considered handled unless the IsHandled
+/// property of the ExceptionEventArgs is changed to false.
 /// </param>
 internal class AsyncObserverCatch(
     IAsyncObserver parent,
-    Func<Exception, Task<bool>> callback
+    Func<ExceptionEventArgs, Task> callback
 ) : AsyncObserverBase(parent)
 {
     #region Methods
@@ -51,7 +51,12 @@ internal class AsyncObserverCatch(
         }
         catch (Exception ex)
         {
-            if (!await callback(ex))
+            var exArgs = new ExceptionEventArgs(
+                exception: ex,
+                isHandled: true
+            );
+            await callback(exArgs);
+            if (!exArgs.IsHandled)
                 throw;
         }
 
@@ -69,14 +74,14 @@ internal class AsyncObserverCatch(
 /// </typeparam>
 /// <param name="parent">The parent to this observer.</param>
 /// <param name="callback">
-/// The callback to invoke whenever an exception is caught.
-/// If the callback returns false the exception will continue up the observer
-/// chain.  If the callback returns true the exception will not continue up
-/// the observer chain.
+/// The callback to invoke whenever an exception is caught.  If the
+/// exception is not handled it will be rethrown and continue up the chain.
+/// By default the exception is considered handled unless the IsHandled
+/// property of the ExceptionEventArgs is changed to false.
 /// </param>
 internal class AsyncObserverCatch<TArgs>(
     IAsyncObserver<TArgs> parent,
-    Func<TArgs, Exception, Task<bool>> callback
+    Func<TArgs, ExceptionEventArgs, Task> callback
 ) : AsyncObserverBase<TArgs>(parent)
 {
     #region Methods
@@ -98,7 +103,12 @@ internal class AsyncObserverCatch<TArgs>(
         }
         catch (Exception ex)
         {
-            if (!await callback(args, ex))
+            var exArgs = new ExceptionEventArgs(
+                exception: ex,
+                isHandled: true
+            );
+            await callback(args, exArgs);
+            if (!exArgs.IsHandled)
                 throw;
         }
 
@@ -119,14 +129,14 @@ internal class AsyncObserverCatch<TArgs>(
 /// </typeparam>
 /// <param name="parent">The parent to this observer.</param>
 /// <param name="callback">
-/// The callback to invoke whenever an exception is caught.
-/// If the callback returns false the exception will continue up the observer
-/// chain.  If the callback returns true the exception will not continue up
-/// the observer chain.
+/// The callback to invoke whenever an exception is caught.  If the
+/// exception is not handled it will be rethrown and continue up the chain.
+/// By default the exception is considered handled unless the IsHandled
+/// property of the ExceptionEventArgs is changed to false.
 /// </param>
 internal class AsyncObserverCatch<TSender, TArgs>(
     IAsyncObserver<TSender, TArgs> parent,
-    Func<TSender, TArgs, Exception, Task<bool>> callback
+    Func<TSender, TArgs, ExceptionEventArgs, Task> callback
 ) : AsyncObserverBase<TSender, TArgs>(parent)
 {
     #region Methods
@@ -151,7 +161,12 @@ internal class AsyncObserverCatch<TSender, TArgs>(
         }
         catch (Exception ex)
         {
-            if (!await callback(sender, args, ex))
+            var exArgs = new ExceptionEventArgs(
+                exception: ex,
+                isHandled: true
+            );
+            await callback(sender, args, exArgs);
+            if (!exArgs.IsHandled)
                 throw;
         }
 

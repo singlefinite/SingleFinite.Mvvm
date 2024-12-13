@@ -56,6 +56,7 @@ internal static class IServiceCollectionExtensions
         IPluginCollection plugins
     ) => services
         .AddSingleton(host)
+        .AddSingleton<IExceptionHandler, ExceptionHandler>()
         .AddSingleton<IAppMainDispatcher, DedicatedThreadDispatcher>()
         .AddSingleton<IAppBackgroundDispatcher, ThreadPoolDispatcher>()
         .AddSingleton<IViewRegistry>(new ViewRegistry(views))

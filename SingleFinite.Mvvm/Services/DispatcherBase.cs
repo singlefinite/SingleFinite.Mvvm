@@ -26,7 +26,11 @@ namespace SingleFinite.Mvvm.Services;
 /// route all method calls to a single abstract method that implementing classes
 /// can override with their custom dispatch logic.
 /// </summary>
-public abstract class DispatcherBase : IDispatcher
+/// <param name="exceptionHandler">
+/// Used to handle exceptions that are thrown when invoking actions passed to
+/// the Run method.
+/// </param>
+public abstract class DispatcherBase(IExceptionHandler exceptionHandler) : IDispatcher
 {
     #region Methods
 
@@ -67,16 +71,33 @@ public abstract class DispatcherBase : IDispatcher
         );
 
     /// <inheritdoc/>
-    public void Run(Action action)
+    public void Run(Action action, Action<ExceptionEventArgs>? onError = null)
     {
         _ = RunAsync(
             () =>
             {
-                action();
+                try
+                {
+                    action();
+                }
+                catch (Exception ex)
+                {
+                    var args = new ExceptionEventArgs(ex);
+                    onError?.Invoke(args);
+                    if (!args.IsHandled)
+                        HandleError(ex);
+                }
+
                 return Task.FromResult(0);
             }
         );
     }
+
+    /// <summary>
+    /// Handles the given exception.
+    /// </summary>
+    /// <param name="ex">The exception to handle.</param>
+    protected void HandleError(Exception ex) => exceptionHandler.Handle(ex);
 
     #endregion
 }

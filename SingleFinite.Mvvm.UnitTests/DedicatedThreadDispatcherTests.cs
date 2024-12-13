@@ -46,7 +46,7 @@ public class DedicatedThreadDispatcherTests
                 list.Add(new(false, EventResetMode.ManualReset));
         }
 
-        using var dispatcher = new DedicatedThreadDispatcher();
+        using var dispatcher = new DedicatedThreadDispatcher(new ExceptionHandler());
 
         // Launch tasks
         //
@@ -84,7 +84,7 @@ public class DedicatedThreadDispatcherTests
     [TestMethod]
     public async Task Run_Method_Propogates_Exceptions_Correctly_When_Thrown()
     {
-        var dispatcher = new DedicatedThreadDispatcher();
+        var dispatcher = new DedicatedThreadDispatcher(new ExceptionHandler());
 
         // Make sure an uncaught exception doesn't bring down the app.
         //
@@ -102,7 +102,7 @@ public class DedicatedThreadDispatcherTests
     public async Task Run_Method_Throws_If_Disposed()
     {
         var count = 0;
-        using var dispatcher = new DedicatedThreadDispatcher();
+        using var dispatcher = new DedicatedThreadDispatcher(new ExceptionHandler());
 
         dispatcher.Dispose();
 
@@ -118,7 +118,7 @@ public class DedicatedThreadDispatcherTests
     public async Task Run_Method_Supports_Nested_Invokation()
     {
         var count = 0;
-        using var dispatcher = new DedicatedThreadDispatcher();
+        using var dispatcher = new DedicatedThreadDispatcher(new ExceptionHandler());
 
         await dispatcher.RunAsync(
             () => dispatcher.RunAsync(

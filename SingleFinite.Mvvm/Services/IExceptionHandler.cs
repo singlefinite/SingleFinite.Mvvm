@@ -19,33 +19,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using SingleFinite.Mvvm.Internal.Services;
-
-using SingleFinite.Mvvm.Services;
+namespace SingleFinite.Mvvm.Services;
 
 /// <summary>
-/// Implementation of <see cref="IMainDispatcher"/> service that ties the 
-/// <see cref="IAppMainDispatcher"/> to the <see cref="CancellationToken"/> for 
-/// the dependency injection scope this service belongs to.
+/// A service used to handle exceptions.
 /// </summary>
-/// <param name="dispatcher">
-/// The dispatcher to dispatch functions and actions to.
-/// </param>
-/// <param name="cancellationTokenProvider">
-/// The service that provides the CancellationToken used by this service.
-/// </param>
-/// <param name="exceptionHandler">
-/// Used to handle exceptions that are thrown when invoking actions passed to
-/// the Run method.
-/// </param>
-internal sealed class MainDispatcher(
-    IAppMainDispatcher dispatcher,
-    ICancellationTokenProvider cancellationTokenProvider,
-    IExceptionHandler exceptionHandler
-) : DispatcherWithCancellationBase<IAppMainDispatcher>(
-    dispatcher,
-    cancellationTokenProvider,
-    exceptionHandler
-), IMainDispatcher
+public interface IExceptionHandler
 {
+    /// <summary>
+    /// Handle the given exception.
+    /// </summary>
+    /// <param name="ex">The exception to handle.</param>
+    void Handle(Exception ex);
+
+    /// <summary>
+    /// Event that is raised whenever an exception is handled by this service.
+    /// </summary>
+    Observable<Exception> ExceptionHandled { get; }
 }

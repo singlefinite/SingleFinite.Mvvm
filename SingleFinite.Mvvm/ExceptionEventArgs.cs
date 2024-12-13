@@ -19,33 +19,30 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using SingleFinite.Mvvm.Internal.Services;
-
-using SingleFinite.Mvvm.Services;
+namespace SingleFinite.Mvvm;
 
 /// <summary>
-/// Implementation of <see cref="IMainDispatcher"/> service that ties the 
-/// <see cref="IAppMainDispatcher"/> to the <see cref="CancellationToken"/> for 
-/// the dependency injection scope this service belongs to.
+/// Arguments for an event involving an exception.
 /// </summary>
-/// <param name="dispatcher">
-/// The dispatcher to dispatch functions and actions to.
-/// </param>
-/// <param name="cancellationTokenProvider">
-/// The service that provides the CancellationToken used by this service.
-/// </param>
-/// <param name="exceptionHandler">
-/// Used to handle exceptions that are thrown when invoking actions passed to
-/// the Run method.
-/// </param>
-internal sealed class MainDispatcher(
-    IAppMainDispatcher dispatcher,
-    ICancellationTokenProvider cancellationTokenProvider,
-    IExceptionHandler exceptionHandler
-) : DispatcherWithCancellationBase<IAppMainDispatcher>(
-    dispatcher,
-    cancellationTokenProvider,
-    exceptionHandler
-), IMainDispatcher
+/// <param name="exception">The exception for the event.</param>
+/// <param name="isHandled">The initial value for IsHandled.</param>
+public class ExceptionEventArgs(
+    Exception exception,
+    bool isHandled = false
+) : EventArgs
 {
+    #region Properties
+
+    /// <summary>
+    /// The exception for the event.
+    /// </summary>
+    public Exception Exception { get; } = exception;
+
+    /// <summary>
+    /// Observers of the event can set this property to true if they have
+    /// handled the event.
+    /// </summary>
+    public bool IsHandled { get; set; } = isHandled;
+
+    #endregion
 }

@@ -346,122 +346,46 @@ public static class IObserverExtensions
     /// </summary>
     /// <param name="observer">The observer to extend.</param>
     /// <param name="callback">
-    /// The callback to invoke when an exception is caught.
+    /// The callback to invoke whenever an exception is caught.  If the
+    /// exception is not handled it will be rethrown and continue up the chain.
+    /// By default the exception is considered handled unless the IsHandled
+    /// property of the ExceptionEventArgs is changed to false.
     /// </param>
     /// <returns>
     /// A new observer that has been added to the chain of observers.
     /// </returns>
     public static IObserver Catch(
         this IObserver observer,
-        Action<Exception> callback
-    ) => new ObserverCatch(
-        observer,
-        ex =>
-        {
-            callback(ex);
-            return true;
-        }
-    );
-
-    /// <summary>
-    /// Invoke the given callback whenever an exception thrown below this
-    /// observer in the chain is thrown.  Caught exceptions will not move past
-    /// this observer.
-    /// </summary>
-    /// <typeparam name="TArgs">
-    /// The type of arguments passed into the observer.
-    /// </typeparam>
-    /// <param name="observer">The observer to extend.</param>
-    /// <param name="callback">
-    /// The callback to invoke when an exception is caught.
-    /// </param>
-    /// <returns>
-    /// A new observer that has been added to the chain of observers.
-    /// </returns>
-    public static IObserver<TArgs> Catch<TArgs>(
-        this IObserver<TArgs> observer,
-        Action<TArgs, Exception> callback
-    ) => new ObserverCatch<TArgs>(
-        observer,
-        (args, ex) =>
-        {
-            callback(args, ex);
-            return true;
-        }
-    );
-
-    /// <summary>
-    /// Invoke the given callback whenever an exception thrown below this
-    /// observer in the chain is thrown.  Caught exceptions will not move past
-    /// this observer.
-    /// </summary>
-    /// <typeparam name="TSender">
-    /// The type of sender passed into the observer.
-    /// </typeparam>
-    /// <typeparam name="TArgs">
-    /// The type of arguments passed into the observer.
-    /// </typeparam>
-    /// <param name="observer">The observer to extend.</param>
-    /// <param name="callback">
-    /// The callback to invoke when an exception is caught.
-    /// </param>
-    /// <returns>
-    /// A new observer that has been added to the chain of observers.
-    /// </returns>
-    public static IObserver<TSender, TArgs> Catch<TSender, TArgs>(
-        this IObserver<TSender, TArgs> observer,
-        Action<TSender, TArgs, Exception> callback
-    ) => new ObserverCatch<TSender, TArgs>(
-        observer,
-        (sender, args, ex) =>
-        {
-            callback(sender, args, ex);
-            return true;
-        }
-    );
-
-    /// <summary>
-    /// Invoke the given callback whenever an exception thrown below this
-    /// observer in the chain is thrown.
-    /// </summary>
-    /// <param name="observer">The observer to extend.</param>
-    /// <param name="callback">
-    /// The callback to invoke when an exception is caught.  If the exception
-    /// is handled by this callback it should return true which will prevent
-    /// the exception from moving further up the observer chain.
-    /// </param>
-    /// <returns>
-    /// A new observer that has been added to the chain of observers.
-    /// </returns>
-    public static IObserver Catch(
-        this IObserver observer,
-        Func<Exception, bool> callback
+        Action<ExceptionEventArgs> callback
     ) => new ObserverCatch(observer, callback);
 
     /// <summary>
     /// Invoke the given callback whenever an exception thrown below this
-    /// observer in the chain is thrown.
+    /// observer in the chain is thrown.  Caught exceptions will not move past
+    /// this observer.
     /// </summary>
     /// <typeparam name="TArgs">
     /// The type of arguments passed into the observer.
     /// </typeparam>
     /// <param name="observer">The observer to extend.</param>
     /// <param name="callback">
-    /// The callback to invoke when an exception is caught.  If the exception
-    /// is handled by this callback it should return true which will prevent
-    /// the exception from moving further up the observer chain.
+    /// The callback to invoke whenever an exception is caught.  If the
+    /// exception is not handled it will be rethrown and continue up the chain.
+    /// By default the exception is considered handled unless the IsHandled
+    /// property of the ExceptionEventArgs is changed to false.
     /// </param>
     /// <returns>
     /// A new observer that has been added to the chain of observers.
     /// </returns>
     public static IObserver<TArgs> Catch<TArgs>(
         this IObserver<TArgs> observer,
-        Func<TArgs, Exception, bool> callback
+        Action<TArgs, ExceptionEventArgs> callback
     ) => new ObserverCatch<TArgs>(observer, callback);
 
     /// <summary>
     /// Invoke the given callback whenever an exception thrown below this
-    /// observer in the chain is thrown.
+    /// observer in the chain is thrown.  Caught exceptions will not move past
+    /// this observer.
     /// </summary>
     /// <typeparam name="TSender">
     /// The type of sender passed into the observer.
@@ -471,15 +395,16 @@ public static class IObserverExtensions
     /// </typeparam>
     /// <param name="observer">The observer to extend.</param>
     /// <param name="callback">
-    /// The callback to invoke when an exception is caught.  If the exception
-    /// is handled by this callback it should return true which will prevent
-    /// the exception from moving further up the observer chain.
+    /// The callback to invoke whenever an exception is caught.  If the
+    /// exception is not handled it will be rethrown and continue up the chain.
+    /// By default the exception is considered handled unless the IsHandled
+    /// property of the ExceptionEventArgs is changed to false.
     /// </param>
     /// <returns>
     /// A new observer that has been added to the chain of observers.
     /// </returns>
     public static IObserver<TSender, TArgs> Catch<TSender, TArgs>(
         this IObserver<TSender, TArgs> observer,
-        Func<TSender, TArgs, Exception, bool> callback
+        Action<TSender, TArgs, ExceptionEventArgs> callback
     ) => new ObserverCatch<TSender, TArgs>(observer, callback);
 }

@@ -302,7 +302,7 @@ public class ObserverTests
 
         var observer = observable
             .Observe()
-            .Catch((_, ex) => observedExceptions.Add(ex))
+            .Catch((_, exArgs) => observedExceptions.Add(exArgs.Exception))
             .OnEach(args =>
             {
                 if (args.Age == 99)
@@ -338,11 +338,11 @@ public class ObserverTests
 
         var observer = observable
             .Observe()
-            .Catch((_, ex) => observedUnhandledExceptions.Add(ex))
-            .Catch((args, ex) =>
+            .Catch((_, exArgs) => observedUnhandledExceptions.Add(exArgs.Exception))
+            .Catch((args, exArgs) =>
             {
-                observedExceptions.Add(ex);
-                return args.Age > 50;
+                observedExceptions.Add(exArgs.Exception);
+                exArgs.IsHandled = args.Age > 50;
             })
             .OnEach(args =>
             {

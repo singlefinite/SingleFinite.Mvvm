@@ -127,6 +127,7 @@ internal class AsyncObserverLimit : AsyncObserverBase
 /// <summary>
 /// An observer that limits the number of observers that can be executing at the
 /// same time.
+/// </summary>
 /// <typeparam name="TArgs">
 /// The type of arguments passed with observed events.
 /// </typeparam>

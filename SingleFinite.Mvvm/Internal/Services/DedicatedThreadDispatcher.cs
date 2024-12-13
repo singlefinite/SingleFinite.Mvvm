@@ -61,7 +61,12 @@ internal sealed class DedicatedThreadDispatcher :
     /// <summary>
     /// Constructor.
     /// </summary>
-    public DedicatedThreadDispatcher()
+    /// <param name="exceptionHandler">
+    /// Used to handle exceptions that are thrown when invoking actions passed to
+    /// the Run method.
+    /// </param>
+    public DedicatedThreadDispatcher(IExceptionHandler exceptionHandler) :
+        base(exceptionHandler)
     {
         _thread = new(ThreadStart)
         {

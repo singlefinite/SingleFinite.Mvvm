@@ -106,4 +106,23 @@ public interface IDispatcherWithCancellation
         Action<CancellationToken> action,
         params CancellationToken[] cancellationTokens
     );
+
+    /// <summary>
+    /// Execute the given cancellable action.
+    /// This function will dispatch the action to be executed and return right 
+    /// away without waiting for the action to complete execution.
+    /// </summary>
+    /// <param name="action">The action to execute.</param>
+    /// <param name="onError">
+    /// Callback that is invoked if the action generates an exception.
+    /// </param>
+    /// <param name="cancellationTokens">
+    /// Optional cancellation tokens to link with the cancellation token from 
+    /// the dependency injection scope.
+    /// </param>
+    void Run(
+        Action<CancellationToken> action,
+        Action<ExceptionEventArgs>? onError,
+        params CancellationToken[] cancellationTokens
+    );
 }

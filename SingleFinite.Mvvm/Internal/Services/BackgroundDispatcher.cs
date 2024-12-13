@@ -41,12 +41,18 @@ namespace SingleFinite.Mvvm.Internal.Services;
 /// <param name="cancellationTokenProvider">
 /// The service that provides the CancellationToken used by this service.
 /// </param>
+/// <param name="exceptionHandler">
+/// Used to handle exceptions that are thrown when invoking actions passed to
+/// the Run method.
+/// </param>
 internal sealed class BackgroundDispatcher(
     IAppBackgroundDispatcher dispatcher,
-    ICancellationTokenProvider cancellationTokenProvider
+    ICancellationTokenProvider cancellationTokenProvider,
+    IExceptionHandler exceptionHandler
 ) : DispatcherWithCancellationBase<IAppBackgroundDispatcher>(
     dispatcher,
-    cancellationTokenProvider
+    cancellationTokenProvider,
+    exceptionHandler
 ), IBackgroundDispatcher
 {
 }

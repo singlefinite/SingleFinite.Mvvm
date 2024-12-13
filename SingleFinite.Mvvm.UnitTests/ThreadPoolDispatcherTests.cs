@@ -20,6 +20,7 @@
 // SOFTWARE.
 
 using SingleFinite.Mvvm.Internal.Services;
+using SingleFinite.Mvvm.Services;
 
 namespace SingleFinite.Mvvm.UnitTests;
 
@@ -29,7 +30,7 @@ public class ThreadPoolDispatcherTests
     [TestMethod]
     public async Task Run_Method_Invokes_Action()
     {
-        var dispatcher = new ThreadPoolDispatcher();
+        var dispatcher = new ThreadPoolDispatcher(new ExceptionHandler());
 
         var testField1 = 0;
         await dispatcher.RunAsync(() => testField1 = 1);
@@ -54,7 +55,7 @@ public class ThreadPoolDispatcherTests
     [TestMethod]
     public async Task Run_Method_Propogates_Exceptions_Correctly_When_Thrown()
     {
-        var dispatcher = new ThreadPoolDispatcher();
+        var dispatcher = new ThreadPoolDispatcher(new ExceptionHandler());
 
         // Make sure an uncaught exception doesn't bring down the app.
         //
@@ -72,7 +73,7 @@ public class ThreadPoolDispatcherTests
     public async Task Run_Method_Throws_If_Disposed()
     {
         var count = 0;
-        using var dispatcher = new ThreadPoolDispatcher();
+        using var dispatcher = new ThreadPoolDispatcher(new ExceptionHandler());
 
         dispatcher.Dispose();
 
@@ -83,4 +84,88 @@ public class ThreadPoolDispatcherTests
         //
         dispatcher.Dispose();
     }
+
+    [TestMethod]
+    public async Task OnError_Does_Set_IsHandled()
+    {
+        var waitHandle = new TaskCompletionSource();
+        var caughtExceptions = new List<Exception>();
+        var exceptionHandler = new TestExceptionHandler();
+        using var dispatcher = new ThreadPoolDispatcher(exceptionHandler);
+
+        dispatcher.Run(
+            action: () => throw new InvalidOperationException("Testing"),
+            onError: exArgs =>
+            {
+                caughtExceptions.Add(exArgs.Exception);
+                exArgs.IsHandled = true;
+                waitHandle.SetResult();
+            }
+        );
+
+        await waitHandle.Task;
+        await Task.Delay(100);
+
+        Assert.AreEqual(1, caughtExceptions.Count);
+        Assert.IsInstanceOfType<InvalidOperationException>(caughtExceptions[0]);
+        Assert.AreEqual(0, exceptionHandler.HandledExceptions.Count);
+    }
+
+    [TestMethod]
+    public async Task OnError_Does_Not_Set_IsHandled()
+    {
+        var waitHandle = new TaskCompletionSource();
+        var caughtExceptions = new List<Exception>();
+        var exceptionHandler = new TestExceptionHandler();
+        using var dispatcher = new ThreadPoolDispatcher(exceptionHandler);
+
+        dispatcher.Run(
+            action: () => throw new InvalidOperationException("Testing"),
+            onError: exArgs =>
+            {
+                caughtExceptions.Add(exArgs.Exception);
+                exArgs.IsHandled = false;
+                waitHandle.SetResult();
+            }
+        );
+
+        await waitHandle.Task;
+        await Task.Delay(100);
+
+        Assert.AreEqual(1, caughtExceptions.Count);
+        Assert.IsInstanceOfType<InvalidOperationException>(caughtExceptions[0]);
+        Assert.AreEqual(1, exceptionHandler.HandledExceptions.Count);
+        Assert.IsInstanceOfType<InvalidOperationException>(exceptionHandler.HandledExceptions[0]);
+    }
+
+    [TestMethod]
+    public async Task ExceptionHandler_Handles_When_OnError_Is_Null()
+    {
+        var waitHandle = new TaskCompletionSource();
+        var exceptionHandler = new TestExceptionHandler();
+        using var dispatcher = new ThreadPoolDispatcher(exceptionHandler);
+
+        dispatcher.Run(
+            action: () => throw new InvalidOperationException("Testing")
+        );
+
+        await Task.Delay(100);
+
+        Assert.AreEqual(1, exceptionHandler.HandledExceptions.Count);
+        Assert.IsInstanceOfType<InvalidOperationException>(exceptionHandler.HandledExceptions[0]);
+    }
+
+    #region Types
+
+    private class TestExceptionHandler : IExceptionHandler
+    {
+        public List<Exception> HandledExceptions { get; } = [];
+
+        public void Handle(Exception ex) =>
+            HandledExceptions.Add(ex);
+
+        public Observable<Exception> ExceptionHandled => throw new NotImplementedException();
+    }
+
+    #endregion
 }

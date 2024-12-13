@@ -19,33 +19,32 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using SingleFinite.Mvvm.Internal.Services;
-
+using System.Diagnostics;
 using SingleFinite.Mvvm.Services;
 
+namespace SingleFinite.Mvvm.Internal.Services;
+
 /// <summary>
-/// Implementation of <see cref="IMainDispatcher"/> service that ties the 
-/// <see cref="IAppMainDispatcher"/> to the <see cref="CancellationToken"/> for 
-/// the dependency injection scope this service belongs to.
+/// Implementation of <see cref="IExceptionHandler"/>.
 /// </summary>
-/// <param name="dispatcher">
-/// The dispatcher to dispatch functions and actions to.
-/// </param>
-/// <param name="cancellationTokenProvider">
-/// The service that provides the CancellationToken used by this service.
-/// </param>
-/// <param name="exceptionHandler">
-/// Used to handle exceptions that are thrown when invoking actions passed to
-/// the Run method.
-/// </param>
-internal sealed class MainDispatcher(
-    IAppMainDispatcher dispatcher,
-    ICancellationTokenProvider cancellationTokenProvider,
-    IExceptionHandler exceptionHandler
-) : DispatcherWithCancellationBase<IAppMainDispatcher>(
-    dispatcher,
-    cancellationTokenProvider,
-    exceptionHandler
-), IMainDispatcher
+internal class ExceptionHandler : IExceptionHandler
 {
+    #region Methods
+
+    /// <inheritdoc/>
+    public void Handle(Exception ex)
+    {
+        Debug.Fail($"[{ex.GetType().FullName}] {ex.Message}");
+        _exceptionHandledSource.RaiseEvent(ex);
+    }
+
+    #endregion
+
+    #region Events
+
+    /// <inheritdoc/>
+    public Observable<Exception> ExceptionHandled => _exceptionHandledSource.Observable;
+    private readonly ObservableSource<Exception> _exceptionHandledSource = new();
+
+    #endregion
 }
