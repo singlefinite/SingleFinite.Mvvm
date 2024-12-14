@@ -50,7 +50,11 @@ internal class ObserverToAsync(
     protected override bool OnEvent()
     {
         dispatcher.Run(
-            action: () => MappedEvent?.Invoke(),
+            func: async () =>
+            {
+                if (MappedEvent is not null)
+                    await MappedEvent.Invoke();
+            },
             onError: onError
         );
         return false;
@@ -104,7 +108,11 @@ internal class ObserverToAsync<TArgs>(
     protected override bool OnEvent(TArgs args)
     {
         dispatcher.Run(
-            action: () => MappedEvent?.Invoke(args),
+            func: async () =>
+            {
+                if (MappedEvent is not null)
+                    await MappedEvent.Invoke(args);
+            },
             onError: onError
         );
         return false;
@@ -162,7 +170,11 @@ internal class ObserverToAsync<TSender, TArgs>(
     protected override bool OnEvent(TSender sender, TArgs args)
     {
         dispatcher.Run(
-            action: () => MappedEvent?.Invoke(sender, args),
+            func: async () =>
+            {
+                if (MappedEvent is not null)
+                    await MappedEvent.Invoke(sender, args);
+            },
             onError: onError
         );
         return false;

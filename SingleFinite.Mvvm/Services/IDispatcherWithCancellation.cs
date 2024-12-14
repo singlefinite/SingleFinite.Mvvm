@@ -94,7 +94,7 @@ public interface IDispatcherWithCancellation
 
     /// <summary>
     /// Execute the given cancellable action.
-    /// This function will dispatch the action to be executed and return right 
+    /// This method will dispatch the action to be executed and return right 
     /// away without waiting for the action to complete execution.
     /// </summary>
     /// <param name="action">The action to execute.</param>
@@ -109,7 +109,7 @@ public interface IDispatcherWithCancellation
 
     /// <summary>
     /// Execute the given cancellable action.
-    /// This function will dispatch the action to be executed and return right 
+    /// This method will dispatch the action to be executed and return right 
     /// away without waiting for the action to complete execution.
     /// </summary>
     /// <param name="action">The action to execute.</param>
@@ -122,6 +122,40 @@ public interface IDispatcherWithCancellation
     /// </param>
     void Run(
         Action<CancellationToken> action,
+        Action<ExceptionEventArgs> onError,
+        params CancellationToken[] cancellationTokens
+    );
+
+    /// <summary>
+    /// Execute the given cancellable async function.
+    /// This method will dispatch the function to be executed and return right 
+    /// away without waiting for the function to complete execution.
+    /// </summary>
+    /// <param name="func">The async function to execute.</param>
+    /// <param name="cancellationTokens">
+    /// Optional cancellation tokens to link with the cancellation token from 
+    /// the dependency injection scope.
+    /// </param>
+    void Run(
+        Func<CancellationToken, Task> func,
+        params CancellationToken[] cancellationTokens
+    );
+
+    /// <summary>
+    /// Execute the given cancellable async function.
+    /// This method will dispatch the function to be executed and return right 
+    /// away without waiting for the function to complete execution.
+    /// </summary>
+    /// <param name="func">The async function to execute.</param>
+    /// <param name="onError">
+    /// Callback that is invoked if the function generates an exception.
+    /// </param>
+    /// <param name="cancellationTokens">
+    /// Optional cancellation tokens to link with the cancellation token from 
+    /// the dependency injection scope.
+    /// </param>
+    void Run(
+        Func<CancellationToken, Task> func,
         Action<ExceptionEventArgs>? onError,
         params CancellationToken[] cancellationTokens
     );

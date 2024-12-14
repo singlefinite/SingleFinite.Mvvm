@@ -29,7 +29,7 @@ namespace SingleFinite.Mvvm.Services;
 public interface IDispatcher
 {
     /// <summary>
-    /// Execute the given async function with result.
+    /// Execute the given async function.
     /// </summary>
     /// <typeparam name="TResult">
     /// The type of result returned by the function.
@@ -64,7 +64,7 @@ public interface IDispatcher
 
     /// <summary>
     /// Execute the given action.
-    /// This function will dispatch the action to be executed and return right 
+    /// This method will dispatch the action to be executed and return right 
     /// away without waiting for the action to complete execution.
     /// </summary>
     /// <param name="action">The action to execute.</param>
@@ -73,6 +73,20 @@ public interface IDispatcher
     /// </param>
     void Run(
         Action action,
+        Action<ExceptionEventArgs>? onError = null
+    );
+
+    /// <summary>
+    /// Execute the given async func.
+    /// This method will dispatch the func to be executed and return right 
+    /// away without waiting for the func to complete execution.
+    /// </summary>
+    /// <param name="func">The func to execute.</param>
+    /// <param name="onError">
+    /// Callback that is invoked if the func generates an exception.
+    /// </param>
+    void Run(
+        Func<Task> func,
         Action<ExceptionEventArgs>? onError = null
     );
 }

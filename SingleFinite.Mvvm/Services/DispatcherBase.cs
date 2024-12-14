@@ -93,6 +93,29 @@ public abstract class DispatcherBase(IExceptionHandler exceptionHandler) : IDisp
         );
     }
 
+    /// <inheritdoc/>
+    public void Run(Func<Task> func, Action<ExceptionEventArgs>? onError = null)
+    {
+        _ = RunAsync(
+            async () =>
+            {
+                try
+                {
+                    await func();
+                }
+                catch (Exception ex)
+                {
+                    var args = new ExceptionEventArgs(ex);
+                    onError?.Invoke(args);
+                    if (!args.IsHandled)
+                        HandleError(ex);
+                }
+
+                return Task.FromResult(0);
+            }
+        );
+    }
+
     /// <summary>
     /// Handles the given exception.
     /// </summary>

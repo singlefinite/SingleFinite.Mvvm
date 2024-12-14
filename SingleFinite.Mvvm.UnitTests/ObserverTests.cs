@@ -421,6 +421,43 @@ public class ObserverTests
         Assert.AreEqual(0, observedCount);
     }
 
+    [TestMethod]
+    public void ToAsync_Catches_Exceptions()
+    {
+        var observedCount = 0;
+        var observedErrors = new List<Exception>();
+
+        var observableSource = new ObservableSource();
+        var observable = observableSource.Observable;
+        var dispatcher = new ThreadPoolDispatcher(new ExceptionHandler());
+
+        var waitHandle = new ManualResetEvent(false);
+
+        var observer = observable
+            .Observe()
+            .ToAsync(
+                dispatcher: dispatcher,
+                onError: exArgs =>
+                {
+                    observedErrors.Add(exArgs.Exception);
+                    waitHandle.Set();
+                }
+            )
+            .OnEach(async () =>
+            {
+                await Task.Run(() => observedCount++);
+                throw new InvalidOperationException("Test");
+            });
+
+        observableSource.RaiseEvent();
+
+        waitHandle.WaitOne(1000);
+
+        Assert.AreEqual(1, observedCount);
+        Assert.AreEqual(1, observedErrors.Count);
+        Assert.IsInstanceOfType<InvalidOperationException>(observedErrors[0]);
+    }
+
     #region Types
 
     private record ExampleArgs(

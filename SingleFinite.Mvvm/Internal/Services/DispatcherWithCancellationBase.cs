@@ -178,5 +178,43 @@ internal abstract class DispatcherWithCancellationBase<TDispatcher>(
         );
     }
 
+    /// <inheritdoc/>
+    public void Run(
+        Func<CancellationToken, Task> func,
+        params CancellationToken[] cancellationTokens
+    ) => Run(
+        func,
+        onError: null,
+        cancellationTokens
+    );
+
+    /// <inheritdoc/>
+    public void Run(
+        Func<CancellationToken, Task> func,
+        Action<ExceptionEventArgs>? onError,
+        params CancellationToken[] cancellationTokens
+    )
+    {
+        _ = RunAsync(
+            func: async cancellationToken =>
+            {
+                try
+                {
+                    await func(cancellationToken);
+                }
+                catch (Exception ex)
+                {
+                    var args = new ExceptionEventArgs(ex);
+                    onError?.Invoke(args);
+                    if (!args.IsHandled)
+                        HandleError(ex);
+                }
+
+                return Task.CompletedTask;
+            },
+            cancellationTokens: cancellationTokens
+        );
+    }
+
     #endregion
 }

@@ -19,6 +19,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using SingleFinite.Mvvm.Services;
+
 namespace SingleFinite.Mvvm;
 
 /// <summary>
@@ -57,6 +59,23 @@ public sealed class AsyncObservableSource
     /// </summary>
     /// <returns>The running task.</returns>
     public Task RaiseEventAsync() => Event?.Invoke() ?? Task.CompletedTask;
+
+    /// <summary>
+    /// Raise the event and return immediately without waiting for the event
+    /// to complete.
+    /// </summary>
+    /// <param name="dispatcher">The dispatcher to raise the event on.</param>
+    /// <param name="onError">
+    /// Optional action that will be invoked if the event generates an
+    /// exception.
+    /// </param>
+    public void RaiseEvent(
+        IDispatcher dispatcher,
+        Action<ExceptionEventArgs>? onError = null
+    ) => dispatcher.Run(
+        func: RaiseEventAsync,
+        onError: onError
+    );
 
     #endregion
 
@@ -111,6 +130,25 @@ public sealed class AsyncObservableSource<TArgs>
     /// <returns>The running task.</returns>
     public Task RaiseEventAsync(TArgs args) =>
         Event?.Invoke(args) ?? Task.CompletedTask;
+
+    /// <summary>
+    /// Raise the event and return immediately without waiting for the event
+    /// to complete.
+    /// </summary>
+    /// <param name="args">The arguments to pass with the event.</param>
+    /// <param name="dispatcher">The dispatcher to raise the event on.</param>
+    /// <param name="onError">
+    /// Optional action that will be invoked if the event generates an
+    /// exception.
+    /// </param>
+    public void RaiseEvent(
+        TArgs args,
+        IDispatcher dispatcher,
+        Action<ExceptionEventArgs>? onError = null
+    ) => dispatcher.Run(
+        func: async () => await RaiseEventAsync(args),
+        onError: onError
+    );
 
     #endregion
 
@@ -170,6 +208,27 @@ public sealed class AsyncObservableSource<TSender, TArgs>
     /// <returns>The running task.</returns>
     public Task RaiseEventAsync(TSender sender, TArgs args) =>
         Event?.Invoke(sender, args) ?? Task.CompletedTask;
+
+    /// <summary>
+    /// Raise the event and return immediately without waiting for the event
+    /// to complete.
+    /// </summary>
+    /// <param name="sender">The object that is raising the event.</param>
+    /// <param name="args">The arguments to pass with the event.</param>
+    /// <param name="dispatcher">The dispatcher to raise the event on.</param>
+    /// <param name="onError">
+    /// Optional action that will be invoked if the event generates an
+    /// exception.
+    /// </param>
+    public void RaiseEvent(
+        TSender sender,
+        TArgs args,
+        IDispatcher dispatcher,
+        Action<ExceptionEventArgs>? onError = null
+    ) => dispatcher.Run(
+        func: async () => await RaiseEventAsync(sender, args),
+        onError: onError
+    );
 
     #endregion
 

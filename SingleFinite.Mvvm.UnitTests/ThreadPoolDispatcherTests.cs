@@ -155,6 +155,26 @@ public class ThreadPoolDispatcherTests
         Assert.IsInstanceOfType<InvalidOperationException>(exceptionHandler.HandledExceptions[0]);
     }
 
+    [TestMethod]
+    public async Task ExceptionHandler_Handles_When_Thrown_From_Async_Action()
+    {
+        var exceptionHandler = new TestExceptionHandler();
+        using var dispatcher = new ThreadPoolDispatcher(exceptionHandler);
+
+        dispatcher.Run(
+            func: async () =>
+            {
+                await Task.Delay(10);
+                throw new InvalidOperationException("Testing");
+            }
+        );
+
+        await Task.Delay(100);
+
+        Assert.AreEqual(1, exceptionHandler.HandledExceptions.Count);
+        Assert.IsInstanceOfType<InvalidOperationException>(exceptionHandler.HandledExceptions[0]);
+    }
+
     #region Types
 
     private class TestExceptionHandler : IExceptionHandler
