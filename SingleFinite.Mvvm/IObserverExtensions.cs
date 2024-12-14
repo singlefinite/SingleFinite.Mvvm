@@ -20,6 +20,7 @@
 // SOFTWARE.
 
 using SingleFinite.Mvvm.Internal.Observers;
+using SingleFinite.Mvvm.Services;
 
 namespace SingleFinite.Mvvm;
 
@@ -407,4 +408,76 @@ public static class IObserverExtensions
         this IObserver<TSender, TArgs> observer,
         Action<TSender, TArgs, ExceptionEventArgs> callback
     ) => new ObserverCatch<TSender, TArgs>(observer, callback);
+
+    /// <summary>
+    /// Create an observer that raises the next event in the observer chain as
+    /// async by using the provided dispatcher..
+    /// </summary>
+    /// <param name="observer">The observer to extend.</param>
+    /// <param name="dispatcher">
+    /// The dispatcher the async events will be run with.
+    /// </param>
+    /// <param name="onError">
+    /// Optional action that is invoked if an exception is thrown from the async
+    /// observers.
+    /// </param>
+    /// <returns>
+    /// A new observer that has been added to the chain of observers.
+    /// </returns>
+    public static IAsyncObserver ToAsync(
+        this IObserver observer,
+        IDispatcher dispatcher,
+        Action<ExceptionEventArgs>? onError = null
+    ) => new ObserverToAsync(observer, dispatcher, onError);
+
+    /// <summary>
+    /// Create an observer that raises the next event in the observer chain as
+    /// async by using the provided dispatcher..
+    /// </summary>
+    /// <typeparam name="TArgs">
+    /// The type of arguments passed with observed events.
+    /// </typeparam>
+    /// <param name="observer">The observer to extend.</param>
+    /// <param name="dispatcher">
+    /// The dispatcher the async events will be run with.
+    /// </param>
+    /// <param name="onError">
+    /// Optional action that is invoked if an exception is thrown from the async
+    /// observers.
+    /// </param>
+    /// <returns>
+    /// A new observer that has been added to the chain of observers.
+    /// </returns>
+    public static IAsyncObserver<TArgs> ToAsync<TArgs>(
+        this IObserver<TArgs> observer,
+        IDispatcher dispatcher,
+        Action<ExceptionEventArgs>? onError = null
+    ) => new ObserverToAsync<TArgs>(observer, dispatcher, onError);
+
+    /// <summary>
+    /// Create an observer that raises the next event in the observer chain as
+    /// async by using the provided dispatcher..
+    /// </summary>
+    /// <typeparam name="TSender">
+    /// The type of sender passed with observed events.
+    /// </typeparam>
+    /// <typeparam name="TArgs">
+    /// The type of arguments passed with observed events.
+    /// </typeparam>
+    /// <param name="observer">The observer to extend.</param>
+    /// <param name="dispatcher">
+    /// The dispatcher the async events will be run with.
+    /// </param>
+    /// <param name="onError">
+    /// Optional action that is invoked if an exception is thrown from the async
+    /// observers.
+    /// </param>
+    /// <returns>
+    /// A new observer that has been added to the chain of observers.
+    /// </returns>
+    public static IAsyncObserver<TSender, TArgs> ToAsync<TSender, TArgs>(
+        this IObserver<TSender, TArgs> observer,
+        IDispatcher dispatcher,
+        Action<ExceptionEventArgs>? onError = null
+    ) => new ObserverToAsync<TSender, TArgs>(observer, dispatcher, onError);
 }

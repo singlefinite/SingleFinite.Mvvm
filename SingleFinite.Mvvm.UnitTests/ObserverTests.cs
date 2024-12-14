@@ -19,6 +19,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using SingleFinite.Mvvm.Internal.Services;
+
 namespace SingleFinite.Mvvm.UnitTests;
 
 [TestClass]
@@ -380,6 +382,43 @@ public class ObserverTests
         Assert.AreEqual(0, observedExceptions.Count);
         Assert.AreEqual(1, observedNames.Count);
         Assert.AreEqual("Hi", observedNames[0]);
+    }
+
+    [TestMethod]
+    public async Task ToAsync_Runs_As_Expected_Async()
+    {
+        var observedCount = 0;
+
+        var observableSource = new ObservableSource();
+        var observable = observableSource.Observable;
+        var dispatcher = new DedicatedThreadDispatcher(new ExceptionHandler());
+
+        var waitHandle = new ManualResetEvent(false);
+
+        var observer = observable
+            .Observe()
+            .ToAsync(dispatcher)
+            .OnEach(async () =>
+            {
+                await Task.Run(() => observedCount++);
+                waitHandle.Set();
+            });
+
+        Assert.AreEqual(0, observedCount);
+
+        observableSource.RaiseEvent();
+        waitHandle.WaitOne();
+        waitHandle.Reset();
+
+        Assert.AreEqual(1, observedCount);
+        observedCount = 0;
+
+        observer.Dispose();
+
+        observableSource.RaiseEvent();
+        await Task.Delay(100);
+
+        Assert.AreEqual(0, observedCount);
     }
 
     #region Types
