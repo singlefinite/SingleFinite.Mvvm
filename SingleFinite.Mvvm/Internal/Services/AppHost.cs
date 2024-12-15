@@ -19,9 +19,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using SingleFinite.Mvvm.Services;
-using Microsoft.Extensions.DependencyInjection;
 using System.ComponentModel;
+using Microsoft.Extensions.DependencyInjection;
+using SingleFinite.Mvvm.Services;
 
 namespace SingleFinite.Mvvm.Internal.Services;
 
@@ -40,7 +40,7 @@ internal sealed class AppHost : IAppHost, IDisposable
     /// <summary>
     /// Holds the service collection for the app.
     /// </summary>
-    private readonly IServiceCollection _services;
+    private readonly IServiceCollection _services = new ServiceCollection();
 
     /// <summary>
     /// Holds the actions to invoke when the app is started.
@@ -59,7 +59,11 @@ internal sealed class AppHost : IAppHost, IDisposable
     /// <summary>
     /// Constructor.
     /// </summary>
-    /// <param name="services">The service collection for the app.</param>
+    /// <param name="services">
+    /// The collection of services to include with the app.  Any services
+    /// provided here will overwrite any MVVM services if they have the same
+    /// interface.
+    /// </param>
     /// <param name="views">The views collection for the app.</param>
     /// <param name="plugins">The plugins collection for the app.</param>
     /// <param name="onStarted">
@@ -72,7 +76,6 @@ internal sealed class AppHost : IAppHost, IDisposable
         IList<Action<IServiceProvider>> onStarted
     )
     {
-        _services = services;
         _onStarted = onStarted;
 
         _services.AddMvvm(
@@ -80,6 +83,9 @@ internal sealed class AppHost : IAppHost, IDisposable
             views: views,
             plugins: plugins
         );
+
+        foreach (var service in services)
+            _services.Add(service);
     }
 
     #endregion

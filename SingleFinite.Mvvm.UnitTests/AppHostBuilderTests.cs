@@ -20,6 +20,7 @@
 // SOFTWARE.
 
 using Microsoft.Extensions.DependencyInjection;
+using SingleFinite.Mvvm.Internal.Services;
 using SingleFinite.Mvvm.Services;
 
 namespace SingleFinite.Mvvm.UnitTests;
@@ -74,6 +75,18 @@ public class AppHostBuilderTests
         Assert.AreEqual(typeof(ExampleView), viewType);
     }
 
+    [TestMethod]
+    public void Build_Overwrites_Services_From_Mvvm()
+    {
+        var builder = new AppHostBuilder();
+        var appHost = builder
+            .AddServices(services => services.AddSingleton<IAppMainDispatcher, ExampleAppMainDispatcher>())
+            .BuildAndStart();
+
+        var dispatcher = appHost.ServiceProvider.GetRequiredService<IAppMainDispatcher>();
+        Assert.IsInstanceOfType<ExampleAppMainDispatcher>(dispatcher);
+    }
+
     #region Types
 
     private class ExampleService
@@ -95,6 +108,18 @@ public class AppHostBuilderTests
     private class ExampleView : IView<ExampleViewModel>
     {
         public ExampleViewModel ViewModel => throw new NotImplementedException();
+    }
+
+    private class ExampleAppMainDispatcher :
+        DispatcherBase,
+        IAppMainDispatcher
+    {
+        public ExampleAppMainDispatcher() : base(new ExceptionHandler())
+        {
+        }
+
+        public override Task<TResult> RunAsync<TResult>(Func<Task<TResult>> func) =>
+            throw new NotImplementedException();
     }
 
     #endregion
