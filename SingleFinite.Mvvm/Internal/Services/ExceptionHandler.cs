@@ -34,7 +34,7 @@ internal class ExceptionHandler : IExceptionHandler
     /// <inheritdoc/>
     public void Handle(Exception ex)
     {
-        Debug.Fail($"[{ex.GetType().FullName}] {ex.Message}");
+        Debug.WriteLine($"Exception: [{ex.GetType().FullName}] {ex.Message}");
         _exceptionHandledSource.RaiseEvent(ex);
     }
 
