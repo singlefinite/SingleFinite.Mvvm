@@ -40,6 +40,21 @@ public interface IViewModelDescriptor
 }
 
 /// <summary>
+/// Implementation of <see cref="IViewModelDescriptor"/>.
+/// </summary>
+/// <param name="ViewModelType">
+/// The type of view model to build a view for.
+/// </param>
+/// <param name="ViewModelContext">
+/// Optional context to provide to the view model that will be built for the
+/// view.
+/// </param>
+public record ViewModelDescriptor(
+    Type ViewModelType,
+    object? ViewModelContext = null
+);
+
+/// <summary>
 /// Implementation of <see cref="IViewModelDescriptor"/> that uses a type 
 /// parameter to specify the view model type.
 /// </summary>
