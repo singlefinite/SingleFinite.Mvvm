@@ -52,7 +52,7 @@ public interface IViewModelDescriptor
 public record ViewModelDescriptor(
     Type ViewModelType,
     object? ViewModelContext = null
-);
+) : IViewModelDescriptor;
 
 /// <summary>
 /// Implementation of <see cref="IViewModelDescriptor"/> that uses a type 
