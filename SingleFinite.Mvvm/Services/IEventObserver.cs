@@ -367,7 +367,7 @@ public interface IEventObserver
     /// </returns>
     IObserver ObservePropertyChanging(
         INotifyPropertyChanging owner,
-        Func<object> property,
+        Func<object?> property,
         Action callback,
         CancellationToken? cancellationToken = null,
         [CallerArgumentExpression(nameof(property))]
@@ -422,7 +422,7 @@ public interface IEventObserver
     /// </returns>
     IObserver ObservePropertyChanged(
         INotifyPropertyChanged owner,
-        Func<object> property,
+        Func<object?> property,
         Action callback,
         CancellationToken? cancellationToken = null,
         [CallerArgumentExpression(nameof(property))]
