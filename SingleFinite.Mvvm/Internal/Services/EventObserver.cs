@@ -287,7 +287,7 @@ internal sealed class EventObserver : IEventObserver, IDisposable
     /// <inheritdoc/>
     public IObserver ObservePropertyChanging(
         INotifyPropertyChanging owner,
-        Func<object> property,
+        Func<object?> property,
         Action callback,
         CancellationToken? cancellationToken = null,
         [CallerArgumentExpression(nameof(property))]
@@ -303,7 +303,7 @@ internal sealed class EventObserver : IEventObserver, IDisposable
             observableSource.RaiseEvent();
         }
 
-        var propertyName = ParsePropertyName(propertyExpression);
+        var propertyName = Component.ParsePropertyName(propertyExpression);
         owner.PropertyChanging += Handler;
 
         var observer = new ObserverDisposeListener(
@@ -367,7 +367,7 @@ internal sealed class EventObserver : IEventObserver, IDisposable
     /// <inheritdoc/>
     public IObserver ObservePropertyChanged(
         INotifyPropertyChanged owner,
-        Func<object> property,
+        Func<object?> property,
         Action callback,
         CancellationToken? cancellationToken = null,
         [CallerArgumentExpression(nameof(property))]
@@ -383,7 +383,7 @@ internal sealed class EventObserver : IEventObserver, IDisposable
             observableSource.RaiseEvent();
         }
 
-        var propertyName = ParsePropertyName(propertyExpression);
+        var propertyName = Component.ParsePropertyName(propertyExpression);
         owner.PropertyChanged += Handler;
 
         var observer = new ObserverDisposeListener(
@@ -444,34 +444,6 @@ internal sealed class EventObserver : IEventObserver, IDisposable
         _observerList.Clear();
 
         _isDisposed = true;
-    }
-
-    /// <summary>
-    /// Parse the property name from the given expression.
-    /// </summary>
-    /// <param name="propertyExpression">
-    /// The expression to parse the property name from.
-    /// The expected format for the expression is '() => owner.property'.
-    /// </param>
-    /// <returns>The property name parsed from the expression.</returns>
-    /// <exception cref="ArgumentException">
-    /// Thrown if the expression is not in the expected format.
-    /// </exception>
-    private static string ParsePropertyName(string? propertyExpression)
-    {
-        ArgumentNullException.ThrowIfNullOrWhiteSpace(
-            propertyExpression,
-            nameof(propertyExpression)
-        );
-
-        var dotIndex = propertyExpression.IndexOf('.');
-        if (dotIndex == -1)
-            throw new ArgumentException(
-                message: "expression must be in the form of 'owner.property'",
-                paramName: nameof(propertyExpression)
-            );
-
-        return propertyExpression[(dotIndex + 1)..];
     }
 
     #endregion

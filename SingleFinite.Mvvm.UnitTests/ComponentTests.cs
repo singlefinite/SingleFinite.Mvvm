@@ -19,6 +19,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System.ComponentModel;
+using System.Data.Common;
+
 namespace SingleFinite.Mvvm.UnitTests;
 
 [TestClass]
@@ -51,7 +54,7 @@ public class ComponentTests
     }
 
     [TestMethod]
-    public void OnStateChanged_Updates_Other_Properties()
+    public void OnChanged_Updates_Other_Properties()
     {
         var testClass = new TestOnStateChangedClass();
 
@@ -67,7 +70,7 @@ public class ComponentTests
     }
 
     [TestMethod]
-    public void OnStateChanged_Raises_PropertyChange_Events_In_Order()
+    public void OnChanged_Raises_PropertyChange_Events_In_Order()
     {
         var output = new List<string?>();
         var testClass = new TestOnStateChangedClass();
@@ -86,7 +89,7 @@ public class ComponentTests
     }
 
     [TestMethod]
-    public void OnStateChanged_Prevents_Recursive_Calls()
+    public void OnChanged_Prevents_Recursive_Calls()
     {
         var testClass = new TestOnStateChangedRecurseClass();
 
@@ -97,6 +100,54 @@ public class ComponentTests
 
         Assert.AreEqual(1, testClass.FieldOne);
         Assert.AreEqual(2, testClass.FieldTwo);
+    }
+
+    [TestMethod]
+    public void PropertyChangingObservable_Observed_Events()
+    {
+        var observedEvents = new List<(object?, PropertyChangingEventArgs)>();
+
+        var testClass = new TestClass();
+        testClass
+            .ObservePropertyChanging(() => testClass.FieldOne)
+            .OnEach((sender, args) => observedEvents.Add((sender, args)));
+
+        Assert.AreEqual(0, observedEvents.Count);
+
+        testClass.FieldTwo = 99;
+
+        Assert.AreEqual(0, observedEvents.Count);
+
+        testClass.FieldOne = "hello";
+
+        Assert.AreEqual(1, observedEvents.Count);
+        var (observedSender, observedArgs) = observedEvents[0];
+        Assert.AreEqual(observedSender, testClass);
+        Assert.AreEqual(observedArgs.PropertyName, "FieldOne");
+    }
+
+    [TestMethod]
+    public void PropertyChangedObservable_Observed_Events()
+    {
+        var observedEvents = new List<(object?, PropertyChangedEventArgs)>();
+
+        var testClass = new TestClass();
+        testClass
+            .ObservePropertyChanged(() => testClass.FieldOne)
+            .OnEach((sender, args) => observedEvents.Add((sender, args)));
+
+        Assert.AreEqual(0, observedEvents.Count);
+
+        testClass.FieldTwo = 99;
+
+        Assert.AreEqual(0, observedEvents.Count);
+
+        testClass.FieldOne = "hello";
+
+        Assert.AreEqual(1, observedEvents.Count);
+        var (observedSender, observedArgs) = observedEvents[0];
+        Assert.AreEqual(observedSender, testClass);
+        Assert.AreEqual(observedArgs.PropertyName, "FieldOne");
     }
 
     #region Types
@@ -147,7 +198,7 @@ public class ComponentTests
             get => $"{FieldOne},{FieldTwo},{FieldThree}";
         }
 
-        protected override void OnUpdated()
+        protected override void OnChanged()
         {
             if (FieldOne > FieldTwo)
                 FieldTwo = FieldOne;
@@ -171,7 +222,7 @@ public class ComponentTests
             set => ChangeProperty(ref field, value);
         }
 
-        protected override void OnUpdated()
+        protected override void OnChanged()
         {
             FieldTwo = FieldOne + 1;
         }

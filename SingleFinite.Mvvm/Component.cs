@@ -39,7 +39,7 @@ public abstract class Component :
 
     /// <summary>
     /// Used to prevent PropertyChanged events from being raised until this 
-    /// object has finished being updated.
+    /// object has finished being changed.
     /// </summary>
     private readonly Transaction _transaction = new();
 
@@ -50,9 +50,9 @@ public abstract class Component :
     private readonly ActionBuffer<string> _transactionBuffer = new();
 
     /// <summary>
-    /// Flag that gets set to true while the Update method is executing.
+    /// Flag that gets set to true while the Change method is executing.
     /// </summary>
-    private bool _isUpdating = false;
+    private bool _isChanging = false;
 
     #endregion
 
@@ -71,23 +71,23 @@ public abstract class Component :
     #region Methods
 
     /// <summary>
-    /// Call the OnUpdated method with the PropertyChanged events disabled.
+    /// Call the OnChanged method with the PropertyChanged events disabled.
     /// If this method is called while a previous call is still in progress, the
     /// new call will be ignored.
     /// </summary>
-    protected void Update()
+    protected void Change()
     {
-        if (_isUpdating)
+        if (_isChanging)
             return;
 
         try
         {
-            _isUpdating = true;
-            OnUpdated();
+            _isChanging = true;
+            OnChanged();
         }
         finally
         {
-            _isUpdating = false;
+            _isChanging = false;
         }
     }
 
@@ -99,7 +99,7 @@ public abstract class Component :
     /// exited.  When the suppressed PropertyChanged events are raised they will
     /// not trigger this method being called again.
     /// </summary>
-    protected virtual void OnUpdated()
+    protected virtual void OnChanged()
     {
     }
 
@@ -120,9 +120,16 @@ public abstract class Component :
     /// </param>
     private void RaisePropertyChanging(string name)
     {
+        var args = new PropertyChangingEventArgs(name);
+
         PropertyChanging?.Invoke(
             sender: this,
-            e: new PropertyChangingEventArgs(name)
+            e: args
+        );
+
+        _propertyChangingObservableSource.RaiseEvent(
+            sender: this,
+            args: args
         );
     }
 
@@ -134,9 +141,16 @@ public abstract class Component :
     /// </param>
     private void RaisePropertyChanged(string name)
     {
+        var args = new PropertyChangedEventArgs(name);
+
         PropertyChanged?.Invoke(
             sender: this,
             e: new PropertyChangedEventArgs(name)
+        );
+
+        _propertyChangedObservableSource.RaiseEvent(
+            sender: this,
+            args: args
         );
     }
 
@@ -206,11 +220,89 @@ public abstract class Component :
 
             field = value;
 
-            Update();
+            Change();
 
             RaisePropertyChanged(name);
             onPropertyChanged?.Invoke();
         }
+    }
+
+    /// <summary>
+    /// Observe when the given property is changing.
+    /// </summary>
+    /// <param name="property">
+    /// An expression in the form of `() => component.property` that identifies
+    /// the property to listen for changes on.
+    /// </param>
+    /// <param name="propertyExpression">
+    /// When left as null the compiler will set this from the property argument.
+    /// </param>
+    /// <returns>
+    /// An observer that when disposed will unregister the callback.
+    /// </returns>
+    public IObserver<object?, PropertyChangingEventArgs> ObservePropertyChanging(
+        Func<object?> property,
+        [CallerArgumentExpression(nameof(property))]
+        string? propertyExpression = null
+    )
+    {
+        var propertyName = ParsePropertyName(propertyExpression);
+        return PropertyChangingObservable
+            .Observe()
+            .Where((_, args) => args.PropertyName == propertyName);
+    }
+
+    /// <summary>
+    /// Observe when the given property is changed.
+    /// </summary>
+    /// <param name="property">
+    /// An expression in the form of `() => component.property` that identifies
+    /// the property to listen for changes on.
+    /// </param>
+    /// <param name="propertyExpression">
+    /// When left as null the compiler will set this from the property argument.
+    /// </param>
+    /// <returns>
+    /// An observer that when disposed will unregister the callback.
+    /// </returns>
+    public IObserver<object?, PropertyChangedEventArgs> ObservePropertyChanged(
+        Func<object?> property,
+        [CallerArgumentExpression(nameof(property))]
+        string? propertyExpression = null
+    )
+    {
+        var propertyName = ParsePropertyName(propertyExpression);
+        return PropertyChangedObservable
+            .Observe()
+            .Where((_, args) => args.PropertyName == propertyName);
+    }
+
+    /// <summary>
+    /// Parse the property name from the given expression.
+    /// </summary>
+    /// <param name="propertyExpression">
+    /// The expression to parse the property name from.
+    /// The expected format for the expression is '() => owner.property'.
+    /// </param>
+    /// <returns>The property name parsed from the expression.</returns>
+    /// <exception cref="ArgumentException">
+    /// Thrown if the expression is not in the expected format.
+    /// </exception>
+    internal static string ParsePropertyName(string? propertyExpression)
+    {
+        ArgumentNullException.ThrowIfNullOrWhiteSpace(
+            propertyExpression,
+            nameof(propertyExpression)
+        );
+
+        var dotIndex = propertyExpression.IndexOf('.');
+        if (dotIndex == -1)
+            throw new ArgumentException(
+                message: "expression must be in the form of 'owner.property'",
+                paramName: nameof(propertyExpression)
+            );
+
+        return propertyExpression[(dotIndex + 1)..];
     }
 
     #endregion
@@ -226,6 +318,18 @@ public abstract class Component :
     /// Raised when a property value has changed.
     /// </summary>
     public event PropertyChangedEventHandler? PropertyChanged;
+
+    /// <summary>
+    /// Raised when a property value is about to be changed.
+    /// </summary>
+    public Observable<object?, PropertyChangingEventArgs> PropertyChangingObservable => _propertyChangingObservableSource.Observable;
+    private readonly ObservableSource<object?, PropertyChangingEventArgs> _propertyChangingObservableSource = new();
+
+    /// <summary>
+    /// Raised when a property value has changed.
+    /// </summary>
+    public Observable<object?, PropertyChangedEventArgs> PropertyChangedObservable => _propertyChangedObservableSource.Observable;
+    private readonly ObservableSource<object?, PropertyChangedEventArgs> _propertyChangedObservableSource = new();
 
     #endregion
 }
