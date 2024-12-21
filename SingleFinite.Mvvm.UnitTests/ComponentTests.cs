@@ -33,7 +33,7 @@ public class ComponentTests
         var testClass = new TestClass();
         var observedEvents = new List<string?>();
 
-        testClass.PropertyChanged += (sender, args) =>
+        ((INotifyPropertyChanged)testClass).PropertyChanged += (sender, args) =>
         {
             observedEvents.Add(args.PropertyName);
         };
@@ -74,8 +74,8 @@ public class ComponentTests
     {
         var output = new List<string?>();
         var testClass = new TestOnStateChangedClass();
-        testClass.PropertyChanging += (_, args) => output.Add($"PropertyChanging: {args.PropertyName} {testClass.CurrentValuesAsString}");
-        testClass.PropertyChanged += (_, args) => output.Add($"PropertyChanged: {args.PropertyName} {testClass.CurrentValuesAsString}");
+        ((INotifyPropertyChanging)testClass).PropertyChanging += (_, args) => output.Add($"PropertyChanging: {args.PropertyName} {testClass.CurrentValuesAsString}");
+        ((INotifyPropertyChanged)testClass).PropertyChanged += (_, args) => output.Add($"PropertyChanged: {args.PropertyName} {testClass.CurrentValuesAsString}");
 
         testClass.FieldOne = 9;
 

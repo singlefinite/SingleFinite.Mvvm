@@ -122,12 +122,12 @@ public abstract class Component :
     {
         var args = new PropertyChangingEventArgs(name);
 
-        PropertyChanging?.Invoke(
+        _propertyChanging?.Invoke(
             sender: this,
             e: args
         );
 
-        _propertyChangingObservableSource.RaiseEvent(
+        _propertyChangingSource.RaiseEvent(
             sender: this,
             args: args
         );
@@ -143,12 +143,12 @@ public abstract class Component :
     {
         var args = new PropertyChangedEventArgs(name);
 
-        PropertyChanged?.Invoke(
+        _propertyChanged?.Invoke(
             sender: this,
             e: new PropertyChangedEventArgs(name)
         );
 
-        _propertyChangedObservableSource.RaiseEvent(
+        _propertyChangedSource.RaiseEvent(
             sender: this,
             args: args
         );
@@ -247,7 +247,7 @@ public abstract class Component :
     )
     {
         var propertyName = ParsePropertyName(propertyExpression);
-        return PropertyChangingObservable
+        return PropertyChanging
             .Observe()
             .Where((_, args) => args.PropertyName == propertyName);
     }
@@ -272,7 +272,7 @@ public abstract class Component :
     )
     {
         var propertyName = ParsePropertyName(propertyExpression);
-        return PropertyChangedObservable
+        return PropertyChanged
             .Observe()
             .Where((_, args) => args.PropertyName == propertyName);
     }
@@ -312,24 +312,34 @@ public abstract class Component :
     /// <summary>
     /// Raised when a property value is about to be changed.
     /// </summary>
-    public event PropertyChangingEventHandler? PropertyChanging;
+    event PropertyChangingEventHandler? INotifyPropertyChanging.PropertyChanging
+    {
+        add { _propertyChanging += value; }
+        remove { _propertyChanging -= value; }
+    }
+    private PropertyChangingEventHandler? _propertyChanging;
 
     /// <summary>
     /// Raised when a property value has changed.
     /// </summary>
-    public event PropertyChangedEventHandler? PropertyChanged;
+    event PropertyChangedEventHandler? INotifyPropertyChanged.PropertyChanged
+    {
+        add { _propertyChanged += value; }
+        remove { _propertyChanged -= value; }
+    }
+    private PropertyChangedEventHandler? _propertyChanged;
 
     /// <summary>
     /// Raised when a property value is about to be changed.
     /// </summary>
-    public Observable<object?, PropertyChangingEventArgs> PropertyChangingObservable => _propertyChangingObservableSource.Observable;
-    private readonly ObservableSource<object?, PropertyChangingEventArgs> _propertyChangingObservableSource = new();
+    public Observable<object?, PropertyChangingEventArgs> PropertyChanging => _propertyChangingSource.Observable;
+    private readonly ObservableSource<object?, PropertyChangingEventArgs> _propertyChangingSource = new();
 
     /// <summary>
     /// Raised when a property value has changed.
     /// </summary>
-    public Observable<object?, PropertyChangedEventArgs> PropertyChangedObservable => _propertyChangedObservableSource.Observable;
-    private readonly ObservableSource<object?, PropertyChangedEventArgs> _propertyChangedObservableSource = new();
+    public Observable<object?, PropertyChangedEventArgs> PropertyChanged => _propertyChangedSource.Observable;
+    private readonly ObservableSource<object?, PropertyChangedEventArgs> _propertyChangedSource = new();
 
     #endregion
 }
