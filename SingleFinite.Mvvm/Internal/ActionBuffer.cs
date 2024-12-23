@@ -43,6 +43,15 @@ internal class ActionBuffer<TKey> where TKey : notnull
 
     #endregion
 
+    #region Properties
+
+    /// <summary>
+    /// The keys of the actions currently held in the buffer.
+    /// </summary>
+    public TKey[] Keys => [.. _buffer.Keys];
+
+    #endregion
+
     #region Methods
 
     /// <summary>

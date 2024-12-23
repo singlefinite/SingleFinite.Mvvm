@@ -71,7 +71,7 @@ public abstract class DispatcherBase(IExceptionHandler exceptionHandler) : IDisp
         );
 
     /// <inheritdoc/>
-    public void Run(Action action, Action<ExceptionEventArgs>? onError = null)
+    public void Run(Action action, Action<ExceptionEventArgs>? onError = default)
     {
         _ = RunAsync(
             () =>
@@ -94,7 +94,7 @@ public abstract class DispatcherBase(IExceptionHandler exceptionHandler) : IDisp
     }
 
     /// <inheritdoc/>
-    public void Run(Func<Task> func, Action<ExceptionEventArgs>? onError = null)
+    public void Run(Func<Task> func, Action<ExceptionEventArgs>? onError = default)
     {
         _ = RunAsync(
             async () =>

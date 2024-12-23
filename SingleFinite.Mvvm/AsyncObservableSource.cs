@@ -71,7 +71,7 @@ public sealed class AsyncObservableSource
     /// </param>
     public void RaiseEvent(
         IDispatcher dispatcher,
-        Action<ExceptionEventArgs>? onError = null
+        Action<ExceptionEventArgs>? onError = default
     ) => dispatcher.Run(
         func: RaiseEventAsync,
         onError: onError
@@ -144,7 +144,7 @@ public sealed class AsyncObservableSource<TArgs>
     public void RaiseEvent(
         TArgs args,
         IDispatcher dispatcher,
-        Action<ExceptionEventArgs>? onError = null
+        Action<ExceptionEventArgs>? onError = default
     ) => dispatcher.Run(
         func: async () => await RaiseEventAsync(args),
         onError: onError
@@ -224,7 +224,7 @@ public sealed class AsyncObservableSource<TSender, TArgs>
         TSender sender,
         TArgs args,
         IDispatcher dispatcher,
-        Action<ExceptionEventArgs>? onError = null
+        Action<ExceptionEventArgs>? onError = default
     ) => dispatcher.Run(
         func: async () => await RaiseEventAsync(sender, args),
         onError: onError

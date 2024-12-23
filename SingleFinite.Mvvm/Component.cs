@@ -21,6 +21,7 @@
 
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Text.RegularExpressions;
 using SingleFinite.Mvvm.Internal;
 
 namespace SingleFinite.Mvvm;
@@ -31,9 +32,10 @@ namespace SingleFinite.Mvvm;
 /// inheriting classes can use to raise PropertyChanged and PropertyChanging 
 /// events.
 /// </summary>
-public abstract class Component :
+public abstract partial class Component :
     INotifyPropertyChanged,
-    INotifyPropertyChanging
+    INotifyPropertyChanging,
+    IPropertyMappable
 {
     #region Fields
 
@@ -47,12 +49,17 @@ public abstract class Component :
     /// Buffer that holds actions for raising PropertyChanged events when an 
     /// open transaction is closed.
     /// </summary>
-    private readonly ActionBuffer<string> _transactionBuffer = new();
+    private readonly ActionBuffer<string> _propertyChangedBuffer = new();
 
     /// <summary>
     /// Flag that gets set to true while the Change method is executing.
     /// </summary>
     private bool _isChanging = false;
+
+    /// <summary>
+    /// Holds mapped properties.
+    /// </summary>
+    private readonly PropertyMapper _propertyMapper = new();
 
     #endregion
 
@@ -104,23 +111,26 @@ public abstract class Component :
     }
 
     /// <summary>
-    /// Raise any pending PropertyChanged events when a transaction has been 
-    /// closed.
+    /// Raise any pending PropertyChanged and MappedPropertyChanged events when
+    /// a transaction has been closed.
     /// </summary>
     private void OnTransactionClosed()
     {
-        _transactionBuffer.Flush();
+        var propertyNames = _propertyChangedBuffer.Keys;
+        _propertyChangedBuffer.Flush();
+
+        RaiseMappedPropertyChanged(propertyNames);
     }
 
     /// <summary>
     /// Raise the PropertyChanging event.
     /// </summary>
-    /// <param name="name">
-    /// The name to provide with the PropertyChanging event args.
+    /// <param name="propertyName">
+    /// The property name to provide with the PropertyChanging event args.
     /// </param>
-    private void RaisePropertyChanging(string name)
+    private void RaisePropertyChanging(string propertyName)
     {
-        var args = new PropertyChangingEventArgs(name);
+        var args = new PropertyChangingEventArgs(propertyName);
 
         _propertyChanging?.Invoke(
             sender: this,
@@ -136,21 +146,36 @@ public abstract class Component :
     /// <summary>
     /// Raise the PropertyChanged event.
     /// </summary>
-    /// <param name="name">
-    /// The name to provide with the PropertyChanged event args.
+    /// <param name="propertyName">
+    /// The property name to provide with the PropertyChanged event args.
     /// </param>
-    private void RaisePropertyChanged(string name)
+    private void RaisePropertyChanged(string propertyName)
     {
-        var args = new PropertyChangedEventArgs(name);
+        var args = new PropertyChangedEventArgs(propertyName);
 
         _propertyChanged?.Invoke(
             sender: this,
-            e: new PropertyChangedEventArgs(name)
+            e: new PropertyChangedEventArgs(propertyName)
         );
 
         _propertyChangedSource.RaiseEvent(
             sender: this,
             args: args
+        );
+    }
+
+    /// <summary>
+    /// Raise the MappedPropertyChanged event.
+    /// </summary>
+    /// <param name="propertyNames">
+    /// The property names of all the source properties whose mapped properties
+    /// will have the MappedPropertyChanged event raised.
+    /// </param>
+    private void RaiseMappedPropertyChanged(IEnumerable<string> propertyNames)
+    {
+        _propertyMapper.RaiseMappedPropertyChangedEvents(
+            sourcePropertyNames: propertyNames,
+            raiseEvent: (sender, args) => MappedPropertyChanged?.Invoke(sender, args)
         );
     }
 
@@ -185,45 +210,54 @@ public abstract class Component :
     protected void ChangeProperty<TValue>(
         ref TValue field,
         TValue value,
-        Action? onPropertyChanging = null,
-        Action? onPropertyChanged = null,
+        Action? onPropertyChanging = default,
+        Action? onPropertyChanged = default,
         [CallerMemberName] string? name = default
     )
     {
-        ArgumentNullException.ThrowIfNull(name);
+        ArgumentNullException.ThrowIfNullOrWhiteSpace(name);
 
         if (object.Equals(field, value))
             return;
 
-        if (_transaction.IsOpen)
+        using var token = _transaction.IsOpen ? null : _transaction.Start();
+
+        void OnNotify()
         {
-            void OnNotify()
-            {
-                RaisePropertyChanged(name);
-                onPropertyChanged?.Invoke();
-            };
-
-            if (_transactionBuffer.AddOrReplace(name, OnNotify))
-            {
-                RaisePropertyChanging(name);
-                onPropertyChanging?.Invoke();
-            }
-
-            field = value;
-        }
-        else
-        {
-            using var token = _transaction.Start();
-
-            RaisePropertyChanging(name);
-            onPropertyChanging?.Invoke();
-
-            field = value;
-
-            Change();
-
             RaisePropertyChanged(name);
             onPropertyChanged?.Invoke();
+        };
+
+        if (_propertyChangedBuffer.AddOrReplace(name, OnNotify))
+        {
+            RaisePropertyChanging(name);
+            onPropertyChanging?.Invoke();
+        }
+
+        field = value;
+
+        if (token is not null)
+            Change();
+    }
+
+    /// <inheritdoc/>
+    public void MapProperty(
+        object mappedObject,
+        string mappedPropertyName,
+        params IEnumerable<string> sourcePropertyNames
+    )
+    {
+        ArgumentNullException.ThrowIfNullOrWhiteSpace(mappedPropertyName);
+
+        foreach (var sourcePropertyName in sourcePropertyNames)
+        {
+            ArgumentNullException.ThrowIfNullOrWhiteSpace(sourcePropertyName);
+
+            _propertyMapper.Add(
+                sourcePropertyName,
+                mappedObject,
+                mappedPropertyName
+            );
         }
     }
 
@@ -243,7 +277,7 @@ public abstract class Component :
     public IObserver<object?, PropertyChangingEventArgs> ObservePropertyChanging(
         Func<object?> property,
         [CallerArgumentExpression(nameof(property))]
-        string? propertyExpression = null
+        string? propertyExpression = default
     )
     {
         var propertyName = ParsePropertyName(propertyExpression);
@@ -268,7 +302,7 @@ public abstract class Component :
     public IObserver<object?, PropertyChangedEventArgs> ObservePropertyChanged(
         Func<object?> property,
         [CallerArgumentExpression(nameof(property))]
-        string? propertyExpression = null
+        string? propertyExpression = default
     )
     {
         var propertyName = ParsePropertyName(propertyExpression);
@@ -282,7 +316,8 @@ public abstract class Component :
     /// </summary>
     /// <param name="propertyExpression">
     /// The expression to parse the property name from.
-    /// The expected format for the expression is '() => owner.property'.
+    /// The expected format for the expression is '() => owner.property' or
+    /// '() => owner.property = something'.
     /// </param>
     /// <returns>The property name parsed from the expression.</returns>
     /// <exception cref="ArgumentException">
@@ -295,15 +330,24 @@ public abstract class Component :
             nameof(propertyExpression)
         );
 
-        var dotIndex = propertyExpression.IndexOf('.');
-        if (dotIndex == -1)
+        var matchValue = PropertyNameRegex().Match(propertyExpression)?.Value;
+        if (string.IsNullOrEmpty(matchValue))
+        {
             throw new ArgumentException(
-                message: "expression must be in the form of 'owner.property'",
+                message: "expression must be in the form of 'object.property'",
                 paramName: nameof(propertyExpression)
             );
+        }
 
-        return propertyExpression[(dotIndex + 1)..];
+        return matchValue;
     }
+
+    /// <summary>
+    /// Regular expression used to parse a property name out of an expression.
+    /// </summary>
+    /// <returns>A regular expression.</returns>
+    [GeneratedRegex("(?<=\\.)\\w+")]
+    private static partial Regex PropertyNameRegex();
 
     #endregion
 
@@ -340,6 +384,9 @@ public abstract class Component :
     /// </summary>
     public Observable<object?, PropertyChangedEventArgs> PropertyChanged => _propertyChangedSource.Observable;
     private readonly ObservableSource<object?, PropertyChangedEventArgs> _propertyChangedSource = new();
+
+    /// <inheritdoc/>
+    public event PropertyChangedEventHandler? MappedPropertyChanged;
 
     #endregion
 }

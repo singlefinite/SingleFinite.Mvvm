@@ -47,7 +47,7 @@ public interface IEventObserver
     /// </returns>
     IObserver Observe(
         Observable observable,
-        CancellationToken? cancellationToken = null
+        CancellationToken? cancellationToken = default
     );
 
     /// <summary>
@@ -70,7 +70,7 @@ public interface IEventObserver
     IObserver Observe(
         Observable observable,
         Action callback,
-        CancellationToken? cancellationToken = null
+        CancellationToken? cancellationToken = default
     );
 
     /// <summary>
@@ -92,7 +92,7 @@ public interface IEventObserver
     /// </returns>
     IObserver<TArgs> Observe<TArgs>(
         Observable<TArgs> observable,
-        CancellationToken? cancellationToken = null
+        CancellationToken? cancellationToken = default
     );
 
     /// <summary>
@@ -118,7 +118,7 @@ public interface IEventObserver
     IObserver<TArgs> Observe<TArgs>(
         Observable<TArgs> observable,
         Action<TArgs> callback,
-        CancellationToken? cancellationToken = null
+        CancellationToken? cancellationToken = default
     );
 
     /// <summary>
@@ -143,7 +143,7 @@ public interface IEventObserver
     /// </returns>
     IObserver<TSender, TArgs> Observe<TSender, TArgs>(
         Observable<TSender, TArgs> observable,
-        CancellationToken? cancellationToken = null
+        CancellationToken? cancellationToken = default
     );
 
     /// <summary>
@@ -172,7 +172,7 @@ public interface IEventObserver
     IObserver<TSender, TArgs> Observe<TSender, TArgs>(
         Observable<TSender, TArgs> observable,
         Action<TSender, TArgs> callback,
-        CancellationToken? cancellationToken = null
+        CancellationToken? cancellationToken = default
     );
 
     /// <summary>
@@ -191,7 +191,7 @@ public interface IEventObserver
     /// </returns>
     IAsyncObserver Observe(
         AsyncObservable observable,
-        CancellationToken? cancellationToken = null
+        CancellationToken? cancellationToken = default
     );
 
     /// <summary>
@@ -214,7 +214,7 @@ public interface IEventObserver
     IAsyncObserver Observe(
         AsyncObservable observable,
         Func<Task> callback,
-        CancellationToken? cancellationToken = null
+        CancellationToken? cancellationToken = default
     );
 
     /// <summary>
@@ -236,7 +236,7 @@ public interface IEventObserver
     /// </returns>
     IAsyncObserver<TArgs> Observe<TArgs>(
         AsyncObservable<TArgs> observable,
-        CancellationToken? cancellationToken = null
+        CancellationToken? cancellationToken = default
     );
 
     /// <summary>
@@ -262,7 +262,7 @@ public interface IEventObserver
     IAsyncObserver<TArgs> Observe<TArgs>(
         AsyncObservable<TArgs> observable,
         Func<TArgs, Task> callback,
-        CancellationToken? cancellationToken = null
+        CancellationToken? cancellationToken = default
     );
 
     /// <summary>
@@ -287,7 +287,7 @@ public interface IEventObserver
     /// </returns>
     IAsyncObserver<TSender, TArgs> Observe<TSender, TArgs>(
         AsyncObservable<TSender, TArgs> observable,
-        CancellationToken? cancellationToken = null
+        CancellationToken? cancellationToken = default
     );
 
     /// <summary>
@@ -316,7 +316,7 @@ public interface IEventObserver
     IAsyncObserver<TSender, TArgs> Observe<TSender, TArgs>(
         AsyncObservable<TSender, TArgs> observable,
         Func<TSender, TArgs, Task> callback,
-        CancellationToken? cancellationToken = null
+        CancellationToken? cancellationToken = default
     );
 
     /// <summary>
@@ -339,7 +339,7 @@ public interface IEventObserver
     IObserver<string?> ObservePropertyChanging(
         INotifyPropertyChanging owner,
         Action<string?> callback,
-        CancellationToken? cancellationToken = null
+        CancellationToken? cancellationToken = default
     );
 
     /// <summary>
@@ -369,9 +369,9 @@ public interface IEventObserver
         INotifyPropertyChanging owner,
         Func<object?> property,
         Action callback,
-        CancellationToken? cancellationToken = null,
+        CancellationToken? cancellationToken = default,
         [CallerArgumentExpression(nameof(property))]
-        string? propertyExpression = null
+        string? propertyExpression = default
     );
 
     /// <summary>
@@ -394,7 +394,7 @@ public interface IEventObserver
     IObserver<string?> ObservePropertyChanged(
         INotifyPropertyChanged owner,
         Action<string?> callback,
-        CancellationToken? cancellationToken = null
+        CancellationToken? cancellationToken = default
     );
 
     /// <summary>
@@ -424,9 +424,9 @@ public interface IEventObserver
         INotifyPropertyChanged owner,
         Func<object?> property,
         Action callback,
-        CancellationToken? cancellationToken = null,
+        CancellationToken? cancellationToken = default,
         [CallerArgumentExpression(nameof(property))]
-        string? propertyExpression = null
+        string? propertyExpression = default
     );
 
     /// <summary>
@@ -458,6 +458,6 @@ public interface IEventObserver
         Action<TDelegate> register,
         Action<TDelegate> unregister,
         TDelegate callback,
-        CancellationToken? cancellationToken = null
+        CancellationToken? cancellationToken = default
     ) where TDelegate : Delegate;
 }

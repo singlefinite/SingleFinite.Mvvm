@@ -73,7 +73,7 @@ public interface IDispatcher
     /// </param>
     void Run(
         Action action,
-        Action<ExceptionEventArgs>? onError = null
+        Action<ExceptionEventArgs>? onError = default
     );
 
     /// <summary>
@@ -87,6 +87,6 @@ public interface IDispatcher
     /// </param>
     void Run(
         Func<Task> func,
-        Action<ExceptionEventArgs>? onError = null
+        Action<ExceptionEventArgs>? onError = default
     );
 }

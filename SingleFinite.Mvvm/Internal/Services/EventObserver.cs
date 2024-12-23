@@ -50,7 +50,7 @@ internal sealed class EventObserver : IEventObserver, IDisposable
     /// <inheritdoc/>
     public IObserver Observe(
         Observable observable,
-        CancellationToken? cancellationToken = null
+        CancellationToken? cancellationToken = default
     )
     {
         ObjectDisposedException.ThrowIf(_isDisposed, this);
@@ -77,13 +77,13 @@ internal sealed class EventObserver : IEventObserver, IDisposable
     public IObserver Observe(
         Observable observable,
         Action callback,
-        CancellationToken? cancellationToken = null
+        CancellationToken? cancellationToken = default
     ) => Observe(observable, cancellationToken).OnEach(callback);
 
     /// <inheritdoc/>
     public IObserver<TArgs> Observe<TArgs>(
         Observable<TArgs> observable,
-        CancellationToken? cancellationToken = null
+        CancellationToken? cancellationToken = default
     )
     {
         ObjectDisposedException.ThrowIf(_isDisposed, this);
@@ -110,13 +110,13 @@ internal sealed class EventObserver : IEventObserver, IDisposable
     public IObserver<TArgs> Observe<TArgs>(
         Observable<TArgs> observable,
         Action<TArgs> callback,
-        CancellationToken? cancellationToken = null
+        CancellationToken? cancellationToken = default
     ) => Observe<TArgs>(observable, cancellationToken).OnEach(callback);
 
     /// <inheritdoc/>
     public IObserver<TSender, TArgs> Observe<TSender, TArgs>(
         Observable<TSender, TArgs> observable,
-        CancellationToken? cancellationToken = null
+        CancellationToken? cancellationToken = default
     )
     {
         ObjectDisposedException.ThrowIf(_isDisposed, this);
@@ -143,13 +143,13 @@ internal sealed class EventObserver : IEventObserver, IDisposable
     public IObserver<TSender, TArgs> Observe<TSender, TArgs>(
         Observable<TSender, TArgs> observable,
         Action<TSender, TArgs> callback,
-        CancellationToken? cancellationToken = null
+        CancellationToken? cancellationToken = default
     ) => Observe(observable, cancellationToken).OnEach(callback);
 
     /// <inheritdoc/>
     public IAsyncObserver Observe(
         AsyncObservable observable,
-        CancellationToken? cancellationToken = null
+        CancellationToken? cancellationToken = default
     )
     {
         ObjectDisposedException.ThrowIf(_isDisposed, this);
@@ -176,13 +176,13 @@ internal sealed class EventObserver : IEventObserver, IDisposable
     public IAsyncObserver Observe(
         AsyncObservable observable,
         Func<Task> callback,
-        CancellationToken? cancellationToken = null
+        CancellationToken? cancellationToken = default
     ) => Observe(observable, cancellationToken).OnEach(callback);
 
     /// <inheritdoc/>
     public IAsyncObserver<TArgs> Observe<TArgs>(
         AsyncObservable<TArgs> observable,
-        CancellationToken? cancellationToken = null
+        CancellationToken? cancellationToken = default
     )
     {
         ObjectDisposedException.ThrowIf(_isDisposed, this);
@@ -209,13 +209,13 @@ internal sealed class EventObserver : IEventObserver, IDisposable
     public IAsyncObserver<TArgs> Observe<TArgs>(
         AsyncObservable<TArgs> observable,
         Func<TArgs, Task> callback,
-        CancellationToken? cancellationToken = null
+        CancellationToken? cancellationToken = default
     ) => Observe<TArgs>(observable, cancellationToken).OnEach(callback);
 
     /// <inheritdoc/>
     public IAsyncObserver<TSender, TArgs> Observe<TSender, TArgs>(
         AsyncObservable<TSender, TArgs> observable,
-        CancellationToken? cancellationToken = null
+        CancellationToken? cancellationToken = default
     )
     {
         ObjectDisposedException.ThrowIf(_isDisposed, this);
@@ -242,14 +242,14 @@ internal sealed class EventObserver : IEventObserver, IDisposable
     public IAsyncObserver<TSender, TArgs> Observe<TSender, TArgs>(
         AsyncObservable<TSender, TArgs> observable,
         Func<TSender, TArgs, Task> callback,
-        CancellationToken? cancellationToken = null
+        CancellationToken? cancellationToken = default
     ) => Observe(observable, cancellationToken).OnEach(callback);
 
     /// <inheritdoc/>
     public IObserver<string?> ObservePropertyChanging(
         INotifyPropertyChanging owner,
         Action<string?> callback,
-        CancellationToken? cancellationToken = null
+        CancellationToken? cancellationToken = default
     )
     {
         ObjectDisposedException.ThrowIf(_isDisposed, this);
@@ -289,9 +289,9 @@ internal sealed class EventObserver : IEventObserver, IDisposable
         INotifyPropertyChanging owner,
         Func<object?> property,
         Action callback,
-        CancellationToken? cancellationToken = null,
+        CancellationToken? cancellationToken = default,
         [CallerArgumentExpression(nameof(property))]
-        string? propertyExpression = null
+        string? propertyExpression = default
     )
     {
         ObjectDisposedException.ThrowIf(_isDisposed, this);
@@ -329,7 +329,7 @@ internal sealed class EventObserver : IEventObserver, IDisposable
     public IObserver<string?> ObservePropertyChanged(
         INotifyPropertyChanged owner,
         Action<string?> callback,
-        CancellationToken? cancellationToken = null
+        CancellationToken? cancellationToken = default
     )
     {
         ObjectDisposedException.ThrowIf(_isDisposed, this);
@@ -369,9 +369,9 @@ internal sealed class EventObserver : IEventObserver, IDisposable
         INotifyPropertyChanged owner,
         Func<object?> property,
         Action callback,
-        CancellationToken? cancellationToken = null,
+        CancellationToken? cancellationToken = default,
         [CallerArgumentExpression(nameof(property))]
-        string? propertyExpression = null
+        string? propertyExpression = default
     )
     {
         ObjectDisposedException.ThrowIf(_isDisposed, this);
@@ -410,7 +410,7 @@ internal sealed class EventObserver : IEventObserver, IDisposable
         Action<TDelegate> register,
         Action<TDelegate> unregister,
         TDelegate handler,
-        CancellationToken? cancellationToken = null
+        CancellationToken? cancellationToken = default
     ) where TDelegate : Delegate
     {
         ObjectDisposedException.ThrowIf(_isDisposed, this);

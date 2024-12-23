@@ -22,6 +22,7 @@
 using SingleFinite.Mvvm.Internal;
 using SingleFinite.Mvvm.Services;
 using Microsoft.Extensions.DependencyInjection;
+using System.ComponentModel;
 
 namespace SingleFinite.Mvvm.UnitTests;
 
@@ -171,10 +172,155 @@ public class ViewModelTests
         Assert.IsTrue(viewModel.IsDisposed);
     }
 
+    [TestMethod]
+    public void MappedProperty_Get_Raises_Events()
+    {
+        var observedEvents = new List<(object?, PropertyChangedEventArgs)>();
+        var simpleViewModel = new SimpleViewModel();
+        var simpleView = new SimpleView(simpleViewModel);
+
+        ((INotifyPropertyChanged)simpleView).PropertyChanged += (sender, args) =>
+        {
+            observedEvents.Add((sender, args));
+        };
+
+        Assert.AreEqual(0, observedEvents.Count);
+        Assert.AreEqual("positive", simpleView.MappedNumber);
+
+        simpleViewModel.Number = -5;
+
+        Assert.AreEqual(1, observedEvents.Count);
+        var (sender, args) = observedEvents[0];
+        Assert.AreEqual(simpleView, sender);
+        Assert.AreEqual("MappedNumber", args.PropertyName);
+        Assert.AreEqual("negative", simpleView.MappedNumber);
+    }
+
+    [TestMethod]
+    public void MappedProperty_Set_Raises_Events()
+    {
+        var observedEvents = new List<(object?, PropertyChangedEventArgs)>();
+        var simpleViewModel = new SimpleViewModel();
+        var simpleView = new SimpleView(simpleViewModel);
+
+        ((INotifyPropertyChanged)simpleViewModel).PropertyChanged += (sender, args) =>
+        {
+            observedEvents.Add((sender, args));
+        };
+
+        Assert.AreEqual(0, observedEvents.Count);
+        Assert.AreEqual(0, simpleViewModel.Number);
+
+        simpleView.MappedNumber = "negative";
+
+        Assert.AreEqual(1, observedEvents.Count);
+        var (sender, args) = observedEvents[0];
+        Assert.AreEqual(simpleViewModel, sender);
+        Assert.AreEqual("Number", args.PropertyName);
+        Assert.AreEqual(-1, simpleViewModel.Number);
+    }
+
+    [TestMethod]
+    public void MappedProperty_Event_Raised_Once_For_Multiple_Source_Changes()
+    {
+        var observedEvents = new List<(object?, PropertyChangedEventArgs)>();
+        var viewModel = new MultiMappedViewModel();
+        var view = new MultiMappedView(viewModel);
+
+        ((INotifyPropertyChanged)view).PropertyChanged += (sender, args) =>
+        {
+            observedEvents.Add((sender, args));
+        };
+
+        Assert.AreEqual(0, observedEvents.Count);
+        Assert.AreEqual("0:", view.Label);
+
+        viewModel.Number = 9;
+
+        Assert.AreEqual(1, observedEvents.Count);
+        var (sender, args) = observedEvents[0];
+        Assert.AreEqual(view, sender);
+        Assert.AreEqual("Label", args.PropertyName);
+        Assert.AreEqual("9:9", view.Label);
+    }
+
     #region Types
+
+    private class MultiMappedViewModel : ViewModel
+    {
+        public int Number
+        {
+            get;
+            set => ChangeProperty(ref field, value);
+        }
+
+        public string? Text
+        {
+            get;
+            private set => ChangeProperty(ref field, value);
+        }
+
+        protected override void OnChanged()
+        {
+            Text = Number.ToString();
+        }
+    }
+
+    private class MultiMappedView : IView<MultiMappedViewModel>
+    {
+        public MultiMappedView(MultiMappedViewModel viewModel)
+        {
+            ViewModel = viewModel;
+
+            ViewModel.MapProperty(
+                mappedObject: this,
+                mappedPropertyName: nameof(Label),
+                sourcePropertyNames: [
+                    nameof(ViewModel.Number),
+                    nameof(ViewModel.Text)
+                ]
+            );
+        }
+
+        public MultiMappedViewModel ViewModel { get; }
+
+        public string Label => $"{ViewModel.Number}:{ViewModel.Text}";
+    }
 
     private class SimpleViewModel : ViewModel
     {
+        public int Number
+        {
+            get;
+            set => ChangeProperty(ref field, value);
+        }
+    }
+
+    private class SimpleView : IView<SimpleViewModel>
+    {
+        public SimpleView(SimpleViewModel viewModel)
+        {
+            ViewModel = viewModel;
+
+            ViewModel.MapProperty(
+                mappedObject: this,
+                mappedPropertyName: nameof(MappedNumber),
+                sourcePropertyNames: nameof(ViewModel.Number)
+            );
+        }
+
+        public SimpleViewModel ViewModel { get; }
+
+        public string MappedNumber
+        {
+            get => ViewModel.Number >= 0 ?
+                "positive" :
+                "negative";
+
+            set => ViewModel.Number = value == "positive" ?
+                1 :
+                -1;
+        }
     }
 
     private class ExampleViewModel(

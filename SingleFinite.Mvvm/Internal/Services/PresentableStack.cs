@@ -134,7 +134,7 @@ internal sealed class PresentableStack(IViewBuilder viewBuilder) :
     /// <inheritdoc/>
     public IViewModel Push(
         IViewModelDescriptor viewModelDescriptor,
-        PopOptions? popOptions = null
+        PopOptions? popOptions = default
     )
     {
         ObjectDisposedException.ThrowIf(_isDisposed, this);
@@ -149,7 +149,7 @@ internal sealed class PresentableStack(IViewBuilder viewBuilder) :
     }
 
     /// <inheritdoc/>
-    public TViewModel Push<TViewModel>(PopOptions? popOptions = null)
+    public TViewModel Push<TViewModel>(PopOptions? popOptions = default)
         where TViewModel : IViewModel =>
         (TViewModel)Push(
             new ViewModelDescriptor<TViewModel>(), popOptions
@@ -158,7 +158,7 @@ internal sealed class PresentableStack(IViewBuilder viewBuilder) :
     /// <inheritdoc/>
     public TViewModel Push<TViewModel, TViewModelContext>(
         TViewModelContext context,
-        PopOptions? popOptions = null
+        PopOptions? popOptions = default
     )
         where TViewModel : IViewModel<TViewModelContext> =>
         (TViewModel)Push(
@@ -169,7 +169,7 @@ internal sealed class PresentableStack(IViewBuilder viewBuilder) :
     /// <inheritdoc/>
     public IViewModel[] PushAll(
         IEnumerable<IViewModelDescriptor> viewModelDescriptors,
-        PopOptions? popOptions = null
+        PopOptions? popOptions = default
     )
     {
         ObjectDisposedException.ThrowIf(_isDisposed, this);
@@ -190,7 +190,7 @@ internal sealed class PresentableStack(IViewBuilder viewBuilder) :
     public IViewModel Add(
         int index,
         IViewModelDescriptor viewModelDescriptor,
-        PopOptions? popOptions = null
+        PopOptions? popOptions = default
     )
     {
         ObjectDisposedException.ThrowIf(_isDisposed, this);
@@ -205,7 +205,7 @@ internal sealed class PresentableStack(IViewBuilder viewBuilder) :
     }
 
     /// <inheritdoc/>
-    public TViewModel Add<TViewModel>(int index, PopOptions? popOptions = null)
+    public TViewModel Add<TViewModel>(int index, PopOptions? popOptions = default)
         where TViewModel : IViewModel =>
         (TViewModel)Add(
             index,
@@ -216,7 +216,7 @@ internal sealed class PresentableStack(IViewBuilder viewBuilder) :
     public TViewModel Add<TViewModel, TViewModelContext>(
         int index,
         TViewModelContext context,
-        PopOptions? popOptions = null
+        PopOptions? popOptions = default
     )
         where TViewModel : IViewModel<TViewModelContext> =>
         (TViewModel)Add(
@@ -229,7 +229,7 @@ internal sealed class PresentableStack(IViewBuilder viewBuilder) :
     public IViewModel[] AddAll(
         int index,
         IEnumerable<IViewModelDescriptor> viewModelDescriptors,
-        PopOptions? popOptions = null
+        PopOptions? popOptions = default
     )
     {
         ObjectDisposedException.ThrowIf(_isDisposed, this);

@@ -427,7 +427,7 @@ public static class IObserverExtensions
     public static IAsyncObserver ToAsync(
         this IObserver observer,
         IDispatcher dispatcher,
-        Action<ExceptionEventArgs>? onError = null
+        Action<ExceptionEventArgs>? onError = default
     ) => new ObserverToAsync(observer, dispatcher, onError);
 
     /// <summary>
@@ -451,7 +451,7 @@ public static class IObserverExtensions
     public static IAsyncObserver<TArgs> ToAsync<TArgs>(
         this IObserver<TArgs> observer,
         IDispatcher dispatcher,
-        Action<ExceptionEventArgs>? onError = null
+        Action<ExceptionEventArgs>? onError = default
     ) => new ObserverToAsync<TArgs>(observer, dispatcher, onError);
 
     /// <summary>
@@ -478,6 +478,6 @@ public static class IObserverExtensions
     public static IAsyncObserver<TSender, TArgs> ToAsync<TSender, TArgs>(
         this IObserver<TSender, TArgs> observer,
         IDispatcher dispatcher,
-        Action<ExceptionEventArgs>? onError = null
+        Action<ExceptionEventArgs>? onError = default
     ) => new ObserverToAsync<TSender, TArgs>(observer, dispatcher, onError);
 }

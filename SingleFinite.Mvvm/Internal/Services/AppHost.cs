@@ -50,7 +50,7 @@ internal sealed class AppHost : IAppHost, IDisposable
     /// <summary>
     /// Holds the service provider for the app.
     /// </summary>
-    private IServiceProvider? _serviceProvider = null;
+    private IServiceProvider? _serviceProvider = default;
 
     #endregion
 

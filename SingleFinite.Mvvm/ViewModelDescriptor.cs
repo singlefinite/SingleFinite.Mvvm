@@ -51,7 +51,7 @@ public interface IViewModelDescriptor
 /// </param>
 public record ViewModelDescriptor(
     Type ViewModelType,
-    object? ViewModelContext = null
+    object? ViewModelContext = default
 ) : IViewModelDescriptor;
 
 /// <summary>
@@ -76,7 +76,7 @@ public record ViewModelDescriptor<TViewModel>() : IViewModelDescriptor
     /// <see cref="ViewModelDescriptor{TViewModel, TViewModelContext}"/> record 
     /// instead.
     /// </summary>
-    public virtual object? ViewModelContext { get; } = null;
+    public virtual object? ViewModelContext { get; } = default;
 }
 
 /// <summary>

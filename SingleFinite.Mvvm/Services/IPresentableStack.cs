@@ -47,7 +47,7 @@ public interface IPresentableStack : IPresentable
     /// <returns>The newly created view model.</returns>
     IViewModel Push(
         IViewModelDescriptor viewModelDescriptor,
-        PopOptions? popOptions = null
+        PopOptions? popOptions = default
     );
 
     /// <summary>
@@ -61,7 +61,7 @@ public interface IPresentableStack : IPresentable
     /// view model on.
     /// </param>
     /// <returns>The newly created view model.</returns>
-    TViewModel Push<TViewModel>(PopOptions? popOptions = null)
+    TViewModel Push<TViewModel>(PopOptions? popOptions = default)
         where TViewModel : IViewModel;
 
     /// <summary>
@@ -83,7 +83,7 @@ public interface IPresentableStack : IPresentable
     /// <returns>The newly created view model.</returns>
     TViewModel Push<TViewModel, TViewModelContext>(
         TViewModelContext context,
-        PopOptions? popOptions = null
+        PopOptions? popOptions = default
     )
         where TViewModel : IViewModel<TViewModelContext>;
 
@@ -100,7 +100,7 @@ public interface IPresentableStack : IPresentable
     /// <returns>The newly created view models.</returns>
     IViewModel[] PushAll(
         IEnumerable<IViewModelDescriptor> viewModelDescriptors,
-        PopOptions? popOptions = null
+        PopOptions? popOptions = default
     );
 
     /// <summary>
@@ -118,7 +118,7 @@ public interface IPresentableStack : IPresentable
     IViewModel Add(
         int index,
         IViewModelDescriptor viewModelDescriptor,
-        PopOptions? popOptions = null
+        PopOptions? popOptions = default
     );
 
     /// <summary>
@@ -133,7 +133,7 @@ public interface IPresentableStack : IPresentable
     /// view model on.
     /// </param>
     /// <returns>The newly created view model.</returns>
-    TViewModel Add<TViewModel>(int index, PopOptions? popOptions = null)
+    TViewModel Add<TViewModel>(int index, PopOptions? popOptions = default)
         where TViewModel : IViewModel;
 
     /// <summary>
@@ -157,7 +157,7 @@ public interface IPresentableStack : IPresentable
     TViewModel Add<TViewModel, TViewModelContext>(
         int index,
         TViewModelContext context,
-        PopOptions? popOptions = null
+        PopOptions? popOptions = default
     )
         where TViewModel : IViewModel<TViewModelContext>;
 
@@ -176,7 +176,7 @@ public interface IPresentableStack : IPresentable
     IViewModel[] AddAll(
         int index,
         IEnumerable<IViewModelDescriptor> viewModelDescriptors,
-        PopOptions? popOptions = null
+        PopOptions? popOptions = default
     );
 
     /// <summary>

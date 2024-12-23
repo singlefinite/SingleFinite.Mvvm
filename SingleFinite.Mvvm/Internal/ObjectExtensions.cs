@@ -46,7 +46,7 @@ internal static class ObjectExtensions
     /// </exception>
     public static TType Require<TType>(
         this TType? item,
-        [CallerArgumentExpression(nameof(item))] string? name = null
+        [CallerArgumentExpression(nameof(item))] string? name = default
     ) =>
         item ?? throw new NullReferenceException($"{name} is null.");
 
