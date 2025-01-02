@@ -32,10 +32,11 @@ internal class ExceptionHandler : IExceptionHandler
     #region Methods
 
     /// <inheritdoc/>
-    public void Handle(Exception ex)
+    public bool Handle(Exception ex)
     {
         Debug.WriteLine($"Exception: [{ex.GetType().FullName}] {ex.Message}");
         _exceptionHandledSource.RaiseEvent(ex);
+        return true;
     }
 
     #endregion

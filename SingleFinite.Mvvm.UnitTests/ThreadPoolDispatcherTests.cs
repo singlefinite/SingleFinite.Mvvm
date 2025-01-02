@@ -181,8 +181,11 @@ public class ThreadPoolDispatcherTests
     {
         public List<Exception> HandledExceptions { get; } = [];
 
-        public void Handle(Exception ex) =>
+        public bool Handle(Exception ex)
+        {
             HandledExceptions.Add(ex);
+            return true;
+        }
 
         public Observable<Exception> ExceptionHandled => throw new NotImplementedException();
     }
