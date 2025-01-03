@@ -23,5 +23,3 @@ jobs:
         run: dotnet pack --configuration Release SingleFinite.Mvvm
       - name: Publish the package
         run: dotnet nuget push SingleFinite.Mvvm/bin/Release/*.nupkg
-      - name: Publish the package symbols
-        run: dotnet nuget push SingleFinite.Mvvm/bin/Release/*.snupkg
