@@ -12,12 +12,12 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '9.0.x'
           source-url: https://nuget.pkg.github.com/SingleFinite.Mvvm/index.json
         env:
-          NUGET_AUTH_TOKEN: ${{secrets.PACKAGE_TOKEN}}
+          NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
       - run: dotnet build --configuration Release SingleFinite.Mvvm
       - name: Create the package
         run: dotnet pack --configuration Release SingleFinite.Mvvm
