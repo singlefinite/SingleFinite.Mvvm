@@ -1,0 +1,27 @@
+name: Package
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+          source-url: https://nuget.pkg.github.com/SingleFinite.Mvvm/index.json
+        env:
+          NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+      - run: dotnet build --configuration Release SingleFinite.Mvvm
+      - name: Create the package
+        run: dotnet pack --configuration Release SingleFinite.Mvvm
+      - name: Publish the package
+        run: dotnet nuget push SingleFinite.Mvvm/bin/Release/*.nupkg
+      - name: Publish the package symbols
+        run: dotnet nuget push SingleFinite.Mvvm/bin/Release/*.snupkg
