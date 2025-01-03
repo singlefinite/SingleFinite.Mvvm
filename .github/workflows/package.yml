@@ -15,7 +15,7 @@ jobs:
       - uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '9.0.x'
-          source-url: https://nuget.pkg.github.com/SingleFinite.Mvvm/index.json
+          source-url: https://nuget.pkg.github.com/singlefinite/index.json
         env:
           NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
       - run: dotnet build --configuration Release SingleFinite.Mvvm
