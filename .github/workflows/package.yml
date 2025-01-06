@@ -15,11 +15,13 @@ jobs:
       - uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '9.0.x'
-          source-url: https://nuget.pkg.github.com/singlefinite/index.json
+          source-url: https://api.nuget.org/v3/index.json
         env:
-          NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          NUGET_AUTH_TOKEN: ${{secrets.NUGET_TOKEN}}
       - run: dotnet build --configuration Release SingleFinite.Mvvm
       - name: Create the package
         run: dotnet pack --configuration Release SingleFinite.Mvvm
       - name: Publish the package
         run: dotnet nuget push SingleFinite.Mvvm/bin/Release/*.nupkg
+      - name: Publish the package symbols
+        run: dotnet nuget push SingleFinite.Mvvm/bin/Release/*.snupkg
