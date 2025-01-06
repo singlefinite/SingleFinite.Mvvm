@@ -19,6 +19,6 @@ jobs:
       - name: Create the package
         run: dotnet pack --configuration Release SingleFinite.Mvvm
       - name: Publish the package
-        run: dotnet nuget push SingleFinite.Mvvm/bin/Release/*.nupkg -source https://api.nuget.org/v3/index.json -ApiKey ${{secrets.NUGET_TOKEN}}
+        run: dotnet nuget push SingleFinite.Mvvm/bin/Release/*.nupkg -s https://api.nuget.org/v3/index.json -k ${{secrets.NUGET_TOKEN}}
       - name: Publish the package symbols
-        run: dotnet nuget push SingleFinite.Mvvm/bin/Release/*.snupkg -source https://api.nuget.org/v3/index.json -ApiKey ${{secrets.NUGET_TOKEN}}
+        run: dotnet nuget push SingleFinite.Mvvm/bin/Release/*.snupkg -s https://api.nuget.org/v3/index.json -k ${{secrets.NUGET_TOKEN}}
