@@ -19,6 +19,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using SingleFinite.Mvvm.Internal.Services;
+
 namespace SingleFinite.Mvvm.UnitTests;
 
 [TestClass]
@@ -80,4 +82,55 @@ public class AsyncObservableTests
 
         Assert.AreEqual(81, observedNumber);
     }
+
+    [TestMethod]
+    public async Task Debounce_Runs_AsExpected()
+    {
+        var observedNames = new List<string>();
+
+        var exceptionHandler = new ExceptionHandler();
+        var observedErrors = 0;
+        exceptionHandler.ExceptionHandled.Observe(_ => observedErrors++);
+
+        var dispatcher = new MainDispatcher(
+            new DedicatedThreadDispatcher(exceptionHandler),
+            new CancellationTokenProvider(),
+            exceptionHandler
+        );
+
+        var observableSource = new AsyncObservableSource<ExampleArgs>();
+        var observable = observableSource.Observable;
+
+        var observer = observable
+            .Observe()
+            .Debounce(
+                dispatcher: dispatcher,
+                delay: TimeSpan.FromSeconds(1)
+            )
+            .OnEach(args => observedNames.Add(args.Name));
+
+        Assert.AreEqual(0, observedNames.Count);
+
+        await observableSource.RaiseEventAsync(new("One", 0));
+        await observableSource.RaiseEventAsync(new("Two", 0));
+        await observableSource.RaiseEventAsync(new("Three", 0));
+
+        Assert.AreEqual(0, observedNames.Count);
+
+        await Task.Delay(TimeSpan.FromSeconds(1.1));
+
+        Assert.AreEqual(1, observedNames.Count);
+        Assert.AreEqual("Three", observedNames[0]);
+
+        Assert.AreEqual(0, observedErrors);
+    }
+
+    #region Types
+
+    private record ExampleArgs(
+        string Name,
+        int Age
+    );
+
+    #endregion
 }

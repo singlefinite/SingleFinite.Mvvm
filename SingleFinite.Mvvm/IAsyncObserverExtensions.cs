@@ -20,6 +20,7 @@
 // SOFTWARE.
 
 using SingleFinite.Mvvm.Internal.Observers;
+using SingleFinite.Mvvm.Services;
 
 namespace SingleFinite.Mvvm;
 
@@ -658,6 +659,72 @@ public static class IAsyncObserverExtensions
         observer,
         predicate: (_, _) => Task.FromResult(true),
         continueOnDispose: true
+    );
+
+    /// <summary>
+    /// Observer that debounces events.
+    /// </summary>
+    /// <param name="observer">The observer to extend.</param>
+    /// <param name="dispatcher">The dispatcher to use for debouncing.</param>
+    /// <param name="delay">The delay period for debouncing.</param>
+    /// <returns>
+    /// A new observer that has been added to the chain of observers.
+    /// </returns>
+    public static IAsyncObserver Debounce(
+        this IAsyncObserver observer,
+        IDispatcherWithCancellation dispatcher,
+        TimeSpan delay
+    ) => new AsyncObserverDebounce(
+        observer,
+        dispatcher,
+        delay
+    );
+
+    /// <summary>
+    /// Observer that debounces events.
+    /// </summary>
+    /// <typeparam name="TArgs">
+    /// The type of arguments passed with observed events.
+    /// </typeparam>
+    /// <param name="observer">The observer to extend.</param>
+    /// <param name="dispatcher">The dispatcher to use for debouncing.</param>
+    /// <param name="delay">The delay period for debouncing.</param>
+    /// <returns>
+    /// A new observer that has been added to the chain of observers.
+    /// </returns>
+    public static IAsyncObserver<TArgs> Debounce<TArgs>(
+        this IAsyncObserver<TArgs> observer,
+        IDispatcherWithCancellation dispatcher,
+        TimeSpan delay
+    ) => new AsyncObserverDebounce<TArgs>(
+        observer,
+        dispatcher,
+        delay
+    );
+
+    /// <summary>
+    /// Observer that debounces events.
+    /// </summary>
+    /// <typeparam name="TSender">
+    /// The type of sender passed with observed events.
+    /// </typeparam>
+    /// <typeparam name="TArgs">
+    /// The type of arguments passed with observed events.
+    /// </typeparam>
+    /// <param name="observer">The observer to extend.</param>
+    /// <param name="dispatcher">The dispatcher to use for debouncing.</param>
+    /// <param name="delay">The delay period for debouncing.</param>
+    /// <returns>
+    /// A new observer that has been added to the chain of observers.
+    /// </returns>
+    public static IAsyncObserver<TSender, TArgs> Debounce<TSender, TArgs>(
+        this IAsyncObserver<TSender, TArgs> observer,
+        IDispatcherWithCancellation dispatcher,
+        TimeSpan delay
+    ) => new AsyncObserverDebounce<TSender, TArgs>(
+        observer,
+        dispatcher,
+        delay
     );
 
     /// <summary>

@@ -341,6 +341,72 @@ public static class IObserverExtensions
     );
 
     /// <summary>
+    /// Observer that debounces events.
+    /// </summary>
+    /// <param name="observer">The observer to extend.</param>
+    /// <param name="dispatcher">The dispatcher to use for debouncing.</param>
+    /// <param name="delay">The delay period for debouncing.</param>
+    /// <returns>
+    /// A new observer that has been added to the chain of observers.
+    /// </returns>
+    public static IObserver Debounce(
+        this IObserver observer,
+        IDispatcherWithCancellation dispatcher,
+        TimeSpan delay
+    ) => new ObserverDebounce(
+        observer,
+        dispatcher,
+        delay
+    );
+
+    /// <summary>
+    /// Observer that debounces events.
+    /// </summary>
+    /// <typeparam name="TArgs">
+    /// The type of arguments passed with observed events.
+    /// </typeparam>
+    /// <param name="observer">The observer to extend.</param>
+    /// <param name="dispatcher">The dispatcher to use for debouncing.</param>
+    /// <param name="delay">The delay period for debouncing.</param>
+    /// <returns>
+    /// A new observer that has been added to the chain of observers.
+    /// </returns>
+    public static IObserver<TArgs> Debounce<TArgs>(
+        this IObserver<TArgs> observer,
+        IDispatcherWithCancellation dispatcher,
+        TimeSpan delay
+    ) => new ObserverDebounce<TArgs>(
+        observer,
+        dispatcher,
+        delay
+    );
+
+    /// <summary>
+    /// Observer that debounces events.
+    /// </summary>
+    /// <typeparam name="TSender">
+    /// The type of sender passed with observed events.
+    /// </typeparam>
+    /// <typeparam name="TArgs">
+    /// The type of arguments passed with observed events.
+    /// </typeparam>
+    /// <param name="observer">The observer to extend.</param>
+    /// <param name="dispatcher">The dispatcher to use for debouncing.</param>
+    /// <param name="delay">The delay period for debouncing.</param>
+    /// <returns>
+    /// A new observer that has been added to the chain of observers.
+    /// </returns>
+    public static IObserver<TSender, TArgs> Debounce<TSender, TArgs>(
+        this IObserver<TSender, TArgs> observer,
+        IDispatcherWithCancellation dispatcher,
+        TimeSpan delay
+    ) => new ObserverDebounce<TSender, TArgs>(
+        observer,
+        dispatcher,
+        delay
+    );
+
+    /// <summary>
     /// Invoke the given callback whenever an exception thrown below this
     /// observer in the chain is thrown.  Caught exceptions will not move past
     /// this observer.

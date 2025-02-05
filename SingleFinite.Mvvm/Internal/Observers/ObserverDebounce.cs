@@ -1,0 +1,258 @@
+﻿// MIT License
+// Copyright (c) 2024 Single Finite
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy 
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights 
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell 
+// copies of the Software, and to permit persons to whom the Software is 
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in 
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
+using SingleFinite.Mvvm.Services;
+
+namespace SingleFinite.Mvvm.Internal.Observers;
+
+/// <summary>
+/// Observer that debounces events.
+/// </summary>
+/// <param name="parent">The parent to this observer.</param>
+/// <param name="dispatcher">The dispatcher to use for debouncing.</param>
+/// <param name="delay">The delay period for debouncing.</param>
+internal class ObserverDebounce(
+    IObserver parent,
+    IDispatcherWithCancellation dispatcher,
+    TimeSpan delay
+) : ObserverBase(parent), IObserver
+{
+    #region Fields
+
+    /// <summary>
+    /// Cancellation token source used to cancel any pending event.
+    /// </summary>
+    private CancellationTokenSource? _cancellationTokenSource = null;
+
+    #endregion
+
+    #region Methods
+
+    /// <summary>
+    /// Wait for the configured delay and if no new events have been raised
+    /// when the delay period has elapsed pass the event onto the next observer.
+    /// </summary>
+    /// <returns>
+    /// This method always returns false since the next event is only raised
+    /// after the delay has elapsed.
+    /// </returns>
+    protected override bool OnEvent()
+    {
+        _cancellationTokenSource?.Cancel();
+        _cancellationTokenSource = new();
+
+        dispatcher.Run(
+            func: async cancellationToken =>
+            {
+                try
+                {
+                    await Task.Delay(
+                        delay: delay,
+                        cancellationToken: cancellationToken
+                    );
+                }
+                catch (TaskCanceledException) { /* ignore canceled tasks */ }
+
+                if (!cancellationToken.IsCancellationRequested)
+                    MappedEvent?.Invoke();
+            },
+            _cancellationTokenSource.Token
+        );
+
+        return false;
+    }
+
+    #endregion
+
+    #region Events
+
+    /// <summary>
+    /// This event is raised when an event has been debounced.
+    /// </summary>
+    event Action IObserver.Event
+    {
+        add => MappedEvent += value;
+        remove => MappedEvent -= value;
+    }
+    private event Action? MappedEvent;
+
+    #endregion
+}
+
+/// <summary>
+/// Observer that debounces events.
+/// </summary>
+/// <typeparam name="TArgs">
+/// The type of arguments passed with observed events.
+/// </typeparam>
+/// <param name="parent">The parent to this observer.</param>
+/// <param name="dispatcher">The dispatcher to use for debouncing.</param>
+/// <param name="delay">The delay period for debouncing.</param>
+internal class ObserverDebounce<TArgs>(
+    IObserver<TArgs> parent,
+    IDispatcherWithCancellation dispatcher,
+    TimeSpan delay
+) : ObserverBase<TArgs>(parent), IObserver<TArgs>
+{
+    #region Fields
+
+    /// <summary>
+    /// Cancellation token source used to cancel any pending event.
+    /// </summary>
+    private CancellationTokenSource? _cancellationTokenSource = null;
+
+    #endregion
+
+    #region Methods
+
+    /// <summary>
+    /// Wait for the configured delay and if no new events have been raised
+    /// when the delay period has elapsed pass the event onto the next observer.
+    /// </summary>
+    /// <param name="args">Arguments passed with the observed event.</param>
+    /// <returns>
+    /// This method always returns false since the next event is only raised
+    /// after the delay has elapsed.
+    /// </returns>
+    protected override bool OnEvent(TArgs args)
+    {
+        _cancellationTokenSource?.Cancel();
+        _cancellationTokenSource = new();
+
+        dispatcher.Run(
+            func: async cancellationToken =>
+            {
+                try
+                {
+                    await Task.Delay(
+                        delay: delay,
+                        cancellationToken: cancellationToken
+                    );
+                }
+                catch (TaskCanceledException) { /* ignore canceled tasks */ }
+
+                if (!cancellationToken.IsCancellationRequested)
+                    MappedEvent?.Invoke(args);
+            },
+            _cancellationTokenSource.Token
+        );
+
+        return false;
+    }
+
+    #endregion
+
+    #region Events
+
+    /// <summary>
+    /// This event is raised when an event has been debounced.
+    /// </summary>
+    event Action<TArgs> IObserver<TArgs>.Event
+    {
+        add => MappedEvent += value;
+        remove => MappedEvent -= value;
+    }
+    private event Action<TArgs>? MappedEvent;
+
+    #endregion
+}
+
+/// <summary>
+/// Observer that debounces events.
+/// </summary>
+/// <typeparam name="TSender">
+/// The type of sender passed with observed events.
+/// </typeparam>
+/// <typeparam name="TArgs">
+/// The type of arguments passed with observed events.
+/// </typeparam>
+/// <param name="parent">The parent to this observer.</param>
+/// <param name="dispatcher">The dispatcher to use for debouncing.</param>
+/// <param name="delay">The delay period for debouncing.</param>
+internal class ObserverDebounce<TSender, TArgs>(
+    IObserver<TSender, TArgs> parent,
+    IDispatcherWithCancellation dispatcher,
+    TimeSpan delay
+) : ObserverBase<TSender, TArgs>(parent), IObserver<TSender, TArgs>
+{
+    #region Fields
+
+    /// <summary>
+    /// Cancellation token source used to cancel any pending event.
+    /// </summary>
+    private CancellationTokenSource? _cancellationTokenSource = null;
+
+    #endregion
+
+    #region Methods
+
+    /// <summary>
+    /// Wait for the configured delay and if no new events have been raised
+    /// when the delay period has elapsed pass the event onto the next observer.
+    /// </summary>
+    /// <param name="sender">Sender passed with the observed event.</param>
+    /// <param name="args">Arguments passed with the observed event.</param>
+    /// <returns>
+    /// This method always returns false since the next event is only raised
+    /// after the delay has elapsed.
+    /// </returns>
+    protected override bool OnEvent(TSender sender, TArgs args)
+    {
+        _cancellationTokenSource?.Cancel();
+        _cancellationTokenSource = new();
+
+        dispatcher.Run(
+            func: async cancellationToken =>
+            {
+                try
+                {
+                    await Task.Delay(
+                        delay: delay,
+                        cancellationToken: cancellationToken
+                    );
+                }
+                catch (TaskCanceledException) { /* ignore canceled tasks */ }
+
+                if (!cancellationToken.IsCancellationRequested)
+                    MappedEvent?.Invoke(sender, args);
+            },
+            _cancellationTokenSource.Token
+        );
+
+        return false;
+    }
+
+    #endregion
+
+    #region Events
+
+    /// <summary>
+    /// This event is raised when an event has been debounced.
+    /// </summary>
+    event Action<TSender, TArgs> IObserver<TSender, TArgs>.Event
+    {
+        add => MappedEvent += value;
+        remove => MappedEvent -= value;
+    }
+    private event Action<TSender, TArgs>? MappedEvent;
+
+    #endregion
+}

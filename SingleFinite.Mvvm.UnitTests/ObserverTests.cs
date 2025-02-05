@@ -294,6 +294,48 @@ public class ObserverTests
     }
 
     [TestMethod]
+    public async Task Debounce_Runs_AsExpected()
+    {
+        var observedNames = new List<string>();
+
+        var exceptionHandler = new ExceptionHandler();
+        var observedErrors = 0;
+        exceptionHandler.ExceptionHandled.Observe(_ => observedErrors++);
+
+        var dispatcher = new MainDispatcher(
+            new DedicatedThreadDispatcher(exceptionHandler),
+            new CancellationTokenProvider(),
+            exceptionHandler
+        );
+
+        var observableSource = new ObservableSource<ExampleArgs>();
+        var observable = observableSource.Observable;
+
+        var observer = observable
+            .Observe()
+            .Debounce(
+                dispatcher: dispatcher,
+                delay: TimeSpan.FromSeconds(1)
+            )
+            .OnEach(args => observedNames.Add(args.Name));
+
+        Assert.AreEqual(0, observedNames.Count);
+
+        observableSource.RaiseEvent(new("One", 0));
+        observableSource.RaiseEvent(new("Two", 0));
+        observableSource.RaiseEvent(new("Three", 0));
+
+        Assert.AreEqual(0, observedNames.Count);
+
+        await Task.Delay(TimeSpan.FromSeconds(1.1));
+
+        Assert.AreEqual(1, observedNames.Count);
+        Assert.AreEqual("Three", observedNames[0]);
+
+        Assert.AreEqual(0, observedErrors);
+    }
+
+    [TestMethod]
     public void Catch_Catches_Exceptions()
     {
         var observedExceptions = new List<Exception>();
