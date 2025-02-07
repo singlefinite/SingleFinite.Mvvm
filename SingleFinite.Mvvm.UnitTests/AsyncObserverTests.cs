@@ -19,6 +19,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using SingleFinite.Mvvm.Internal.Services;
+
 namespace SingleFinite.Mvvm.UnitTests;
 
 [TestClass]
@@ -328,6 +330,52 @@ public class AsyncObserverTests
         await observableSource.RaiseEventAsync(new("World", 0));
 
         Assert.AreEqual(0, observedNames.Count);
+    }
+
+    [TestMethod]
+    public async Task Debounce_Runs_AsExpected()
+    {
+        var observedNames = new List<string>();
+
+        var exceptionHandler = new ExceptionHandler();
+        var observedErrors = 0;
+        exceptionHandler.ExceptionHandled.Observe(_ => observedErrors++);
+
+        var dispatcher = new MainDispatcher(
+            new DedicatedThreadDispatcher(exceptionHandler),
+            new CancellationTokenProvider(),
+            exceptionHandler
+        );
+
+        var observableSource = new AsyncObservableSource<ExampleArgs>();
+        var observable = observableSource.Observable;
+
+        var observer = observable
+            .Observe()
+            .Debounce(
+                delay: TimeSpan.FromSeconds(1),
+                dispatcher: dispatcher
+            )
+            .OnEach(async args =>
+            {
+                await Task.Delay(5);
+                observedNames.Add(args.Name);
+            });
+
+        Assert.AreEqual(0, observedNames.Count);
+
+        await observableSource.RaiseEventAsync(new("One", 0));
+        await observableSource.RaiseEventAsync(new("Two", 0));
+        await observableSource.RaiseEventAsync(new("Three", 0));
+
+        Assert.AreEqual(0, observedNames.Count);
+
+        await Task.Delay(TimeSpan.FromSeconds(1.1));
+
+        Assert.AreEqual(1, observedNames.Count);
+        Assert.AreEqual("Three", observedNames[0]);
+
+        Assert.AreEqual(0, observedErrors);
     }
 
     [TestMethod]

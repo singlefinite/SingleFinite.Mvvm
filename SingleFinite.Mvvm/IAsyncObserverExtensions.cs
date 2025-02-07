@@ -665,19 +665,27 @@ public static class IAsyncObserverExtensions
     /// Observer that debounces events.
     /// </summary>
     /// <param name="observer">The observer to extend.</param>
-    /// <param name="dispatcher">The dispatcher to use for debouncing.</param>
     /// <param name="delay">The delay period for debouncing.</param>
+    /// <param name="dispatcher">
+    /// The dispatcher to run on after the delay has passed.
+    /// </param>
+    /// <param name="debouncer">
+    /// The debouncer to use for debouncing.  If not specifed a default debouncer
+    /// will be used.
+    /// </param>
     /// <returns>
     /// A new observer that has been added to the chain of observers.
     /// </returns>
     public static IAsyncObserver Debounce(
         this IAsyncObserver observer,
-        IDispatcherWithCancellation dispatcher,
-        TimeSpan delay
+        TimeSpan delay,
+        IDispatcher dispatcher,
+        IDebouncer? debouncer = null
     ) => new AsyncObserverDebounce(
         observer,
+        delay,
         dispatcher,
-        delay
+        debouncer
     );
 
     /// <summary>
@@ -687,19 +695,27 @@ public static class IAsyncObserverExtensions
     /// The type of arguments passed with observed events.
     /// </typeparam>
     /// <param name="observer">The observer to extend.</param>
-    /// <param name="dispatcher">The dispatcher to use for debouncing.</param>
     /// <param name="delay">The delay period for debouncing.</param>
+    /// <param name="dispatcher">
+    /// The dispatcher to run on after the delay has passed.
+    /// </param>
+    /// <param name="debouncer">
+    /// The debouncer to use for debouncing.  If not specifed a default debouncer
+    /// will be used.
+    /// </param>
     /// <returns>
     /// A new observer that has been added to the chain of observers.
     /// </returns>
     public static IAsyncObserver<TArgs> Debounce<TArgs>(
         this IAsyncObserver<TArgs> observer,
-        IDispatcherWithCancellation dispatcher,
-        TimeSpan delay
+        TimeSpan delay,
+        IDispatcher dispatcher,
+        IDebouncer? debouncer = null
     ) => new AsyncObserverDebounce<TArgs>(
         observer,
+        delay,
         dispatcher,
-        delay
+        debouncer
     );
 
     /// <summary>
@@ -712,19 +728,27 @@ public static class IAsyncObserverExtensions
     /// The type of arguments passed with observed events.
     /// </typeparam>
     /// <param name="observer">The observer to extend.</param>
-    /// <param name="dispatcher">The dispatcher to use for debouncing.</param>
     /// <param name="delay">The delay period for debouncing.</param>
+    /// <param name="dispatcher">
+    /// The dispatcher to run on after the delay has passed.
+    /// </param>
+    /// <param name="debouncer">
+    /// The debouncer to use for debouncing.  If not specifed a default debouncer
+    /// will be used.
+    /// </param>
     /// <returns>
     /// A new observer that has been added to the chain of observers.
     /// </returns>
     public static IAsyncObserver<TSender, TArgs> Debounce<TSender, TArgs>(
         this IAsyncObserver<TSender, TArgs> observer,
-        IDispatcherWithCancellation dispatcher,
-        TimeSpan delay
+        TimeSpan delay,
+        IDispatcher dispatcher,
+        IDebouncer? debouncer = null
     ) => new AsyncObserverDebounce<TSender, TArgs>(
         observer,
+        delay,
         dispatcher,
-        delay
+        debouncer
     );
 
     /// <summary>

@@ -19,6 +19,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using SingleFinite.Mvvm.Internal.Services;
 using SingleFinite.Mvvm.Services;
 
 namespace SingleFinite.Mvvm.Internal.Observers;
@@ -27,20 +28,27 @@ namespace SingleFinite.Mvvm.Internal.Observers;
 /// Observer that debounces events.
 /// </summary>
 /// <param name="parent">The parent to this observer.</param>
-/// <param name="dispatcher">The dispatcher to use for debouncing.</param>
 /// <param name="delay">The delay period for debouncing.</param>
+/// <param name="dispatcher">
+/// The dispatcher to run on after the delay has passed.
+/// </param>
+/// <param name="debouncer">
+/// The debouncer to use for debouncing.  If not specifed a default debouncer
+/// will be used.
+/// </param>
 internal class AsyncObserverDebounce(
     IAsyncObserver parent,
-    IDispatcherWithCancellation dispatcher,
-    TimeSpan delay
+    TimeSpan delay,
+    IDispatcher dispatcher,
+    IDebouncer? debouncer = null
 ) : AsyncObserverBase(parent), IAsyncObserver
 {
     #region Fields
 
     /// <summary>
-    /// Cancellation token source used to cancel any pending event.
+    /// Debouncer used to debounce.
     /// </summary>
-    private CancellationTokenSource? _cancellationTokenSource = null;
+    private readonly IDebouncer _debouncer = debouncer ?? new Debouncer();
 
     #endregion
 
@@ -48,33 +56,18 @@ internal class AsyncObserverDebounce(
 
     /// <summary>
     /// Wait for the configured delay and if no new events have been raised
-    /// when the delay period has elapsed pass the event onto the next observer.
+    /// when the delay period has passed pass the event onto the next observer.
     /// </summary>
     /// <returns>
     /// This method always returns false since the next event is only raised
-    /// after the delay has elapsed.
+    /// after the delay has passed.
     /// </returns>
     protected override Task<bool> OnEventAsync()
     {
-        _cancellationTokenSource?.Cancel();
-        _cancellationTokenSource = new();
-
-        dispatcher.Run(
-            func: async cancellationToken =>
-            {
-                try
-                {
-                    await Task.Delay(
-                        delay: delay,
-                        cancellationToken: cancellationToken
-                    );
-                }
-                catch (TaskCanceledException) { /* ignore canceled tasks */ }
-
-                if (!cancellationToken.IsCancellationRequested)
-                    MappedEvent?.Invoke();
-            },
-            _cancellationTokenSource.Token
+        _debouncer.Debounce(
+            func: () => MappedEvent?.Invoke() ?? Task.CompletedTask,
+            delay: delay,
+            dispatcher: dispatcher
         );
 
         return Task.FromResult(false);
@@ -104,20 +97,25 @@ internal class AsyncObserverDebounce(
 /// The type of arguments passed with observed events.
 /// </typeparam>
 /// <param name="parent">The parent to this observer.</param>
-/// <param name="dispatcher">The dispatcher to use for debouncing.</param>
 /// <param name="delay">The delay period for debouncing.</param>
+/// <param name="dispatcher">The dispatcher to use for debouncing.</param>
+/// <param name="debouncer">
+/// The debouncer to use for debouncing.  If not specifed a default debouncer
+/// will be used.
+/// </param>
 internal class AsyncObserverDebounce<TArgs>(
     IAsyncObserver<TArgs> parent,
-    IDispatcherWithCancellation dispatcher,
-    TimeSpan delay
+    TimeSpan delay,
+    IDispatcher dispatcher,
+    IDebouncer? debouncer = null
 ) : AsyncObserverBase<TArgs>(parent), IAsyncObserver<TArgs>
 {
     #region Fields
 
     /// <summary>
-    /// Cancellation token source used to cancel any pending event.
+    /// Debouncer used to debounce.
     /// </summary>
-    private CancellationTokenSource? _cancellationTokenSource = null;
+    private readonly IDebouncer _debouncer = debouncer ?? new Debouncer();
 
     #endregion
 
@@ -125,34 +123,19 @@ internal class AsyncObserverDebounce<TArgs>(
 
     /// <summary>
     /// Wait for the configured delay and if no new events have been raised
-    /// when the delay period has elapsed pass the event onto the next observer.
+    /// when the delay period has passed pass the event onto the next observer.
     /// </summary>
     /// <param name="args">Arguments passed with the observed event.</param>
     /// <returns>
     /// This method always returns false since the next event is only raised
-    /// after the delay has elapsed.
+    /// after the delay has passed.
     /// </returns>
     protected override Task<bool> OnEventAsync(TArgs args)
     {
-        _cancellationTokenSource?.Cancel();
-        _cancellationTokenSource = new();
-
-        dispatcher.Run(
-            func: async cancellationToken =>
-            {
-                try
-                {
-                    await Task.Delay(
-                        delay: delay,
-                        cancellationToken: cancellationToken
-                    );
-                }
-                catch (TaskCanceledException) { /* ignore canceled tasks */ }
-
-                if (!cancellationToken.IsCancellationRequested)
-                    MappedEvent?.Invoke(args);
-            },
-            _cancellationTokenSource.Token
+        _debouncer.Debounce(
+            func: () => MappedEvent?.Invoke(args) ?? Task.CompletedTask,
+            delay: delay,
+            dispatcher: dispatcher
         );
 
         return Task.FromResult(false);
@@ -185,20 +168,25 @@ internal class AsyncObserverDebounce<TArgs>(
 /// The type of arguments passed with observed events.
 /// </typeparam>
 /// <param name="parent">The parent to this observer.</param>
-/// <param name="dispatcher">The dispatcher to use for debouncing.</param>
 /// <param name="delay">The delay period for debouncing.</param>
+/// <param name="dispatcher">The dispatcher to use for debouncing.</param>
+/// <param name="debouncer">
+/// The debouncer to use for debouncing.  If not specifed a default debouncer
+/// will be used.
+/// </param>
 internal class AsyncObserverDebounce<TSender, TArgs>(
     IAsyncObserver<TSender, TArgs> parent,
-    IDispatcherWithCancellation dispatcher,
-    TimeSpan delay
+    TimeSpan delay,
+    IDispatcher dispatcher,
+    IDebouncer? debouncer = null
 ) : AsyncObserverBase<TSender, TArgs>(parent), IAsyncObserver<TSender, TArgs>
 {
     #region Fields
 
     /// <summary>
-    /// Cancellation token source used to cancel any pending event.
+    /// Debouncer used to debounce.
     /// </summary>
-    private CancellationTokenSource? _cancellationTokenSource = null;
+    private readonly IDebouncer _debouncer = debouncer ?? new Debouncer();
 
     #endregion
 
@@ -206,35 +194,20 @@ internal class AsyncObserverDebounce<TSender, TArgs>(
 
     /// <summary>
     /// Wait for the configured delay and if no new events have been raised
-    /// when the delay period has elapsed pass the event onto the next observer.
+    /// when the delay period has passed pass the event onto the next observer.
     /// </summary>
     /// <param name="sender">Sender passed with the observed event.</param>
     /// <param name="args">Arguments passed with the observed event.</param>
     /// <returns>
     /// This method always returns false since the next event is only raised
-    /// after the delay has elapsed.
+    /// after the delay has passed.
     /// </returns>
     protected override Task<bool> OnEventAsync(TSender sender, TArgs args)
     {
-        _cancellationTokenSource?.Cancel();
-        _cancellationTokenSource = new();
-
-        dispatcher.Run(
-            func: async cancellationToken =>
-            {
-                try
-                {
-                    await Task.Delay(
-                        delay: delay,
-                        cancellationToken: cancellationToken
-                    );
-                }
-                catch (TaskCanceledException) { /* ignore canceled tasks */ }
-
-                if (!cancellationToken.IsCancellationRequested)
-                    MappedEvent?.Invoke(sender, args);
-            },
-            _cancellationTokenSource.Token
+        _debouncer.Debounce(
+            func: () => MappedEvent?.Invoke(sender, args) ?? Task.CompletedTask,
+            delay: delay,
+            dispatcher: dispatcher
         );
 
         return Task.FromResult(false);

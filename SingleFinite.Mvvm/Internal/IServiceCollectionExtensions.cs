@@ -69,6 +69,7 @@ internal static class IServiceCollectionExtensions
         .AddScoped<IBackgroundDispatcher, BackgroundDispatcher>()
         .AddScoped<IMainDispatcher, MainDispatcher>()
         .AddScoped<IEventObserver, EventObserver>()
+        .AddTransient<IDebouncer, Debouncer>()
         .AddTransient<IPresentableItem, PresentableItem>()
         .AddTransient<IPresentableStack, PresentableStack>()
         .AddTransient<IPresentableDialog, PresentableDialog>();

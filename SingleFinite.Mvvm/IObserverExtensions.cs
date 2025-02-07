@@ -344,19 +344,27 @@ public static class IObserverExtensions
     /// Observer that debounces events.
     /// </summary>
     /// <param name="observer">The observer to extend.</param>
-    /// <param name="dispatcher">The dispatcher to use for debouncing.</param>
     /// <param name="delay">The delay period for debouncing.</param>
+    /// <param name="dispatcher">
+    /// The dispatcher to run on after the delay has passed.
+    /// </param>
+    /// <param name="debouncer">
+    /// The debouncer to use for debouncing.  If not specifed a default debouncer
+    /// will be used.
+    /// </param>
     /// <returns>
     /// A new observer that has been added to the chain of observers.
     /// </returns>
     public static IObserver Debounce(
         this IObserver observer,
-        IDispatcherWithCancellation dispatcher,
-        TimeSpan delay
+        TimeSpan delay,
+        IDispatcher dispatcher,
+        IDebouncer? debouncer = null
     ) => new ObserverDebounce(
         observer,
+        delay,
         dispatcher,
-        delay
+        debouncer
     );
 
     /// <summary>
@@ -366,19 +374,27 @@ public static class IObserverExtensions
     /// The type of arguments passed with observed events.
     /// </typeparam>
     /// <param name="observer">The observer to extend.</param>
-    /// <param name="dispatcher">The dispatcher to use for debouncing.</param>
     /// <param name="delay">The delay period for debouncing.</param>
+    /// <param name="dispatcher">
+    /// The dispatcher to run on after the delay has passed.
+    /// </param>
+    /// <param name="debouncer">
+    /// The debouncer to use for debouncing.  If not specifed a default debouncer
+    /// will be used.
+    /// </param>
     /// <returns>
     /// A new observer that has been added to the chain of observers.
     /// </returns>
     public static IObserver<TArgs> Debounce<TArgs>(
         this IObserver<TArgs> observer,
-        IDispatcherWithCancellation dispatcher,
-        TimeSpan delay
+        TimeSpan delay,
+        IDispatcher dispatcher,
+        IDebouncer? debouncer = null
     ) => new ObserverDebounce<TArgs>(
         observer,
+        delay,
         dispatcher,
-        delay
+        debouncer
     );
 
     /// <summary>
@@ -391,19 +407,27 @@ public static class IObserverExtensions
     /// The type of arguments passed with observed events.
     /// </typeparam>
     /// <param name="observer">The observer to extend.</param>
-    /// <param name="dispatcher">The dispatcher to use for debouncing.</param>
     /// <param name="delay">The delay period for debouncing.</param>
+    /// <param name="dispatcher">
+    /// The dispatcher to run on after the delay has passed.
+    /// </param>
+    /// <param name="debouncer">
+    /// The debouncer to use for debouncing.  If not specifed a default debouncer
+    /// will be used.
+    /// </param>
     /// <returns>
     /// A new observer that has been added to the chain of observers.
     /// </returns>
     public static IObserver<TSender, TArgs> Debounce<TSender, TArgs>(
         this IObserver<TSender, TArgs> observer,
-        IDispatcherWithCancellation dispatcher,
-        TimeSpan delay
+        TimeSpan delay,
+        IDispatcher dispatcher,
+        IDebouncer? debouncer = null
     ) => new ObserverDebounce<TSender, TArgs>(
         observer,
+        delay,
         dispatcher,
-        delay
+        debouncer
     );
 
     /// <summary>

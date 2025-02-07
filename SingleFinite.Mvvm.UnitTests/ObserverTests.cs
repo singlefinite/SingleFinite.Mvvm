@@ -314,8 +314,8 @@ public class ObserverTests
         var observer = observable
             .Observe()
             .Debounce(
-                dispatcher: dispatcher,
-                delay: TimeSpan.FromSeconds(1)
+                delay: TimeSpan.FromSeconds(1),
+                dispatcher: dispatcher
             )
             .OnEach(args => observedNames.Add(args.Name));
 
