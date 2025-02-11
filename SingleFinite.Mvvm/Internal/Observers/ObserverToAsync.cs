@@ -52,8 +52,8 @@ internal class ObserverToAsync(
         dispatcher.Run(
             func: async () =>
             {
-                if (MappedEvent is not null)
-                    await MappedEvent.Invoke();
+                if (MappedNext is not null)
+                    await MappedNext.Invoke();
             },
             onError: onError
         );
@@ -68,12 +68,12 @@ internal class ObserverToAsync(
     /// This event is raised on the dispatcher for an observed event to pass
     /// down the observer chain.
     /// </summary>
-    event Func<Task> IAsyncObserver.Event
+    event Func<Task> IAsyncObserver.Next
     {
-        add => MappedEvent += value;
-        remove => MappedEvent -= value;
+        add => MappedNext += value;
+        remove => MappedNext -= value;
     }
-    private event Func<Task>? MappedEvent;
+    private event Func<Task>? MappedNext;
 
     #endregion
 }
@@ -110,8 +110,8 @@ internal class ObserverToAsync<TArgs>(
         dispatcher.Run(
             func: async () =>
             {
-                if (MappedEvent is not null)
-                    await MappedEvent.Invoke(args);
+                if (MappedNext is not null)
+                    await MappedNext.Invoke(args);
             },
             onError: onError
         );
@@ -126,12 +126,12 @@ internal class ObserverToAsync<TArgs>(
     /// This event is raised on the dispatcher for an observed event to pass
     /// down the observer chain.
     /// </summary>
-    event Func<TArgs, Task> IAsyncObserver<TArgs>.Event
+    event Func<TArgs, Task> IAsyncObserver<TArgs>.Next
     {
-        add => MappedEvent += value;
-        remove => MappedEvent -= value;
+        add => MappedNext += value;
+        remove => MappedNext -= value;
     }
-    private event Func<TArgs, Task>? MappedEvent;
+    private event Func<TArgs, Task>? MappedNext;
 
     #endregion
 }
@@ -172,8 +172,8 @@ internal class ObserverToAsync<TSender, TArgs>(
         dispatcher.Run(
             func: async () =>
             {
-                if (MappedEvent is not null)
-                    await MappedEvent.Invoke(sender, args);
+                if (MappedNext is not null)
+                    await MappedNext.Invoke(sender, args);
             },
             onError: onError
         );
@@ -188,12 +188,12 @@ internal class ObserverToAsync<TSender, TArgs>(
     /// This event is raised on the dispatcher for an observed event to pass
     /// down the observer chain.
     /// </summary>
-    event Func<TSender, TArgs, Task> IAsyncObserver<TSender, TArgs>.Event
+    event Func<TSender, TArgs, Task> IAsyncObserver<TSender, TArgs>.Next
     {
-        add => MappedEvent += value;
-        remove => MappedEvent -= value;
+        add => MappedNext += value;
+        remove => MappedNext -= value;
     }
-    private event Func<TSender, TArgs, Task>? MappedEvent;
+    private event Func<TSender, TArgs, Task>? MappedNext;
 
     #endregion
 }

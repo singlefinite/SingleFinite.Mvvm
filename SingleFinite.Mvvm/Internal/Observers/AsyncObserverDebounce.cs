@@ -65,7 +65,7 @@ internal class AsyncObserverDebounce(
     protected override Task<bool> OnEventAsync()
     {
         _debouncer.Debounce(
-            func: () => MappedEvent?.Invoke() ?? Task.CompletedTask,
+            func: () => MappedNext?.Invoke() ?? Task.CompletedTask,
             delay: delay,
             dispatcher: dispatcher
         );
@@ -80,12 +80,12 @@ internal class AsyncObserverDebounce(
     /// <summary>
     /// This event is raised when an event has been debounced.
     /// </summary>
-    event Func<Task> IAsyncObserver.Event
+    event Func<Task> IAsyncObserver.Next
     {
-        add => MappedEvent += value;
-        remove => MappedEvent -= value;
+        add => MappedNext += value;
+        remove => MappedNext -= value;
     }
-    private event Func<Task>? MappedEvent;
+    private event Func<Task>? MappedNext;
 
     #endregion
 }
@@ -133,7 +133,7 @@ internal class AsyncObserverDebounce<TArgs>(
     protected override Task<bool> OnEventAsync(TArgs args)
     {
         _debouncer.Debounce(
-            func: () => MappedEvent?.Invoke(args) ?? Task.CompletedTask,
+            func: () => MappedNext?.Invoke(args) ?? Task.CompletedTask,
             delay: delay,
             dispatcher: dispatcher
         );
@@ -148,12 +148,12 @@ internal class AsyncObserverDebounce<TArgs>(
     /// <summary>
     /// This event is raised when an event has been debounced.
     /// </summary>
-    event Func<TArgs, Task> IAsyncObserver<TArgs>.Event
+    event Func<TArgs, Task> IAsyncObserver<TArgs>.Next
     {
-        add => MappedEvent += value;
-        remove => MappedEvent -= value;
+        add => MappedNext += value;
+        remove => MappedNext -= value;
     }
-    private event Func<TArgs, Task>? MappedEvent;
+    private event Func<TArgs, Task>? MappedNext;
 
     #endregion
 }
@@ -205,7 +205,7 @@ internal class AsyncObserverDebounce<TSender, TArgs>(
     protected override Task<bool> OnEventAsync(TSender sender, TArgs args)
     {
         _debouncer.Debounce(
-            func: () => MappedEvent?.Invoke(sender, args) ?? Task.CompletedTask,
+            func: () => MappedNext?.Invoke(sender, args) ?? Task.CompletedTask,
             delay: delay,
             dispatcher: dispatcher
         );
@@ -220,12 +220,12 @@ internal class AsyncObserverDebounce<TSender, TArgs>(
     /// <summary>
     /// This event is raised when an event has been debounced.
     /// </summary>
-    event Func<TSender, TArgs, Task> IAsyncObserver<TSender, TArgs>.Event
+    event Func<TSender, TArgs, Task> IAsyncObserver<TSender, TArgs>.Next
     {
-        add => MappedEvent += value;
-        remove => MappedEvent -= value;
+        add => MappedNext += value;
+        remove => MappedNext -= value;
     }
-    private event Func<TSender, TArgs, Task>? MappedEvent;
+    private event Func<TSender, TArgs, Task>? MappedNext;
 
     #endregion
 }

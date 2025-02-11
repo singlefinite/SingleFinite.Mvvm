@@ -36,7 +36,7 @@ public interface IAsyncObserver : IDisposable
     /// An event that is raised when the next observer(s) in the chain should
     /// handle the observed event.
     /// </summary>
-    event Func<Task> Event;
+    event Func<Task> Next;
 }
 
 /// <summary>
@@ -68,7 +68,7 @@ public interface IAsyncObserver<TArgs> : IDisposable
     /// An event that is raised when the next observer(s) in the chain should
     /// handle the observed event.
     /// </summary>
-    event Func<TArgs, Task> Event;
+    event Func<TArgs, Task> Next;
 }
 
 /// <summary>
@@ -107,5 +107,5 @@ public interface IAsyncObserver<TSender, TArgs> : IDisposable
     /// An event that is raised when the next observer(s) in the chain should
     /// handle the observed event.
     /// </summary>
-    event Func<TSender, TArgs, Task> Event;
+    event Func<TSender, TArgs, Task> Next;
 }

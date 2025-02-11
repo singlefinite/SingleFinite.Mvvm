@@ -62,7 +62,7 @@ internal class AsyncObserverSource : IAsyncObserver
     /// <summary>
     /// Raise the Event.
     /// </summary>
-    private Task OnEventAsync() => Event?.Invoke() ?? Task.CompletedTask;
+    private Task OnEventAsync() => Next?.Invoke() ?? Task.CompletedTask;
 
     /// <summary>
     /// Unsubscribe from the observable events.
@@ -83,7 +83,7 @@ internal class AsyncObserverSource : IAsyncObserver
     /// <summary>
     /// Raised when the observable event is raised. 
     /// </summary>
-    public event Func<Task>? Event;
+    public event Func<Task>? Next;
 
     #endregion
 }
@@ -130,7 +130,7 @@ internal class AsyncObserverSource<TArgs> : IAsyncObserver<TArgs>
     /// Raise the Event.
     /// </summary>
     private Task OnEventAsync(TArgs args) =>
-        Event?.Invoke(args) ?? Task.CompletedTask;
+        Next?.Invoke(args) ?? Task.CompletedTask;
 
     /// <summary>
     /// Unsubscribe from the observable events.
@@ -151,7 +151,7 @@ internal class AsyncObserverSource<TArgs> : IAsyncObserver<TArgs>
     /// <summary>
     /// Raised when the observable event is raised. 
     /// </summary>
-    public event Func<TArgs, Task>? Event;
+    public event Func<TArgs, Task>? Next;
 
     #endregion
 }
@@ -199,7 +199,7 @@ internal class AsyncObserverSource<TSender, TArgs> :
     /// Raise the Event.
     /// </summary>
     private Task OnEventAsync(TSender sender, TArgs args) =>
-        Event?.Invoke(sender, args) ?? Task.CompletedTask;
+        Next?.Invoke(sender, args) ?? Task.CompletedTask;
 
     /// <summary>
     /// Unsubscribe from the observable events.
@@ -220,7 +220,7 @@ internal class AsyncObserverSource<TSender, TArgs> :
     /// <summary>
     /// Raised when the observable event is raised. 
     /// </summary>
-    public event Func<TSender, TArgs, Task>? Event;
+    public event Func<TSender, TArgs, Task>? Next;
 
     #endregion
 }

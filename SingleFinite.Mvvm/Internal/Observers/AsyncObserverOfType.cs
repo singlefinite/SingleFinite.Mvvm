@@ -54,8 +54,8 @@ internal class AsyncObserverOfType<TArgsIn, TArgsOut>(
     /// </returns>
     protected async override Task<bool> OnEventAsync(TArgsIn args)
     {
-        if (args is TArgsOut outArgs && MappedEvent is not null)
-            await MappedEvent.Invoke(outArgs);
+        if (args is TArgsOut outArgs && MappedNext is not null)
+            await MappedNext.Invoke(outArgs);
 
         return false;
     }
@@ -68,12 +68,12 @@ internal class AsyncObserverOfType<TArgsIn, TArgsOut>(
     /// This event is raised when arguments for an observed event are
     /// successfully cast into the specified type.
     /// </summary>
-    event Func<TArgsOut, Task> IAsyncObserver<TArgsOut>.Event
+    event Func<TArgsOut, Task> IAsyncObserver<TArgsOut>.Next
     {
-        add => MappedEvent += value;
-        remove => MappedEvent -= value;
+        add => MappedNext += value;
+        remove => MappedNext -= value;
     }
-    private event Func<TArgsOut, Task>? MappedEvent;
+    private event Func<TArgsOut, Task>? MappedNext;
 
     #endregion
 }
@@ -121,9 +121,9 @@ internal class AsyncObserverOfType<TSenderIn, TArgsIn, TSenderOut, TArgsOut>(
         if (
             sender is TSenderOut outSender &&
             args is TArgsOut outArgs &&
-            MappedEvent is not null
+            MappedNext is not null
         )
-            await MappedEvent.Invoke(outSender, outArgs);
+            await MappedNext.Invoke(outSender, outArgs);
 
         return false;
     }
@@ -136,12 +136,12 @@ internal class AsyncObserverOfType<TSenderIn, TArgsIn, TSenderOut, TArgsOut>(
     /// This event is raised when arguments for an observed event are
     /// successfully cast into the specified type.
     /// </summary>
-    event Func<TSenderOut, TArgsOut, Task> IAsyncObserver<TSenderOut, TArgsOut>.Event
+    event Func<TSenderOut, TArgsOut, Task> IAsyncObserver<TSenderOut, TArgsOut>.Next
     {
-        add => MappedEvent += value;
-        remove => MappedEvent -= value;
+        add => MappedNext += value;
+        remove => MappedNext -= value;
     }
-    private event Func<TSenderOut, TArgsOut, Task>? MappedEvent;
+    private event Func<TSenderOut, TArgsOut, Task>? MappedNext;
 
     #endregion
 }

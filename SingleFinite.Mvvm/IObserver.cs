@@ -36,7 +36,7 @@ public interface IObserver : IDisposable
     /// An event that is raised when the next observer(s) in the chain should
     /// handle the observed event.
     /// </summary>
-    event Action Event;
+    event Action Next;
 }
 
 /// <summary>
@@ -68,7 +68,7 @@ public interface IObserver<TArgs> : IDisposable
     /// An event that is raised when the next observer(s) in the chain should
     /// handle the observed event.
     /// </summary>
-    event Action<TArgs> Event;
+    event Action<TArgs> Next;
 }
 
 /// <summary>
@@ -107,5 +107,5 @@ public interface IObserver<TSender, TArgs> : IDisposable
     /// An event that is raised when the next observer(s) in the chain should
     /// handle the observed event.
     /// </summary>
-    event Action<TSender, TArgs> Event;
+    event Action<TSender, TArgs> Next;
 }

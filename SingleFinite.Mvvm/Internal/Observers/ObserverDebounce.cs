@@ -65,7 +65,7 @@ internal class ObserverDebounce(
     protected override bool OnEvent()
     {
         _debouncer.Debounce(
-            action: () => MappedEvent?.Invoke(),
+            action: () => MappedNext?.Invoke(),
             delay: delay,
             dispatcher: dispatcher
         );
@@ -80,12 +80,12 @@ internal class ObserverDebounce(
     /// <summary>
     /// This event is raised when an event has been debounced.
     /// </summary>
-    event Action IObserver.Event
+    event Action IObserver.Next
     {
-        add => MappedEvent += value;
-        remove => MappedEvent -= value;
+        add => MappedNext += value;
+        remove => MappedNext -= value;
     }
-    private event Action? MappedEvent;
+    private event Action? MappedNext;
 
     #endregion
 }
@@ -133,7 +133,7 @@ internal class ObserverDebounce<TArgs>(
     protected override bool OnEvent(TArgs args)
     {
         _debouncer.Debounce(
-            action: () => MappedEvent?.Invoke(args),
+            action: () => MappedNext?.Invoke(args),
             delay: delay,
             dispatcher: dispatcher
         );
@@ -148,12 +148,12 @@ internal class ObserverDebounce<TArgs>(
     /// <summary>
     /// This event is raised when an event has been debounced.
     /// </summary>
-    event Action<TArgs> IObserver<TArgs>.Event
+    event Action<TArgs> IObserver<TArgs>.Next
     {
-        add => MappedEvent += value;
-        remove => MappedEvent -= value;
+        add => MappedNext += value;
+        remove => MappedNext -= value;
     }
-    private event Action<TArgs>? MappedEvent;
+    private event Action<TArgs>? MappedNext;
 
     #endregion
 }
@@ -205,7 +205,7 @@ internal class ObserverDebounce<TSender, TArgs>(
     protected override bool OnEvent(TSender sender, TArgs args)
     {
         _debouncer.Debounce(
-            action: () => MappedEvent?.Invoke(sender, args),
+            action: () => MappedNext?.Invoke(sender, args),
             delay: delay,
             dispatcher: dispatcher
         );
@@ -220,12 +220,12 @@ internal class ObserverDebounce<TSender, TArgs>(
     /// <summary>
     /// This event is raised when an event has been debounced.
     /// </summary>
-    event Action<TSender, TArgs> IObserver<TSender, TArgs>.Event
+    event Action<TSender, TArgs> IObserver<TSender, TArgs>.Next
     {
-        add => MappedEvent += value;
-        remove => MappedEvent -= value;
+        add => MappedNext += value;
+        remove => MappedNext -= value;
     }
-    private event Action<TSender, TArgs>? MappedEvent;
+    private event Action<TSender, TArgs>? MappedNext;
 
     #endregion
 }

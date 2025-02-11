@@ -44,7 +44,7 @@ internal abstract class AsyncObserverBase : IAsyncObserver
     public AsyncObserverBase(IAsyncObserver parent)
     {
         _parent = parent;
-        _parent.Event += async () =>
+        _parent.Next += async () =>
         {
             if (await OnEventAsync())
                 await RaiseNextEventAsync();
@@ -71,7 +71,7 @@ internal abstract class AsyncObserverBase : IAsyncObserver
     /// </summary>
     /// <returns>The running task.</returns>
     protected Task RaiseNextEventAsync() =>
-        Event?.Invoke() ?? Task.CompletedTask;
+        Next?.Invoke() ?? Task.CompletedTask;
 
     /// <summary>
     /// Invoke the parent Dispose method.  The expectation is that the dispose
@@ -88,7 +88,7 @@ internal abstract class AsyncObserverBase : IAsyncObserver
     /// The event that is raised when handling of the parent event should
     /// continue the next observers down the chain of observers.
     /// </summary>
-    public event Func<Task>? Event;
+    public event Func<Task>? Next;
 
     #endregion
 }
@@ -116,7 +116,7 @@ internal abstract class AsyncObserverBase<TArgs> : IAsyncObserver<TArgs>
     public AsyncObserverBase(IAsyncObserver<TArgs> parent)
     {
         _parent = parent;
-        _parent.Event += async args =>
+        _parent.Next += async args =>
         {
             if (await OnEventAsync(args))
                 await RaiseNextEventAsync(args);
@@ -144,7 +144,7 @@ internal abstract class AsyncObserverBase<TArgs> : IAsyncObserver<TArgs>
     /// <param name="args">The args to pass with the event.</param>
     /// <returns>The running task.</returns>
     protected Task RaiseNextEventAsync(TArgs args) =>
-        Event?.Invoke(args) ?? Task.CompletedTask;
+        Next?.Invoke(args) ?? Task.CompletedTask;
 
     /// <summary>
     /// Invoke the parent Dispose method.  The expectation is that the dispose
@@ -161,7 +161,7 @@ internal abstract class AsyncObserverBase<TArgs> : IAsyncObserver<TArgs>
     /// The event that is raised when handling of the parent event should
     /// continue the next observers down the chain of observers.
     /// </summary>
-    public event Func<TArgs, Task>? Event;
+    public event Func<TArgs, Task>? Next;
 
     #endregion
 }
@@ -190,7 +190,7 @@ internal abstract class AsyncObserverBase<TSender, TArgs> :
     public AsyncObserverBase(IAsyncObserver<TSender, TArgs> parent)
     {
         _parent = parent;
-        _parent.Event += async (sender, args) =>
+        _parent.Next += async (sender, args) =>
         {
             if (await OnEventAsync(sender, args))
                 await RaiseNextEventAsync(sender, args);
@@ -219,7 +219,7 @@ internal abstract class AsyncObserverBase<TSender, TArgs> :
     /// <param name="args">The args to pass with the event.</param>
     /// <returns>The running task.</returns>
     protected Task RaiseNextEventAsync(TSender sender, TArgs args) =>
-        Event?.Invoke(sender, args) ?? Task.CompletedTask;
+        Next?.Invoke(sender, args) ?? Task.CompletedTask;
 
     /// <summary>
     /// Invoke the parent Dispose method.  The expectation is that the dispose
@@ -236,7 +236,7 @@ internal abstract class AsyncObserverBase<TSender, TArgs> :
     /// The event that is raised when handling of the parent event should
     /// continue the next observers down the chain of observers.
     /// </summary>
-    public event Func<TSender, TArgs, Task>? Event;
+    public event Func<TSender, TArgs, Task>? Next;
 
     #endregion
 }

@@ -62,7 +62,7 @@ internal class ObserverSource : IObserver
     /// <summary>
     /// Raise the Event.
     /// </summary>
-    private void OnEvent() => Event?.Invoke();
+    private void OnEvent() => Next?.Invoke();
 
     /// <summary>
     /// Unsubscribe from the observable events.
@@ -83,7 +83,7 @@ internal class ObserverSource : IObserver
     /// <summary>
     /// Raised when the observable event is raised. 
     /// </summary>
-    public event Action? Event;
+    public event Action? Next;
 
     #endregion
 }
@@ -129,7 +129,7 @@ internal class ObserverSource<TArgs> : IObserver<TArgs>
     /// <summary>
     /// Raise the Event.
     /// </summary>
-    private void OnEvent(TArgs args) => Event?.Invoke(args);
+    private void OnEvent(TArgs args) => Next?.Invoke(args);
 
     /// <summary>
     /// Unsubscribe from the observable events.
@@ -150,7 +150,7 @@ internal class ObserverSource<TArgs> : IObserver<TArgs>
     /// <summary>
     /// Raised when the observable event is raised. 
     /// </summary>
-    public event Action<TArgs>? Event;
+    public event Action<TArgs>? Next;
 
     #endregion
 }
@@ -197,7 +197,7 @@ internal class ObserverSource<TSender, TArgs> : IObserver<TSender, TArgs>
     /// Raise the Event.
     /// </summary>
     private void OnEvent(TSender sender, TArgs args) =>
-        Event?.Invoke(sender, args);
+        Next?.Invoke(sender, args);
 
     /// <summary>
     /// Unsubscribe from the observable events.
@@ -218,7 +218,7 @@ internal class ObserverSource<TSender, TArgs> : IObserver<TSender, TArgs>
     /// <summary>
     /// Raised when the observable event is raised. 
     /// </summary>
-    public event Action<TSender, TArgs>? Event;
+    public event Action<TSender, TArgs>? Next;
 
     #endregion
 }

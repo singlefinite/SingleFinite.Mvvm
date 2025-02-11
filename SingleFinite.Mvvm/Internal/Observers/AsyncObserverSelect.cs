@@ -49,8 +49,8 @@ internal class AsyncObserverSelect<TArgsOut>(
     protected async override Task<bool> OnEventAsync()
     {
         var value = await selector();
-        if (MappedEvent is not null)
-            await MappedEvent.Invoke(value);
+        if (MappedNext is not null)
+            await MappedNext.Invoke(value);
         return false;
     }
 
@@ -62,12 +62,12 @@ internal class AsyncObserverSelect<TArgsOut>(
     /// This event is raised when a value is selected for an observed event to
     /// pass down the observer chain.
     /// </summary>
-    event Func<TArgsOut, Task> IAsyncObserver<TArgsOut>.Event
+    event Func<TArgsOut, Task> IAsyncObserver<TArgsOut>.Next
     {
-        add => MappedEvent += value;
-        remove => MappedEvent -= value;
+        add => MappedNext += value;
+        remove => MappedNext -= value;
     }
-    private event Func<TArgsOut, Task>? MappedEvent;
+    private event Func<TArgsOut, Task>? MappedNext;
 
     #endregion
 }
@@ -107,8 +107,8 @@ internal class AsyncObserverSelect<TArgsIn, TArgsOut>(
     protected async override Task<bool> OnEventAsync(TArgsIn args)
     {
         var value = await callback(args);
-        if (MappedEvent is not null)
-            await MappedEvent.Invoke(value);
+        if (MappedNext is not null)
+            await MappedNext.Invoke(value);
         return false;
     }
 
@@ -120,12 +120,12 @@ internal class AsyncObserverSelect<TArgsIn, TArgsOut>(
     /// This event is raised when a value is selected for an observed event to
     /// pass down the observer chain.
     /// </summary>
-    event Func<TArgsOut, Task> IAsyncObserver<TArgsOut>.Event
+    event Func<TArgsOut, Task> IAsyncObserver<TArgsOut>.Next
     {
-        add => MappedEvent += value;
-        remove => MappedEvent -= value;
+        add => MappedNext += value;
+        remove => MappedNext -= value;
     }
-    private event Func<TArgsOut, Task>? MappedEvent;
+    private event Func<TArgsOut, Task>? MappedNext;
 
     #endregion
 }
@@ -172,8 +172,8 @@ internal class AsyncObserverSelect<TSender, TArgsIn, TArgsOut>(
     protected async override Task<bool> OnEventAsync(TSender sender, TArgsIn args)
     {
         var value = await callback(sender, args);
-        if (MappedEvent is not null)
-            await MappedEvent.Invoke(sender, value);
+        if (MappedNext is not null)
+            await MappedNext.Invoke(sender, value);
         return false;
     }
 
@@ -185,12 +185,12 @@ internal class AsyncObserverSelect<TSender, TArgsIn, TArgsOut>(
     /// This event is raised when a value is selected for an observed event to
     /// pass down the observer chain.
     /// </summary>
-    event Func<TSender, TArgsOut, Task> IAsyncObserver<TSender, TArgsOut>.Event
+    event Func<TSender, TArgsOut, Task> IAsyncObserver<TSender, TArgsOut>.Next
     {
-        add => MappedEvent += value;
-        remove => MappedEvent -= value;
+        add => MappedNext += value;
+        remove => MappedNext -= value;
     }
-    private event Func<TSender, TArgsOut, Task>? MappedEvent;
+    private event Func<TSender, TArgsOut, Task>? MappedNext;
 
     #endregion
 }

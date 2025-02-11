@@ -44,7 +44,7 @@ internal abstract class ObserverBase : IObserver
     public ObserverBase(IObserver parent)
     {
         _parent = parent;
-        _parent.Event += () =>
+        _parent.Next += () =>
         {
             if (OnEvent())
                 RaiseNextEvent();
@@ -69,7 +69,7 @@ internal abstract class ObserverBase : IObserver
     /// <summary>
     /// Raise the Event for this observer which moves execution down the chain.
     /// </summary>
-    protected void RaiseNextEvent() => Event?.Invoke();
+    protected void RaiseNextEvent() => Next?.Invoke();
 
     /// <summary>
     /// Invoke the parent Dispose method.  The expectation is that the dispose
@@ -86,7 +86,7 @@ internal abstract class ObserverBase : IObserver
     /// The event that is raised when handling of the parent event should
     /// continue the next observers down the chain of observers.
     /// </summary>
-    public event Action? Event;
+    public event Action? Next;
 
     #endregion
 }
@@ -114,7 +114,7 @@ internal abstract class ObserverBase<TArgs> : IObserver<TArgs>
     public ObserverBase(IObserver<TArgs> parent)
     {
         _parent = parent;
-        _parent.Event += args =>
+        _parent.Next += args =>
         {
             if (OnEvent(args))
                 RaiseNextEvent(args);
@@ -140,7 +140,7 @@ internal abstract class ObserverBase<TArgs> : IObserver<TArgs>
     /// Raise the Event for this observer which moves execution down the chain.
     /// </summary>
     /// <param name="args">The args to pass with the event.</param>
-    protected void RaiseNextEvent(TArgs args) => Event?.Invoke(args);
+    protected void RaiseNextEvent(TArgs args) => Next?.Invoke(args);
 
     /// <summary>
     /// Invoke the parent Dispose method.  The expectation is that the dispose
@@ -157,7 +157,7 @@ internal abstract class ObserverBase<TArgs> : IObserver<TArgs>
     /// The event that is raised when handling of the parent event should
     /// continue the next observers down the chain of observers.
     /// </summary>
-    public event Action<TArgs>? Event;
+    public event Action<TArgs>? Next;
 
     #endregion
 }
@@ -185,7 +185,7 @@ internal abstract class ObserverBase<TSender, TArgs> : IObserver<TSender, TArgs>
     public ObserverBase(IObserver<TSender, TArgs> parent)
     {
         _parent = parent;
-        _parent.Event += (sender, args) =>
+        _parent.Next += (sender, args) =>
         {
             if (OnEvent(sender, args))
                 RaiseNextEvent(sender, args);
@@ -213,7 +213,7 @@ internal abstract class ObserverBase<TSender, TArgs> : IObserver<TSender, TArgs>
     /// <param name="sender">The sender to pass with the event.</param>
     /// <param name="args">The args to pass with the event.</param>
     protected void RaiseNextEvent(TSender sender, TArgs args) =>
-        Event?.Invoke(sender, args);
+        Next?.Invoke(sender, args);
 
     /// <summary>
     /// Invoke the parent Dispose method.  The expectation is that the dispose
@@ -230,7 +230,7 @@ internal abstract class ObserverBase<TSender, TArgs> : IObserver<TSender, TArgs>
     /// The event that is raised when handling of the parent event should
     /// continue the next observers down the chain of observers.
     /// </summary>
-    public event Action<TSender, TArgs>? Event;
+    public event Action<TSender, TArgs>? Next;
 
     #endregion
 }

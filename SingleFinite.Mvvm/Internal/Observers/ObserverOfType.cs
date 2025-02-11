@@ -55,7 +55,7 @@ internal class ObserverOfType<TArgsIn, TArgsOut>(
     protected override bool OnEvent(TArgsIn args)
     {
         if (args is TArgsOut outArgs)
-            MappedEvent?.Invoke(outArgs);
+            MappedNext?.Invoke(outArgs);
 
         return false;
     }
@@ -68,12 +68,12 @@ internal class ObserverOfType<TArgsIn, TArgsOut>(
     /// This event is raised when arguments for an observed event are
     /// successfully cast into the specified type.
     /// </summary>
-    event Action<TArgsOut> IObserver<TArgsOut>.Event
+    event Action<TArgsOut> IObserver<TArgsOut>.Next
     {
-        add => MappedEvent += value;
-        remove => MappedEvent -= value;
+        add => MappedNext += value;
+        remove => MappedNext -= value;
     }
-    private event Action<TArgsOut>? MappedEvent;
+    private event Action<TArgsOut>? MappedNext;
 
     #endregion
 }
@@ -119,7 +119,7 @@ internal class ObserverOfType<TSenderIn, TArgsIn, TSenderOut, TArgsOut>(
     protected override bool OnEvent(TSenderIn sender, TArgsIn args)
     {
         if (sender is TSenderOut outSender &&  args is TArgsOut outArgs)
-            MappedEvent?.Invoke(outSender, outArgs);
+            MappedNext?.Invoke(outSender, outArgs);
 
         return false;
     }
@@ -132,12 +132,12 @@ internal class ObserverOfType<TSenderIn, TArgsIn, TSenderOut, TArgsOut>(
     /// This event is raised when arguments for an observed event are
     /// successfully cast into the specified type.
     /// </summary>
-    event Action<TSenderOut, TArgsOut> IObserver<TSenderOut, TArgsOut>.Event
+    event Action<TSenderOut, TArgsOut> IObserver<TSenderOut, TArgsOut>.Next
     {
-        add => MappedEvent += value;
-        remove => MappedEvent -= value;
+        add => MappedNext += value;
+        remove => MappedNext -= value;
     }
-    private event Action<TSenderOut, TArgsOut>? MappedEvent;
+    private event Action<TSenderOut, TArgsOut>? MappedNext;
 
     #endregion
 }

@@ -49,7 +49,7 @@ internal class ObserverSelect<TArgsOut>(
     protected override bool OnEvent()
     {
         var value = selector();
-        MappedEvent?.Invoke(value);
+        MappedNext?.Invoke(value);
         return false;
     }
 
@@ -61,12 +61,12 @@ internal class ObserverSelect<TArgsOut>(
     /// This event is raised when a value is selected for an observed event to
     /// pass down the observer chain.
     /// </summary>
-    event Action<TArgsOut> IObserver<TArgsOut>.Event
+    event Action<TArgsOut> IObserver<TArgsOut>.Next
     {
-        add => MappedEvent += value;
-        remove => MappedEvent -= value;
+        add => MappedNext += value;
+        remove => MappedNext -= value;
     }
-    private event Action<TArgsOut>? MappedEvent;
+    private event Action<TArgsOut>? MappedNext;
 
     #endregion
 }
@@ -106,7 +106,7 @@ internal class ObserverSelect<TArgsIn, TArgsOut>(
     protected override bool OnEvent(TArgsIn args)
     {
         var value = callback(args);
-        MappedEvent?.Invoke(value);
+        MappedNext?.Invoke(value);
         return false;
     }
 
@@ -118,12 +118,12 @@ internal class ObserverSelect<TArgsIn, TArgsOut>(
     /// This event is raised when a value is selected for an observed event to
     /// pass down the observer chain.
     /// </summary>
-    event Action<TArgsOut> IObserver<TArgsOut>.Event
+    event Action<TArgsOut> IObserver<TArgsOut>.Next
     {
-        add => MappedEvent += value;
-        remove => MappedEvent -= value;
+        add => MappedNext += value;
+        remove => MappedNext -= value;
     }
-    private event Action<TArgsOut>? MappedEvent;
+    private event Action<TArgsOut>? MappedNext;
 
     #endregion
 }
@@ -170,7 +170,7 @@ internal class ObserverSelect<TSender, TArgsIn, TArgsOut>(
     protected override bool OnEvent(TSender sender, TArgsIn args)
     {
         var value = callback(sender, args);
-        MappedEvent?.Invoke(sender, value);
+        MappedNext?.Invoke(sender, value);
         return false;
     }
 
@@ -182,12 +182,12 @@ internal class ObserverSelect<TSender, TArgsIn, TArgsOut>(
     /// This event is raised when a value is selected for an observed event to
     /// pass down the observer chain.
     /// </summary>
-    event Action<TSender, TArgsOut> IObserver<TSender, TArgsOut>.Event
+    event Action<TSender, TArgsOut> IObserver<TSender, TArgsOut>.Next
     {
-        add => MappedEvent += value;
-        remove => MappedEvent -= value;
+        add => MappedNext += value;
+        remove => MappedNext -= value;
     }
-    private event Action<TSender, TArgsOut>? MappedEvent;
+    private event Action<TSender, TArgsOut>? MappedNext;
 
     #endregion
 }
