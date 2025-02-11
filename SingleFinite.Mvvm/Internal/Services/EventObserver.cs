@@ -180,6 +180,13 @@ internal sealed class EventObserver : IEventObserver, IDisposable
     ) => Observe(observable, cancellationToken).OnEach(callback);
 
     /// <inheritdoc/>
+    public IAsyncObserver Observe(
+        AsyncObservable observable,
+        Action callback,
+        CancellationToken? cancellationToken = default
+    ) => Observe(observable, cancellationToken).OnEach(callback);
+
+    /// <inheritdoc/>
     public IAsyncObserver<TArgs> Observe<TArgs>(
         AsyncObservable<TArgs> observable,
         CancellationToken? cancellationToken = default
@@ -210,7 +217,14 @@ internal sealed class EventObserver : IEventObserver, IDisposable
         AsyncObservable<TArgs> observable,
         Func<TArgs, Task> callback,
         CancellationToken? cancellationToken = default
-    ) => Observe<TArgs>(observable, cancellationToken).OnEach(callback);
+    ) => Observe(observable, cancellationToken).OnEach(callback);
+
+    /// <inheritdoc/>
+    public IAsyncObserver<TArgs> Observe<TArgs>(
+        AsyncObservable<TArgs> observable,
+        Action<TArgs> callback,
+        CancellationToken? cancellationToken = default
+    ) => Observe(observable, cancellationToken).OnEach(callback);
 
     /// <inheritdoc/>
     public IAsyncObserver<TSender, TArgs> Observe<TSender, TArgs>(
@@ -242,6 +256,13 @@ internal sealed class EventObserver : IEventObserver, IDisposable
     public IAsyncObserver<TSender, TArgs> Observe<TSender, TArgs>(
         AsyncObservable<TSender, TArgs> observable,
         Func<TSender, TArgs, Task> callback,
+        CancellationToken? cancellationToken = default
+    ) => Observe(observable, cancellationToken).OnEach(callback);
+
+    /// <inheritdoc/>
+    public IAsyncObserver<TSender, TArgs> Observe<TSender, TArgs>(
+        AsyncObservable<TSender, TArgs> observable,
+        Action<TSender, TArgs> callback,
         CancellationToken? cancellationToken = default
     ) => Observe(observable, cancellationToken).OnEach(callback);
 
