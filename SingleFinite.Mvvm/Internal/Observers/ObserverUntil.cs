@@ -33,7 +33,7 @@ namespace SingleFinite.Mvvm.Internal.Observers;
 /// If true the next observer in the observer chain will be invoked even when
 /// predicate returns true.
 /// </param>
-internal class ObserverDisposeIf(
+internal class ObserverUntil(
     IObserver parent,
     Func<bool> predicate,
     bool continueOnDispose
@@ -74,7 +74,7 @@ internal class ObserverDisposeIf(
 /// If true the next observer in the observer chain will be invoked even when
 /// predicate returns true.
 /// </param>
-internal class ObserverDisposeIf<TArgs>(
+internal class ObserverUntil<TArgs>(
     IObserver<TArgs> parent,
     Func<TArgs, bool> predicate,
     bool continueOnDispose
@@ -119,7 +119,7 @@ internal class ObserverDisposeIf<TArgs>(
 /// If true the next observer in the observer chain will be invoked even when
 /// predicate returns true.
 /// </param>
-internal class ObserverDisposeIf<TSender, TArgs>(
+internal class ObserverUntil<TSender, TArgs>(
     IObserver<TSender, TArgs> parent,
     Func<TSender, TArgs, bool> predicate,
     bool continueOnDispose

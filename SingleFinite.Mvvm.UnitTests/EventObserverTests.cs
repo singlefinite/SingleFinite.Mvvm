@@ -277,7 +277,7 @@ public class EventObserverTests
                 if (!disposeOfObserver)
                     observedTestEvent++;
             }
-        ).DisposeIf(() => disposeOfObserver);
+        ).Until(() => disposeOfObserver);
 
         var observer4 = eventObserver.ObservePropertyChanging(
             owner: testClass,
@@ -415,7 +415,7 @@ public class EventObserverTests
                 if (!disposeOfObserver)
                     observedTestEvent++;
             }
-        ).DisposeIf(() => disposeOfObserver);
+        ).Until(() => disposeOfObserver);
 
         var observer4 = eventObserver.ObservePropertyChanged(
             owner: testClass,

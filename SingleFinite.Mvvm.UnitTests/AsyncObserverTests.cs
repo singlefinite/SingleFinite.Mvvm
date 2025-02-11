@@ -152,7 +152,7 @@ public class AsyncObserverTests
             {
                 await Task.Run(() => observedNames.Add(args.Name));
             })
-            .DisposeIf(args => Task.Run(() => args.Name == "stop"))
+            .Until(args => Task.Run(() => args.Name == "stop"))
             .OnEach(async args =>
             {
                 await Task.Run(() => observedNames.Add(args.Name));
@@ -192,7 +192,7 @@ public class AsyncObserverTests
             {
                 await Task.Run(() => observedNames.Add(args.Name));
             })
-            .DisposeIf(
+            .Until(
                 args => Task.Run(() => args.Name == "stop"),
                 continueOnDispose: true
             )

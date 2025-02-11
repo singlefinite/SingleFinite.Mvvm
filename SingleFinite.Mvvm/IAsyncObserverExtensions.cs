@@ -453,11 +453,11 @@ public static class IAsyncObserverExtensions
     /// <returns>
     /// A new observer that has been added to the chain of observers.
     /// </returns>
-    public static IAsyncObserver DisposeIf(
+    public static IAsyncObserver Until(
         this IAsyncObserver observer,
         Func<Task<bool>> predicate,
         bool continueOnDispose = false
-    ) => new AsyncObserverDisposeIf(observer, predicate, continueOnDispose);
+    ) => new AsyncObserverUntil(observer, predicate, continueOnDispose);
 
     /// <summary>
     /// Dispose of the observer chain if the predicate is matched.
@@ -475,11 +475,11 @@ public static class IAsyncObserverExtensions
     /// <returns>
     /// A new observer that has been added to the chain of observers.
     /// </returns>
-    public static IAsyncObserver DisposeIf(
+    public static IAsyncObserver Until(
         this IAsyncObserver observer,
         Func<bool> predicate,
         bool continueOnDispose = false
-    ) => new AsyncObserverDisposeIf(
+    ) => new AsyncObserverUntil(
         observer,
         () => Task.FromResult(predicate()),
         continueOnDispose
@@ -504,11 +504,11 @@ public static class IAsyncObserverExtensions
     /// <returns>
     /// A new observer that has been added to the chain of observers.
     /// </returns>
-    public static IAsyncObserver<TArgs> DisposeIf<TArgs>(
+    public static IAsyncObserver<TArgs> Until<TArgs>(
         this IAsyncObserver<TArgs> observer,
         Func<TArgs, Task<bool>> predicate,
         bool continueOnDispose = false
-    ) => new AsyncObserverDisposeIf<TArgs>(
+    ) => new AsyncObserverUntil<TArgs>(
         observer,
         predicate,
         continueOnDispose
@@ -533,11 +533,11 @@ public static class IAsyncObserverExtensions
     /// <returns>
     /// A new observer that has been added to the chain of observers.
     /// </returns>
-    public static IAsyncObserver<TArgs> DisposeIf<TArgs>(
+    public static IAsyncObserver<TArgs> Until<TArgs>(
         this IAsyncObserver<TArgs> observer,
         Func<TArgs, bool> predicate,
         bool continueOnDispose = false
-    ) => new AsyncObserverDisposeIf<TArgs>(
+    ) => new AsyncObserverUntil<TArgs>(
         observer,
         args => Task.FromResult(predicate(args)),
         continueOnDispose
@@ -565,11 +565,11 @@ public static class IAsyncObserverExtensions
     /// <returns>
     /// A new observer that has been added to the chain of observers.
     /// </returns>
-    public static IAsyncObserver<TSender, TArgs> DisposeIf<TSender, TArgs>(
+    public static IAsyncObserver<TSender, TArgs> Until<TSender, TArgs>(
         this IAsyncObserver<TSender, TArgs> observer,
         Func<TSender, TArgs, Task<bool>> predicate,
         bool continueOnDispose = false
-    ) => new AsyncObserverDisposeIf<TSender, TArgs>(
+    ) => new AsyncObserverUntil<TSender, TArgs>(
         observer,
         predicate,
         continueOnDispose
@@ -597,11 +597,11 @@ public static class IAsyncObserverExtensions
     /// <returns>
     /// A new observer that has been added to the chain of observers.
     /// </returns>
-    public static IAsyncObserver<TSender, TArgs> DisposeIf<TSender, TArgs>(
+    public static IAsyncObserver<TSender, TArgs> Until<TSender, TArgs>(
         this IAsyncObserver<TSender, TArgs> observer,
         Func<TSender, TArgs, bool> predicate,
         bool continueOnDispose = false
-    ) => new AsyncObserverDisposeIf<TSender, TArgs>(
+    ) => new AsyncObserverUntil<TSender, TArgs>(
         observer,
         (sender, args) => Task.FromResult(predicate(sender, args)),
         continueOnDispose
@@ -616,7 +616,7 @@ public static class IAsyncObserverExtensions
     /// </returns>
     public static IAsyncObserver Once(
         this IAsyncObserver observer
-    ) => DisposeIf(
+    ) => Until(
         observer,
         predicate: () => Task.FromResult(true),
         continueOnDispose: true
@@ -634,7 +634,7 @@ public static class IAsyncObserverExtensions
     /// </returns>
     public static IAsyncObserver<TArgs> Once<TArgs>(
         this IAsyncObserver<TArgs> observer
-    ) => DisposeIf(
+    ) => Until(
         observer,
         predicate: _ => Task.FromResult(true),
         continueOnDispose: true
@@ -655,7 +655,7 @@ public static class IAsyncObserverExtensions
     /// </returns>
     public static IAsyncObserver<TSender, TArgs> Once<TSender, TArgs>(
         this IAsyncObserver<TSender, TArgs> observer
-    ) => DisposeIf(
+    ) => Until(
         observer,
         predicate: (_, _) => Task.FromResult(true),
         continueOnDispose: true

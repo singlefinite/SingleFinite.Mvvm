@@ -137,7 +137,7 @@ public class ObserverTests
         var observer = observable
             .Observe()
             .OnEach(args => observedNames.Add(args.Name))
-            .DisposeIf(args => args.Name == "stop")
+            .Until(args => args.Name == "stop")
             .OnEach(args => observedNames.Add(args.Name));
 
         Assert.AreEqual(0, observedNames.Count);
@@ -171,7 +171,7 @@ public class ObserverTests
         var observer = observable
             .Observe()
             .OnEach(args => observedNames.Add(args.Name))
-            .DisposeIf(args => args.Name == "stop", continueOnDispose: true)
+            .Until(args => args.Name == "stop", continueOnDispose: true)
             .OnEach(args => observedNames.Add($"{args.Name}!"));
 
         Assert.AreEqual(0, observedNames.Count);

@@ -227,11 +227,11 @@ public static class IObserverExtensions
     /// <returns>
     /// A new observer that has been added to the chain of observers.
     /// </returns>
-    public static IObserver DisposeIf(
+    public static IObserver Until(
         this IObserver observer,
         Func<bool> predicate,
         bool continueOnDispose = false
-    ) => new ObserverDisposeIf(observer, predicate, continueOnDispose);
+    ) => new ObserverUntil(observer, predicate, continueOnDispose);
 
     /// <summary>
     /// Dispose of the observer chain if the predicate is matched.
@@ -252,11 +252,11 @@ public static class IObserverExtensions
     /// <returns>
     /// A new observer that has been added to the chain of observers.
     /// </returns>
-    public static IObserver<TArgs> DisposeIf<TArgs>(
+    public static IObserver<TArgs> Until<TArgs>(
         this IObserver<TArgs> observer,
         Func<TArgs, bool> predicate,
         bool continueOnDispose = false
-    ) => new ObserverDisposeIf<TArgs>(observer, predicate, continueOnDispose);
+    ) => new ObserverUntil<TArgs>(observer, predicate, continueOnDispose);
 
     /// <summary>
     /// Dispose of the observer chain if the predicate is matched.
@@ -280,11 +280,11 @@ public static class IObserverExtensions
     /// <returns>
     /// A new observer that has been added to the chain of observers.
     /// </returns>
-    public static IObserver<TSender, TArgs> DisposeIf<TSender, TArgs>(
+    public static IObserver<TSender, TArgs> Until<TSender, TArgs>(
         this IObserver<TSender, TArgs> observer,
         Func<TSender, TArgs, bool> predicate,
         bool continueOnDispose = false
-    ) => new ObserverDisposeIf<TSender, TArgs>(observer, predicate, continueOnDispose);
+    ) => new ObserverUntil<TSender, TArgs>(observer, predicate, continueOnDispose);
 
     /// <summary>
     /// Dispose of the observer chain when the first event is observed.
@@ -295,7 +295,7 @@ public static class IObserverExtensions
     /// </returns>
     public static IObserver Once(
         this IObserver observer
-    ) => DisposeIf(
+    ) => Until(
         observer,
         predicate: () => true,
         continueOnDispose: true
@@ -313,7 +313,7 @@ public static class IObserverExtensions
     /// </returns>
     public static IObserver<TArgs> Once<TArgs>(
         this IObserver<TArgs> observer
-    ) => DisposeIf(
+    ) => Until(
         observer,
         predicate: _ => true,
         continueOnDispose: true
@@ -334,7 +334,7 @@ public static class IObserverExtensions
     /// </returns>
     public static IObserver<TSender, TArgs> Once<TSender, TArgs>(
         this IObserver<TSender, TArgs> observer
-    ) => DisposeIf(
+    ) => Until(
         observer,
         predicate: (_, _) => true,
         continueOnDispose: true
