@@ -19,6 +19,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using SingleFinite.Mvvm.Internal;
 using SingleFinite.Mvvm.Internal.Services;
 
 namespace SingleFinite.Mvvm.UnitTests;
@@ -139,7 +140,7 @@ public class AsyncObserverTests
     }
 
     [TestMethod]
-    public async Task Dispose_If_Runs_As_Expected_Async()
+    public async Task Until_Runs_As_Expected_Async()
     {
         var observedNames = new List<string>();
 
@@ -179,7 +180,37 @@ public class AsyncObserverTests
     }
 
     [TestMethod]
-    public async Task Dispose_If_Continue_On_Disposed_Runs_As_Expected_Async()
+    public async Task On_Runs_As_Expected_Async()
+    {
+        var viewModel = new ExampleViewModel();
+
+        var observedNames = new List<string>();
+
+        var observableSource = new AsyncObservableSource<ExampleArgs>();
+        var observable = observableSource.Observable;
+
+        var observer = observable
+            .Observe()
+            .OnEach(args => observedNames.Add(args.Name))
+            .On(viewModel);
+
+        Assert.AreEqual(0, observedNames.Count);
+
+        await observableSource.RaiseEventAsync(new("Hello", 0));
+
+        Assert.AreEqual(1, observedNames.Count);
+        Assert.AreEqual("Hello", observedNames[0]);
+        observedNames.Clear();
+
+        viewModel.Dispose();
+
+        await observableSource.RaiseEventAsync(new("World", 0));
+
+        Assert.AreEqual(0, observedNames.Count);
+    }
+
+    [TestMethod]
+    public async Task Until_Continue_On_Disposed_Runs_As_Expected_Async()
     {
         var observedNames = new List<string>();
 
@@ -539,6 +570,10 @@ public class AsyncObserverTests
     private class ExampleSender;
 
     private class SubExampleSender : ExampleSender;
+
+    private class ExampleViewModel : ViewModel
+    {
+    }
 
     #endregion
 }

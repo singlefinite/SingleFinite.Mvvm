@@ -662,6 +662,72 @@ public static class IAsyncObserverExtensions
     );
 
     /// <summary>
+    /// Dispose of the observer chain when the given lifecycle object is
+    /// disposed.
+    /// </summary>
+    /// <param name="observer">The observer to extend.</param>
+    /// <param name="lifecycle">
+    /// The lifecycle that that when disposed will dispose of this observer.
+    /// </param>
+    /// <returns>
+    /// A new observer that has been added to the chain of observers.
+    /// </returns>
+    public static IAsyncObserver On(
+        this IAsyncObserver observer,
+        ILifecycle lifecycle
+    ) => new AsyncObserverOn(
+        observer,
+        lifecycle
+    );
+
+    /// <summary>
+    /// Dispose of the observer chain when the given lifecycle object is
+    /// disposed.
+    /// </summary>
+    /// <typeparam name="TArgs">
+    /// The type of arguments passed with the observed event.
+    /// </typeparam>
+    /// <param name="observer">The observer to extend.</param>
+    /// <param name="lifecycle">
+    /// The lifecycle that that when disposed will dispose of this observer.
+    /// </param>
+    /// <returns>
+    /// A new observer that has been added to the chain of observers.
+    /// </returns>
+    public static IAsyncObserver<TArgs> On<TArgs>(
+        this IAsyncObserver<TArgs> observer,
+        ILifecycle lifecycle
+    ) => new AsyncObserverOn<TArgs>(
+        observer,
+        lifecycle
+    );
+
+    /// <summary>
+    /// Dispose of the observer chain when the given lifecycle object is
+    /// disposed.
+    /// </summary>
+    /// <typeparam name="TSender">
+    /// The type of sender passed with the observed event.
+    /// </typeparam>
+    /// <typeparam name="TArgs">
+    /// The type of arguments passed with the observed event.
+    /// </typeparam>
+    /// <param name="observer">The observer to extend.</param>
+    /// <param name="lifecycle">
+    /// The lifecycle that that when disposed will dispose of this observer.
+    /// </param>
+    /// <returns>
+    /// A new observer that has been added to the chain of observers.
+    /// </returns>
+    public static IAsyncObserver<TSender, TArgs> On<TSender, TArgs>(
+        this IAsyncObserver<TSender, TArgs> observer,
+        ILifecycle lifecycle
+    ) => new AsyncObserverOn<TSender, TArgs>(
+        observer,
+        lifecycle
+    );
+
+    /// <summary>
     /// Observer that debounces events.
     /// </summary>
     /// <param name="observer">The observer to extend.</param>

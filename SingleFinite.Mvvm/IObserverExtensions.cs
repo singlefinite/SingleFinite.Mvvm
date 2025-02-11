@@ -341,6 +341,72 @@ public static class IObserverExtensions
     );
 
     /// <summary>
+    /// Dispose of the observer chain when the given lifecycle object is
+    /// disposed.
+    /// </summary>
+    /// <param name="observer">The observer to extend.</param>
+    /// <param name="lifecycle">
+    /// The lifecycle that that when disposed will dispose of this observer.
+    /// </param>
+    /// <returns>
+    /// A new observer that has been added to the chain of observers.
+    /// </returns>
+    public static IObserver On(
+        this IObserver observer,
+        ILifecycle lifecycle
+    ) => new ObserverOn(
+        observer,
+        lifecycle
+    );
+
+    /// <summary>
+    /// Dispose of the observer chain when the given lifecycle object is
+    /// disposed.
+    /// </summary>
+    /// <typeparam name="TArgs">
+    /// The type of arguments passed with the observed event.
+    /// </typeparam>
+    /// <param name="observer">The observer to extend.</param>
+    /// <param name="lifecycle">
+    /// The lifecycle that that when disposed will dispose of this observer.
+    /// </param>
+    /// <returns>
+    /// A new observer that has been added to the chain of observers.
+    /// </returns>
+    public static IObserver<TArgs> On<TArgs>(
+        this IObserver<TArgs> observer,
+        ILifecycle lifecycle
+    ) => new ObserverOn<TArgs>(
+        observer,
+        lifecycle
+    );
+
+    /// <summary>
+    /// Dispose of the observer chain when the given lifecycle object is
+    /// disposed.
+    /// </summary>
+    /// <typeparam name="TSender">
+    /// The type of sender passed with the observed event.
+    /// </typeparam>
+    /// <typeparam name="TArgs">
+    /// The type of arguments passed with the observed event.
+    /// </typeparam>
+    /// <param name="observer">The observer to extend.</param>
+    /// <param name="lifecycle">
+    /// The lifecycle that that when disposed will dispose of this observer.
+    /// </param>
+    /// <returns>
+    /// A new observer that has been added to the chain of observers.
+    /// </returns>
+    public static IObserver<TSender, TArgs> On<TSender, TArgs>(
+        this IObserver<TSender, TArgs> observer,
+        ILifecycle lifecycle
+    ) => new ObserverOn<TSender, TArgs>(
+        observer,
+        lifecycle
+    );
+
+    /// <summary>
     /// Observer that debounces events.
     /// </summary>
     /// <param name="observer">The observer to extend.</param>
