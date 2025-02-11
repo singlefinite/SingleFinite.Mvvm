@@ -27,7 +27,7 @@ namespace SingleFinite.Mvvm;
 /// model is disposed the dependency injection scope will be disposed.
 /// </summary>
 public abstract class ViewModel :
-    Component,
+    Changeable,
     IViewModel,
     ILifecycleAware
 {

@@ -20,12 +20,11 @@
 // SOFTWARE.
 
 using System.ComponentModel;
-using System.Data.Common;
 
 namespace SingleFinite.Mvvm.UnitTests;
 
 [TestClass]
-public class ComponentTests
+public class ChangeableTests
 {
     [TestMethod]
     public void Property_Changes_Raise_PropertyChanged_Events()
@@ -152,7 +151,7 @@ public class ComponentTests
 
     #region Types
 
-    private class TestClass : Component
+    private class TestClass : Changeable
     {
         public string FieldOne
         {
@@ -173,7 +172,7 @@ public class ComponentTests
         }
     }
 
-    private class TestOnStateChangedClass : Component
+    private class TestOnStateChangedClass : Changeable
     {
         public int FieldOne
         {
@@ -208,7 +207,7 @@ public class ComponentTests
         }
     }
 
-    private class TestOnStateChangedRecurseClass : Component
+    private class TestOnStateChangedRecurseClass : Changeable
     {
         public int FieldOne
         {

@@ -303,7 +303,7 @@ internal sealed class EventObserver : IEventObserver, IDisposable
             observableSource.RaiseEvent();
         }
 
-        var propertyName = Component.ParsePropertyName(propertyExpression);
+        var propertyName = Changeable.ParsePropertyName(propertyExpression);
         owner.PropertyChanging += Handler;
 
         var observer = new ObserverDisposeListener(
@@ -383,7 +383,7 @@ internal sealed class EventObserver : IEventObserver, IDisposable
             observableSource.RaiseEvent();
         }
 
-        var propertyName = Component.ParsePropertyName(propertyExpression);
+        var propertyName = Changeable.ParsePropertyName(propertyExpression);
         owner.PropertyChanged += Handler;
 
         var observer = new ObserverDisposeListener(

@@ -32,7 +32,7 @@ namespace SingleFinite.Mvvm;
 /// inheriting classes can use to raise PropertyChanged and PropertyChanging 
 /// events.
 /// </summary>
-public abstract partial class Component :
+public abstract partial class Changeable :
     INotifyPropertyChanged,
     INotifyPropertyChanging,
     IPropertyMappable
@@ -68,7 +68,7 @@ public abstract partial class Component :
     /// <summary>
     /// Constructor.
     /// </summary>
-    public Component()
+    public Changeable()
     {
         _transaction.Closed.Observe(OnTransactionClosed);
     }
@@ -265,7 +265,7 @@ public abstract partial class Component :
     /// Observe when the given property is changing.
     /// </summary>
     /// <param name="property">
-    /// An expression in the form of `() => component.property` that identifies
+    /// An expression in the form of `() => changeable.property` that identifies
     /// the property to listen for changes on.
     /// </param>
     /// <param name="propertyExpression">
@@ -290,7 +290,7 @@ public abstract partial class Component :
     /// Observe when the given property is changed.
     /// </summary>
     /// <param name="property">
-    /// An expression in the form of `() => component.property` that identifies
+    /// An expression in the form of `() => changeable.property` that identifies
     /// the property to listen for changes on.
     /// </param>
     /// <param name="propertyExpression">
