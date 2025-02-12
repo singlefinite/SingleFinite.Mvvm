@@ -137,10 +137,7 @@ public abstract partial class Changeable :
             e: args
         );
 
-        _propertyChangingSource.RaiseEvent(
-            sender: this,
-            args: args
-        );
+        _propertyChangingSource.RaiseEvent(propertyName);
     }
 
     /// <summary>
@@ -158,10 +155,7 @@ public abstract partial class Changeable :
             e: new PropertyChangedEventArgs(propertyName)
         );
 
-        _propertyChangedSource.RaiseEvent(
-            sender: this,
-            args: args
-        );
+        _propertyChangedSource.RaiseEvent(propertyName);
     }
 
     /// <summary>
@@ -274,7 +268,7 @@ public abstract partial class Changeable :
     /// <returns>
     /// An observer that when disposed will unregister the callback.
     /// </returns>
-    public IObserver<object?, PropertyChangingEventArgs> ObservePropertyChanging(
+    public IObserver<string> ObservePropertyChanging(
         Func<object?> property,
         [CallerArgumentExpression(nameof(property))]
         string? propertyExpression = default
@@ -283,7 +277,7 @@ public abstract partial class Changeable :
         var propertyName = ParsePropertyName(propertyExpression);
         return PropertyChanging
             .Observe()
-            .Where((_, args) => args.PropertyName == propertyName);
+            .Where(changingPropertyName => changingPropertyName == propertyName);
     }
 
     /// <summary>
@@ -299,7 +293,7 @@ public abstract partial class Changeable :
     /// <returns>
     /// An observer that when disposed will unregister the callback.
     /// </returns>
-    public IObserver<object?, PropertyChangedEventArgs> ObservePropertyChanged(
+    public IObserver<string> ObservePropertyChanged(
         Func<object?> property,
         [CallerArgumentExpression(nameof(property))]
         string? propertyExpression = default
@@ -308,7 +302,7 @@ public abstract partial class Changeable :
         var propertyName = ParsePropertyName(propertyExpression);
         return PropertyChanged
             .Observe()
-            .Where((_, args) => args.PropertyName == propertyName);
+            .Where(changedPropertyName => changedPropertyName == propertyName);
     }
 
     /// <summary>
@@ -376,14 +370,14 @@ public abstract partial class Changeable :
     /// <summary>
     /// Raised when a property value is about to be changed.
     /// </summary>
-    public Observable<object?, PropertyChangingEventArgs> PropertyChanging => _propertyChangingSource.Observable;
-    private readonly ObservableSource<object?, PropertyChangingEventArgs> _propertyChangingSource = new();
+    public Observable<string> PropertyChanging => _propertyChangingSource.Observable;
+    private readonly ObservableSource<string> _propertyChangingSource = new();
 
     /// <summary>
     /// Raised when a property value has changed.
     /// </summary>
-    public Observable<object?, PropertyChangedEventArgs> PropertyChanged => _propertyChangedSource.Observable;
-    private readonly ObservableSource<object?, PropertyChangedEventArgs> _propertyChangedSource = new();
+    public Observable<string> PropertyChanged => _propertyChangedSource.Observable;
+    private readonly ObservableSource<string> _propertyChangedSource = new();
 
     /// <inheritdoc/>
     public event PropertyChangedEventHandler? MappedPropertyChanged;

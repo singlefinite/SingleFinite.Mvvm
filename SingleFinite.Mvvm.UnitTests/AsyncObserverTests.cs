@@ -312,54 +312,6 @@ public class AsyncObserverTests
     }
 
     [TestMethod]
-    public async Task Of_Type_With_Sender_Runs_As_Expected_Async()
-    {
-        var observedNames = new List<string>();
-
-        var observableSource = new AsyncObservableSource<ExampleSender, ExampleArgs>();
-        var observable = observableSource.Observable;
-
-        var observer = observable
-            .Observe()
-            .OfType<SubExampleSender, SubExampleArgs>()
-            .OnEach(async (sender, args) =>
-            {
-                await Task.Run(() => observedNames.Add(args.SubName));
-            });
-
-        Assert.AreEqual(0, observedNames.Count);
-
-        await observableSource.RaiseEventAsync(
-            new ExampleSender(),
-            new ExampleArgs("Hello", 0)
-        );
-
-        Assert.AreEqual(0, observedNames.Count);
-
-        await observableSource.RaiseEventAsync(
-            new SubExampleSender(),
-            new ExampleArgs("Hello", 0)
-        );
-
-        Assert.AreEqual(0, observedNames.Count);
-
-        await observableSource.RaiseEventAsync(
-            new ExampleSender(),
-            new SubExampleArgs("Hi")
-        );
-
-        Assert.AreEqual(0, observedNames.Count);
-
-        await observableSource.RaiseEventAsync(
-            new SubExampleSender(),
-            new SubExampleArgs("Hi")
-        );
-
-        Assert.AreEqual(1, observedNames.Count);
-        Assert.AreEqual("Hi", observedNames[0]);
-    }
-
-    [TestMethod]
     public async Task Once_Runs_As_Expected_Async()
     {
         var observedNames = new List<string>();

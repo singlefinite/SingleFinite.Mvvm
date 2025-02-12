@@ -58,25 +58,21 @@ public class EventObserverTests
         var scopedEventObserver = new EventObserver();
         var testClass = new TestClassWithEvent();
 
-        TestClassWithEvent? observedSender = null;
         var observedTestEvent = 0;
 
         scopedEventObserver.Observe(
             observable: testClass.Observable,
-            callback: (sender, args) =>
+            callback: args =>
             {
-                observedSender = sender;
                 observedTestEvent += args;
             }
         );
 
         testClass.RaiseTestToken(1);
-        Assert.AreEqual(testClass, observedSender);
         Assert.AreEqual(1, observedTestEvent);
 
         scopedEventObserver.Dispose();
         testClass.RaiseTestToken(1);
-        Assert.AreEqual(testClass, observedSender);
         Assert.AreEqual(1, observedTestEvent);
     }
 
@@ -86,28 +82,24 @@ public class EventObserverTests
         var eventObserver = new EventObserver();
         var testClass = new TestClassWithEvent();
 
-        TestClassWithEvent? observedSender = null;
         var observedTestEvent = 0;
         using var cancellationTokenSource = new CancellationTokenSource();
 
         eventObserver.Observe(
             observable: testClass.Observable,
-            callback: (sender, args) =>
+            callback: args =>
             {
-                observedSender = sender;
                 observedTestEvent += args;
             },
             cancellationToken: cancellationTokenSource.Token
         );
 
         testClass.RaiseTestToken(1);
-        Assert.AreEqual(testClass, observedSender);
         Assert.AreEqual(1, observedTestEvent);
 
         cancellationTokenSource.Cancel();
         testClass.RaiseTestToken(1);
 
-        Assert.AreEqual(testClass, observedSender);
         Assert.AreEqual(1, observedTestEvent);
     }
 
@@ -117,28 +109,24 @@ public class EventObserverTests
         var scopedEventObserver = new EventObserver();
         var testClass = new TestClassWithEvent();
 
-        TestClassWithEvent? observedSender = null;
         var observedTestEvent = 0;
 
         scopedEventObserver.Observe(
             observable: testClass.AsyncObservable,
-            callback: async (sender, args) =>
+            callback: async args =>
             {
                 await Task.Run(() =>
                 {
-                    observedSender = sender;
                     observedTestEvent += args;
                 });
             }
         );
 
         await testClass.RaiseTestTokenAsync(1);
-        Assert.AreEqual(testClass, observedSender);
         Assert.AreEqual(1, observedTestEvent);
 
         scopedEventObserver.Dispose();
         await testClass.RaiseTestTokenAsync(1);
-        Assert.AreEqual(testClass, observedSender);
         Assert.AreEqual(1, observedTestEvent);
     }
 
@@ -148,17 +136,15 @@ public class EventObserverTests
         var eventObserver = new EventObserver();
         var testClass = new TestClassWithEvent();
 
-        TestClassWithEvent? observedSender = null;
         var observedTestEvent = 0;
         using var cancellationTokenSource = new CancellationTokenSource();
 
         eventObserver.Observe(
             observable: testClass.AsyncObservable,
-            callback: async (sender, args) =>
+            callback: async args =>
             {
                 await Task.Run(() =>
                 {
-                    observedSender = sender;
                     observedTestEvent += args;
                 });
             },
@@ -166,13 +152,11 @@ public class EventObserverTests
         );
 
         await testClass.RaiseTestTokenAsync(1);
-        Assert.AreEqual(testClass, observedSender);
         Assert.AreEqual(1, observedTestEvent);
 
         cancellationTokenSource.Cancel();
         await testClass.RaiseTestTokenAsync(1);
 
-        Assert.AreEqual(testClass, observedSender);
         Assert.AreEqual(1, observedTestEvent);
     }
 
@@ -478,17 +462,17 @@ public class EventObserverTests
     {
         public void RaiseTestToken(int args)
         {
-            _observableSource.RaiseEvent(this, args);
+            _observableSource.RaiseEvent(args);
         }
 
         public Task RaiseTestTokenAsync(int args) =>
-            _asyncObservableSource.RaiseEventAsync(this, args);
+            _asyncObservableSource.RaiseEventAsync(args);
 
-        public Observable<TestClassWithEvent, int> Observable => _observableSource.Observable;
-        private readonly ObservableSource<TestClassWithEvent, int> _observableSource = new();
+        public Observable<int> Observable => _observableSource.Observable;
+        private readonly ObservableSource<int> _observableSource = new();
 
-        public AsyncObservable<TestClassWithEvent, int> AsyncObservable => _asyncObservableSource.Observable;
-        private readonly AsyncObservableSource<TestClassWithEvent, int> _asyncObservableSource = new();
+        public AsyncObservable<int> AsyncObservable => _asyncObservableSource.Observable;
+        private readonly AsyncObservableSource<int> _asyncObservableSource = new();
 
         public void RaiseTestEvent(int x)
         {

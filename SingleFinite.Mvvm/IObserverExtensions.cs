@@ -62,27 +62,6 @@ public static class IObserverExtensions
     ) => new ObserverForEach<TArgs>(observer, callback);
 
     /// <summary>
-    /// Invoke the given callback whenever the observable event is raised.
-    /// </summary>
-    /// <typeparam name="TSender">
-    /// The type of sender passed into the observer.
-    /// </typeparam>
-    /// <typeparam name="TArgs">
-    /// The type of arguments passed into the observer.
-    /// </typeparam>
-    /// <param name="observer">The observer to extend.</param>
-    /// <param name="callback">
-    /// The callback to invoke when the observable event is raised.
-    /// </param>
-    /// <returns>
-    /// A new observer that has been added to the chain of observers.
-    /// </returns>
-    public static IObserver<TSender, TArgs> OnEach<TSender, TArgs>(
-        this IObserver<TSender, TArgs> observer,
-        Action<TSender, TArgs> callback
-    ) => new ObserverForEach<TSender, TArgs>(observer, callback);
-
-    /// <summary>
     /// Select a value to pass to chained observers.
     /// </summary>
     /// <typeparam name="TArgsOut">
@@ -124,31 +103,6 @@ public static class IObserverExtensions
     ) => new ObserverSelect<TArgsIn, TArgsOut>(observer, selector);
 
     /// <summary>
-    /// Select a value to pass to chained observers.
-    /// </summary>
-    /// <typeparam name="TSender">
-    /// The type of sender passed into the observer.
-    /// </typeparam>
-    /// <typeparam name="TArgsIn">
-    /// The type of arguments passed into the observer.
-    /// </typeparam>
-    /// <typeparam name="TArgsOut">
-    /// The type of arguments that will be passed to chained observers.
-    /// </typeparam>
-    /// <param name="observer">The observer to extend.</param>
-    /// <param name="selector">
-    /// The callback to invoke to select the arguments to pass to chained
-    /// observers.
-    /// </param>
-    /// <returns>
-    /// A new observer that has been added to the chain of observers.
-    /// </returns>
-    public static IObserver<TSender, TArgsOut> Select<TSender, TArgsIn, TArgsOut>(
-        this IObserver<TSender, TArgsIn> observer,
-        Func<TSender, TArgsIn, TArgsOut> selector
-    ) => new ObserverSelect<TSender, TArgsIn, TArgsOut>(observer, selector);
-
-    /// <summary>
     /// Filter out observable events that don't match the predicate and prevent
     /// them from being passed down the observer chain.
     /// </summary>
@@ -186,30 +140,6 @@ public static class IObserverExtensions
         this IObserver<TArgs> observer,
         Func<TArgs, bool> predicate
     ) => new ObserverWhere<TArgs>(observer, predicate);
-
-    /// <summary>
-    /// Filter out observable events that don't match the predicate and prevent
-    /// them from being passed down the observer chain.
-    /// </summary>
-    /// <typeparam name="TSender">
-    /// The type of sender passed into the observer.
-    /// </typeparam>
-    /// <typeparam name="TArgs">
-    /// The type of arguments passed into the observer.
-    /// </typeparam>
-    /// <param name="observer">The observer to extend.</param>
-    /// <param name="predicate">
-    /// The callback invoked to determine if the observable event should be
-    /// filtered out.  If the callback returns false the observable event will
-    /// be filtered out.
-    /// </param>
-    /// <returns>
-    /// A new observer that has been added to the chain of observers.
-    /// </returns>
-    public static IObserver<TSender, TArgs> Where<TSender, TArgs>(
-        this IObserver<TSender, TArgs> observer,
-        Func<TSender, TArgs, bool> predicate
-    ) => new ObserverWhere<TSender, TArgs>(observer, predicate);
 
     /// <summary>
     /// Dispose of the observer chain if the predicate is matched.
@@ -259,34 +189,6 @@ public static class IObserverExtensions
     ) => new ObserverUntil<TArgs>(observer, predicate, continueOnDispose);
 
     /// <summary>
-    /// Dispose of the observer chain if the predicate is matched.
-    /// </summary>
-    /// <typeparam name="TSender">
-    /// The type of sender passed into the observer.
-    /// </typeparam>
-    /// <typeparam name="TArgs">
-    /// The type of arguments passed into the observer.
-    /// </typeparam>
-    /// <param name="observer">The observer to extend.</param>
-    /// <param name="predicate">
-    /// The callback invoked to determine if the observer chain should be
-    /// disposed.  If the callback returns true the observer chain is disposed.
-    /// </param>
-    /// <param name="continueOnDispose">
-    /// When set to true the next observer in the observer chain will be invoked
-    /// even when predicate returns true and this observer chain will be
-    /// disposed.  Default is false.
-    /// </param>
-    /// <returns>
-    /// A new observer that has been added to the chain of observers.
-    /// </returns>
-    public static IObserver<TSender, TArgs> Until<TSender, TArgs>(
-        this IObserver<TSender, TArgs> observer,
-        Func<TSender, TArgs, bool> predicate,
-        bool continueOnDispose = false
-    ) => new ObserverUntil<TSender, TArgs>(observer, predicate, continueOnDispose);
-
-    /// <summary>
     /// Dispose of the observer chain when the first event is observed.
     /// </summary>
     /// <param name="observer">The observer to extend.</param>
@@ -316,27 +218,6 @@ public static class IObserverExtensions
     ) => Until(
         observer,
         predicate: _ => true,
-        continueOnDispose: true
-    );
-
-    /// <summary>
-    /// Dispose of the observer chain when the first event is observed.
-    /// </summary>
-    /// <typeparam name="TSender">
-    /// The type of sender passed with the observed event.
-    /// </typeparam>
-    /// <typeparam name="TArgs">
-    /// The type of arguments passed with the observed event.
-    /// </typeparam>
-    /// <param name="observer">The observer to extend.</param>
-    /// <returns>
-    /// A new observer that has been added to the chain of observers.
-    /// </returns>
-    public static IObserver<TSender, TArgs> Once<TSender, TArgs>(
-        this IObserver<TSender, TArgs> observer
-    ) => Until(
-        observer,
-        predicate: (_, _) => true,
         continueOnDispose: true
     );
 
@@ -377,31 +258,6 @@ public static class IObserverExtensions
         this IObserver<TArgs> observer,
         ILifecycle lifecycle
     ) => new ObserverOn<TArgs>(
-        observer,
-        lifecycle
-    );
-
-    /// <summary>
-    /// Dispose of the observer chain when the given lifecycle object is
-    /// disposed.
-    /// </summary>
-    /// <typeparam name="TSender">
-    /// The type of sender passed with the observed event.
-    /// </typeparam>
-    /// <typeparam name="TArgs">
-    /// The type of arguments passed with the observed event.
-    /// </typeparam>
-    /// <param name="observer">The observer to extend.</param>
-    /// <param name="lifecycle">
-    /// The lifecycle that when disposed will dispose of this observer.
-    /// </param>
-    /// <returns>
-    /// A new observer that has been added to the chain of observers.
-    /// </returns>
-    public static IObserver<TSender, TArgs> On<TSender, TArgs>(
-        this IObserver<TSender, TArgs> observer,
-        ILifecycle lifecycle
-    ) => new ObserverOn<TSender, TArgs>(
         observer,
         lifecycle
     );
@@ -445,32 +301,6 @@ public static class IObserverExtensions
         this IObserver<TArgs> observer,
         CancellationToken cancellationToken
     ) => new ObserverOn<TArgs>(
-        observer,
-        cancellationToken
-    );
-
-    /// <summary>
-    /// Dispose of the observer chain when the given cancellation token is
-    /// cancelled.
-    /// </summary>
-    /// <typeparam name="TSender">
-    /// The type of sender passed with the observed event.
-    /// </typeparam>
-    /// <typeparam name="TArgs">
-    /// The type of arguments passed with the observed event.
-    /// </typeparam>
-    /// <param name="observer">The observer to extend.</param>
-    /// <param name="cancellationToken">
-    /// The cancellation token that that cancelled will dispose of this
-    /// observer.
-    /// </param>
-    /// <returns>
-    /// A new observer that has been added to the chain of observers.
-    /// </returns>
-    public static IObserver<TSender, TArgs> On<TSender, TArgs>(
-        this IObserver<TSender, TArgs> observer,
-        CancellationToken cancellationToken
-    ) => new ObserverOn<TSender, TArgs>(
         observer,
         cancellationToken
     );
@@ -533,39 +363,6 @@ public static class IObserverExtensions
     );
 
     /// <summary>
-    /// Observer that debounces events.
-    /// </summary>
-    /// <typeparam name="TSender">
-    /// The type of sender passed with observed events.
-    /// </typeparam>
-    /// <typeparam name="TArgs">
-    /// The type of arguments passed with observed events.
-    /// </typeparam>
-    /// <param name="observer">The observer to extend.</param>
-    /// <param name="delay">The delay period for debouncing.</param>
-    /// <param name="dispatcher">
-    /// The dispatcher to run on after the delay has passed.
-    /// </param>
-    /// <param name="debouncer">
-    /// The debouncer to use for debouncing.  If not specifed a default debouncer
-    /// will be used.
-    /// </param>
-    /// <returns>
-    /// A new observer that has been added to the chain of observers.
-    /// </returns>
-    public static IObserver<TSender, TArgs> Debounce<TSender, TArgs>(
-        this IObserver<TSender, TArgs> observer,
-        TimeSpan delay,
-        IDispatcher dispatcher,
-        IDebouncer? debouncer = null
-    ) => new ObserverDebounce<TSender, TArgs>(
-        observer,
-        delay,
-        dispatcher,
-        debouncer
-    );
-
-    /// <summary>
     /// Invoke the given callback whenever an exception thrown below this
     /// observer in the chain is thrown.  Caught exceptions will not move past
     /// this observer.
@@ -607,32 +404,6 @@ public static class IObserverExtensions
         this IObserver<TArgs> observer,
         Action<TArgs, ExceptionEventArgs> callback
     ) => new ObserverCatch<TArgs>(observer, callback);
-
-    /// <summary>
-    /// Invoke the given callback whenever an exception thrown below this
-    /// observer in the chain is thrown.  Caught exceptions will not move past
-    /// this observer.
-    /// </summary>
-    /// <typeparam name="TSender">
-    /// The type of sender passed into the observer.
-    /// </typeparam>
-    /// <typeparam name="TArgs">
-    /// The type of arguments passed into the observer.
-    /// </typeparam>
-    /// <param name="observer">The observer to extend.</param>
-    /// <param name="callback">
-    /// The callback to invoke whenever an exception is caught.  If the
-    /// exception is not handled it will be rethrown and continue up the chain.
-    /// By default the exception is considered handled unless the IsHandled
-    /// property of the ExceptionEventArgs is changed to false.
-    /// </param>
-    /// <returns>
-    /// A new observer that has been added to the chain of observers.
-    /// </returns>
-    public static IObserver<TSender, TArgs> Catch<TSender, TArgs>(
-        this IObserver<TSender, TArgs> observer,
-        Action<TSender, TArgs, ExceptionEventArgs> callback
-    ) => new ObserverCatch<TSender, TArgs>(observer, callback);
 
     /// <summary>
     /// Create an observer that raises the next event in the observer chain as
@@ -678,31 +449,4 @@ public static class IObserverExtensions
         IDispatcher dispatcher,
         Action<ExceptionEventArgs>? onError = default
     ) => new ObserverToAsync<TArgs>(observer, dispatcher, onError);
-
-    /// <summary>
-    /// Create an observer that raises the next event in the observer chain as
-    /// async by using the provided dispatcher..
-    /// </summary>
-    /// <typeparam name="TSender">
-    /// The type of sender passed with observed events.
-    /// </typeparam>
-    /// <typeparam name="TArgs">
-    /// The type of arguments passed with observed events.
-    /// </typeparam>
-    /// <param name="observer">The observer to extend.</param>
-    /// <param name="dispatcher">
-    /// The dispatcher the async events will be run with.
-    /// </param>
-    /// <param name="onError">
-    /// Optional action that is invoked if an exception is thrown from the async
-    /// observers.
-    /// </param>
-    /// <returns>
-    /// A new observer that has been added to the chain of observers.
-    /// </returns>
-    public static IAsyncObserver<TSender, TArgs> ToAsync<TSender, TArgs>(
-        this IObserver<TSender, TArgs> observer,
-        IDispatcher dispatcher,
-        Action<ExceptionEventArgs>? onError = default
-    ) => new ObserverToAsync<TSender, TArgs>(observer, dispatcher, onError);
 }

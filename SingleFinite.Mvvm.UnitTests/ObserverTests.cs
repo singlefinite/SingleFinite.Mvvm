@@ -282,51 +282,6 @@ public class ObserverTests
     }
 
     [TestMethod]
-    public void Of_Type_With_Sender_Runs_As_Expected()
-    {
-        var observedNames = new List<string>();
-
-        var observableSource = new ObservableSource<ExampleSender, ExampleArgs>();
-        var observable = observableSource.Observable;
-
-        var observer = observable
-            .Observe()
-            .OfType<SubExampleSender, SubExampleArgs>()
-            .OnEach((sender, args) => observedNames.Add(args.SubName));
-
-        Assert.AreEqual(0, observedNames.Count);
-
-        observableSource.RaiseEvent(
-            new ExampleSender(),
-            new ExampleArgs("Hello", 0)
-        );
-
-        Assert.AreEqual(0, observedNames.Count);
-
-        observableSource.RaiseEvent(
-            new SubExampleSender(),
-            new ExampleArgs("Hello", 0)
-        );
-
-        Assert.AreEqual(0, observedNames.Count);
-
-        observableSource.RaiseEvent(
-            new ExampleSender(),
-            new SubExampleArgs("Hi")
-        );
-
-        Assert.AreEqual(0, observedNames.Count);
-
-        observableSource.RaiseEvent(
-            new SubExampleSender(),
-            new SubExampleArgs("Hi")
-        );
-
-        Assert.AreEqual(1, observedNames.Count);
-        Assert.AreEqual("Hi", observedNames[0]);
-    }
-
-    [TestMethod]
     public void Once_Runs_As_Expected()
     {
         var observedNames = new List<string>();

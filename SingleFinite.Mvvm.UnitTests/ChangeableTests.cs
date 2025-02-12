@@ -104,12 +104,12 @@ public class ChangeableTests
     [TestMethod]
     public void PropertyChangingObservable_Observed_Events()
     {
-        var observedEvents = new List<(object?, PropertyChangingEventArgs)>();
+        var observedEvents = new List<string>();
 
         var testClass = new TestClass();
         testClass
             .ObservePropertyChanging(() => testClass.FieldOne)
-            .OnEach((sender, args) => observedEvents.Add((sender, args)));
+            .OnEach(observedEvents.Add);
 
         Assert.AreEqual(0, observedEvents.Count);
 
@@ -120,20 +120,18 @@ public class ChangeableTests
         testClass.FieldOne = "hello";
 
         Assert.AreEqual(1, observedEvents.Count);
-        var (observedSender, observedArgs) = observedEvents[0];
-        Assert.AreEqual(observedSender, testClass);
-        Assert.AreEqual(observedArgs.PropertyName, "FieldOne");
+        Assert.AreEqual("FieldOne", observedEvents[0]);
     }
 
     [TestMethod]
     public void PropertyChangedObservable_Observed_Events()
     {
-        var observedEvents = new List<(object?, PropertyChangedEventArgs)>();
+        var observedEvents = new List<string>();
 
         var testClass = new TestClass();
         testClass
             .ObservePropertyChanged(() => testClass.FieldOne)
-            .OnEach((sender, args) => observedEvents.Add((sender, args)));
+            .OnEach(observedEvents.Add);
 
         Assert.AreEqual(0, observedEvents.Count);
 
@@ -144,9 +142,7 @@ public class ChangeableTests
         testClass.FieldOne = "hello";
 
         Assert.AreEqual(1, observedEvents.Count);
-        var (observedSender, observedArgs) = observedEvents[0];
-        Assert.AreEqual(observedSender, testClass);
-        Assert.AreEqual(observedArgs.PropertyName, "FieldOne");
+        Assert.AreEqual("FieldOne", observedEvents[0]);
     }
 
     #region Types
