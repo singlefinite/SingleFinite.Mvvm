@@ -21,7 +21,6 @@
 
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using System.Text.RegularExpressions;
 using SingleFinite.Mvvm.Internal;
 
 namespace SingleFinite.Mvvm;
@@ -136,8 +135,6 @@ public abstract partial class Changeable :
             sender: this,
             e: args
         );
-
-        _propertyChangingSource.RaiseEvent(propertyName);
     }
 
     /// <summary>
@@ -154,8 +151,6 @@ public abstract partial class Changeable :
             sender: this,
             e: new PropertyChangedEventArgs(propertyName)
         );
-
-        _propertyChangedSource.RaiseEvent(propertyName);
     }
 
     /// <summary>
@@ -255,94 +250,6 @@ public abstract partial class Changeable :
         }
     }
 
-    /// <summary>
-    /// Observe when the given property is changing.
-    /// </summary>
-    /// <param name="property">
-    /// An expression in the form of `() => changeable.property` that identifies
-    /// the property to listen for changes on.
-    /// </param>
-    /// <param name="propertyExpression">
-    /// When left as null the compiler will set this from the property argument.
-    /// </param>
-    /// <returns>
-    /// An observer that when disposed will unregister the callback.
-    /// </returns>
-    public IObserver<string> ObservePropertyChanging(
-        Func<object?> property,
-        [CallerArgumentExpression(nameof(property))]
-        string? propertyExpression = default
-    )
-    {
-        var propertyName = ParsePropertyName(propertyExpression);
-        return PropertyChanging
-            .Observe()
-            .Where(changingPropertyName => changingPropertyName == propertyName);
-    }
-
-    /// <summary>
-    /// Observe when the given property is changed.
-    /// </summary>
-    /// <param name="property">
-    /// An expression in the form of `() => changeable.property` that identifies
-    /// the property to listen for changes on.
-    /// </param>
-    /// <param name="propertyExpression">
-    /// When left as null the compiler will set this from the property argument.
-    /// </param>
-    /// <returns>
-    /// An observer that when disposed will unregister the callback.
-    /// </returns>
-    public IObserver<string> ObservePropertyChanged(
-        Func<object?> property,
-        [CallerArgumentExpression(nameof(property))]
-        string? propertyExpression = default
-    )
-    {
-        var propertyName = ParsePropertyName(propertyExpression);
-        return PropertyChanged
-            .Observe()
-            .Where(changedPropertyName => changedPropertyName == propertyName);
-    }
-
-    /// <summary>
-    /// Parse the property name from the given expression.
-    /// </summary>
-    /// <param name="propertyExpression">
-    /// The expression to parse the property name from.
-    /// The expected format for the expression is '() => owner.property' or
-    /// '() => owner.property = something'.
-    /// </param>
-    /// <returns>The property name parsed from the expression.</returns>
-    /// <exception cref="ArgumentException">
-    /// Thrown if the expression is not in the expected format.
-    /// </exception>
-    internal static string ParsePropertyName(string? propertyExpression)
-    {
-        ArgumentNullException.ThrowIfNullOrWhiteSpace(
-            propertyExpression,
-            nameof(propertyExpression)
-        );
-
-        var matchValue = PropertyNameRegex().Match(propertyExpression)?.Value;
-        if (string.IsNullOrEmpty(matchValue))
-        {
-            throw new ArgumentException(
-                message: "expression must be in the form of 'object.property'",
-                paramName: nameof(propertyExpression)
-            );
-        }
-
-        return matchValue;
-    }
-
-    /// <summary>
-    /// Regular expression used to parse a property name out of an expression.
-    /// </summary>
-    /// <returns>A regular expression.</returns>
-    [GeneratedRegex("(?<=\\.)\\w+")]
-    private static partial Regex PropertyNameRegex();
-
     #endregion
 
     #region Events
@@ -366,18 +273,6 @@ public abstract partial class Changeable :
         remove { _propertyChanged -= value; }
     }
     private PropertyChangedEventHandler? _propertyChanged;
-
-    /// <summary>
-    /// Raised when a property value is about to be changed.
-    /// </summary>
-    public Observable<string> PropertyChanging => _propertyChangingSource.Observable;
-    private readonly ObservableSource<string> _propertyChangingSource = new();
-
-    /// <summary>
-    /// Raised when a property value has changed.
-    /// </summary>
-    public Observable<string> PropertyChanged => _propertyChangedSource.Observable;
-    private readonly ObservableSource<string> _propertyChangedSource = new();
 
     /// <inheritdoc/>
     public event PropertyChangedEventHandler? MappedPropertyChanged;

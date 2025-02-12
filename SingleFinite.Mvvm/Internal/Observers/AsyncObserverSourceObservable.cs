@@ -22,10 +22,10 @@
 namespace SingleFinite.Mvvm.Internal.Observers;
 
 /// <summary>
-/// An observer that is the root of an observer chain and is the source for
-/// events.
+/// An observer that is the root of an observer chain and has an observable
+/// for a source.
 /// </summary>
-internal class ObserverSource : IObserver
+internal class AsyncObserverSourceObservable : IAsyncObserver
 {
     #region Fields
 
@@ -37,7 +37,7 @@ internal class ObserverSource : IObserver
     /// <summary>
     /// An observable that is the source of events for the observer.
     /// </summary>
-    private readonly Observable _observable;
+    private readonly AsyncObservable _observable;
 
     #endregion
 
@@ -49,10 +49,10 @@ internal class ObserverSource : IObserver
     /// <param name="observable">
     /// An observable that is the source of events for the observer.
     /// </param>
-    public ObserverSource(Observable observable)
+    public AsyncObserverSourceObservable(AsyncObservable observable)
     {
         _observable = observable;
-        _observable.Event += OnEvent;
+        _observable.Event += OnEventAsync;
     }
 
     #endregion
@@ -62,7 +62,7 @@ internal class ObserverSource : IObserver
     /// <summary>
     /// Raise the Event.
     /// </summary>
-    private void OnEvent() => Next?.Invoke();
+    private Task OnEventAsync() => Next?.Invoke() ?? Task.CompletedTask;
 
     /// <summary>
     /// Unsubscribe from the observable events.
@@ -73,7 +73,7 @@ internal class ObserverSource : IObserver
             return;
 
         _isDisposed = true;
-        _observable.Event -= OnEvent;
+        _observable.Event -= OnEventAsync;
     }
 
     #endregion
@@ -83,16 +83,16 @@ internal class ObserverSource : IObserver
     /// <summary>
     /// Raised when the observable event is raised. 
     /// </summary>
-    public event Action? Next;
+    public event Func<Task>? Next;
 
     #endregion
 }
 
 /// <summary>
-/// An observer that is the root of an observer chain and is the source for
-/// events.
+/// An observer that is the root of an observer chain and has an observable
+/// for a source.
 /// </summary>
-internal class ObserverSource<TArgs> : IObserver<TArgs>
+internal class AsyncObserverSource<TArgs> : IAsyncObserver<TArgs>
 {
     #region Fields
 
@@ -104,7 +104,7 @@ internal class ObserverSource<TArgs> : IObserver<TArgs>
     /// <summary>
     /// An observable that is the source of events for the observer.
     /// </summary>
-    private readonly Observable<TArgs> _observable;
+    private readonly AsyncObservable<TArgs> _observable;
 
     #endregion
 
@@ -116,10 +116,10 @@ internal class ObserverSource<TArgs> : IObserver<TArgs>
     /// <param name="observable">
     /// An observable that is the source of events for the observer.
     /// </param>
-    public ObserverSource(Observable<TArgs> observable)
+    public AsyncObserverSource(AsyncObservable<TArgs> observable)
     {
         _observable = observable;
-        _observable.Event += OnEvent;
+        _observable.Event += OnEventAsync;
     }
 
     #endregion
@@ -129,7 +129,8 @@ internal class ObserverSource<TArgs> : IObserver<TArgs>
     /// <summary>
     /// Raise the Event.
     /// </summary>
-    private void OnEvent(TArgs args) => Next?.Invoke(args);
+    private Task OnEventAsync(TArgs args) =>
+        Next?.Invoke(args) ?? Task.CompletedTask;
 
     /// <summary>
     /// Unsubscribe from the observable events.
@@ -140,7 +141,7 @@ internal class ObserverSource<TArgs> : IObserver<TArgs>
             return;
 
         _isDisposed = true;
-        _observable.Event -= OnEvent;
+        _observable.Event -= OnEventAsync;
     }
 
     #endregion
@@ -150,7 +151,7 @@ internal class ObserverSource<TArgs> : IObserver<TArgs>
     /// <summary>
     /// Raised when the observable event is raised. 
     /// </summary>
-    public event Action<TArgs>? Next;
+    public event Func<TArgs, Task>? Next;
 
     #endregion
 }

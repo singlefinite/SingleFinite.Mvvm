@@ -324,8 +324,7 @@ public class ViewModelTests
     }
 
     private class ExampleViewModel(
-        IBackgroundDispatcher backgroundDispatcher,
-        IEventObserver eventObserver
+        IBackgroundDispatcher backgroundDispatcher
     ) : ViewModel
     {
         public int Number
@@ -346,10 +345,9 @@ public class ViewModelTests
 
         protected override void OnInitialize()
         {
-            eventObserver.Observe(
-                observable: NumberChanged,
-                callback: number => Text = $"Number {number}"
-            );
+            NumberChanged
+                .Observe(number => Text = $"Number {number}")
+                .On(this);
         }
 
         public void RunOnBackground(Action<CancellationToken> action)

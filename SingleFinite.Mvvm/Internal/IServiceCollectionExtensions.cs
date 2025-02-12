@@ -68,7 +68,6 @@ internal static class IServiceCollectionExtensions
         .AddScoped<ICancellationTokenProvider, CancellationTokenProvider>()
         .AddScoped<IBackgroundDispatcher, BackgroundDispatcher>()
         .AddScoped<IMainDispatcher, MainDispatcher>()
-        .AddScoped<IEventObserver, EventObserver>()
         .AddTransient<IDebouncer, Debouncer>()
         .AddTransient<IPresentableItem, PresentableItem>()
         .AddTransient<IPresentableStack, PresentableStack>()

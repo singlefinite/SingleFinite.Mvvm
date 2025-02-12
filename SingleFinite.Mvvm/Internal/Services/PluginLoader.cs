@@ -50,24 +50,20 @@ internal class PluginLoader(
         foreach (var descriptor in pluginRegistry.GetPlugins(pluginHost))
         {
             var pluginScope = serviceProvider.CreateLinkedScope();
-            var eventObserver = pluginScope.ServiceProvider.GetRequiredService<IEventObserver>();
             var builder = pluginScope.ServiceProvider.GetRequiredService<IBuilder>();
             var plugin = (IPlugin)builder.Build(descriptor.PluginType);
 
-            eventObserver.Observe(
-                observable: pluginHost.Activated,
-                callback: plugin.Activate
-            );
+            pluginHost.Activated
+                .Observe(plugin.Activate)
+                .On(plugin);
 
-            eventObserver.Observe(
-                observable: pluginHost.Deactivated,
-                callback: plugin.Deactivate
-            );
+            pluginHost.Deactivated
+                .Observe(plugin.Deactivate)
+                .On(plugin);
 
-            eventObserver.Observe(
-                observable: pluginHost.Disposed,
-                callback: plugin.Dispose
-            );
+            pluginHost.Disposed
+                .Observe(plugin.Dispose)
+                .On(plugin);
 
             plugin.Load(pluginHost);
             plugin.Initialize();

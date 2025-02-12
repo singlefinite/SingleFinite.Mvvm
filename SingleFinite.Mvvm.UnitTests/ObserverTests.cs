@@ -20,6 +20,7 @@
 // SOFTWARE.
 
 using SingleFinite.Mvvm.Internal;
+using SingleFinite.Mvvm.Internal.Observers;
 using SingleFinite.Mvvm.Internal.Services;
 
 namespace SingleFinite.Mvvm.UnitTests;
@@ -516,6 +517,36 @@ public class ObserverTests
         Assert.IsInstanceOfType<InvalidOperationException>(observedErrors[0]);
     }
 
+    [TestMethod]
+    public void Observer_Generic_Event_Runs_As_Expected()
+    {
+        var exampleObject = new ExampleWithEvent();
+        var cancellationTokenSource = new CancellationTokenSource();
+
+        var observedCount = 0;
+
+        var observer = Observable
+            .Observe<Action>(
+                register: handler => exampleObject.ExampleEvent += handler,
+                unregister: handler => exampleObject.ExampleEvent -= handler,
+                handler: nextEvent => () => nextEvent()
+            )
+            .OnEach(() => observedCount++)
+            .On(cancellationTokenSource.Token);
+
+        Assert.AreEqual(0, observedCount);
+
+        exampleObject.RaiseEvent();
+
+        Assert.AreEqual(1, observedCount);
+
+        cancellationTokenSource.Cancel();
+
+        exampleObject.RaiseEvent();
+
+        Assert.AreEqual(1, observedCount);
+    }
+
     #region Types
 
     private record ExampleArgs(
@@ -536,6 +567,13 @@ public class ObserverTests
 
     private class ExampleViewModel : ViewModel
     {
+    }
+
+    private class ExampleWithEvent
+    {
+        public void RaiseEvent() => ExampleEvent?.Invoke();
+
+        public event Action? ExampleEvent;
     }
 
     #endregion

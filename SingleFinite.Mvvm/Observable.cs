@@ -55,7 +55,7 @@ public sealed class Observable
     /// <returns>
     /// An observer that runs when the event for this observable is raised.
     /// </returns>
-    public IObserver Observe() => new ObserverSource(this);
+    public IObserver Observe() => new ObserverSourceObservable(this);
 
     /// <summary>
     /// Create an observer for this observable.
@@ -69,12 +69,35 @@ public sealed class Observable
     /// An observer that runs when the event for this observable is raised.
     /// </returns>
     public IObserver Observe(Action callback) =>
-        new ObserverSource(this).OnEach(callback);
+        new ObserverSourceObservable(this).OnEach(callback);
 
     /// <summary>
     /// Raise the event for this observable.
     /// </summary>
     private void RaiseEvent() => Event?.Invoke();
+
+    /// <summary>
+    /// Create an observer for a generic event.
+    /// </summary>
+    /// <typeparam name="TEventDelegate">The event delegate type.</typeparam>
+    /// <param name="register">Action used to register event handler.</param>
+    /// <param name="unregister">
+    /// Action used to unregister event handler.
+    /// </param>
+    /// <param name="handler">
+    /// Func used to get handler.  The action that raises the Next event
+    /// of this observer is passed into the func.
+    /// </param>
+    /// <returns>An observer that observes from the event.</returns>
+    public static IObserver Observe<TEventDelegate>(
+        Action<TEventDelegate> register,
+        Action<TEventDelegate> unregister,
+        Func<Action, TEventDelegate> handler
+    ) => new ObserverSourceEvent<TEventDelegate>(
+        register,
+        unregister,
+        handler
+    );
 
     #endregion
 
@@ -123,7 +146,7 @@ public sealed class Observable<TArgs>
     /// <returns>
     /// An observer that runs when the event for this observable is raised.
     /// </returns>
-    public IObserver<TArgs> Observe() => new ObserverSource<TArgs>(this);
+    public IObserver<TArgs> Observe() => new ObserverSourceObservable<TArgs>(this);
 
     /// <summary>
     /// Create an observer for this observable.
@@ -137,13 +160,36 @@ public sealed class Observable<TArgs>
     /// An observer that runs when the event for this observable is raised.
     /// </returns>
     public IObserver<TArgs> Observe(Action<TArgs> callback) =>
-        new ObserverSource<TArgs>(this).OnEach(callback);
+        new ObserverSourceObservable<TArgs>(this).OnEach(callback);
 
     /// <summary>
     /// Raise the event for this observable.
     /// </summary>
     /// <param name="args">The args included with the event.</param>
     private void RaiseEvent(TArgs args) => Event?.Invoke(args);
+
+    /// <summary>
+    /// Create an observer for a generic event.
+    /// </summary>
+    /// <typeparam name="TEventDelegate">The event delegate type.</typeparam>
+    /// <param name="register">Action used to register event handler.</param>
+    /// <param name="unregister">
+    /// Action used to unregister event handler.
+    /// </param>
+    /// <param name="handler">
+    /// Func used to get handler.  The action that raises the Next event
+    /// of this observer is passed into the func.
+    /// </param>
+    /// <returns>An observer that observes from the event.</returns>
+    public static IObserver<TArgs> Observe<TEventDelegate>(
+        Action<TEventDelegate> register,
+        Action<TEventDelegate> unregister,
+        Func<Action<TArgs>, TEventDelegate> handler
+    ) => new ObserverSourceEvent<TEventDelegate, TArgs>(
+        register,
+        unregister,
+        handler
+    );
 
     #endregion
 
