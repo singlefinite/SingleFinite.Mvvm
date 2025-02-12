@@ -34,7 +34,7 @@ internal class AsyncObserverOn : AsyncObserverBase
     /// </summary>
     /// <param name="parent">The parent to this observer.</param>
     /// <param name="lifecycle">
-    /// The lifecycle that that when disposed will dispose of this observer.
+    /// The lifecycle that when disposed will dispose of this observer.
     /// </param>
     public AsyncObserverOn(
         IAsyncObserver parent,
@@ -50,6 +50,27 @@ internal class AsyncObserverOn : AsyncObserverBase
         lifecycle.Disposed
             .Observe(Dispose)
             .Once();
+    }
+
+    /// <summary>
+    /// Constructor.
+    /// </summary>
+    /// <param name="parent">The parent to this observer.</param>
+    /// <param name="cancellationToken">
+    /// The cancellation token that when cancelled will dispose of this
+    /// observer.
+    /// </param>
+    public AsyncObserverOn(
+        IAsyncObserver parent,
+        CancellationToken cancellationToken
+    ) : base(parent)
+    {
+        CancellationTokenRegistration? registration = null;
+        registration = cancellationToken.Register(() =>
+        {
+            Dispose();
+            registration?.Dispose();
+        });
     }
 
     #endregion
@@ -81,7 +102,7 @@ internal class AsyncObserverOn<TArgs> : AsyncObserverBase<TArgs>
     /// </summary>
     /// <param name="parent">The parent to this observer.</param>
     /// <param name="lifecycle">
-    /// The lifecycle that that when disposed will dispose of this observer.
+    /// The lifecycle that when disposed will dispose of this observer.
     /// </param>
     public AsyncObserverOn(
         IAsyncObserver<TArgs> parent,
@@ -97,6 +118,27 @@ internal class AsyncObserverOn<TArgs> : AsyncObserverBase<TArgs>
         lifecycle.Disposed
             .Observe(Dispose)
             .Once();
+    }
+
+    /// <summary>
+    /// Constructor.
+    /// </summary>
+    /// <param name="parent">The parent to this observer.</param>
+    /// <param name="cancellationToken">
+    /// The cancellation token that when cancelled will dispose of this
+    /// observer.
+    /// </param>
+    public AsyncObserverOn(
+        IAsyncObserver<TArgs> parent,
+        CancellationToken cancellationToken
+    ) : base(parent)
+    {
+        CancellationTokenRegistration? registration = null;
+        registration = cancellationToken.Register(() =>
+        {
+            Dispose();
+            registration?.Dispose();
+        });
     }
 
     #endregion
@@ -133,7 +175,7 @@ internal class AsyncObserverOn<TSender, TArgs> : AsyncObserverBase<TSender, TArg
     /// </summary>
     /// <param name="parent">The parent to this observer.</param>
     /// <param name="lifecycle">
-    /// The lifecycle that that when disposed will dispose of this observer.
+    /// The lifecycle that when disposed will dispose of this observer.
     /// </param>
     public AsyncObserverOn(
         IAsyncObserver<TSender, TArgs> parent,
@@ -149,6 +191,27 @@ internal class AsyncObserverOn<TSender, TArgs> : AsyncObserverBase<TSender, TArg
         lifecycle.Disposed
             .Observe(Dispose)
             .Once();
+    }
+
+    /// <summary>
+    /// Constructor.
+    /// </summary>
+    /// <param name="parent">The parent to this observer.</param>
+    /// <param name="cancellationToken">
+    /// The cancellation token that when cancelled will dispose of this
+    /// observer.
+    /// </param>
+    public AsyncObserverOn(
+        IAsyncObserver<TSender, TArgs> parent,
+        CancellationToken cancellationToken
+    ) : base(parent)
+    {
+        CancellationTokenRegistration? registration = null;
+        registration = cancellationToken.Register(() =>
+        {
+            Dispose();
+            registration?.Dispose();
+        });
     }
 
     #endregion

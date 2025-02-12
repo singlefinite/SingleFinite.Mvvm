@@ -180,7 +180,7 @@ public class AsyncObserverTests
     }
 
     [TestMethod]
-    public async Task On_Runs_As_Expected_Async()
+    public async Task On_Lifecycle_Runs_As_Expected_Async()
     {
         var viewModel = new ExampleViewModel();
 
@@ -203,6 +203,36 @@ public class AsyncObserverTests
         observedNames.Clear();
 
         viewModel.Dispose();
+
+        await observableSource.RaiseEventAsync(new("World", 0));
+
+        Assert.AreEqual(0, observedNames.Count);
+    }
+
+    [TestMethod]
+    public async Task On_CancellationToken_Runs_As_Expected_Async()
+    {
+        var cancellationTokenSource = new CancellationTokenSource();
+
+        var observedNames = new List<string>();
+
+        var observableSource = new AsyncObservableSource<ExampleArgs>();
+        var observable = observableSource.Observable;
+
+        var observer = observable
+            .Observe()
+            .OnEach(args => observedNames.Add(args.Name))
+            .On(cancellationTokenSource.Token);
+
+        Assert.AreEqual(0, observedNames.Count);
+
+        await observableSource.RaiseEventAsync(new("Hello", 0));
+
+        Assert.AreEqual(1, observedNames.Count);
+        Assert.AreEqual("Hello", observedNames[0]);
+        observedNames.Clear();
+
+        cancellationTokenSource.Cancel();
 
         await observableSource.RaiseEventAsync(new("World", 0));
 

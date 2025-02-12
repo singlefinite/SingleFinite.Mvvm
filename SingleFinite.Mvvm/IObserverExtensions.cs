@@ -346,7 +346,7 @@ public static class IObserverExtensions
     /// </summary>
     /// <param name="observer">The observer to extend.</param>
     /// <param name="lifecycle">
-    /// The lifecycle that that when disposed will dispose of this observer.
+    /// The lifecycle that when disposed will dispose of this observer.
     /// </param>
     /// <returns>
     /// A new observer that has been added to the chain of observers.
@@ -368,7 +368,7 @@ public static class IObserverExtensions
     /// </typeparam>
     /// <param name="observer">The observer to extend.</param>
     /// <param name="lifecycle">
-    /// The lifecycle that that when disposed will dispose of this observer.
+    /// The lifecycle that when disposed will dispose of this observer.
     /// </param>
     /// <returns>
     /// A new observer that has been added to the chain of observers.
@@ -393,7 +393,7 @@ public static class IObserverExtensions
     /// </typeparam>
     /// <param name="observer">The observer to extend.</param>
     /// <param name="lifecycle">
-    /// The lifecycle that that when disposed will dispose of this observer.
+    /// The lifecycle that when disposed will dispose of this observer.
     /// </param>
     /// <returns>
     /// A new observer that has been added to the chain of observers.
@@ -404,6 +404,75 @@ public static class IObserverExtensions
     ) => new ObserverOn<TSender, TArgs>(
         observer,
         lifecycle
+    );
+
+    /// <summary>
+    /// Dispose of the observer chain when the given cancellation token is
+    /// cancelled.
+    /// </summary>
+    /// <param name="observer">The observer to extend.</param>
+    /// <param name="cancellationToken">
+    /// The cancellation token that when cancelled will dispose of this
+    /// observer.
+    /// </param>
+    /// <returns>
+    /// A new observer that has been added to the chain of observers.
+    /// </returns>
+    public static IObserver On(
+        this IObserver observer,
+        CancellationToken cancellationToken
+    ) => new ObserverOn(
+        observer,
+        cancellationToken
+    );
+
+    /// <summary>
+    /// Dispose of the observer chain when the given cancellation token is
+    /// cancelled.
+    /// </summary>
+    /// <typeparam name="TArgs">
+    /// The type of arguments passed with the observed event.
+    /// </typeparam>
+    /// <param name="observer">The observer to extend.</param>
+    /// <param name="cancellationToken">
+    /// The cancellation token that that cancelled will dispose of this
+    /// observer.
+    /// </param>
+    /// <returns>
+    /// A new observer that has been added to the chain of observers.
+    /// </returns>
+    public static IObserver<TArgs> On<TArgs>(
+        this IObserver<TArgs> observer,
+        CancellationToken cancellationToken
+    ) => new ObserverOn<TArgs>(
+        observer,
+        cancellationToken
+    );
+
+    /// <summary>
+    /// Dispose of the observer chain when the given cancellation token is
+    /// cancelled.
+    /// </summary>
+    /// <typeparam name="TSender">
+    /// The type of sender passed with the observed event.
+    /// </typeparam>
+    /// <typeparam name="TArgs">
+    /// The type of arguments passed with the observed event.
+    /// </typeparam>
+    /// <param name="observer">The observer to extend.</param>
+    /// <param name="cancellationToken">
+    /// The cancellation token that that cancelled will dispose of this
+    /// observer.
+    /// </param>
+    /// <returns>
+    /// A new observer that has been added to the chain of observers.
+    /// </returns>
+    public static IObserver<TSender, TArgs> On<TSender, TArgs>(
+        this IObserver<TSender, TArgs> observer,
+        CancellationToken cancellationToken
+    ) => new ObserverOn<TSender, TArgs>(
+        observer,
+        cancellationToken
     );
 
     /// <summary>

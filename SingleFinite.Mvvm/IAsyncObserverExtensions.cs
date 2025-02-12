@@ -728,6 +728,75 @@ public static class IAsyncObserverExtensions
     );
 
     /// <summary>
+    /// Dispose of the observer chain when the given cancellation token is
+    /// cancelled.
+    /// </summary>
+    /// <param name="observer">The observer to extend.</param>
+    /// <param name="cancellationToken">
+    /// The cancellation token that when cancelled will dispose of this
+    /// observer.
+    /// </param>
+    /// <returns>
+    /// A new observer that has been added to the chain of observers.
+    /// </returns>
+    public static IAsyncObserver On(
+        this IAsyncObserver observer,
+        CancellationToken cancellationToken
+    ) => new AsyncObserverOn(
+        observer,
+        cancellationToken
+    );
+
+    /// <summary>
+    /// Dispose of the observer chain when the given cancellation token is
+    /// cancelled.
+    /// </summary>
+    /// <typeparam name="TArgs">
+    /// The type of arguments passed with the observed event.
+    /// </typeparam>
+    /// <param name="observer">The observer to extend.</param>
+    /// <param name="cancellationToken">
+    /// The cancellation token that that cancelled will dispose of this
+    /// observer.
+    /// </param>
+    /// <returns>
+    /// A new observer that has been added to the chain of observers.
+    /// </returns>
+    public static IAsyncObserver<TArgs> On<TArgs>(
+        this IAsyncObserver<TArgs> observer,
+        CancellationToken cancellationToken
+    ) => new AsyncObserverOn<TArgs>(
+        observer,
+        cancellationToken
+    );
+
+    /// <summary>
+    /// Dispose of the observer chain when the given cancellation token is
+    /// cancelled.
+    /// </summary>
+    /// <typeparam name="TSender">
+    /// The type of sender passed with the observed event.
+    /// </typeparam>
+    /// <typeparam name="TArgs">
+    /// The type of arguments passed with the observed event.
+    /// </typeparam>
+    /// <param name="observer">The observer to extend.</param>
+    /// <param name="cancellationToken">
+    /// The cancellation token that that cancelled will dispose of this
+    /// observer.
+    /// </param>
+    /// <returns>
+    /// A new observer that has been added to the chain of observers.
+    /// </returns>
+    public static IAsyncObserver<TSender, TArgs> On<TSender, TArgs>(
+        this IAsyncObserver<TSender, TArgs> observer,
+        CancellationToken cancellationToken
+    ) => new AsyncObserverOn<TSender, TArgs>(
+        observer,
+        cancellationToken
+    );
+
+    /// <summary>
     /// Observer that debounces events.
     /// </summary>
     /// <param name="observer">The observer to extend.</param>
