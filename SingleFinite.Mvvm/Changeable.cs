@@ -164,7 +164,7 @@ public abstract partial class Changeable :
     {
         _propertyMapper.RaiseMappedPropertyChangedEvents(
             sourcePropertyNames: propertyNames,
-            raiseEvent: (sender, args) => MappedPropertyChanged?.Invoke(sender, args)
+            raiseEvent: (sender, args) => _mappedPropertyChanged?.Invoke(sender, args)
         );
     }
 
@@ -276,7 +276,12 @@ public abstract partial class Changeable :
     private PropertyChangedEventHandler? _propertyChanged;
 
     /// <inheritdoc/>
-    public event PropertyChangedEventHandler? MappedPropertyChanged;
+    event PropertyChangedEventHandler? IPropertyMappable.MappedPropertyChanged
+    {
+        add { _mappedPropertyChanged += value; }
+        remove { _mappedPropertyChanged -= value; }
+    }
+    private PropertyChangedEventHandler? _mappedPropertyChanged;
 
     #endregion
 }
