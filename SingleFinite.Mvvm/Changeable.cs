@@ -169,9 +169,9 @@ public abstract partial class Changeable :
     }
 
     /// <summary>
-    /// Update the given currentValue with the newValue and raise the
-    /// PropertyChanging and PropertyChanged events.  If the currentValue is 
-    /// equal to the newValue the currentValue will not be updated and the 
+    /// Update the given field with the new value and raise the
+    /// PropertyChanging and PropertyChanged events.  If the current value is 
+    /// equal to the new value the currentValue will not be updated and the 
     /// PropertyChanging and PropertyChanged events will not be raised.
     /// </summary>
     /// <typeparam name="TValue">The type of value.</typeparam>
@@ -182,15 +182,16 @@ public abstract partial class Changeable :
     /// <param name="onPropertyChanging">
     /// If the new value will change the property, invoke this action before 
     /// changing the value and after raising the PropertyChanging event.  Note 
-    /// that if a transaction is open this action will only be called the first 
-    /// time.  If this method is called again with the same property name while 
-    /// the same transaction is open it will not be called again.
+    /// that if this object is in the process of being changed this action will
+    /// only be called the first time.  If this method is called again with the
+    /// same property name while the object is still in the process of being
+    /// changed is in progress it will not be invoked again.
     /// </param>
     /// <param name="onPropertyChanged">
     /// If the new value changes the property, invoke this action after changing
-    /// the value and raising the PropertyChanged event.  Note that if a 
-    /// transaction is open this action will not be invoked until the 
-    /// transaction has been closed.
+    /// the value and raising the PropertyChanged event.  Note that if this
+    /// object is in the process of being changed this action will not be
+    /// invoked until the the object has finished being changed.
     /// </param>
     /// <param name="name">
     /// The name provided with the PropertyChanging and PropertyChanged event 
