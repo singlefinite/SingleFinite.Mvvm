@@ -92,8 +92,11 @@ public class AsyncObservableTests
         var observedErrors = 0;
         exceptionHandler.ExceptionHandled.Observe(_ => observedErrors++);
 
-        var dispatcher = new MainDispatcher(
-            new DedicatedThreadDispatcher(exceptionHandler),
+        var dispatcher = new DispatcherMain(
+            new DispatcherDedicatedThread(
+                new CancellationTokenProvider(),
+                exceptionHandler
+            ),
             new CancellationTokenProvider(),
             exceptionHandler
         );

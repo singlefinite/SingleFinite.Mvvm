@@ -28,13 +28,19 @@ namespace SingleFinite.Mvvm.Internal.Services;
 /// functions and actions to the thread pool using 
 /// <see cref="Task.Run(Func{Task?})"/>.
 /// </summary>
+/// <param name="cancellationTokenProvider">
+/// The service that provides the CancellationToken used by this service.
+/// </param>
 /// <param name="exceptionHandler">
 /// Used to handle exceptions that are thrown when invoking actions passed to
 /// the Run method.
 /// </param>
-internal sealed class ThreadPoolDispatcher(IExceptionHandler exceptionHandler) :
-    DispatcherBase(exceptionHandler),
-    IAppBackgroundDispatcher,
+internal sealed class ThreadPoolDispatcher(
+    ICancellationTokenProvider cancellationTokenProvider,
+    IExceptionHandler exceptionHandler
+) :
+    DispatcherBase(cancellationTokenProvider, exceptionHandler),
+    IAppDispatcherBackground,
     IDisposable
 {
     #region Fields

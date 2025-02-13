@@ -27,7 +27,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace SingleFinite.Mvvm.UnitTests;
 
 [TestClass]
-public class BackgroundDispatcherTests
+public class DispatcherBackgroundTests
 {
     [TestMethod]
     public void Disposed_Dependency_Injection_Scope_Will_Cancel_Dispatcher_Cancellation_Tokens()
@@ -47,22 +47,22 @@ public class BackgroundDispatcherTests
 
         using var context = new TestContext();
 
-        var dispatcherFromParentScope = context.ServiceProvider.GetService<IBackgroundDispatcher>() as BackgroundDispatcher;
+        var dispatcherFromParentScope = context.ServiceProvider.GetService<IDispatcherBackground>() as DispatcherBackground;
         Assert.IsNotNull(dispatcherFromParentScope);
 
         using var childScope = context.ServiceProvider.CreateLinkedScope();
 
-        var dispatcherFromChildScope = childScope.ServiceProvider.GetService<IBackgroundDispatcher>();
+        var dispatcherFromChildScope = childScope.ServiceProvider.GetService<IDispatcherBackground>();
         Assert.IsNotNull(dispatcherFromChildScope);
 
         using var secondChildScope = context.ServiceProvider.CreateLinkedScope();
 
-        var dispatcherFromSecondChildScope = secondChildScope.ServiceProvider.GetService<IBackgroundDispatcher>();
+        var dispatcherFromSecondChildScope = secondChildScope.ServiceProvider.GetService<IDispatcherBackground>();
         Assert.IsNotNull(dispatcherFromSecondChildScope);
 
         using var grandChildScope = childScope.ServiceProvider.CreateLinkedScope();
 
-        var dispatcherForGrandChildScope = grandChildScope.ServiceProvider.GetService<IBackgroundDispatcher>();
+        var dispatcherForGrandChildScope = grandChildScope.ServiceProvider.GetService<IDispatcherBackground>();
         Assert.IsNotNull(dispatcherForGrandChildScope);
 
         dispatcherFromParentScope.Run(
@@ -140,7 +140,7 @@ public class BackgroundDispatcherTests
         using var context = new TestContext();
 
         var cancellationTokenProvider = context.ServiceProvider.GetRequiredService<ICancellationTokenProvider>();
-        var dispatcher = context.ServiceProvider.GetRequiredService<IBackgroundDispatcher>() as BackgroundDispatcher;
+        var dispatcher = context.ServiceProvider.GetRequiredService<IDispatcherBackground>() as DispatcherBackground;
         Assert.IsNotNull(dispatcher);
 
         dispatcher.Run(

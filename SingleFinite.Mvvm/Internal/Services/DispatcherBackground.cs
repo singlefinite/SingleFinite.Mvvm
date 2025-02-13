@@ -24,8 +24,8 @@ using SingleFinite.Mvvm.Services;
 namespace SingleFinite.Mvvm.Internal.Services;
 
 /// <summary>
-/// Implementation of <see cref="IBackgroundDispatcher"/> service that uses the 
-/// <see cref="IAppBackgroundDispatcher"/> to dispatch execution of functions 
+/// Implementation of <see cref="IDispatcherBackground"/> service that uses the 
+/// <see cref="IAppDispatcherBackground"/> to dispatch execution of functions 
 /// and actions.  It will use the <see cref="ICancellationTokenProvider"/> to 
 /// provide a cancellation token to the functions and actions that can be 
 /// cancelled.  This service should be registered as a scoped service so that 
@@ -45,14 +45,20 @@ namespace SingleFinite.Mvvm.Internal.Services;
 /// Used to handle exceptions that are thrown when invoking actions passed to
 /// the Run method.
 /// </param>
-internal sealed class BackgroundDispatcher(
-    IAppBackgroundDispatcher dispatcher,
+internal sealed class DispatcherBackground(
+    IAppDispatcherBackground dispatcher,
     ICancellationTokenProvider cancellationTokenProvider,
     IExceptionHandler exceptionHandler
-) : DispatcherWithCancellationBase<IAppBackgroundDispatcher>(
-    dispatcher,
+) : DispatcherBase(
     cancellationTokenProvider,
     exceptionHandler
-), IBackgroundDispatcher
+), IDispatcherBackground
 {
+    #region Methods
+
+    /// <inheritdoc/>
+    public override Task<TResult> RunAsync<TResult>(Func<Task<TResult>> func) =>
+        dispatcher.RunAsync(func);
+
+    #endregion
 }

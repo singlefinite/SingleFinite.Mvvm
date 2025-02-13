@@ -324,7 +324,7 @@ public class ViewModelTests
     }
 
     private class ExampleViewModel(
-        IBackgroundDispatcher backgroundDispatcher
+        IDispatcherBackground backgroundDispatcher
     ) : ViewModel
     {
         public int Number

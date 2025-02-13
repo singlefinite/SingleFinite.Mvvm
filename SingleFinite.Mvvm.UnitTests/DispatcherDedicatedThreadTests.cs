@@ -24,7 +24,7 @@ using SingleFinite.Mvvm.Internal.Services;
 namespace SingleFinite.Mvvm.UnitTests;
 
 [TestClass]
-public class DedicatedThreadDispatcherTests
+public class DispatcherDedicatedThreadTests
 {
     [TestMethod]
     public void Run_Method_Is_Thread_Safe_And_Does_Not_Deadlock()
@@ -46,7 +46,10 @@ public class DedicatedThreadDispatcherTests
                 list.Add(new(false, EventResetMode.ManualReset));
         }
 
-        using var dispatcher = new DedicatedThreadDispatcher(new ExceptionHandler());
+        using var dispatcher = new DispatcherDedicatedThread(
+            new CancellationTokenProvider(),
+            new ExceptionHandler()
+        );
 
         // Launch tasks
         //
@@ -78,13 +81,16 @@ public class DedicatedThreadDispatcherTests
 
         Assert.AreEqual(loopCount * runPerLoopCount, counter);
         Assert.AreEqual(1, nameSet.Count);
-        Assert.AreEqual("SingleFinite.Mvvm.Internal.Services.DedicatedThreadDispatcher", nameSet.First());
+        Assert.AreEqual("SingleFinite.Mvvm.Internal.Services.DispatcherDedicatedThread", nameSet.First());
     }
 
     [TestMethod]
     public async Task Run_Method_Propogates_Exceptions_Correctly_When_Thrown()
     {
-        var dispatcher = new DedicatedThreadDispatcher(new ExceptionHandler());
+        var dispatcher = new DispatcherDedicatedThread(
+            new CancellationTokenProvider(),
+            new ExceptionHandler()
+        );
 
         // Make sure an uncaught exception doesn't bring down the app.
         //
@@ -102,7 +108,10 @@ public class DedicatedThreadDispatcherTests
     public async Task Run_Method_Throws_If_Disposed()
     {
         var count = 0;
-        using var dispatcher = new DedicatedThreadDispatcher(new ExceptionHandler());
+        using var dispatcher = new DispatcherDedicatedThread(
+            new CancellationTokenProvider(),
+            new ExceptionHandler()
+        );
 
         dispatcher.Dispose();
 
@@ -118,7 +127,10 @@ public class DedicatedThreadDispatcherTests
     public async Task Run_Method_Supports_Nested_Invokation()
     {
         var count = 0;
-        using var dispatcher = new DedicatedThreadDispatcher(new ExceptionHandler());
+        using var dispatcher = new DispatcherDedicatedThread(
+            new CancellationTokenProvider(),
+            new ExceptionHandler()
+        );
 
         await dispatcher.RunAsync(
             () => dispatcher.RunAsync(

@@ -104,7 +104,7 @@ public class ChangeableTests
     [TestMethod]
     public void PropertyChangingObservable_Observed_Events()
     {
-        var observedEvents = new List<string>();
+        var observedEvents = new List<string?>();
 
         var testClass = new TestClass();
         testClass
@@ -126,7 +126,7 @@ public class ChangeableTests
     [TestMethod]
     public void PropertyChangedObservable_Observed_Events()
     {
-        var observedEvents = new List<string>();
+        var observedEvents = new List<string?>();
 
         var testClass = new TestClass();
         testClass

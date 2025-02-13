@@ -26,11 +26,17 @@ namespace SingleFinite.Mvvm.Services;
 /// route all method calls to a single abstract method that implementing classes
 /// can override with their custom dispatch logic.
 /// </summary>
+/// <param name="cancellationTokenProvider">
+/// The service that provides the CancellationToken used by this service.
+/// </param>
 /// <param name="exceptionHandler">
 /// Used to handle exceptions that are thrown when invoking actions passed to
 /// the Run method.
 /// </param>
-public abstract class DispatcherBase(IExceptionHandler exceptionHandler) : IDispatcher
+public abstract class DispatcherBase(
+    ICancellationTokenProvider cancellationTokenProvider,
+    IExceptionHandler exceptionHandler
+) : IDispatcher
 {
     #region Methods
 
@@ -113,6 +119,147 @@ public abstract class DispatcherBase(IExceptionHandler exceptionHandler) : IDisp
 
                 return Task.FromResult(0);
             }
+        );
+    }
+
+    /// <inheritdoc/>
+    public async Task<TResult> RunAsync<TResult>(
+        Func<CancellationToken, Task<TResult>> func,
+        params CancellationToken[] cancellationTokens
+    )
+    {
+        if (cancellationTokens.Length == 0)
+        {
+            return await RunAsync(
+                func: () => func(cancellationTokenProvider.CancellationToken)
+            );
+        }
+
+        var tokenList = new List<CancellationToken>
+        {
+            cancellationTokenProvider.CancellationToken
+        };
+        tokenList.AddRange(cancellationTokens);
+
+        using var linkedCancellationTokenSource =
+            CancellationTokenSource.CreateLinkedTokenSource([.. tokenList]);
+
+        return await RunAsync(
+            func: () => func(linkedCancellationTokenSource.Token)
+        ); ;
+    }
+
+    /// <inheritdoc/>
+    public Task RunAsync(
+        Func<CancellationToken, Task> func,
+        params CancellationToken[] cancellationTokens
+    ) =>
+        RunAsync(
+            func: async cancellationToken =>
+            {
+                await func(cancellationToken);
+                return 0;
+            },
+            cancellationTokens: cancellationTokens
+        );
+
+    /// <inheritdoc/>
+    public Task<TResult> RunAsync<TResult>(
+        Func<CancellationToken, TResult> func,
+        params CancellationToken[] cancellationTokens
+    ) =>
+        RunAsync(
+            func: cancellationToken => Task.FromResult(func(cancellationToken)),
+            cancellationTokens: cancellationTokens
+        );
+
+    /// <inheritdoc/>
+    public Task RunAsync(
+        Action<CancellationToken> action,
+        params CancellationToken[] cancellationTokens
+    ) =>
+        RunAsync(
+            func: cancellationToken =>
+            {
+                action(cancellationToken);
+                return Task.FromResult(0);
+            },
+            cancellationTokens: cancellationTokens
+        );
+
+    /// <inheritdoc/>
+    public void Run(
+        Action<CancellationToken> action,
+        params CancellationToken[] cancellationTokens
+    ) => Run(
+        action,
+        onError: null,
+        cancellationTokens
+    );
+
+    /// <inheritdoc/>
+    public void Run(
+        Action<CancellationToken> action,
+        Action<ExceptionEventArgs>? onError,
+        params CancellationToken[] cancellationTokens
+    )
+    {
+        _ = RunAsync(
+            func: cancellationToken =>
+            {
+                try
+                {
+                    action(cancellationToken);
+                }
+                catch (Exception ex)
+                {
+                    var args = new ExceptionEventArgs(ex);
+                    onError?.Invoke(args);
+                    if (!args.IsHandled)
+                        HandleError(ex);
+                }
+
+                return Task.CompletedTask;
+            },
+            cancellationTokens: cancellationTokens
+        );
+    }
+
+    /// <inheritdoc/>
+    public void Run(
+        Func<CancellationToken, Task> func,
+        params CancellationToken[] cancellationTokens
+    ) => Run(
+        func,
+        onError: null,
+        cancellationTokens
+    );
+
+    /// <inheritdoc/>
+    public void Run(
+        Func<CancellationToken, Task> func,
+        Action<ExceptionEventArgs>? onError,
+        params CancellationToken[] cancellationTokens
+    )
+    {
+        _ = RunAsync(
+            func: async cancellationToken =>
+            {
+                try
+                {
+                    await func(cancellationToken);
+                }
+                catch (Exception ex)
+                {
+                    var args = new ExceptionEventArgs(ex);
+                    onError?.Invoke(args);
+                    if (!args.IsHandled)
+                        HandleError(ex);
+                }
+
+                return Task.CompletedTask;
+            },
+            cancellationTokens: cancellationTokens
         );
     }
 

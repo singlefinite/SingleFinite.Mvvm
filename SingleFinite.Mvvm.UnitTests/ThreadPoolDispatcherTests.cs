@@ -30,7 +30,10 @@ public class ThreadPoolDispatcherTests
     [TestMethod]
     public async Task Run_Method_Invokes_Action()
     {
-        var dispatcher = new ThreadPoolDispatcher(new ExceptionHandler());
+        var dispatcher = new ThreadPoolDispatcher(
+            new CancellationTokenProvider(),
+            new ExceptionHandler()
+        );
 
         var testField1 = 0;
         await dispatcher.RunAsync(() => testField1 = 1);
@@ -55,7 +58,10 @@ public class ThreadPoolDispatcherTests
     [TestMethod]
     public async Task Run_Method_Propogates_Exceptions_Correctly_When_Thrown()
     {
-        var dispatcher = new ThreadPoolDispatcher(new ExceptionHandler());
+        var dispatcher = new ThreadPoolDispatcher(
+            new CancellationTokenProvider(),
+            new ExceptionHandler()
+        );
 
         // Make sure an uncaught exception doesn't bring down the app.
         //
@@ -73,7 +79,10 @@ public class ThreadPoolDispatcherTests
     public async Task Run_Method_Throws_If_Disposed()
     {
         var count = 0;
-        using var dispatcher = new ThreadPoolDispatcher(new ExceptionHandler());
+        using var dispatcher = new ThreadPoolDispatcher(
+            new CancellationTokenProvider(),
+            new ExceptionHandler()
+        );
 
         dispatcher.Dispose();
 
@@ -91,7 +100,10 @@ public class ThreadPoolDispatcherTests
         var waitHandle = new TaskCompletionSource();
         var caughtExceptions = new List<Exception>();
         var exceptionHandler = new TestExceptionHandler();
-        using var dispatcher = new ThreadPoolDispatcher(exceptionHandler);
+        using var dispatcher = new ThreadPoolDispatcher(
+            new CancellationTokenProvider(),
+            exceptionHandler
+        );
 
         dispatcher.Run(
             action: () => throw new InvalidOperationException("Testing"),
@@ -117,7 +129,10 @@ public class ThreadPoolDispatcherTests
         var waitHandle = new TaskCompletionSource();
         var caughtExceptions = new List<Exception>();
         var exceptionHandler = new TestExceptionHandler();
-        using var dispatcher = new ThreadPoolDispatcher(exceptionHandler);
+        using var dispatcher = new ThreadPoolDispatcher(
+            new CancellationTokenProvider(),
+            exceptionHandler
+        );
 
         dispatcher.Run(
             action: () => throw new InvalidOperationException("Testing"),
@@ -143,7 +158,10 @@ public class ThreadPoolDispatcherTests
     {
         var waitHandle = new TaskCompletionSource();
         var exceptionHandler = new TestExceptionHandler();
-        using var dispatcher = new ThreadPoolDispatcher(exceptionHandler);
+        using var dispatcher = new ThreadPoolDispatcher(
+            new CancellationTokenProvider(),
+            exceptionHandler
+        );
 
         dispatcher.Run(
             action: () => throw new InvalidOperationException("Testing")
@@ -159,7 +177,10 @@ public class ThreadPoolDispatcherTests
     public async Task ExceptionHandler_Handles_When_Thrown_From_Async_Action()
     {
         var exceptionHandler = new TestExceptionHandler();
-        using var dispatcher = new ThreadPoolDispatcher(exceptionHandler);
+        using var dispatcher = new ThreadPoolDispatcher(
+            new CancellationTokenProvider(),
+            exceptionHandler
+        );
 
         dispatcher.Run(
             func: async () =>

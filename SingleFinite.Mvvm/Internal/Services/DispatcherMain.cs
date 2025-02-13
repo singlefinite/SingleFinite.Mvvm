@@ -19,17 +19,39 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-namespace SingleFinite.Mvvm.Services;
+using SingleFinite.Mvvm.Internal.Services;
+
+using SingleFinite.Mvvm.Services;
 
 /// <summary>
-/// A dispatcher that belongs to a dependency injection scope and dispatches 
-/// execution of functions and actions to a background thread.  Functions and 
-/// actions executed through this dispatcher will be provided a 
-/// <see cref="CancellationToken"/> that is cancelled when the dependency 
-/// injection scope this service belongs to is disposed.
+/// Implementation of <see cref="IDispatcherMain"/> service that ties the 
+/// <see cref="IAppDispatcherMain"/> to the <see cref="CancellationToken"/> for 
+/// the dependency injection scope this service belongs to.
 /// </summary>
-public interface IBackgroundDispatcher :
-    IDispatcher,
-    IDispatcherWithCancellation
+/// <param name="dispatcher">
+/// The dispatcher to dispatch functions and actions to.
+/// </param>
+/// <param name="cancellationTokenProvider">
+/// The service that provides the CancellationToken used by this service.
+/// </param>
+/// <param name="exceptionHandler">
+/// Used to handle exceptions that are thrown when invoking actions passed to
+/// the Run method.
+/// </param>
+internal sealed class DispatcherMain(
+    IAppDispatcherMain dispatcher,
+    ICancellationTokenProvider cancellationTokenProvider,
+    IExceptionHandler exceptionHandler
+) : DispatcherBase(
+    cancellationTokenProvider,
+    exceptionHandler
+), IDispatcherMain
 {
+    #region Methods
+
+    /// <inheritdoc/>
+    public override Task<TResult> RunAsync<TResult>(Func<Task<TResult>> func) =>
+        dispatcher.RunAsync(func);
+
+    #endregion
 }

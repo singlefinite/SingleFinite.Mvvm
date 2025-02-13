@@ -25,16 +25,16 @@ using SingleFinite.Mvvm.Services;
 namespace SingleFinite.Mvvm.Internal.Services;
 
 /// <summary>
-/// Default implementation of <see cref="IAppMainDispatcher"/> that queues
+/// Default implementation of <see cref="IAppDispatcherMain"/> that queues
 /// execution of functions and actions on to a dedicated thread.  Normally this 
 /// service should be replaced with a platform specific service that will 
 /// dispatch to the UI thread for that platform.  However, this service is 
 /// useful for unit testing when there is no UI thread provided by the unit 
 /// testing framework.
 /// </summary>
-internal sealed class DedicatedThreadDispatcher :
+internal sealed class DispatcherDedicatedThread :
     DispatcherBase,
-    IAppMainDispatcher,
+    IAppDispatcherMain,
     IDisposable
 {
     #region Fields
@@ -61,12 +61,18 @@ internal sealed class DedicatedThreadDispatcher :
     /// <summary>
     /// Constructor.
     /// </summary>
+    /// <param name="cancellationTokenProvider">
+    /// The service that provides the CancellationToken used by this service.
+    /// </param>
     /// <param name="exceptionHandler">
     /// Used to handle exceptions that are thrown when invoking actions passed to
     /// the Run method.
     /// </param>
-    public DedicatedThreadDispatcher(IExceptionHandler exceptionHandler) :
-        base(exceptionHandler)
+    public DispatcherDedicatedThread(
+        ICancellationTokenProvider cancellationTokenProvider,
+        IExceptionHandler exceptionHandler
+    ) :
+        base(cancellationTokenProvider, exceptionHandler)
     {
         _thread = new(ThreadStart)
         {

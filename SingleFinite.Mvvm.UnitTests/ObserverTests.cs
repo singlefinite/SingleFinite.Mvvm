@@ -319,8 +319,11 @@ public class ObserverTests
         var observedErrors = 0;
         exceptionHandler.ExceptionHandled.Observe(_ => observedErrors++);
 
-        var dispatcher = new MainDispatcher(
-            new DedicatedThreadDispatcher(exceptionHandler),
+        var dispatcher = new DispatcherMain(
+            new DispatcherDedicatedThread(
+                new CancellationTokenProvider(),
+                exceptionHandler
+            ),
             new CancellationTokenProvider(),
             exceptionHandler
         );
@@ -450,7 +453,10 @@ public class ObserverTests
 
         var observableSource = new ObservableSource();
         var observable = observableSource.Observable;
-        var dispatcher = new DedicatedThreadDispatcher(new ExceptionHandler());
+        var dispatcher = new DispatcherDedicatedThread(
+            new CancellationTokenProvider(),
+            new ExceptionHandler()
+        );
 
         var waitHandle = new ManualResetEvent(false);
 
@@ -488,7 +494,10 @@ public class ObserverTests
 
         var observableSource = new ObservableSource();
         var observable = observableSource.Observable;
-        var dispatcher = new ThreadPoolDispatcher(new ExceptionHandler());
+        var dispatcher = new ThreadPoolDispatcher(
+            new CancellationTokenProvider(),
+            new ExceptionHandler()
+        );
 
         var waitHandle = new ManualResetEvent(false);
 

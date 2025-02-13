@@ -23,9 +23,9 @@ namespace SingleFinite.Mvvm.Services;
 
 /// <summary>
 /// A service that implements the <see cref="IDispatcher"/> interface and 
-/// executes code on a background thread.  This service is registered as a
+/// executes code on the main thread.  This service is registered as a
 /// singleton.
 /// </summary>
-public interface IAppBackgroundDispatcher : IDispatcher
+public interface IAppDispatcherMain : IDispatcher
 {
 }

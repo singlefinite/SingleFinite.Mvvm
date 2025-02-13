@@ -80,10 +80,10 @@ public class AppHostBuilderTests
     {
         var builder = new AppHostBuilder();
         var appHost = builder
-            .AddServices(services => services.AddSingleton<IAppMainDispatcher, ExampleAppMainDispatcher>())
+            .AddServices(services => services.AddSingleton<IAppDispatcherMain, ExampleAppMainDispatcher>())
             .BuildAndStart();
 
-        var dispatcher = appHost.ServiceProvider.GetRequiredService<IAppMainDispatcher>();
+        var dispatcher = appHost.ServiceProvider.GetRequiredService<IAppDispatcherMain>();
         Assert.IsInstanceOfType<ExampleAppMainDispatcher>(dispatcher);
     }
 
@@ -112,9 +112,12 @@ public class AppHostBuilderTests
 
     private class ExampleAppMainDispatcher :
         DispatcherBase,
-        IAppMainDispatcher
+        IAppDispatcherMain
     {
-        public ExampleAppMainDispatcher() : base(new ExceptionHandler())
+        public ExampleAppMainDispatcher() : base(
+            new CancellationTokenProvider(),
+            new ExceptionHandler()
+        )
         {
         }
 

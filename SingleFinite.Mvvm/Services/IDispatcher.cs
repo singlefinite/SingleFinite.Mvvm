@@ -89,4 +89,134 @@ public interface IDispatcher
         Func<Task> func,
         Action<ExceptionEventArgs>? onError = default
     );
+
+    /// <summary>
+    /// Execute the given cancellable async function with result.
+    /// </summary>
+    /// <typeparam name="TResult">
+    /// The type of result returned by the function.
+    /// </typeparam>
+    /// <param name="func">The function to execute.</param>
+    /// <param name="cancellationTokens">
+    /// Optional cancellation tokens to link with the cancellation token from 
+    /// the dependency injection scope.
+    /// </param>
+    /// <returns>A task that runs until the function has completed.</returns>
+    Task<TResult> RunAsync<TResult>(
+        Func<CancellationToken, Task<TResult>> func,
+        params CancellationToken[] cancellationTokens
+    );
+
+    /// <summary>
+    /// Execute the given cancellable async function without result.
+    /// </summary>
+    /// <param name="func">The function to execute.</param>
+    /// <param name="cancellationTokens">
+    /// Optional cancellation tokens to link with the cancellation token from 
+    /// the dependency injection scope.
+    /// </param>
+    /// <returns>A task that runs until the function has completed.</returns>
+    Task RunAsync(
+        Func<CancellationToken, Task> func,
+        params CancellationToken[] cancellationTokens
+    );
+
+    /// <summary>
+    /// Execute the given cancellable function with result.
+    /// </summary>
+    /// <typeparam name="TResult">
+    /// The type of result returned by the function.
+    /// </typeparam>
+    /// <param name="func">The function to execute.</param>
+    /// <param name="cancellationTokens">
+    /// Optional cancellation tokens to link with the cancellation token from 
+    /// the dependency injection scope.
+    /// </param>
+    /// <returns>A task that runs until the function has completed.</returns>
+    Task<TResult> RunAsync<TResult>(
+        Func<CancellationToken, TResult> func,
+        params CancellationToken[] cancellationTokens
+    );
+
+    /// <summary>
+    /// Execute the given cancellable action.
+    /// </summary>
+    /// <param name="action">The action to execute.</param>
+    /// <param name="cancellationTokens">
+    /// Optional cancellation tokens to link with the cancellation token from 
+    /// the dependency injection scope.
+    /// </param>
+    /// <returns>A task that runs until the action has completed.</returns>
+    Task RunAsync(
+        Action<CancellationToken> action,
+        params CancellationToken[] cancellationTokens
+    );
+
+    /// <summary>
+    /// Execute the given cancellable action.
+    /// This method will dispatch the action to be executed and return right 
+    /// away without waiting for the action to complete execution.
+    /// </summary>
+    /// <param name="action">The action to execute.</param>
+    /// <param name="cancellationTokens">
+    /// Optional cancellation tokens to link with the cancellation token from 
+    /// the dependency injection scope.
+    /// </param>
+    void Run(
+        Action<CancellationToken> action,
+        params CancellationToken[] cancellationTokens
+    );
+
+    /// <summary>
+    /// Execute the given cancellable action.
+    /// This method will dispatch the action to be executed and return right 
+    /// away without waiting for the action to complete execution.
+    /// </summary>
+    /// <param name="action">The action to execute.</param>
+    /// <param name="onError">
+    /// Callback that is invoked if the action generates an exception.
+    /// </param>
+    /// <param name="cancellationTokens">
+    /// Optional cancellation tokens to link with the cancellation token from 
+    /// the dependency injection scope.
+    /// </param>
+    void Run(
+        Action<CancellationToken> action,
+        Action<ExceptionEventArgs>? onError = default,
+        params CancellationToken[] cancellationTokens
+    );
+
+    /// <summary>
+    /// Execute the given cancellable async function.
+    /// This method will dispatch the function to be executed and return right 
+    /// away without waiting for the function to complete execution.
+    /// </summary>
+    /// <param name="func">The async function to execute.</param>
+    /// <param name="cancellationTokens">
+    /// Optional cancellation tokens to link with the cancellation token from 
+    /// the dependency injection scope.
+    /// </param>
+    void Run(
+        Func<CancellationToken, Task> func,
+        params CancellationToken[] cancellationTokens
+    );
+
+    /// <summary>
+    /// Execute the given cancellable async function.
+    /// This method will dispatch the function to be executed and return right 
+    /// away without waiting for the function to complete execution.
+    /// </summary>
+    /// <param name="func">The async function to execute.</param>
+    /// <param name="onError">
+    /// Callback that is invoked if the function generates an exception.
+    /// </param>
+    /// <param name="cancellationTokens">
+    /// Optional cancellation tokens to link with the cancellation token from 
+    /// the dependency injection scope.
+    /// </param>
+    void Run(
+        Func<CancellationToken, Task> func,
+        Action<ExceptionEventArgs>? onError = default,
+        params CancellationToken[] cancellationTokens
+    );
 }
