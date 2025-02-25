@@ -84,7 +84,9 @@ public class AppHostTests
             onStarted: []
         );
 
-        appHost.Started.Observe(() => onStartedCount++);
+        appHost.Started
+            .Observe()
+            .OnEach(() => onStartedCount++);
 
         Assert.AreEqual(0, onStartedCount);
 
@@ -168,7 +170,9 @@ public class AppHostTests
             onStarted: []
         );
 
-        appHost.Started.Observe(() => onStartedCount++);
+        appHost.Started
+            .Observe()
+            .OnEach(() => onStartedCount++);
 
         appHost.Start();
 
@@ -198,7 +202,9 @@ public class AppHostTests
         );
 
         var closedObserved = false;
-        appHost.Closed.Observe(() => closedObserved = true);
+        appHost.Closed
+            .Observe()
+            .OnEach(() => closedObserved = true);
 
         var result = await appHost.CloseAsync();
 
@@ -217,7 +223,9 @@ public class AppHostTests
         );
 
         var closedObserved = false;
-        appHost.Closed.Observe(() => closedObserved = true);
+        appHost.Closed
+            .Observe()
+            .OnEach(() => closedObserved = true);
 
         appHost.Closing.Observe(async args =>
         {

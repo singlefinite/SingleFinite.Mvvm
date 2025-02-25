@@ -78,7 +78,9 @@ public class PresentableItemTests
         var presentableItem = (PresentableItem)context.ServiceProvider.GetRequiredService<IPresentableItem>();
 
         IPresentable.CurrentChangedEventArgs? observedArgs = null;
-        presentableItem.CurrentChanged.Observe(args => observedArgs = args);
+        presentableItem.CurrentChanged
+            .Observe()
+            .OnEach(args => observedArgs = args);
 
         var output = new List<string>();
         var viewModelContext = new ViewModelTestContext(output);

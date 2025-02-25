@@ -89,7 +89,8 @@ internal class PresentableDialog(IViewBuilder viewBuilder) :
         var taskSource = new TaskCompletionSource<IViewModel>();
         var viewModel = Show(viewModelDescriptor);
         viewModel.Disposed
-            .Observe(() => taskSource.TrySetResult(viewModel))
+            .Observe()
+            .OnEach(() => taskSource.TrySetResult(viewModel))
             .Once();
         return taskSource.Task;
     }

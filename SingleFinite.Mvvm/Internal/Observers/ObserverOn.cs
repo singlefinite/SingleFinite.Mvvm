@@ -48,7 +48,8 @@ internal class ObserverOn : ObserverBase
         }
 
         lifecycle.Disposed
-            .Observe(Dispose)
+            .Observe()
+            .OnEach(Dispose)
             .Once();
     }
 
@@ -116,7 +117,8 @@ internal class ObserverOn<TArgs> : ObserverBase<TArgs>
         }
 
         lifecycle.Disposed
-            .Observe(Dispose)
+            .Observe()
+            .OnEach(Dispose)
             .Once();
     }
 

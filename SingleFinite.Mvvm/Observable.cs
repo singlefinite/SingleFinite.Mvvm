@@ -58,20 +58,6 @@ public sealed class Observable
     public IObserver Observe() => new ObserverSourceObservable(this);
 
     /// <summary>
-    /// Create an observer for this observable.
-    /// This is a convience method that is equivalent to calling
-    /// Observe().OnEach.
-    /// </summary>
-    /// <param name="callback">
-    /// The callback to invoke whenever the event for this observable is raised.
-    /// </param>
-    /// <returns>
-    /// An observer that runs when the event for this observable is raised.
-    /// </returns>
-    public IObserver Observe(Action callback) =>
-        new ObserverSourceObservable(this).OnEach(callback);
-
-    /// <summary>
     /// Raise the event for this observable.
     /// </summary>
     private void RaiseEvent() => Event?.Invoke();
@@ -147,20 +133,6 @@ public sealed class Observable<TArgs>
     /// An observer that runs when the event for this observable is raised.
     /// </returns>
     public IObserver<TArgs> Observe() => new ObserverSourceObservable<TArgs>(this);
-
-    /// <summary>
-    /// Create an observer for this observable.
-    /// This is a convience method that is equivalent to calling
-    /// Observe().OnEach.
-    /// </summary>
-    /// <param name="callback">
-    /// The callback to invoke whenever the event for this observable is raised.
-    /// </param>
-    /// <returns>
-    /// An observer that runs when the event for this observable is raised.
-    /// </returns>
-    public IObserver<TArgs> Observe(Action<TArgs> callback) =>
-        new ObserverSourceObservable<TArgs>(this).OnEach(callback);
 
     /// <summary>
     /// Raise the event for this observable.

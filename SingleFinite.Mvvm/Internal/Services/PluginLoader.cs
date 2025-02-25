@@ -54,15 +54,18 @@ internal class PluginLoader(
             var plugin = (IPlugin)builder.Build(descriptor.PluginType);
 
             pluginHost.Activated
-                .Observe(plugin.Activate)
+                .Observe()
+                .OnEach(plugin.Activate)
                 .On(plugin);
 
             pluginHost.Deactivated
-                .Observe(plugin.Deactivate)
+                .Observe()
+                .OnEach(plugin.Deactivate)
                 .On(plugin);
 
             pluginHost.Disposed
-                .Observe(plugin.Dispose)
+                .Observe()
+                .OnEach(plugin.Dispose)
                 .On(plugin);
 
             plugin.Load(pluginHost);

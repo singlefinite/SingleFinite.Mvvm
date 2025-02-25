@@ -48,7 +48,8 @@ internal class AsyncObserverOn : AsyncObserverBase
         }
 
         lifecycle.Disposed
-            .Observe(Dispose)
+            .Observe()
+            .OnEach(Dispose)
             .Once();
     }
 
@@ -116,7 +117,8 @@ internal class AsyncObserverOn<TArgs> : AsyncObserverBase<TArgs>
         }
 
         lifecycle.Disposed
-            .Observe(Dispose)
+            .Observe()
+            .OnEach(Dispose)
             .Once();
     }
 

@@ -62,11 +62,21 @@ public class ViewModelTests
         var viewModel = new SimpleViewModel();
         var viewModelInterface = (IViewModel)viewModel;
 
-        viewModel.Initialized.Observe(() => onInitializeCount++);
-        viewModel.Activated.Observe(() => onActivateCount++);
-        viewModel.Deactivated.Observe(() => onDeactivateCount++);
-        viewModel.Disposed.Observe(() => onDisposeCount++);
-        viewModel.IsActiveChanged.Observe(isActiveChanged.Add);
+        viewModel.Initialized
+            .Observe()
+            .OnEach(() => onInitializeCount++);
+        viewModel.Activated
+            .Observe()
+            .OnEach(() => onActivateCount++);
+        viewModel.Deactivated
+            .Observe()
+            .OnEach(() => onDeactivateCount++);
+        viewModel.Disposed
+            .Observe()
+            .OnEach(() => onDisposeCount++);
+        viewModel.IsActiveChanged
+            .Observe()
+            .OnEach(isActiveChanged.Add);
 
         Assert.AreEqual(0, onInitializeCount);
         Assert.AreEqual(0, onActivateCount);
@@ -346,7 +356,8 @@ public class ViewModelTests
         protected override void OnInitialize()
         {
             NumberChanged
-                .Observe(number => Text = $"Number {number}")
+                .Observe()
+                .OnEach(number => Text = $"Number {number}")
                 .On(this);
         }
 

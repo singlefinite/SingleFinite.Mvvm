@@ -102,7 +102,9 @@ public class PresentableStackTests
         var presentableStack = (PresentableStack)context.ServiceProvider.GetRequiredService<IPresentableStack>();
 
         IPresentable.CurrentChangedEventArgs? observedArgs = null;
-        presentableStack.CurrentChanged.Observe(args => observedArgs = args);
+        presentableStack.CurrentChanged
+            .Observe()
+            .OnEach(args => observedArgs = args);
 
         var output = new List<string>();
         var viewModelContext = new ViewModelTestContext(output);

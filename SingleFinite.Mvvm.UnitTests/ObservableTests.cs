@@ -29,7 +29,9 @@ public class ObservableTests
     {
         var observedNumber = 0;
         var observableSource = new ObservableSource<int>();
-        observableSource.Observable.Observe(args => observedNumber = args);
+        observableSource.Observable
+            .Observe()
+            .OnEach(args => observedNumber = args);
 
         Assert.AreEqual(0, observedNumber);
 
@@ -43,7 +45,9 @@ public class ObservableTests
     {
         var observedNumber = 0;
         var observableSource = new ObservableSource<int>();
-        var observer = observableSource.Observable.Observe(args => observedNumber = args);
+        var observer = observableSource.Observable
+            .Observe()
+            .OnEach(args => observedNumber = args);
 
         Assert.AreEqual(0, observedNumber);
 

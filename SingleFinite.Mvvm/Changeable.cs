@@ -69,7 +69,9 @@ public abstract partial class Changeable :
     /// </summary>
     public Changeable()
     {
-        _transaction.Closed.Observe(OnTransactionClosed);
+        _transaction.Closed
+            .Observe()
+            .OnEach(OnTransactionClosed);
     }
 
     #endregion
@@ -216,7 +218,7 @@ public abstract partial class Changeable :
         {
             RaisePropertyChanged(name);
             onPropertyChanged?.Invoke();
-        };
+        }
 
         if (_propertyChangedBuffer.AddOrReplace(name, OnNotify))
         {

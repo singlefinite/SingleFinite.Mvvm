@@ -56,7 +56,9 @@ public class TransactionTests
         var onClosedCount = 0;
 
         var transaction = new Transaction();
-        transaction.Closed.Observe(() => onClosedCount++);
+        transaction.Closed
+            .Observe()
+            .OnEach(() => onClosedCount++);
 
         Assert.AreEqual(0, onClosedCount);
 
@@ -83,7 +85,9 @@ public class TransactionTests
         var onOpenCount = 0;
 
         var transaction = new Transaction();
-        transaction.Opened.Observe(() => onOpenCount++);
+        transaction.Opened
+            .Observe()
+            .OnEach(() => onOpenCount++);
 
         Assert.AreEqual(0, onOpenCount);
 

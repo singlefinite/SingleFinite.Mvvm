@@ -317,7 +317,9 @@ public class ObserverTests
 
         var exceptionHandler = new ExceptionHandler();
         var observedErrors = 0;
-        exceptionHandler.ExceptionHandled.Observe(_ => observedErrors++);
+        exceptionHandler.ExceptionHandled
+            .Observe()
+            .OnEach(_ => observedErrors++);
 
         var dispatcher = new DispatcherMain(
             new DispatcherDedicatedThread(

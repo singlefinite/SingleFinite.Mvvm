@@ -397,9 +397,11 @@ public class ViewStackTests
     {
         var output = new List<string>();
         var viewStack = new ViewStack();
-        viewStack.CurrentChanged.Observe(
-            args => output.Add($"{args?.View},{args?.IsNew}")
-        );
+        viewStack.CurrentChanged
+            .Observe()
+            .OnEach(
+                args => output.Add($"{args?.View},{args?.IsNew}")
+            );
         var view1 = new TestView(new TestViewModel("1", []));
         var view2 = new TestView(new TestViewModel("2", []));
         var view3 = new TestView(new TestViewModel("3", []));
@@ -428,7 +430,9 @@ public class ViewStackTests
     {
         var output = new List<string>();
         var viewStack = new ViewStack();
-        viewStack.CurrentChanged.Observe(args => output.Add(args?.ToString() ?? "null"));
+        viewStack.CurrentChanged
+            .Observe()
+            .OnEach(args => output.Add(args?.ToString() ?? "null"));
         var view1 = new TestView(new TestViewModel("1", []));
         var view2 = new TestView(new TestViewModel("2", []));
         var view3 = new TestView(new TestViewModel("3", []));

@@ -97,7 +97,9 @@ public class PresentableDialogTests
         );
 
         IPresentable.CurrentChangedEventArgs? observedArgs = null;
-        presentableDialog.CurrentChanged.Observe(args => observedArgs = args);
+        presentableDialog.CurrentChanged
+            .Observe()
+            .OnEach(args => observedArgs = args);
 
         var output = new List<string>();
 
