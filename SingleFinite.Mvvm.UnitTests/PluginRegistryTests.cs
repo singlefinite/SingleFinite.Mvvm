@@ -29,21 +29,10 @@ public class PluginRegistryTests
     [TestMethod]
     public void GetPlugins_Method_Returns_Registered_Plugins()
     {
-        var pluginCollection = new PluginCollection
-        {
-            new PluginDescriptor(
-                PluginType: typeof(ExampleAPlugin1),
-                PluginHostType: typeof(ExampleAPluginHost)
-            ),
-            new PluginDescriptor(
-                PluginType: typeof(ExampleAPlugin2),
-                PluginHostType: typeof(ExampleAPluginHost)
-            ),
-            new PluginDescriptor(
-                PluginType: typeof(ExampleBPlugin1),
-                PluginHostType: typeof(ExampleBPluginHost)
-            )
-        };
+        var pluginCollection = new PluginCollection();
+        pluginCollection.Add<ExampleAPlugin1, ExampleAPluginHost>();
+        pluginCollection.Add<ExampleAPlugin2, ExampleAPluginHost>();
+        pluginCollection.Add<ExampleBPlugin1, ExampleBPluginHost>();
 
         var pluginRegistry = new PluginRegistry(pluginCollection);
 

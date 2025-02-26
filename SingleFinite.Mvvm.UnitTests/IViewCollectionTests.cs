@@ -26,9 +26,6 @@ namespace SingleFinite.Mvvm.UnitTests;
 [TestClass]
 public class IViewCollectionTests
 {
-    /// <summary>
-    /// Make sure the Scan method will register expected types.
-    /// </summary>
     [TestMethod]
     public void ScanRegistersViewsFoundInThisFile()
     {
@@ -42,33 +39,38 @@ public class IViewCollectionTests
         Assert.AreEqual(typeof(SubExampleView), descriptor2.ViewType);
     }
 
-    /// <summary>
-    /// Class used to test the view registry.
-    /// </summary>
+    [TestMethod]
+    public void AddWithGenericTypeParameters()
+    {
+        var viewCollection = new ViewCollection();
+        viewCollection.Add<ExampleViewModel, ExampleView>();
+
+        Assert.AreEqual(1, viewCollection.Count);
+
+        var descriptor = viewCollection.First();
+        Assert.AreEqual(typeof(ExampleViewModel), descriptor.ViewModelType);
+        Assert.AreEqual(typeof(ExampleView), descriptor.ViewType);
+    }
+
+    #region Types
+
     private class ExampleViewModel : ViewModel
     {
     }
 
-    /// <summary>
-    /// Class used to test the view registry.
-    /// </summary>
     private class ExampleView(ExampleViewModel viewModel) : IView<ExampleViewModel>
     {
         public ExampleViewModel ViewModel => viewModel;
     }
 
-    /// <summary>
-    /// Class used to test the view registry.
-    /// </summary>
     private class SubExampleViewModel : ExampleViewModel
     {
     }
 
-    /// <summary>
-    /// Class used to test the view registry.
-    /// </summary>
     private class SubExampleView(SubExampleViewModel viewModel) : IView<SubExampleViewModel>
     {
         public SubExampleViewModel ViewModel => viewModel;
     }
+
+    #endregion
 }

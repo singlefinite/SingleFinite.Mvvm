@@ -89,5 +89,27 @@ public static class IViewCollectionExtensions
         }
     }
 
+    /// <summary>
+    /// Add a ViewDescriptor with the given ViewModel type and View type.
+    /// </summary>
+    /// <typeparam name="TViewModel">The ViewModel type to register.</typeparam>
+    /// <typeparam name="TView">The view type to register.</typeparam>
+    /// <param name="viewCollection">
+    /// The collection to add a ViewDescriptor to.
+    /// </param>
+    public static void Add<TViewModel, TView>(
+        this IViewCollection viewCollection
+    )
+        where TViewModel : ViewModel
+        where TView : IView<TViewModel>
+    {
+        viewCollection.Add(
+            new(
+                ViewModelType: typeof(TViewModel),
+                ViewType: typeof(TView)
+            )
+        );
+    }
+
     #endregion
 }

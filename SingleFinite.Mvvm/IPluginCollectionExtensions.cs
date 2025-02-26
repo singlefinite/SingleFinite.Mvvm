@@ -89,5 +89,29 @@ public static class IPluginCollectionExtensions
         }
     }
 
+    /// <summary>
+    /// Add a PluginDescriptor with the given Plugin type and PluginHost type.
+    /// </summary>
+    /// <typeparam name="TPlugin">The Plugin type to register.</typeparam>
+    /// <typeparam name="TPluginHost">
+    /// The PluginHost type to register.
+    /// </typeparam>
+    /// <param name="pluginCollection">
+    /// The collection to add a PluginDescriptor to.
+    /// </param>
+    public static void Add<TPlugin, TPluginHost>(
+        this IPluginCollection pluginCollection
+    )
+        where TPlugin : IPlugin<TPluginHost>
+        where TPluginHost : IPluginHost
+    {
+        pluginCollection.Add(
+            new(
+                PluginType: typeof(TPlugin),
+                PluginHostType: typeof(TPluginHost)
+            )
+        );
+    }
+
     #endregion
 }

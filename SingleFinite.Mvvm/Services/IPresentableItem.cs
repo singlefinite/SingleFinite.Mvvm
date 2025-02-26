@@ -22,16 +22,16 @@
 namespace SingleFinite.Mvvm.Services;
 
 /// <summary>
-/// A presenter for a single <see cref="IView"/> object.  The frame will create 
-/// and invoke the lifecycle methods when a view model is added and when it is 
-/// removed from the frame.
+/// A presenter for a single <see cref="IView"/> object.  This presentable will
+/// create and invoke the lifecycle methods when a view model is added and when
+/// it is removed.
 /// </summary>
 public interface IPresentableItem : IPresentable
 {
     /// <summary>
-    /// Create a view model and put it on the frame.  If there is already a view
-    /// model on the frame it will be removed before the new view model is
-    /// added.
+    /// Create a view model and set it as the current view model.  If there is
+    /// already a current view model it will be removed before the new view
+    /// model is made the current view model.
     /// </summary>
     /// <param name="viewModelDescriptor">
     /// Describes the view model to build.
@@ -43,9 +43,9 @@ public interface IPresentableItem : IPresentable
     IViewModel Set(IViewModelDescriptor viewModelDescriptor);
 
     /// <summary>
-    /// Create a view model and put it on the frame.  If there is already a view
-    /// model on the frame it will be removed before the new view model is
-    /// added.
+    /// Create a view model and set it as the current view model.  If there is
+    /// already a current view model it will be removed before the new view
+    /// model is made the current view model.
     /// </summary>
     /// <typeparam name="TViewModel">
     /// The type of view model to build.
@@ -58,9 +58,9 @@ public interface IPresentableItem : IPresentable
         where TViewModel : IViewModel;
 
     /// <summary>
-    /// Create a view model and put it on the frame.  If there is already a view
-    /// model on the frame it will be removed before the new view model is
-    /// added.
+    /// Create a view model and set it as the current view model.  If there is
+    /// already a current view model it will be removed before the new view
+    /// model is made the current view model.
     /// </summary>
     /// <typeparam name="TViewModel">
     /// The type of view model to build.
