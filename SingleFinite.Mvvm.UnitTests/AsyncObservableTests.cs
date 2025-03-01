@@ -31,10 +31,12 @@ public class AsyncObservableTests
     {
         var observedNumber = 0;
         var observableSource = new AsyncObservableSource<int>();
-        observableSource.Observable.Observe(async args =>
-        {
-            await Task.Run(() => observedNumber = args);
-        });
+        observableSource.Observable
+            .Observe()
+            .OnEach(async args =>
+            {
+                await Task.Run(() => observedNumber = args);
+            });
 
         Assert.AreEqual(0, observedNumber);
 
@@ -48,10 +50,12 @@ public class AsyncObservableTests
     {
         var observedNumber = 0;
         var observableSource = new AsyncObservableSource<int>();
-        var observer = observableSource.Observable.Observe(async args =>
-        {
-            await Task.Run(() => observedNumber = args);
-        });
+        var observer = observableSource.Observable
+            .Observe()
+            .OnEach(async args =>
+            {
+                await Task.Run(() => observedNumber = args);
+            });
 
         Assert.AreEqual(0, observedNumber);
 

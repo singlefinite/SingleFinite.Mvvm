@@ -227,10 +227,12 @@ public class AppHostTests
             .Observe()
             .OnEach(() => closedObserved = true);
 
-        appHost.Closing.Observe(async args =>
-        {
-            await Task.Run(() => args.Cancel = true);
-        });
+        appHost.Closing
+            .Observe()
+            .OnEach(async args =>
+            {
+                await Task.Run(() => args.Cancel = true);
+            });
 
         var result = await appHost.CloseAsync();
 

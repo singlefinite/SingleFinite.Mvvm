@@ -58,20 +58,6 @@ public sealed class AsyncObservable
     public IAsyncObserver Observe() => new AsyncObserverSourceObservable(this);
 
     /// <summary>
-    /// Create an observer for this observable.
-    /// This is a convience method that is equivalent to calling
-    /// Observe().OnEach.
-    /// </summary>
-    /// <param name="callback">
-    /// The callback to invoke whenever the event for this observable is raised.
-    /// </param>
-    /// <returns>
-    /// An observer that runs when the event for this observable is raised.
-    /// </returns>
-    public IAsyncObserver Observe(Func<Task> callback) =>
-        new AsyncObserverSourceObservable(this).OnEach(callback);
-
-    /// <summary>
     /// Raise the event for this observable.
     /// </summary>
     /// <returns>The running task.</returns>
@@ -149,20 +135,6 @@ public sealed class AsyncObservable<TArgs>
     /// </returns>
     public IAsyncObserver<TArgs> Observe() =>
         new AsyncObserverSource<TArgs>(this);
-
-    /// <summary>
-    /// Create an observer for this observable.
-    /// This is a convience method that is equivalent to calling
-    /// Observe().OnEach.
-    /// </summary>
-    /// <param name="callback">
-    /// The callback to invoke whenever the event for this observable is raised.
-    /// </param>
-    /// <returns>
-    /// An observer that runs when the event for this observable is raised.
-    /// </returns>
-    public IAsyncObserver<TArgs> Observe(Func<TArgs, Task> callback) =>
-        new AsyncObserverSource<TArgs>(this).OnEach(callback);
 
     /// <summary>
     /// Raise the event for this observable.
