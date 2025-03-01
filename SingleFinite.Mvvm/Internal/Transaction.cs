@@ -23,7 +23,7 @@ namespace SingleFinite.Mvvm.Internal;
 
 /// <summary>
 /// A class that is either in the open or closed state and will raise an event 
-/// when moving from open to closed.
+/// when moving between open and closed.
 /// </summary>
 internal class Transaction
 {
