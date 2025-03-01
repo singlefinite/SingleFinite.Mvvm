@@ -27,13 +27,3 @@ namespace SingleFinite.Mvvm;
 public interface IViewModel : ILifecycle, IDisposable
 {
 }
-
-/// <summary>
-/// Interface for a view model that accepts context.
-/// </summary>
-/// <typeparam name="TContext">
-/// The type of context that must be provided to the view model.
-/// </typeparam>
-public interface IViewModel<TContext> : IViewModel
-{
-}

@@ -70,16 +70,10 @@ internal sealed class PresentableItem(IViewBuilder viewBuilder) :
     }
 
     /// <inheritdoc/>
-    public TViewModel Set<TViewModel>()
+    public TViewModel Set<TViewModel>(params object[] parameters)
         where TViewModel : IViewModel =>
-        (TViewModel)Set(new ViewModelDescriptor<TViewModel>());
-
-    /// <inheritdoc/>
-    public TViewModel Set<TViewModel, TViewModelContext>(
-        TViewModelContext context
-    ) where TViewModel : IViewModel<TViewModelContext> =>
         (TViewModel)Set(
-            new ViewModelDescriptor<TViewModel, TViewModelContext>(context)
+            new ViewModelDescriptor<TViewModel>(parameters)
         );
 
     /// <inheritdoc/>

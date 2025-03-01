@@ -72,14 +72,9 @@ internal class PresentableDialog(IViewBuilder viewBuilder) :
     }
 
     /// <inheritdoc/>
-    public TViewModel Show<TViewModel>()
+    public TViewModel Show<TViewModel>(params object[] parameters)
         where TViewModel : IViewModel =>
-        (TViewModel)Show(new ViewModelDescriptor<TViewModel>());
-
-    /// <inheritdoc/>
-    public TViewModel Show<TViewModel, TViewModelContext>(TViewModelContext context)
-        where TViewModel : IViewModel<TViewModelContext> =>
-        (TViewModel)Show(new ViewModelDescriptor<TViewModel, TViewModelContext>(context));
+        (TViewModel)Show(new ViewModelDescriptor<TViewModel>(parameters));
 
     /// <inheritdoc/>
     public Task<IViewModel> ShowAsync(IViewModelDescriptor viewModelDescriptor)
@@ -96,17 +91,12 @@ internal class PresentableDialog(IViewBuilder viewBuilder) :
     }
 
     /// <inheritdoc/>
-    public async Task<TViewModel> ShowAsync<TViewModel>()
-        where TViewModel : IViewModel =>
-        (TViewModel)await ShowAsync(new ViewModelDescriptor<TViewModel>());
-
-    /// <inheritdoc/>
-    public async Task<TViewModel> ShowAsync<TViewModel, TViewModelContext>(
-        TViewModelContext context
+    public async Task<TViewModel> ShowAsync<TViewModel>(
+        params object[] parameters
     )
-        where TViewModel : IViewModel<TViewModelContext> =>
+        where TViewModel : IViewModel =>
         (TViewModel)await ShowAsync(
-            new ViewModelDescriptor<TViewModel, TViewModelContext>(context)
+            new ViewModelDescriptor<TViewModel>(parameters)
         );
 
     /// <inheritdoc/>

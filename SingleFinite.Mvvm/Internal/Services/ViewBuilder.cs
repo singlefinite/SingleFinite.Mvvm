@@ -43,20 +43,10 @@ internal sealed class ViewBuilder(
 
         // Create view model.
         //
-        IViewModel viewModel;
-        if (viewModelDescriptor.ViewModelContext is not null)
-        {
-            viewModel = (IViewModel)builder.Build(
-                instanceType: viewModelDescriptor.ViewModelType,
-                viewModelDescriptor.ViewModelContext
-            );
-        }
-        else
-        {
-            viewModel = (IViewModel)builder.Build(
-                instanceType: viewModelDescriptor.ViewModelType
-            );
-        }
+        var viewModel = (IViewModel)builder.Build(
+            instanceType: viewModelDescriptor.ViewModelType,
+            viewModelDescriptor.ViewModelParameters
+        );
 
         // Dispose of scope when view model is disposed.
         //
@@ -88,17 +78,10 @@ internal sealed class ViewBuilder(
     }
 
     /// <inheritdoc/>
-    public IView<TViewModel> Build<TViewModel>()
+    public IView<TViewModel> Build<TViewModel>(params object[] parameters)
         where TViewModel : IViewModel =>
-        (IView<TViewModel>)Build(new ViewModelDescriptor<TViewModel>());
-
-    /// <inheritdoc/>
-    public IView<TViewModel> Build<TViewModel, TViewModelContext>(
-        TViewModelContext context
-    )
-        where TViewModel : IViewModel<TViewModelContext> =>
         (IView<TViewModel>)Build(
-            new ViewModelDescriptor<TViewModel, TViewModelContext>(context)
+            new ViewModelDescriptor<TViewModel>(parameters)
         );
 
     #endregion

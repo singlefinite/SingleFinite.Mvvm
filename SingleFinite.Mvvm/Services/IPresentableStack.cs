@@ -50,18 +50,20 @@ public interface IPresentableStack : IPresentable
         PopOptions? popOptions = default
     );
 
+
     /// <summary>
     /// Create a view model and push it onto the top of the stack.
     /// </summary>
     /// <typeparam name="TViewModel">
     /// The type of view model to build.
     /// </typeparam>
-    /// <param name="popOptions">
-    /// Options for popping view models off the stack before pushing the new
-    /// view model on.
+    /// <param name="parameters">
+    /// The parameters that will be provided to the view model.
     /// </param>
     /// <returns>The newly created view model.</returns>
-    TViewModel Push<TViewModel>(PopOptions? popOptions = default)
+    TViewModel Push<TViewModel>(
+        params object[] parameters
+    )
         where TViewModel : IViewModel;
 
     /// <summary>
@@ -70,22 +72,19 @@ public interface IPresentableStack : IPresentable
     /// <typeparam name="TViewModel">
     /// The type of view model to build.
     /// </typeparam>
-    /// <typeparam name="TViewModelContext">
-    /// The type of context to be provided to the view model.
-    /// </typeparam>
-    /// <param name="context">
-    /// The context that will be provided to the view model.
-    /// </param>
     /// <param name="popOptions">
     /// Options for popping view models off the stack before pushing the new
     /// view model on.
     /// </param>
+    /// <param name="parameters">
+    /// The parameters that will be provided to the view model.
+    /// </param>
     /// <returns>The newly created view model.</returns>
-    TViewModel Push<TViewModel, TViewModelContext>(
-        TViewModelContext context,
-        PopOptions? popOptions = default
+    TViewModel Push<TViewModel>(
+        PopOptions? popOptions = default,
+        params object[] parameters
     )
-        where TViewModel : IViewModel<TViewModelContext>;
+        where TViewModel : IViewModel;
 
     /// <summary>
     /// Create view models and push them onto the top of the stack.
@@ -93,14 +92,25 @@ public interface IPresentableStack : IPresentable
     /// <param name="viewModelDescriptors">
     /// The description of view models to build.
     /// </param>
+    /// <returns>The newly created view models.</returns>
+    IViewModel[] PushAll(
+        params IEnumerable<IViewModelDescriptor> viewModelDescriptors
+    );
+
+    /// <summary>
+    /// Create view models and push them onto the top of the stack.
+    /// </summary>
     /// <param name="popOptions">
     /// Options for popping view models off the stack before pushing the new view
     /// models on.
     /// </param>
+    /// <param name="viewModelDescriptors">
+    /// The description of view models to build.
+    /// </param>
     /// <returns>The newly created view models.</returns>
     IViewModel[] PushAll(
-        IEnumerable<IViewModelDescriptor> viewModelDescriptors,
-        PopOptions? popOptions = default
+        PopOptions? popOptions = default,
+        params IEnumerable<IViewModelDescriptor> viewModelDescriptors
     );
 
     /// <summary>
@@ -128,12 +138,14 @@ public interface IPresentableStack : IPresentable
     /// The type of view model to build.
     /// </typeparam>
     /// <param name="index">The index to add the view model at.</param>
-    /// <param name="popOptions">
-    /// Options for popping view models off the stack before pushing the new
-    /// view model on.
+    /// <param name="parameters">
+    /// The parameters that will be provided to the view model.
     /// </param>
     /// <returns>The newly created view model.</returns>
-    TViewModel Add<TViewModel>(int index, PopOptions? popOptions = default)
+    TViewModel Add<TViewModel>(
+        int index,
+        params object[] parameters
+    )
         where TViewModel : IViewModel;
 
     /// <summary>
@@ -142,24 +154,21 @@ public interface IPresentableStack : IPresentable
     /// <typeparam name="TViewModel">
     /// The type of view model to build.
     /// </typeparam>
-    /// <typeparam name="TViewModelContext">
-    /// The type of context to be provided to the view model.
-    /// </typeparam>
     /// <param name="index">The index to add the view model at.</param>
-    /// <param name="context">
-    /// The context that will be provided to the view model.
-    /// </param>
     /// <param name="popOptions">
     /// Options for popping view models off the stack before pushing the new
     /// view model on.
     /// </param>
+    /// <param name="parameters">
+    /// The parameters that will be provided to the view model.
+    /// </param>
     /// <returns>The newly created view model.</returns>
-    TViewModel Add<TViewModel, TViewModelContext>(
+    TViewModel Add<TViewModel>(
         int index,
-        TViewModelContext context,
-        PopOptions? popOptions = default
+        PopOptions? popOptions = default,
+        params object[] parameters
     )
-        where TViewModel : IViewModel<TViewModelContext>;
+        where TViewModel : IViewModel;
 
     /// <summary>
     /// Create view models and add them to the stack at the given index.
@@ -168,15 +177,28 @@ public interface IPresentableStack : IPresentable
     /// <param name="viewModelDescriptors">
     /// The description of view models to build.
     /// </param>
+    /// <returns>The newly created view models.</returns>
+    IViewModel[] AddAll(
+        int index,
+        params IEnumerable<IViewModelDescriptor> viewModelDescriptors
+    );
+
+    /// <summary>
+    /// Create view models and add them to the stack at the given index.
+    /// </summary>
+    /// <param name="index">The index to add the view model at.</param>
     /// <param name="popOptions">
     /// Options for popping view models off the stack before pushing the new view
     /// models on.
     /// </param>
+    /// <param name="viewModelDescriptors">
+    /// The description of view models to build.
+    /// </param>
     /// <returns>The newly created view models.</returns>
     IViewModel[] AddAll(
         int index,
-        IEnumerable<IViewModelDescriptor> viewModelDescriptors,
-        PopOptions? popOptions = default
+        PopOptions? popOptions = default,
+        params IEnumerable<IViewModelDescriptor> viewModelDescriptors
     );
 
     /// <summary>

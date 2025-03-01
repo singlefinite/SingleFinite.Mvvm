@@ -36,29 +36,15 @@ public interface IViewBuilder
     IView Build(IViewModelDescriptor viewModelDescriptor);
 
     /// <summary>
-    /// Build a new view using the provided type parameter.
-    /// </summary>
-    /// <typeparam name="TViewModel">
-    /// The type of view model to build for the view.
-    /// </typeparam>
-    /// <returns>The newly built view.</returns>
-    IView<TViewModel> Build<TViewModel>()
-        where TViewModel : IViewModel;
-
-    /// <summary>
     /// Build a new view using the provided type parameters.
     /// </summary>
     /// <typeparam name="TViewModel">
     /// The type of view model to build for the view.
     /// </typeparam>
-    /// <typeparam name="TViewModelContext">
-    /// The type of context that will be provided to the view model that is 
-    /// built for the view.
-    /// </typeparam>
-    /// <param name="context">
-    /// The context to provide to the view model that is built for the view.
+    /// <param name="parameters">
+    /// The parameters to provide to the view model that is built for the view.
     /// </param>
     /// <returns>The newly built view.</returns>
-    IView<TViewModel> Build<TViewModel, TViewModelContext>(TViewModelContext context)
-        where TViewModel : IViewModel<TViewModelContext>;
+    IView<TViewModel> Build<TViewModel>(params object[] parameters)
+        where TViewModel : IViewModel;
 }

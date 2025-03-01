@@ -37,7 +37,7 @@ public class PresentableItemTests
 
         var output = new List<string>();
         var viewModelContext = new ViewModelTestContext(output);
-        var viewModelDescriptor1 = new ViewModelDescriptor<TestViewModel1, ViewModelTestContext>(viewModelContext);
+        var viewModelDescriptor1 = new ViewModelDescriptor<TestViewModel1>(viewModelContext);
 
         presentableItem.Set(viewModelDescriptor1);
         Assert.AreEqual(2, output.Count);
@@ -51,13 +51,13 @@ public class PresentableItemTests
         Assert.AreEqual("OnDispose - TestViewModel1", output[1]);
 
         output.Clear();
-        presentableItem.Set<TestViewModel2, ViewModelTestContext>(viewModelContext);
+        presentableItem.Set<TestViewModel2>(viewModelContext);
         Assert.AreEqual(2, output.Count);
         Assert.AreEqual("OnInit - TestViewModel2", output[0]);
         Assert.AreEqual("OnStart - TestViewModel2", output[1]);
 
         output.Clear();
-        presentableItem.Set<TestViewModel3, ViewModelTestContext>(viewModelContext);
+        presentableItem.Set<TestViewModel3>(viewModelContext);
         Assert.AreEqual(4, output.Count);
         Assert.AreEqual("OnInit - TestViewModel3", output[0]);
         Assert.AreEqual("OnStop - TestViewModel2", output[1]);
@@ -84,8 +84,8 @@ public class PresentableItemTests
 
         var output = new List<string>();
         var viewModelContext = new ViewModelTestContext(output);
-        var viewModelDescriptor1 = new ViewModelDescriptor<TestViewModel1, ViewModelTestContext>(viewModelContext);
-        var viewModelDescriptor2 = new ViewModelDescriptor<TestViewModel2, ViewModelTestContext>(viewModelContext);
+        var viewModelDescriptor1 = new ViewModelDescriptor<TestViewModel1>(viewModelContext);
+        var viewModelDescriptor2 = new ViewModelDescriptor<TestViewModel2>(viewModelContext);
 
         Assert.IsNull(observedArgs);
 
@@ -122,7 +122,7 @@ public class PresentableItemTests
 
         var output = new List<string>();
         var viewModelTestContext = new ViewModelTestContext(output);
-        var viewModelDescriptor1 = new ViewModelDescriptor<TestViewModel1, ViewModelTestContext>(viewModelTestContext);
+        var viewModelDescriptor1 = new ViewModelDescriptor<TestViewModel1>(viewModelTestContext);
 
         presentableItemInScope.Set(viewModelDescriptor1);
         presentableItemInRoot.Set(viewModelDescriptor1);
@@ -140,7 +140,7 @@ public class PresentableItemTests
         using var context = new TestContext();
         var presentableItem = (PresentableItem)context.ServiceProvider.GetRequiredService<IPresentableItem>();
         var viewModelTestContext = new ViewModelTestContext([]);
-        var viewModel = presentableItem.Set<TestViewModel1, ViewModelTestContext>(viewModelTestContext);
+        var viewModel = presentableItem.Set<TestViewModel1>(viewModelTestContext);
 
         Assert.IsNotNull(viewModel);
     }
@@ -153,7 +153,7 @@ public class PresentableItemTests
 
         var output = new List<string>();
         var viewModelContext = new ViewModelTestContext(output);
-        var viewModelDescriptor = new ViewModelDescriptor<TestViewModel1, ViewModelTestContext>(viewModelContext);
+        var viewModelDescriptor = new ViewModelDescriptor<TestViewModel1>(viewModelContext);
 
         presentableItem.Dispose();
 
@@ -166,7 +166,7 @@ public class PresentableItemTests
         using var context = new TestContext();
         var presentableItem = (PresentableItem)context.ServiceProvider.GetRequiredService<IPresentableItem>();
         var viewModelTestContext = new ViewModelTestContext([]);
-        var viewModel = presentableItem.Set<TestViewModel1, ViewModelTestContext>(viewModelTestContext);
+        var viewModel = presentableItem.Set<TestViewModel1>(viewModelTestContext);
 
         Assert.IsNotNull(presentableItem.Current);
 
@@ -194,7 +194,7 @@ public class PresentableItemTests
 
     private record ViewModelTestContext(List<string> Output);
 
-    private class TestViewModel1(ViewModelTestContext context) : ViewModel<ViewModelTestContext>, IClosable
+    private class TestViewModel1(ViewModelTestContext context) : ViewModel, IClosable
     {
         protected ViewModelTestContext Context => context;
 

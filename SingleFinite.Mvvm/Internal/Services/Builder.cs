@@ -40,7 +40,10 @@ internal class Builder(IServiceProvider serviceProvider) : IBuilder
     public TType Build<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] TType>(
         params object[] parameters
     ) =>
-        ActivatorUtilities.CreateInstance<TType>(serviceProvider, parameters);
+        ActivatorUtilities.CreateInstance<TType>(
+            serviceProvider,
+            parameters
+        );
 
     /// <inheritdoc/>
     public object Build(
@@ -48,7 +51,11 @@ internal class Builder(IServiceProvider serviceProvider) : IBuilder
         Type instanceType,
         params object[] parameters
     ) =>
-        ActivatorUtilities.CreateInstance(serviceProvider, instanceType, parameters);
+        ActivatorUtilities.CreateInstance(
+            serviceProvider,
+            instanceType,
+            parameters
+        );
 
     #endregion
 }

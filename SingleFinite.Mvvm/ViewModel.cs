@@ -206,11 +206,3 @@ public abstract class ViewModel :
 
     #endregion
 }
-
-/// <summary>
-/// A view model with context.
-/// </summary>
-/// <typeparam name="TContext">The context for the view model.</typeparam>
-public abstract class ViewModel<TContext> : ViewModel, IViewModel<TContext>
-{
-}

@@ -50,33 +50,15 @@ public interface IPresentableItem : IPresentable
     /// <typeparam name="TViewModel">
     /// The type of view model to build.
     /// </typeparam>
-    /// <returns>The newly created view model.</returns>
-    /// <exception cref="ObjectDisposedException">
-    /// Thrown if this presenter has been disposed.
-    /// </exception>
-    TViewModel Set<TViewModel>()
-        where TViewModel : IViewModel;
-
-    /// <summary>
-    /// Create a view model and set it as the current view model.  If there is
-    /// already a current view model it will be removed before the new view
-    /// model is made the current view model.
-    /// </summary>
-    /// <typeparam name="TViewModel">
-    /// The type of view model to build.
-    /// </typeparam>
-    /// <typeparam name="TViewModelContext">
-    /// The type of context to be provided to the view model.
-    /// </typeparam>
-    /// <param name="context">
-    /// The context that will be provided to the view model.
+    /// <param name="parameters">
+    /// The parameters that will be provided to the view model.
     /// </param>
     /// <returns>The newly created view model.</returns>
     /// <exception cref="ObjectDisposedException">
     /// Thrown if this presenter has been disposed.
     /// </exception>
-    TViewModel Set<TViewModel, TViewModelContext>(TViewModelContext context)
-        where TViewModel : IViewModel<TViewModelContext>;
+    TViewModel Set<TViewModel>(params object[] parameters)
+        where TViewModel : IViewModel;
 
     /// <summary>
     /// Remove the current view model if there is one.

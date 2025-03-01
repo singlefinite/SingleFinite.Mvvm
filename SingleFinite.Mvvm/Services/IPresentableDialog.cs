@@ -47,25 +47,14 @@ public interface IPresentableDialog : IPresentable
     /// <typeparam name="TViewModel">
     /// The type of view model to build.
     /// </typeparam>
+    /// <param name="parameters">
+    /// The parameters that will be provided to the view model.
+    /// </param>
     /// <returns>The newly created view model.</returns>
-    TViewModel Show<TViewModel>()
-        where TViewModel : IViewModel;
-
-    /// <summary>
-    /// Display a dialog.
-    /// </summary>
-    /// <typeparam name="TViewModel">
-    /// The type of view model to build.
-    /// </typeparam>
-    /// <typeparam name="TViewModelContext">
-    /// The type of context to provide to the view model.
-    /// </typeparam>
-    /// <param name="context">The context to provide to the view model.</param>
-    /// <returns>The newly created view model.</returns>
-    TViewModel Show<TViewModel, TViewModelContext>(
-        TViewModelContext context
+    TViewModel Show<TViewModel>(
+        params object[] parameters
     )
-        where TViewModel : IViewModel<TViewModelContext>;
+        where TViewModel : IViewModel;
 
     /// <summary>
     /// Display a dialog and wait until the dialog is closed.
@@ -82,25 +71,14 @@ public interface IPresentableDialog : IPresentable
     /// <typeparam name="TViewModel">
     /// The type of view model to build.
     /// </typeparam>
+    /// <param name="parameters">
+    /// The parameters that will be provided to the view model.
+    /// </param>
     /// <returns>The newly created view model.</returns>
-    Task<TViewModel> ShowAsync<TViewModel>()
-        where TViewModel : IViewModel;
-
-    /// <summary>
-    /// Display a dialog and wait until the dialog is closed.
-    /// </summary>
-    /// <typeparam name="TViewModel">
-    /// The type of view model to build.
-    /// </typeparam>
-    /// <typeparam name="TViewModelContext">
-    /// The type of context to provide to the view model.
-    /// </typeparam>
-    /// <param name="context">The context to provide to the view model.</param>
-    /// <returns>The newly created view model.</returns>
-    Task<TViewModel> ShowAsync<TViewModel, TViewModelContext>(
-        TViewModelContext context
+    Task<TViewModel> ShowAsync<TViewModel>(
+        params object[] parameters
     )
-        where TViewModel : IViewModel<TViewModelContext>;
+        where TViewModel : IViewModel;
 
     /// <summary>
     /// Close the given view model.  If the view model isn't open this method

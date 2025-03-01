@@ -40,9 +40,10 @@ public class PresentableDialogTests
 
         var output = new List<string>();
 
-        var dialog1 = presentableDialog.Show<Dialog1Lifecycle, List<string>>(output);
+        var dialog1 = presentableDialog.Show<Dialog1Lifecycle>(output);
 
-        Assert.AreEqual(presentableDialog.Current?.ViewModel, dialog1);
+        Assert.IsNotNull(presentableDialog.Current);
+        Assert.AreEqual(presentableDialog.Current.ViewModel, dialog1);
         Assert.AreEqual(1, presentableDialog.ViewModels.Length);
         Assert.AreEqual(dialog1, presentableDialog.ViewModels[0]);
 
@@ -51,9 +52,10 @@ public class PresentableDialogTests
         Assert.AreEqual("1 Activate", output[1]);
         output.Clear();
 
-        var dialog2 = presentableDialog.Show<Dialog2Lifecycle, List<string>>(output);
+        var dialog2 = presentableDialog.Show<Dialog2Lifecycle>(output);
 
-        Assert.AreEqual(presentableDialog.Current?.ViewModel, dialog2);
+        Assert.IsNotNull(presentableDialog.Current);
+        Assert.AreEqual(presentableDialog.Current.ViewModel, dialog2);
         Assert.AreEqual(2, presentableDialog.ViewModels.Length);
         Assert.AreEqual(dialog2, presentableDialog.ViewModels[0]);
         Assert.AreEqual(dialog1, presentableDialog.ViewModels[1]);
@@ -66,7 +68,8 @@ public class PresentableDialogTests
 
         presentableDialog.Close(dialog2);
 
-        Assert.AreEqual(presentableDialog.Current?.ViewModel, dialog1);
+        Assert.IsNotNull(presentableDialog.Current);
+        Assert.AreEqual(presentableDialog.Current.ViewModel, dialog1);
         Assert.AreEqual(1, presentableDialog.ViewModels.Length);
         Assert.AreEqual(dialog1, presentableDialog.ViewModels[0]);
 
@@ -105,18 +108,20 @@ public class PresentableDialogTests
 
         Assert.IsNull(observedArgs);
 
-        var viewModel1 = presentableDialog.Show<Dialog1Lifecycle, List<string>>(output);
+        var viewModel1 = presentableDialog.Show<Dialog1Lifecycle>(output);
 
         Assert.IsNotNull(observedArgs);
-        Assert.AreEqual(viewModel1, observedArgs.View?.ViewModel);
+        Assert.IsNotNull(observedArgs.View);
+        Assert.AreEqual(viewModel1, observedArgs.View.ViewModel);
         Assert.IsTrue(observedArgs.IsNew);
 
         observedArgs = null;
 
-        var viewModel2 = presentableDialog.Show<Dialog1Lifecycle, List<string>>(output);
+        var viewModel2 = presentableDialog.Show<Dialog1Lifecycle>(output);
 
         Assert.IsNotNull(observedArgs);
-        Assert.AreEqual(viewModel2, observedArgs.View?.ViewModel);
+        Assert.IsNotNull(observedArgs.View);
+        Assert.AreEqual(viewModel2, observedArgs.View.ViewModel);
         Assert.IsTrue(observedArgs.IsNew);
 
         observedArgs = null;
@@ -124,7 +129,8 @@ public class PresentableDialogTests
         presentableDialog.Close(viewModel2);
 
         Assert.IsNotNull(observedArgs);
-        Assert.AreEqual(viewModel1, observedArgs.View?.ViewModel);
+        Assert.IsNotNull(observedArgs.View);
+        Assert.AreEqual(viewModel1, observedArgs.View.ViewModel);
         Assert.IsFalse(observedArgs.IsNew);
     }
 
@@ -137,9 +143,9 @@ public class PresentableDialogTests
             context.ServiceProvider.GetRequiredService<IViewBuilder>()
         );
 
-        var dialog1 = presentableDialog.Show<Dialog1Lifecycle, List<string>>([]);
-        var dialog2 = presentableDialog.Show<Dialog1Lifecycle, List<string>>([]);
-        var dialog3 = presentableDialog.Show<Dialog1Lifecycle, List<string>>([]);
+        var dialog1 = presentableDialog.Show<Dialog1Lifecycle>(new List<string>());
+        var dialog2 = presentableDialog.Show<Dialog1Lifecycle>(new List<string>());
+        var dialog3 = presentableDialog.Show<Dialog1Lifecycle>(new List<string>());
 
         Assert.AreEqual(3, presentableDialog.ViewModels.Length);
         Assert.IsNotNull(presentableDialog.Current);
@@ -167,9 +173,9 @@ public class PresentableDialogTests
             context.ServiceProvider.GetRequiredService<IViewBuilder>()
         );
 
-        var dialog1 = presentableDialog.Show<Dialog1Lifecycle, List<string>>([]);
-        var dialog2 = presentableDialog.Show<Dialog1Lifecycle, List<string>>([]);
-        var dialog3 = presentableDialog.Show<Dialog1Lifecycle, List<string>>([]);
+        var dialog1 = presentableDialog.Show<Dialog1Lifecycle>(new List<string>());
+        var dialog2 = presentableDialog.Show<Dialog1Lifecycle>(new List<string>());
+        var dialog3 = presentableDialog.Show<Dialog1Lifecycle>(new List<string>());
 
         Assert.AreEqual(3, presentableDialog.ViewModels.Length);
         Assert.IsNotNull(presentableDialog.Current);
@@ -199,15 +205,16 @@ public class PresentableDialogTests
 
         var output = new List<string>();
 
-        var dialog1 = presentableDialog.Show<Dialog1Lifecycle, List<string>>(output);
-        var dialog2 = presentableDialog.Show<Dialog2Lifecycle, List<string>>(output);
-        var dialog3 = presentableDialog.Show<Dialog3Lifecycle, List<string>>(output);
+        var dialog1 = presentableDialog.Show<Dialog1Lifecycle>(output);
+        var dialog2 = presentableDialog.Show<Dialog2Lifecycle>(output);
+        var dialog3 = presentableDialog.Show<Dialog3Lifecycle>(output);
 
         output.Clear();
 
         presentableDialog.Close(dialog2);
 
-        Assert.AreEqual(presentableDialog.Current?.ViewModel, dialog3);
+        Assert.IsNotNull(presentableDialog.Current);
+        Assert.AreEqual(presentableDialog.Current.ViewModel, dialog3);
         Assert.AreEqual(2, presentableDialog.ViewModels.Length);
         Assert.AreEqual(dialog3, presentableDialog.ViewModels[0]);
         Assert.AreEqual(dialog1, presentableDialog.ViewModels[1]);
@@ -218,7 +225,7 @@ public class PresentableDialogTests
 
     #region Types
 
-    private class Dialog1Lifecycle(List<string> output) : ViewModel<List<string>>
+    private class Dialog1Lifecycle(List<string> output) : ViewModel
     {
         protected override void OnInitialize()
         {
@@ -246,7 +253,7 @@ public class PresentableDialogTests
         public Dialog1Lifecycle ViewModel => viewModel;
     }
 
-    private class Dialog2Lifecycle(List<string> output) : ViewModel<List<string>>
+    private class Dialog2Lifecycle(List<string> output) : ViewModel
     {
         protected override void OnInitialize()
         {
@@ -274,7 +281,7 @@ public class PresentableDialogTests
         public Dialog2Lifecycle ViewModel => viewModel;
     }
 
-    private class Dialog3Lifecycle(List<string> output) : ViewModel<List<string>>
+    private class Dialog3Lifecycle(List<string> output) : ViewModel
     {
         protected override void OnInitialize()
         {

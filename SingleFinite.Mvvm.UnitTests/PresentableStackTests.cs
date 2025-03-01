@@ -37,9 +37,9 @@ public class PresentableStackTests
 
         var output = new List<string>();
         var viewModelContext = new ViewModelTestContext(output);
-        var viewModelDescriptor1 = new ViewModelDescriptor<TestViewModel1, ViewModelTestContext>(viewModelContext);
-        var viewModelDescriptor2 = new ViewModelDescriptor<TestViewModel2, ViewModelTestContext>(viewModelContext);
-        var viewModelDescriptor3 = new ViewModelDescriptor<TestViewModel3, ViewModelTestContext>(viewModelContext);
+        var viewModelDescriptor1 = new ViewModelDescriptor<TestViewModel1>(viewModelContext);
+        var viewModelDescriptor2 = new ViewModelDescriptor<TestViewModel2>(viewModelContext);
+        var viewModelDescriptor3 = new ViewModelDescriptor<TestViewModel3>(viewModelContext);
 
         presentableStack.Push(viewModelDescriptor1);
         Assert.AreEqual(2, output.Count);
@@ -77,9 +77,9 @@ public class PresentableStackTests
 
         var output = new List<string>();
         var viewModelContext = new ViewModelTestContext(output);
-        var viewModelDescriptor1 = new ViewModelDescriptor<TestViewModel1, ViewModelTestContext>(viewModelContext);
-        var viewModelDescriptor2 = new ViewModelDescriptor<TestViewModel2, ViewModelTestContext>(viewModelContext);
-        var viewModelDescriptor3 = new ViewModelDescriptor<TestViewModel3, ViewModelTestContext>(viewModelContext);
+        var viewModelDescriptor1 = new ViewModelDescriptor<TestViewModel1>(viewModelContext);
+        var viewModelDescriptor2 = new ViewModelDescriptor<TestViewModel2>(viewModelContext);
+        var viewModelDescriptor3 = new ViewModelDescriptor<TestViewModel3>(viewModelContext);
 
         presentableStack.PushAll([viewModelDescriptor1, viewModelDescriptor2]);
         Assert.AreEqual(3, output.Count);
@@ -108,8 +108,8 @@ public class PresentableStackTests
 
         var output = new List<string>();
         var viewModelContext = new ViewModelTestContext(output);
-        var viewModelDescriptor1 = new ViewModelDescriptor<TestViewModel1, ViewModelTestContext>(viewModelContext);
-        var viewModelDescriptor2 = new ViewModelDescriptor<TestViewModel2, ViewModelTestContext>(viewModelContext);
+        var viewModelDescriptor1 = new ViewModelDescriptor<TestViewModel1>(viewModelContext);
+        var viewModelDescriptor2 = new ViewModelDescriptor<TestViewModel2>(viewModelContext);
 
         Assert.IsNull(observedArgs);
 
@@ -144,9 +144,9 @@ public class PresentableStackTests
 
         var output = new List<string>();
         var viewModelContext = new ViewModelTestContext(output);
-        var viewModelDescriptor1 = new ViewModelDescriptor<TestViewModel1, ViewModelTestContext>(viewModelContext);
-        var viewModelDescriptor2 = new ViewModelDescriptor<TestViewModel2, ViewModelTestContext>(viewModelContext);
-        var viewModelDescriptor3 = new ViewModelDescriptor<TestViewModel3, ViewModelTestContext>(viewModelContext);
+        var viewModelDescriptor1 = new ViewModelDescriptor<TestViewModel1>(viewModelContext);
+        var viewModelDescriptor2 = new ViewModelDescriptor<TestViewModel2>(viewModelContext);
+        var viewModelDescriptor3 = new ViewModelDescriptor<TestViewModel3>(viewModelContext);
 
         presentableStack.PushAll([viewModelDescriptor1, viewModelDescriptor2, viewModelDescriptor3]);
         var result1 = presentableStack.PopTo<TestViewModel1>(inclusive: true);
@@ -174,9 +174,9 @@ public class PresentableStackTests
 
         var output = new List<string>();
         var viewModelContext = new ViewModelTestContext(output);
-        var viewModelDescriptor1 = new ViewModelDescriptor<TestViewModel1, ViewModelTestContext>(viewModelContext);
-        var viewModelDescriptor2 = new ViewModelDescriptor<TestViewModel2, ViewModelTestContext>(viewModelContext);
-        var viewModelDescriptor3 = new ViewModelDescriptor<TestViewModel3, ViewModelTestContext>(viewModelContext);
+        var viewModelDescriptor1 = new ViewModelDescriptor<TestViewModel1>(viewModelContext);
+        var viewModelDescriptor2 = new ViewModelDescriptor<TestViewModel2>(viewModelContext);
+        var viewModelDescriptor3 = new ViewModelDescriptor<TestViewModel3>(viewModelContext);
 
         presentableStack.PushAll([viewModelDescriptor1, viewModelDescriptor2, viewModelDescriptor3, viewModelDescriptor1]);
         var result1 = presentableStack.PopTo(
@@ -210,9 +210,9 @@ public class PresentableStackTests
 
         var output = new List<string>();
         var viewModelTestContext = new ViewModelTestContext(output);
-        var viewModelDescriptor1 = new ViewModelDescriptor<TestViewModel1, ViewModelTestContext>(viewModelTestContext);
-        var viewModelDescriptor2 = new ViewModelDescriptor<TestViewModel2, ViewModelTestContext>(viewModelTestContext);
-        var viewModelDescriptor3 = new ViewModelDescriptor<TestViewModel3, ViewModelTestContext>(viewModelTestContext);
+        var viewModelDescriptor1 = new ViewModelDescriptor<TestViewModel1>(viewModelTestContext);
+        var viewModelDescriptor2 = new ViewModelDescriptor<TestViewModel2>(viewModelTestContext);
+        var viewModelDescriptor3 = new ViewModelDescriptor<TestViewModel3>(viewModelTestContext);
 
         presentableStackInScope.PushAll([viewModelDescriptor1, viewModelDescriptor2, viewModelDescriptor3]);
         presentableStackInRoot.PushAll([viewModelDescriptor1, viewModelDescriptor2, viewModelDescriptor3]);
@@ -235,9 +235,9 @@ public class PresentableStackTests
         var presentableStack = (PresentableStack)context.ServiceProvider.GetRequiredService<IPresentableStack>();
         presentableStack.PushAll(
             [
-                new ViewModelDescriptor<TestViewModel1, ViewModelTestContext>(viewModelTestContext),
-                new ViewModelDescriptor<TestViewModel2, ViewModelTestContext>(viewModelTestContext),
-                new ViewModelDescriptor<TestViewModel3, ViewModelTestContext>(viewModelTestContext)
+                new ViewModelDescriptor<TestViewModel1>(viewModelTestContext),
+                new ViewModelDescriptor<TestViewModel2>(viewModelTestContext),
+                new ViewModelDescriptor<TestViewModel3>(viewModelTestContext)
             ]
         );
 
@@ -255,7 +255,7 @@ public class PresentableStackTests
         var viewModelTestContext = new ViewModelTestContext([]);
 
         var presentableStack = (PresentableStack)context.ServiceProvider.GetRequiredService<IPresentableStack>();
-        var viewModel = presentableStack.Push<TestViewModel1, ViewModelTestContext>(viewModelTestContext);
+        var viewModel = presentableStack.Push<TestViewModel1>(viewModelTestContext);
 
         Assert.IsNotNull(viewModel);
     }
@@ -268,7 +268,7 @@ public class PresentableStackTests
         var viewModelTestContext = new ViewModelTestContext([]);
 
         var presentableStack = (PresentableStack)context.ServiceProvider.GetRequiredService<IPresentableStack>();
-        var viewModel = presentableStack.Push<TestViewModel1, ViewModelTestContext>(viewModelTestContext);
+        var viewModel = presentableStack.Push<TestViewModel1>(viewModelTestContext);
 
         Assert.IsNotNull(presentableStack.Current);
 
@@ -296,7 +296,7 @@ public class PresentableStackTests
 
     private record ViewModelTestContext(List<string> Output);
 
-    private class TestViewModel1(ViewModelTestContext context) : ViewModel<ViewModelTestContext>, IClosable
+    private class TestViewModel1(ViewModelTestContext context) : ViewModel, IClosable
     {
         protected ViewModelTestContext Context => context;
 
