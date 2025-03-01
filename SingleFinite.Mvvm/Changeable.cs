@@ -34,7 +34,7 @@ namespace SingleFinite.Mvvm;
 public abstract partial class Changeable :
     INotifyPropertyChanged,
     INotifyPropertyChanging,
-    IPropertyMappable
+    IDerivableProperties
 {
     #region Fields
 
@@ -56,9 +56,9 @@ public abstract partial class Changeable :
     private bool _isChanging = false;
 
     /// <summary>
-    /// Holds mapped properties.
+    /// Holds derived properties.
     /// </summary>
-    private readonly PropertyMapper _propertyMapper = new();
+    private readonly DerivedPropertyCollection _derivedProperties = new();
 
     #endregion
 
@@ -112,7 +112,7 @@ public abstract partial class Changeable :
     }
 
     /// <summary>
-    /// Raise any pending PropertyChanged and MappedPropertyChanged events when
+    /// Raise any pending PropertyChanged and DerivedPropertyChanged events when
     /// a transaction has been closed.
     /// </summary>
     private void OnTransactionClosed()
@@ -120,7 +120,7 @@ public abstract partial class Changeable :
         var propertyNames = _propertyChangedBuffer.Keys;
         _propertyChangedBuffer.Flush();
 
-        RaiseMappedPropertyChanged(propertyNames);
+        RaiseDerivedPropertyChanged(propertyNames);
     }
 
     /// <summary>
@@ -156,17 +156,17 @@ public abstract partial class Changeable :
     }
 
     /// <summary>
-    /// Raise the MappedPropertyChanged event.
+    /// Raise the DerivedPropertyChanged event.
     /// </summary>
     /// <param name="propertyNames">
-    /// The property names of all the source properties whose mapped properties
-    /// will have the MappedPropertyChanged event raised.
+    /// The property names of all the source properties whose derived properties
+    /// will have the DerivedPropertyChanged event raised.
     /// </param>
-    private void RaiseMappedPropertyChanged(IEnumerable<string> propertyNames)
+    private void RaiseDerivedPropertyChanged(IEnumerable<string> propertyNames)
     {
-        _propertyMapper.RaiseMappedPropertyChangedEvents(
+        _derivedProperties.RaiseDerivedPropertyChangedEvents(
             sourcePropertyNames: propertyNames,
-            raiseEvent: (sender, args) => _mappedPropertyChanged?.Invoke(sender, args)
+            raiseEvent: (sender, args) => _derivedPropertyChanged?.Invoke(sender, args)
         );
     }
 
@@ -233,22 +233,22 @@ public abstract partial class Changeable :
     }
 
     /// <inheritdoc/>
-    public void MapProperty(
-        object mappedObject,
-        string mappedPropertyName,
+    public void AddDerivedProperty(
+        object derivedPropertyOwner,
+        string derivedPropertyName,
         params IEnumerable<string> sourcePropertyNames
     )
     {
-        ArgumentNullException.ThrowIfNullOrWhiteSpace(mappedPropertyName);
+        ArgumentNullException.ThrowIfNullOrWhiteSpace(derivedPropertyName);
 
         foreach (var sourcePropertyName in sourcePropertyNames)
         {
             ArgumentNullException.ThrowIfNullOrWhiteSpace(sourcePropertyName);
 
-            _propertyMapper.Add(
+            _derivedProperties.Add(
                 sourcePropertyName,
-                mappedObject,
-                mappedPropertyName
+                derivedPropertyOwner,
+                derivedPropertyName
             );
         }
     }
@@ -278,12 +278,12 @@ public abstract partial class Changeable :
     private PropertyChangedEventHandler? _propertyChanged;
 
     /// <inheritdoc/>
-    event PropertyChangedEventHandler? IPropertyMappable.MappedPropertyChanged
+    event PropertyChangedEventHandler? IDerivableProperties.DerivedPropertyChanged
     {
-        add { _mappedPropertyChanged += value; }
-        remove { _mappedPropertyChanged -= value; }
+        add { _derivedPropertyChanged += value; }
+        remove { _derivedPropertyChanged -= value; }
     }
-    private PropertyChangedEventHandler? _mappedPropertyChanged;
+    private PropertyChangedEventHandler? _derivedPropertyChanged;
 
     #endregion
 }

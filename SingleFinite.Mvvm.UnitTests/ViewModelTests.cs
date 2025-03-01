@@ -183,7 +183,7 @@ public class ViewModelTests
     }
 
     [TestMethod]
-    public void MappedProperty_Get_Raises_Events()
+    public void DerivedProperty_Get_Raises_Events()
     {
         var observedEvents = new List<(object?, PropertyChangedEventArgs)>();
         var simpleViewModel = new SimpleViewModel();
@@ -195,19 +195,19 @@ public class ViewModelTests
         };
 
         Assert.AreEqual(0, observedEvents.Count);
-        Assert.AreEqual("positive", simpleView.MappedNumber);
+        Assert.AreEqual("positive", simpleView.DerivedNumber);
 
         simpleViewModel.Number = -5;
 
         Assert.AreEqual(1, observedEvents.Count);
         var (sender, args) = observedEvents[0];
         Assert.AreEqual(simpleView, sender);
-        Assert.AreEqual("MappedNumber", args.PropertyName);
-        Assert.AreEqual("negative", simpleView.MappedNumber);
+        Assert.AreEqual("DerivedNumber", args.PropertyName);
+        Assert.AreEqual("negative", simpleView.DerivedNumber);
     }
 
     [TestMethod]
-    public void MappedProperty_Set_Raises_Events()
+    public void DerivedProperty_Set_Raises_Events()
     {
         var observedEvents = new List<(object?, PropertyChangedEventArgs)>();
         var simpleViewModel = new SimpleViewModel();
@@ -221,7 +221,7 @@ public class ViewModelTests
         Assert.AreEqual(0, observedEvents.Count);
         Assert.AreEqual(0, simpleViewModel.Number);
 
-        simpleView.MappedNumber = "negative";
+        simpleView.DerivedNumber = "negative";
 
         Assert.AreEqual(1, observedEvents.Count);
         var (sender, args) = observedEvents[0];
@@ -231,11 +231,11 @@ public class ViewModelTests
     }
 
     [TestMethod]
-    public void MappedProperty_Event_Raised_Once_For_Multiple_Source_Changes()
+    public void DerivedProperty_Event_Raised_Once_For_Multiple_Source_Changes()
     {
         var observedEvents = new List<(object?, PropertyChangedEventArgs)>();
-        var viewModel = new MultiMappedViewModel();
-        var view = new MultiMappedView(viewModel);
+        var viewModel = new MultiDerivedViewModel();
+        var view = new MultiDerivedView(viewModel);
 
         ((INotifyPropertyChanged)view).PropertyChanged += (sender, args) =>
         {
@@ -256,7 +256,7 @@ public class ViewModelTests
 
     #region Types
 
-    private class MultiMappedViewModel : ViewModel
+    private class MultiDerivedViewModel : ViewModel
     {
         public int Number
         {
@@ -276,15 +276,15 @@ public class ViewModelTests
         }
     }
 
-    private class MultiMappedView : IView<MultiMappedViewModel>
+    private class MultiDerivedView : IView<MultiDerivedViewModel>
     {
-        public MultiMappedView(MultiMappedViewModel viewModel)
+        public MultiDerivedView(MultiDerivedViewModel viewModel)
         {
             ViewModel = viewModel;
 
-            ViewModel.MapProperty(
-                mappedObject: this,
-                mappedPropertyName: nameof(Label),
+            ViewModel.AddDerivedProperty(
+                derivedPropertyOwner: this,
+                derivedPropertyName: nameof(Label),
                 sourcePropertyNames: [
                     nameof(ViewModel.Number),
                     nameof(ViewModel.Text)
@@ -292,7 +292,7 @@ public class ViewModelTests
             );
         }
 
-        public MultiMappedViewModel ViewModel { get; }
+        public MultiDerivedViewModel ViewModel { get; }
 
         public string Label => $"{ViewModel.Number}:{ViewModel.Text}";
     }
@@ -312,16 +312,16 @@ public class ViewModelTests
         {
             ViewModel = viewModel;
 
-            ViewModel.MapProperty(
-                mappedObject: this,
-                mappedPropertyName: nameof(MappedNumber),
+            ViewModel.AddDerivedProperty(
+                derivedPropertyOwner: this,
+                derivedPropertyName: nameof(DerivedNumber),
                 sourcePropertyNames: nameof(ViewModel.Number)
             );
         }
 
         public SimpleViewModel ViewModel { get; }
 
-        public string MappedNumber
+        public string DerivedNumber
         {
             get => ViewModel.Number >= 0 ?
                 "positive" :

@@ -24,39 +24,38 @@ using System.ComponentModel;
 namespace SingleFinite.Mvvm;
 
 /// <summary>
-/// Interface for classes that support mapped properties.  Mapped properties are
-/// defined outside of the class an are typically used to convert a source
-/// property back and forth between a view and its view model.
+/// Interface for classes that support derived properties.  Derived properties
+/// are properties that are derived from the value of other properties.
+/// Typically a derived property is defined in a view and derives its value from
+/// one or more properties in the view model.
 /// </summary>
-public interface IPropertyMappable
+public interface IDerivableProperties
 {
     /// <summary>
-    /// This method creates a mapped property.  The MappedPropertyChanged event
-    /// will be raised with the details for the mapped property whenever any of
-    /// the source properties are changed.
+    /// This method creates a derived property.
     /// </summary>
-    /// <param name="mappedObject">
-    /// The object that defines the mapped property that is based off of the
+    /// <param name="derivedPropertyOwner">
+    /// The object that defines the derived property that is derived from the
     /// source property.
     /// </param>
-    /// <param name="mappedPropertyName">
-    /// The name of the property that will be the mapped property.
+    /// <param name="derivedPropertyName">
+    /// The name of the derived property.
     /// </param>
     /// <param name="sourcePropertyNames">
-    /// The names of the properties that will be mapped to and be the source for
-    /// the mapped property.
+    /// The names of the properties that the derived property derives its value
+    /// from.
     /// </param>
-    void MapProperty(
-        object mappedObject,
-        string mappedPropertyName,
+    void AddDerivedProperty(
+        object derivedPropertyOwner,
+        string derivedPropertyName,
         params IEnumerable<string> sourcePropertyNames
     );
 
     /// <summary>
-    /// Event that is raised when a source property that has been mapped to has
-    /// been changed.  The mapped object and property will be passed with the
-    /// event.  Not that this event is raised when the source property has been
-    /// changed even if the mapped property doesn't itself result in a change.
+    /// Event that is raised when any source for a derived property has changed.
+    /// The name of the derived property 
+    /// Note that this event is raised when the source property has been
+    /// changed even if the derived property doesn't itself result in a change.
     /// </summary>
-    event PropertyChangedEventHandler? MappedPropertyChanged;
+    event PropertyChangedEventHandler? DerivedPropertyChanged;
 }

@@ -24,84 +24,86 @@ using System.ComponentModel;
 namespace SingleFinite.Mvvm.Internal;
 
 /// <summary>
-/// This class is used to keep track of mapped properties.
+/// This class is used to keep track of derived properties.
 /// </summary>
-internal class PropertyMapper
+internal class DerivedPropertyCollection
 {
     #region Fields
 
     /// <summary>
-    /// Holds all of the mapped properties stored by source property name.
+    /// Holds all of the derived properties stored by source property name.
     /// </summary>
-    private readonly Dictionary<string, HashSet<MappedProperty>> _mappedPropertiesBySourceProperty = [];
+    private readonly Dictionary<string, HashSet<DerivedProperty>> _derivedPropertiesBySourceProperty = [];
 
     #endregion
 
     #region Fields
 
     /// <summary>
-    /// Add a property mapping.
+    /// Add a derived property.
     /// </summary>
-    /// <param name="sourcePropertyName">The source property to map to.</param>
-    /// <param name="mappedObject">
-    /// The object that defines the mapped property.
+    /// <param name="sourcePropertyName">
+    /// The name of the property that is the source for the derived property.
     /// </param>
-    /// <param name="mappedPropertyName">
-    /// The name of the mapped property.
+    /// <param name="derivedPropetyOwner">
+    /// The object that defines the derived property.
+    /// </param>
+    /// <param name="derivedPropertyName">
+    /// The name of the derived property.
     /// </param>
     public void Add(
         string sourcePropertyName,
-        object mappedObject,
-        string mappedPropertyName
+        object derivedPropetyOwner,
+        string derivedPropertyName
     )
     {
-        if (!_mappedPropertiesBySourceProperty.TryGetValue(sourcePropertyName, out var mappedProperties))
+        if (!_derivedPropertiesBySourceProperty.TryGetValue(sourcePropertyName, out var derivedProperties))
         {
-            mappedProperties = [];
-            _mappedPropertiesBySourceProperty.Add(sourcePropertyName, mappedProperties);
+            derivedProperties = [];
+            _derivedPropertiesBySourceProperty.Add(sourcePropertyName, derivedProperties);
         }
 
-        mappedProperties.Add(new(
-            Owner: mappedObject,
-            PropertyName: mappedPropertyName
+        derivedProperties.Add(new(
+            Owner: derivedPropetyOwner,
+            PropertyName: derivedPropertyName
         ));
     }
 
     /// <summary>
-    /// Raise the MappedPropertyChangedEvent for all of the mapped properties
+    /// Raise the DerivedPropertyChangedEvent for all of the derived properties
     /// associated with the given source property.
     /// </summary>
     /// <param name="sourcePropertyNames">
-    /// The names of the source properties whose mapped properties should have
-    /// the MappedPropertyChanged event raised.
+    /// The names of the source properties whose derived properties should have
+    /// the DerivedPropertyChanged event raised.
     /// </param>
     /// <param name="raiseEvent">
     /// The function used to raise the event.
     /// </param>
-    public void RaiseMappedPropertyChangedEvents(
+    public void RaiseDerivedPropertyChangedEvents(
         IEnumerable<string> sourcePropertyNames,
         Action<object?, PropertyChangedEventArgs> raiseEvent
     )
     {
-        var allMappedProperties = new HashSet<MappedProperty>();
+        var allDerivedProperties = new HashSet<DerivedProperty>();
 
         foreach (var sourcePropertyName in sourcePropertyNames)
         {
-            if (_mappedPropertiesBySourceProperty.TryGetValue(sourcePropertyName, out var mappedProperties))
+            if (_derivedPropertiesBySourceProperty.TryGetValue(sourcePropertyName, out var derivedProperties))
             {
-                foreach (var mappedProperty in mappedProperties)
-                    allMappedProperties.Add(mappedProperty);
+                foreach (var derivedProperty in derivedProperties)
+                    allDerivedProperties.Add(derivedProperty);
             }
         }
 
-        if (allMappedProperties.Count == 0)
+        if (allDerivedProperties.Count == 0)
             return;
 
-        foreach (var mappedProperty in allMappedProperties)
+        foreach (var derivedProperty in allDerivedProperties)
         {
             raiseEvent(
-                mappedProperty.Owner,
-                new PropertyChangedEventArgs(mappedProperty.PropertyName)
+                derivedProperty.Owner,
+                new PropertyChangedEventArgs(derivedProperty.PropertyName)
             );
         }
     }
@@ -111,11 +113,11 @@ internal class PropertyMapper
     #region Types
 
     /// <summary>
-    /// A mapped property.
+    /// A derived property.
     /// </summary>
-    /// <param name="Owner">The owner of the mapped property.</param>
-    /// <param name="PropertyName">The name of the mapped property.</param>
-    private record MappedProperty(object Owner, string PropertyName);
+    /// <param name="Owner">The owner of the derived property.</param>
+    /// <param name="PropertyName">The name of the derived property.</param>
+    private record DerivedProperty(object Owner, string PropertyName);
 
     #endregion
 }

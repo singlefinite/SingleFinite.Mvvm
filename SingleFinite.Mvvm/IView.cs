@@ -37,20 +37,20 @@ public interface IView : INotifyPropertyChanged
 
     /// <summary>
     /// Default implementation for <see cref="INotifyPropertyChanged"/> that
-    /// supports <see cref="IPropertyMappable"/> if the ViewModel implements the
-    /// interface.
+    /// supports <see cref="IDerivableProperties"/> if the ViewModel implements
+    /// the interface.
     /// </summary>
     event PropertyChangedEventHandler? INotifyPropertyChanged.PropertyChanged
     {
         add
         {
-            if (ViewModel is IPropertyMappable propertyMappable)
-                propertyMappable.MappedPropertyChanged += value;
+            if (ViewModel is IDerivableProperties derivableProperties)
+                derivableProperties.DerivedPropertyChanged += value;
         }
         remove
         {
-            if (ViewModel is IPropertyMappable propertyMappable)
-                propertyMappable.MappedPropertyChanged -= value;
+            if (ViewModel is IDerivableProperties derivableProperties)
+                derivableProperties.DerivedPropertyChanged -= value;
         }
     }
 }
