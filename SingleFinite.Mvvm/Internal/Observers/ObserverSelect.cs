@@ -49,7 +49,7 @@ internal class ObserverSelect<TArgsOut>(
     protected override bool OnEvent()
     {
         var value = selector();
-        MappedNext?.Invoke(value);
+        BranchNext?.Invoke(value);
         return false;
     }
 
@@ -63,10 +63,10 @@ internal class ObserverSelect<TArgsOut>(
     /// </summary>
     event Action<TArgsOut> IObserver<TArgsOut>.Next
     {
-        add => MappedNext += value;
-        remove => MappedNext -= value;
+        add => BranchNext += value;
+        remove => BranchNext -= value;
     }
-    private event Action<TArgsOut>? MappedNext;
+    private event Action<TArgsOut>? BranchNext;
 
     #endregion
 }
@@ -106,7 +106,7 @@ internal class ObserverSelect<TArgsIn, TArgsOut>(
     protected override bool OnEvent(TArgsIn args)
     {
         var value = callback(args);
-        MappedNext?.Invoke(value);
+        BranchNext?.Invoke(value);
         return false;
     }
 
@@ -120,10 +120,10 @@ internal class ObserverSelect<TArgsIn, TArgsOut>(
     /// </summary>
     event Action<TArgsOut> IObserver<TArgsOut>.Next
     {
-        add => MappedNext += value;
-        remove => MappedNext -= value;
+        add => BranchNext += value;
+        remove => BranchNext -= value;
     }
-    private event Action<TArgsOut>? MappedNext;
+    private event Action<TArgsOut>? BranchNext;
 
     #endregion
 }

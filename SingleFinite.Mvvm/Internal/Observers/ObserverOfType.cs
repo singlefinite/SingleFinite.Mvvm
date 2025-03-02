@@ -55,7 +55,7 @@ internal class ObserverOfType<TArgsIn, TArgsOut>(
     protected override bool OnEvent(TArgsIn args)
     {
         if (args is TArgsOut outArgs)
-            MappedNext?.Invoke(outArgs);
+            BranchNext?.Invoke(outArgs);
 
         return false;
     }
@@ -70,10 +70,10 @@ internal class ObserverOfType<TArgsIn, TArgsOut>(
     /// </summary>
     event Action<TArgsOut> IObserver<TArgsOut>.Next
     {
-        add => MappedNext += value;
-        remove => MappedNext -= value;
+        add => BranchNext += value;
+        remove => BranchNext -= value;
     }
-    private event Action<TArgsOut>? MappedNext;
+    private event Action<TArgsOut>? BranchNext;
 
     #endregion
 }

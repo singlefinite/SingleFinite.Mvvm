@@ -52,8 +52,8 @@ internal class ObserverToAsync(
         dispatcher.Run(
             func: async () =>
             {
-                if (MappedNext is not null)
-                    await MappedNext.Invoke();
+                if (BranchNext is not null)
+                    await BranchNext.Invoke();
             },
             onError: onError
         );
@@ -70,10 +70,10 @@ internal class ObserverToAsync(
     /// </summary>
     event Func<Task> IAsyncObserver.Next
     {
-        add => MappedNext += value;
-        remove => MappedNext -= value;
+        add => BranchNext += value;
+        remove => BranchNext -= value;
     }
-    private event Func<Task>? MappedNext;
+    private event Func<Task>? BranchNext;
 
     #endregion
 }
@@ -110,8 +110,8 @@ internal class ObserverToAsync<TArgs>(
         dispatcher.Run(
             func: async () =>
             {
-                if (MappedNext is not null)
-                    await MappedNext.Invoke(args);
+                if (BranchNext is not null)
+                    await BranchNext.Invoke(args);
             },
             onError: onError
         );
@@ -128,10 +128,10 @@ internal class ObserverToAsync<TArgs>(
     /// </summary>
     event Func<TArgs, Task> IAsyncObserver<TArgs>.Next
     {
-        add => MappedNext += value;
-        remove => MappedNext -= value;
+        add => BranchNext += value;
+        remove => BranchNext -= value;
     }
-    private event Func<TArgs, Task>? MappedNext;
+    private event Func<TArgs, Task>? BranchNext;
 
     #endregion
 }

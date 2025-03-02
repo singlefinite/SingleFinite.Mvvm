@@ -49,8 +49,8 @@ internal class AsyncObserverSelect<TArgsOut>(
     protected async override Task<bool> OnEventAsync()
     {
         var value = await selector();
-        if (MappedNext is not null)
-            await MappedNext.Invoke(value);
+        if (BranchNext is not null)
+            await BranchNext.Invoke(value);
         return false;
     }
 
@@ -64,10 +64,10 @@ internal class AsyncObserverSelect<TArgsOut>(
     /// </summary>
     event Func<TArgsOut, Task> IAsyncObserver<TArgsOut>.Next
     {
-        add => MappedNext += value;
-        remove => MappedNext -= value;
+        add => BranchNext += value;
+        remove => BranchNext -= value;
     }
-    private event Func<TArgsOut, Task>? MappedNext;
+    private event Func<TArgsOut, Task>? BranchNext;
 
     #endregion
 }
@@ -107,8 +107,8 @@ internal class AsyncObserverSelect<TArgsIn, TArgsOut>(
     protected async override Task<bool> OnEventAsync(TArgsIn args)
     {
         var value = await callback(args);
-        if (MappedNext is not null)
-            await MappedNext.Invoke(value);
+        if (BranchNext is not null)
+            await BranchNext.Invoke(value);
         return false;
     }
 
@@ -122,10 +122,10 @@ internal class AsyncObserverSelect<TArgsIn, TArgsOut>(
     /// </summary>
     event Func<TArgsOut, Task> IAsyncObserver<TArgsOut>.Next
     {
-        add => MappedNext += value;
-        remove => MappedNext -= value;
+        add => BranchNext += value;
+        remove => BranchNext -= value;
     }
-    private event Func<TArgsOut, Task>? MappedNext;
+    private event Func<TArgsOut, Task>? BranchNext;
 
     #endregion
 }

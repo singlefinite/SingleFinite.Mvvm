@@ -65,7 +65,7 @@ internal class ObserverDebounce(
     protected override bool OnEvent()
     {
         _debouncer.Debounce(
-            action: () => MappedNext?.Invoke(),
+            action: () => BranchNext?.Invoke(),
             delay: delay,
             dispatcher: dispatcher
         );
@@ -82,10 +82,10 @@ internal class ObserverDebounce(
     /// </summary>
     event Action IObserver.Next
     {
-        add => MappedNext += value;
-        remove => MappedNext -= value;
+        add => BranchNext += value;
+        remove => BranchNext -= value;
     }
-    private event Action? MappedNext;
+    private event Action? BranchNext;
 
     #endregion
 }
@@ -133,7 +133,7 @@ internal class ObserverDebounce<TArgs>(
     protected override bool OnEvent(TArgs args)
     {
         _debouncer.Debounce(
-            action: () => MappedNext?.Invoke(args),
+            action: () => BranchNext?.Invoke(args),
             delay: delay,
             dispatcher: dispatcher
         );
@@ -150,10 +150,10 @@ internal class ObserverDebounce<TArgs>(
     /// </summary>
     event Action<TArgs> IObserver<TArgs>.Next
     {
-        add => MappedNext += value;
-        remove => MappedNext -= value;
+        add => BranchNext += value;
+        remove => BranchNext -= value;
     }
-    private event Action<TArgs>? MappedNext;
+    private event Action<TArgs>? BranchNext;
 
     #endregion
 }

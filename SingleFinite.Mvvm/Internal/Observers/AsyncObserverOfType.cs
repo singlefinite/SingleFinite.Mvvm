@@ -54,8 +54,8 @@ internal class AsyncObserverOfType<TArgsIn, TArgsOut>(
     /// </returns>
     protected async override Task<bool> OnEventAsync(TArgsIn args)
     {
-        if (args is TArgsOut outArgs && MappedNext is not null)
-            await MappedNext.Invoke(outArgs);
+        if (args is TArgsOut outArgs && BranchNext is not null)
+            await BranchNext.Invoke(outArgs);
 
         return false;
     }
@@ -70,10 +70,10 @@ internal class AsyncObserverOfType<TArgsIn, TArgsOut>(
     /// </summary>
     event Func<TArgsOut, Task> IAsyncObserver<TArgsOut>.Next
     {
-        add => MappedNext += value;
-        remove => MappedNext -= value;
+        add => BranchNext += value;
+        remove => BranchNext -= value;
     }
-    private event Func<TArgsOut, Task>? MappedNext;
+    private event Func<TArgsOut, Task>? BranchNext;
 
     #endregion
 }

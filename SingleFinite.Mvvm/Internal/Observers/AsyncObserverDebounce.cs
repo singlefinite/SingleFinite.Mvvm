@@ -65,7 +65,7 @@ internal class AsyncObserverDebounce(
     protected override Task<bool> OnEventAsync()
     {
         _debouncer.Debounce(
-            func: () => MappedNext?.Invoke() ?? Task.CompletedTask,
+            func: () => BranchNext?.Invoke() ?? Task.CompletedTask,
             delay: delay,
             dispatcher: dispatcher
         );
@@ -82,10 +82,10 @@ internal class AsyncObserverDebounce(
     /// </summary>
     event Func<Task> IAsyncObserver.Next
     {
-        add => MappedNext += value;
-        remove => MappedNext -= value;
+        add => BranchNext += value;
+        remove => BranchNext -= value;
     }
-    private event Func<Task>? MappedNext;
+    private event Func<Task>? BranchNext;
 
     #endregion
 }
@@ -133,7 +133,7 @@ internal class AsyncObserverDebounce<TArgs>(
     protected override Task<bool> OnEventAsync(TArgs args)
     {
         _debouncer.Debounce(
-            func: () => MappedNext?.Invoke(args) ?? Task.CompletedTask,
+            func: () => BranchNext?.Invoke(args) ?? Task.CompletedTask,
             delay: delay,
             dispatcher: dispatcher
         );
@@ -150,10 +150,10 @@ internal class AsyncObserverDebounce<TArgs>(
     /// </summary>
     event Func<TArgs, Task> IAsyncObserver<TArgs>.Next
     {
-        add => MappedNext += value;
-        remove => MappedNext -= value;
+        add => BranchNext += value;
+        remove => BranchNext -= value;
     }
-    private event Func<TArgs, Task>? MappedNext;
+    private event Func<TArgs, Task>? BranchNext;
 
     #endregion
 }
