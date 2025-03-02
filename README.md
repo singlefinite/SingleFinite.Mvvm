@@ -7,7 +7,7 @@ It's built for .NET Core and contains interfaces, classes, and services that pro
 The following example illustrates a simple "hello world" style app that shows how to get something up and running after adding the SingleFinite.Mvvm
 nuget package as a dependency in your project.
 
-To start, let's define a simple `ViewModel` class:
+To start, let's define a simple view model class that extends `ViewModel`:
 
 ```csharp
 // MyViewModel.cs
@@ -22,7 +22,7 @@ public class MyViewModel : ViewModel
 }
 ```
 
-and a corresponding class that implements the `IView` interface for the above ViewModel:
+and a corresponding view class that implements `IView` and will be used with the view model defined above:
 
 ```csharp
 // MyView.cs
@@ -53,13 +53,13 @@ var appHost = new AppHostBuilder()
     .BuildAndStart();
 ```
 
-As you can see above we use the `AddViews` method to register the `MyViewModel` type to the `MyView` type.  Now when we want to display an instance
+As you can see above we use the `AddViews` method to register the `MyViewModel` and `MyView` types.  Now when we want to display an instance
 of `MyViewModel` an instance of `MyView` will be used to display it.
 
 > :information_source: Note
 >
 > There is an extension method for registering views that can be used to scan assemblies for `ViewModel` and `IView` types to register but we manually
-> register them here for the sake of simplicity.
+> register them here for better clarity in the example.
 
 Let's create a new instance of `MyViewModel` from the `IAppHost` instance we created above:
 
@@ -67,7 +67,7 @@ Let's create a new instance of `MyViewModel` from the `IAppHost` instance we cre
 // Program.cs
 //
 
-...
+// ...
 
 var presentable = appHost.ServiceProvider.GetRequiredService<IPresentableItem>();
 var viewModel = presentable.Set<MyViewModel>();
