@@ -20,6 +20,7 @@
 // SOFTWARE.
 
 using Microsoft.Extensions.DependencyInjection;
+using SingleFinite.Essentials;
 using SingleFinite.Mvvm.Internal.Services;
 using SingleFinite.Mvvm.Services;
 

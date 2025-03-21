@@ -21,6 +21,7 @@
 
 using System.ComponentModel;
 using Microsoft.Extensions.DependencyInjection;
+using SingleFinite.Essentials;
 using SingleFinite.Mvvm.Services;
 
 namespace SingleFinite.Mvvm.Internal.Services;

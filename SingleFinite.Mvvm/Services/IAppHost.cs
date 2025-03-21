@@ -20,6 +20,7 @@
 // SOFTWARE.
 
 using System.ComponentModel;
+using SingleFinite.Essentials;
 
 namespace SingleFinite.Mvvm.Services;
 

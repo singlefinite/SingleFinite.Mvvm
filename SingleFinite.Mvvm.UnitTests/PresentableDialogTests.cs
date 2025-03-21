@@ -19,8 +19,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using System.ComponentModel;
 using Microsoft.Extensions.DependencyInjection;
+using SingleFinite.Essentials;
 using SingleFinite.Mvvm.Internal.Services;
 using SingleFinite.Mvvm.Services;
 

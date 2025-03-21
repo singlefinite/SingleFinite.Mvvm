@@ -23,6 +23,7 @@ using SingleFinite.Mvvm.Internal;
 using SingleFinite.Mvvm.Services;
 using Microsoft.Extensions.DependencyInjection;
 using System.ComponentModel;
+using SingleFinite.Essentials;
 
 namespace SingleFinite.Mvvm.UnitTests;
 
@@ -334,7 +335,7 @@ public class ViewModelTests
     }
 
     private class ExampleViewModel(
-        IDispatcherBackground backgroundDispatcher
+        IBackgroundDispatcher backgroundDispatcher
     ) : ViewModel
     {
         public int Number

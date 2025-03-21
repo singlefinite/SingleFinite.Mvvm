@@ -20,7 +20,7 @@
 // SOFTWARE.
 
 using Microsoft.Extensions.DependencyInjection;
-using SingleFinite.Mvvm.Internal.Services;
+using SingleFinite.Essentials;
 using SingleFinite.Mvvm.Services;
 
 namespace SingleFinite.Mvvm.UnitTests;
@@ -80,10 +80,10 @@ public class AppHostBuilderTests
     {
         var builder = new AppHostBuilder();
         var appHost = builder
-            .AddServices(services => services.AddSingleton<IAppDispatcherMain, ExampleAppMainDispatcher>())
+            .AddServices(services => services.AddSingleton<IApplicationMainDispatcher, ExampleAppMainDispatcher>())
             .BuildAndStart();
 
-        var dispatcher = appHost.ServiceProvider.GetRequiredService<IAppDispatcherMain>();
+        var dispatcher = appHost.ServiceProvider.GetRequiredService<IApplicationMainDispatcher>();
         Assert.IsInstanceOfType<ExampleAppMainDispatcher>(dispatcher);
     }
 
@@ -110,18 +110,15 @@ public class AppHostBuilderTests
         public ExampleViewModel ViewModel => throw new NotImplementedException();
     }
 
-    private class ExampleAppMainDispatcher :
-        DispatcherBase,
-        IAppDispatcherMain
+    private class ExampleAppMainDispatcher() :
+        IApplicationMainDispatcher
     {
-        public ExampleAppMainDispatcher() : base(
-            new CancellationTokenProvider(),
-            new ExceptionHandler()
-        )
-        {
-        }
+        public DisposeState DisposeState => throw new NotImplementedException();
 
-        public override Task<TResult> RunAsync<TResult>(Func<Task<TResult>> func) =>
+        public void OnError(Exception ex) =>
+            throw new NotImplementedException();
+
+        public Task<TResult> RunAsync<TResult>(Func<Task<TResult>> func) =>
             throw new NotImplementedException();
     }
 

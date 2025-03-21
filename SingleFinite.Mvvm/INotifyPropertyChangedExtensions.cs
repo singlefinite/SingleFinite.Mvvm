@@ -22,6 +22,7 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
+using SingleFinite.Essentials;
 
 namespace SingleFinite.Mvvm;
 
@@ -39,7 +40,7 @@ public static partial class INotifyPropertyChangedExtensions
     /// <returns>
     /// An observer that when disposed will unregister the callback.
     /// </returns>
-    public static IObserver<string?> ObservePropertyChanged(
+    public static Essentials.IObserver<string?> ObservePropertyChanged(
         this INotifyPropertyChanged component
     ) => Observable<string?>.Observe<PropertyChangedEventHandler>(
         register: handler => component.PropertyChanged += handler,
@@ -63,7 +64,7 @@ public static partial class INotifyPropertyChangedExtensions
     /// <returns>
     /// An observer that when disposed will unregister the callback.
     /// </returns>
-    public static IObserver<string?> ObservePropertyChanged(
+    public static Essentials.IObserver<string?> ObservePropertyChanged(
         this INotifyPropertyChanged component,
         Func<object?> property,
         [CallerArgumentExpression(nameof(property))]

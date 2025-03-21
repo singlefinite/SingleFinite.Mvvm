@@ -19,6 +19,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using SingleFinite.Essentials;
 using SingleFinite.Mvvm.Internal;
 
 namespace SingleFinite.Mvvm;
@@ -40,7 +41,7 @@ public abstract class Plugin<TPluginHost> : ViewModel, IPlugin<TPluginHost>
     /// If this property is accessed before the initialize method is called an 
     /// exception will be thrown.
     /// </summary>
-    protected TPluginHost PluginHost => _pluginHost.Require();
+    protected TPluginHost PluginHost => _pluginHost.ThrowIfNull();
     private TPluginHost? _pluginHost;
 
     #endregion

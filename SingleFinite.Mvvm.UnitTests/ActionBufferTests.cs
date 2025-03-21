@@ -36,10 +36,10 @@ public class ActionBufferTests
         var result2 = buffer.AddOrReplace(2, () => { });
         var result3 = buffer.AddOrReplace(1, () => { });
 
-        Assert.AreEqual(true, result0);
-        Assert.AreEqual(true, result1);
-        Assert.AreEqual(true, result2);
-        Assert.AreEqual(false, result3);
+        Assert.IsTrue(result0);
+        Assert.IsTrue(result1);
+        Assert.IsTrue(result2);
+        Assert.IsFalse(result3);
     }
 
     [TestMethod]

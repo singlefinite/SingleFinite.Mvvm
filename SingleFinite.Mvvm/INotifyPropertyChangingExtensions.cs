@@ -21,6 +21,7 @@
 
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using SingleFinite.Essentials;
 
 namespace SingleFinite.Mvvm;
 
@@ -38,7 +39,7 @@ public static partial class INotifyPropertyChangingExtensions
     /// <returns>
     /// An observer that when disposed will unregister the callback.
     /// </returns>
-    public static IObserver<string?> ObservePropertyChanging(
+    public static Essentials.IObserver<string?> ObservePropertyChanging(
         this INotifyPropertyChanging component
     ) => Observable<string?>.Observe<PropertyChangingEventHandler>(
         register: handler => component.PropertyChanging += handler,
@@ -62,7 +63,7 @@ public static partial class INotifyPropertyChangingExtensions
     /// <returns>
     /// An observer that when disposed will unregister the callback.
     /// </returns>
-    public static IObserver<string?> ObservePropertyChanging(
+    public static Essentials.IObserver<string?> ObservePropertyChanging(
         this INotifyPropertyChanging component,
         Func<object?> property,
         [CallerArgumentExpression(nameof(property))]

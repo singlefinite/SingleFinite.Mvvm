@@ -19,30 +19,22 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-namespace SingleFinite.Mvvm;
+using SingleFinite.Essentials;
+using SingleFinite.Mvvm.Services;
+
+namespace SingleFinite.Mvvm.Internal.Services;
 
 /// <summary>
-/// Arguments for an event involving an exception.
+/// Dispatcher that uses the thread pool to dispatch actions and functions.
 /// </summary>
-/// <param name="exception">The exception for the event.</param>
-/// <param name="isHandled">The initial value for IsHandled.</param>
-public class ExceptionEventArgs(
-    Exception exception,
-    bool isHandled = false
-) : EventArgs
-{
-    #region Properties
-
-    /// <summary>
-    /// The exception for the event.
-    /// </summary>
-    public Exception Exception { get; } = exception;
-
-    /// <summary>
-    /// Observers of the event can set this property to true if they have
-    /// handled the event.
-    /// </summary>
-    public bool IsHandled { get; set; } = isHandled;
-
-    #endregion
-}
+/// <param name="exceptionHandler">
+/// Used to handle exceptions that are thrown when invoking actions passed to
+/// the Run method if they wouldn't otherwise be handled the code that invoked
+/// the Run method.
+/// </param>
+internal sealed class BackgroundDispatcher(
+    IExceptionHandler exceptionHandler
+) :
+    ThreadPoolDispatcher(exceptionHandler.Handle),
+    IApplicationBackgroundDispatcher,
+    IBackgroundDispatcher;

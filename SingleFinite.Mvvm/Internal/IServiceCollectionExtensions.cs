@@ -57,8 +57,8 @@ internal static class IServiceCollectionExtensions
     ) => services
         .AddSingleton(host)
         .AddSingleton<IExceptionHandler, ExceptionHandler>()
-        .AddSingleton<IAppDispatcherMain, DispatcherDedicatedThread>()
-        .AddSingleton<IAppDispatcherBackground, ThreadPoolDispatcher>()
+        .AddSingleton<IApplicationMainDispatcher, MainDispatcher>()
+        .AddSingleton<IApplicationBackgroundDispatcher, BackgroundDispatcher>()
         .AddSingleton<IViewRegistry>(new ViewRegistry(views))
         .AddSingleton<IPluginRegistry>(new PluginRegistry(plugins))
         .AddSingleton<IPluginLoader, PluginLoader>()
@@ -66,9 +66,8 @@ internal static class IServiceCollectionExtensions
         .AddScoped<IBuilder, Builder>()
         .AddScoped<IViewBuilder, ViewBuilder>()
         .AddScoped<ICancellationTokenProvider, CancellationTokenProvider>()
-        .AddScoped<IDispatcherBackground, DispatcherBackground>()
-        .AddScoped<IDispatcherMain, DispatcherMain>()
-        .AddTransient<IDebouncer, Debouncer>()
+        .AddScoped<IBackgroundDispatcher, BackgroundDispatcher>()
+        .AddScoped<IMainDispatcher, MainDispatcher>()
         .AddTransient<IPresentableItem, PresentableItem>()
         .AddTransient<IPresentableStack, PresentableStack>()
         .AddTransient<IPresentableDialog, PresentableDialog>();

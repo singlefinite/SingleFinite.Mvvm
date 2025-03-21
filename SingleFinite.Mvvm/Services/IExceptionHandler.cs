@@ -19,6 +19,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using SingleFinite.Essentials;
+
 namespace SingleFinite.Mvvm.Services;
 
 /// <summary>
@@ -30,8 +32,7 @@ public interface IExceptionHandler
     /// Handle the given exception.
     /// </summary>
     /// <param name="ex">The exception to handle.</param>
-    /// <returns>True if the exception was handled, false if it wasn't.</returns>
-    bool Handle(Exception ex);
+    void Handle(Exception ex);
 
     /// <summary>
     /// Event that is raised whenever an exception is handled by this service.

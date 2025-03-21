@@ -19,13 +19,17 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using SingleFinite.Essentials;
+
 namespace SingleFinite.Mvvm.Services;
 
 /// <summary>
-/// A service that implements the <see cref="IDispatcher"/> interface and 
-/// executes code on a background thread.  This service is registered as a
-/// singleton.
+/// A dispatcher that belongs to a dependency injection scope and dispatches 
+/// code execution to the main thread.  Functions and actions executed through 
+/// this dispatcher will be provided a <see cref="CancellationToken"/> that is 
+/// cancelled when the dependency injection scope this service belongs to is 
+/// disposed.
 /// </summary>
-public interface IAppDispatcherBackground : IDispatcher
+public interface IMainDispatcher : IDispatcher
 {
 }

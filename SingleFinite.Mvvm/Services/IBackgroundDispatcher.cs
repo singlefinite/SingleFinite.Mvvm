@@ -19,26 +19,17 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using SingleFinite.Mvvm.Internal;
+using SingleFinite.Essentials;
 
-namespace SingleFinite.Mvvm.UnitTests;
+namespace SingleFinite.Mvvm.Services;
 
-[TestClass]
-public class ObjectExtensionsTests
+/// <summary>
+/// A dispatcher that belongs to a dependency injection scope and dispatches 
+/// execution of functions and actions to a background thread.  Functions and 
+/// actions executed through this dispatcher will be provided a 
+/// <see cref="CancellationToken"/> that is cancelled when the dependency 
+/// injection scope this service belongs to is disposed.
+/// </summary>
+public interface IBackgroundDispatcher : IDispatcher
 {
-    [TestMethod]
-    public void Require_Throws_With_Variable_Name_When_Null()
-    {
-        string? testItem = null;
-
-        try
-        {
-            testItem.Require();
-            Assert.Fail("Exception not thrown.");
-        }
-        catch (NullReferenceException ex)
-        {
-            Assert.AreEqual("testItem is null.", ex.Message);
-        }
-    }
 }

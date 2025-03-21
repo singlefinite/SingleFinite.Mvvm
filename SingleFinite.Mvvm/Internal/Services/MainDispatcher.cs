@@ -19,46 +19,22 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using SingleFinite.Essentials;
 using SingleFinite.Mvvm.Services;
 
 namespace SingleFinite.Mvvm.Internal.Services;
 
 /// <summary>
-/// Implementation of <see cref="IDispatcherBackground"/> service that uses the 
-/// <see cref="IAppDispatcherBackground"/> to dispatch execution of functions 
-/// and actions.  It will use the <see cref="ICancellationTokenProvider"/> to 
-/// provide a cancellation token to the functions and actions that can be 
-/// cancelled.  This service should be registered as a scoped service so that 
-/// each instance of this service created for a dependency injection scope will 
-/// be given the <see cref="ICancellationTokenProvider"/> for the same 
-/// dependency injection scope.  This will result in the executing functions and
-/// actions dispatched through this service being cancelled when the dependency 
-/// injection scope this service belongs to is disposed.
+/// Dispatcher that uses a dedicated thread to dispatch actions and functions.
 /// </summary>
-/// <param name="dispatcher">
-/// The dispatcher to dispatch functions and actions to.
-/// </param>
-/// <param name="cancellationTokenProvider">
-/// The service that provides the CancellationToken used by this service.
-/// </param>
 /// <param name="exceptionHandler">
 /// Used to handle exceptions that are thrown when invoking actions passed to
+/// the Run method if they wouldn't otherwise be handled the code that invoked
 /// the Run method.
 /// </param>
-internal sealed class DispatcherBackground(
-    IAppDispatcherBackground dispatcher,
-    ICancellationTokenProvider cancellationTokenProvider,
+internal sealed class MainDispatcher(
     IExceptionHandler exceptionHandler
-) : DispatcherBase(
-    cancellationTokenProvider,
-    exceptionHandler
-), IDispatcherBackground
-{
-    #region Methods
-
-    /// <inheritdoc/>
-    public override Task<TResult> RunAsync<TResult>(Func<Task<TResult>> func) =>
-        dispatcher.RunAsync(func);
-
-    #endregion
-}
+) :
+    DedicatedThreadDispatcher(exceptionHandler.Handle),
+    IApplicationMainDispatcher,
+    IMainDispatcher;

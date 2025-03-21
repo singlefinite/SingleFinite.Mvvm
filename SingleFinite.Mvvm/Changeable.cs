@@ -21,6 +21,7 @@
 
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using SingleFinite.Essentials;
 using SingleFinite.Mvvm.Internal;
 
 namespace SingleFinite.Mvvm;
