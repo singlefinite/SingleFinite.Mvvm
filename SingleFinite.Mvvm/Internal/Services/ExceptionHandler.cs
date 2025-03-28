@@ -36,7 +36,7 @@ internal class ExceptionHandler : IExceptionHandler
     public void Handle(Exception ex)
     {
         Debug.WriteLine($"Exception: [{ex.GetType().FullName}] {ex.Message}");
-        _exceptionHandledSource.RaiseEvent(ex);
+        _exceptionHandledSource.Emit(ex);
     }
 
     #endregion

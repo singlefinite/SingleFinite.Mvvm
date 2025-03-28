@@ -114,7 +114,7 @@ internal sealed class AppHost : IAppHost, IDisposable
         foreach (var onStarted in _onStarted)
             onStarted(_serviceProvider);
 
-        _startedSource.RaiseEvent();
+        _startedSource.Emit();
     }
 
     /// <inheritdoc/>
@@ -124,10 +124,10 @@ internal sealed class AppHost : IAppHost, IDisposable
             return true;
 
         var cancelEventArgs = new CancelEventArgs();
-        await _closingSource.RaiseEventAsync(cancelEventArgs);
+        await _closingSource.EmitAsync(cancelEventArgs);
 
         if (!cancelEventArgs.Cancel)
-            _closedSource.RaiseEvent();
+            _closedSource.Emit();
 
         return !cancelEventArgs.Cancel;
     }

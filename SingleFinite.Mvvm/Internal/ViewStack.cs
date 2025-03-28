@@ -208,7 +208,7 @@ internal class ViewStack
             if (activateTop)
                 ActivateTop();
 
-            _currentChanged.RaiseEvent(
+            _currentChanged.Emit(
                 new(
                     view: Current,
                     isNew: isNew

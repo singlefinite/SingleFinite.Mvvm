@@ -167,7 +167,7 @@ public abstract partial class Changeable :
     {
         _derivedProperties.RaiseDerivedPropertyChangedEvents(
             sourcePropertyNames: propertyNames,
-            raiseEvent: (sender, args) => _derivedPropertyChanged?.Invoke(sender, args)
+            emit: (sender, args) => _derivedPropertyChanged?.Invoke(sender, args)
         );
     }
 

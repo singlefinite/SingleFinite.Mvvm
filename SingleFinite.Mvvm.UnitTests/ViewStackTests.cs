@@ -470,7 +470,7 @@ public class ViewStackTests
 
         public override string ToString() => $"ViewModel:{name}";
 
-        public void Close() => _closedSource.RaiseEvent(this);
+        public void Close() => _closedSource.Emit(this);
 
         public Observable<IClosable> Closed => _closedSource.Observable;
         private readonly ObservableSource<IClosable> _closedSource = new();

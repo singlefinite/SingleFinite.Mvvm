@@ -71,7 +71,7 @@ public abstract class ViewModel :
                 return;
 
             field = value;
-            _isActiveChangedSource.RaiseEvent(field);
+            _isActiveChangedSource.Emit(field);
         }
     }
 
@@ -92,7 +92,7 @@ public abstract class ViewModel :
 
         IsInitialized = true;
         OnInitialize();
-        _initializedSource.RaiseEvent();
+        _initializedSource.Emit();
     }
 
     /// <inheritdoc/>
@@ -104,7 +104,7 @@ public abstract class ViewModel :
         _activeCancellationTokenSource = new();
         IsActive = true;
         OnActivate(_activeCancellationTokenSource.Token);
-        _activatedSource.RaiseEvent();
+        _activatedSource.Emit();
     }
 
     /// <inheritdoc/>
@@ -119,7 +119,7 @@ public abstract class ViewModel :
 
         IsActive = false;
         OnDeactivate();
-        _deactivatedSource.RaiseEvent();
+        _deactivatedSource.Emit();
     }
 
     /// <summary>
@@ -147,7 +147,7 @@ public abstract class ViewModel :
         if (isDisposing)
             OnDispose();
 
-        _disposedSource.RaiseEvent();
+        _disposedSource.Emit();
     }
 
     /// <summary>

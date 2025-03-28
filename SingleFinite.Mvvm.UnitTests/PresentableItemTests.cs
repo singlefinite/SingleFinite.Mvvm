@@ -203,7 +203,7 @@ public class PresentableItemTests
         protected override void OnDeactivate() => Context.Output.Add($"OnStop - {nameof(TestViewModel1)}");
         protected override void OnDispose() => Context.Output.Add($"OnDispose - {nameof(TestViewModel1)}");
 
-        public void Close() => _closedSource.RaiseEvent(this);
+        public void Close() => _closedSource.Emit(this);
 
         public Observable<IClosable> Closed => _closedSource.Observable;
         private readonly ObservableSource<IClosable> _closedSource = new();

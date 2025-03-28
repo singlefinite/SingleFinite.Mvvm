@@ -77,12 +77,12 @@ internal class DerivedPropertyCollection
     /// The names of the source properties whose derived properties should have
     /// the DerivedPropertyChanged event raised.
     /// </param>
-    /// <param name="raiseEvent">
+    /// <param name="emit">
     /// The function used to raise the event.
     /// </param>
     public void RaiseDerivedPropertyChangedEvents(
         IEnumerable<string> sourcePropertyNames,
-        Action<object?, PropertyChangedEventArgs> raiseEvent
+        Action<object?, PropertyChangedEventArgs> emit
     )
     {
         var allDerivedProperties = new HashSet<DerivedProperty>();
@@ -101,7 +101,7 @@ internal class DerivedPropertyCollection
 
         foreach (var derivedProperty in allDerivedProperties)
         {
-            raiseEvent(
+            emit(
                 derivedProperty.Owner,
                 new PropertyChangedEventArgs(derivedProperty.PropertyName)
             );

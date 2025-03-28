@@ -344,7 +344,7 @@ public class ViewModelTests
             set => ChangeProperty(
                 field: ref field,
                 value: value,
-                onPropertyChanged: () => _numberChanged.RaiseEvent(field)
+                onPropertyChanged: () => _numberChanged.Emit(field)
             );
         }
 
