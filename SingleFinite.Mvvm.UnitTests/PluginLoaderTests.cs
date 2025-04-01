@@ -39,7 +39,7 @@ public class PluginLoaderTests
 
         var pluginHost = new BadPluginHost();
 
-        Assert.ThrowsException<ArgumentException>(() => pluginLoader.LoadPlugins(pluginHost));
+        Assert.ThrowsExactly<ArgumentException>(() => pluginLoader.LoadPlugins(pluginHost));
     }
 
     [TestMethod]

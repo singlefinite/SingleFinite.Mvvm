@@ -27,17 +27,11 @@ namespace SingleFinite.Mvvm.Internal.Services;
 /// <summary>
 /// Implementation of <see cref="IPresentableItem"/>.
 /// </summary>
-/// <param name="viewBuilder">Used to build view objects.</param>
-internal sealed class PresentableItem(IViewBuilder viewBuilder) :
+internal sealed class PresentableItem :
     IPresentableItem,
-    IDisposable
+    IDisposeObservable
 {
     #region Fields
-
-    /// <summary>
-    /// Set to true when this object is disposed.
-    /// </summary>
-    private bool _isDisposed = false;
 
     /// <summary>
     /// Holds the current view.  A ViewStack is used here as it supports
@@ -45,9 +39,31 @@ internal sealed class PresentableItem(IViewBuilder viewBuilder) :
     /// </summary>
     private readonly ViewStack _stack = new();
 
+    /// <summary>
+    /// Holds view builder used to build objects.
+    /// </summary>
+    private readonly IViewBuilder _viewBuilder;
+
+    #endregion
+
+    #region Constructors
+
+    public PresentableItem(IViewBuilder viewBuilder)
+    {
+        _viewBuilder = viewBuilder;
+        _disposeState = new(
+            owner: this,
+            onDispose: Clear
+        );
+    }
+
     #endregion
 
     #region Properties
+
+    /// <inheritdoc/>
+    DisposeState IDisposeObservable.DisposeState => _disposeState;
+    private readonly DisposeState _disposeState;
 
     /// <inheritdoc/>
     public IView? Current => _stack.Current;
@@ -59,9 +75,9 @@ internal sealed class PresentableItem(IViewBuilder viewBuilder) :
     /// <inheritdoc/>
     public IViewModel Set(IViewModelDescriptor viewModelDescriptor)
     {
-        ObjectDisposedException.ThrowIf(_isDisposed, this);
+        _disposeState.ThrowIfDisposed();
 
-        var view = viewBuilder.Build(viewModelDescriptor);
+        var view = _viewBuilder.Build(viewModelDescriptor);
         _stack.Push(
             views: [view],
             popCount: 1
@@ -80,21 +96,8 @@ internal sealed class PresentableItem(IViewBuilder viewBuilder) :
     /// <inheritdoc/>
     public void Clear()
     {
-        ObjectDisposedException.ThrowIf(_isDisposed, this);
+        _disposeState.ThrowIfDisposed();
         _stack.Clear();
-    }
-
-    /// <summary>
-    /// Clear the frame.
-    /// </summary>
-    public void Dispose()
-    {
-        if (_isDisposed)
-            return;
-
-        Clear();
-
-        _isDisposed = true;
     }
 
     #endregion

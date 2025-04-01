@@ -39,8 +39,8 @@ public class AppHostTests
             onStarted: []
         );
 
-        Assert.ThrowsException<InvalidOperationException>(
-            () => appHost.ServiceProvider
+        Assert.ThrowsExactly<InvalidOperationException>(
+            () => _ = appHost.ServiceProvider
         );
 
         appHost.Start();
@@ -106,9 +106,9 @@ public class AppHostTests
             onStarted: []
         );
 
-        appHost.Dispose();
+        (appHost as IDisposable).Dispose();
 
-        Assert.ThrowsException<ObjectDisposedException>(appHost.Start);
+        Assert.ThrowsExactly<ObjectDisposedException>(appHost.Start);
     }
 
     [TestMethod]
@@ -131,11 +131,11 @@ public class AppHostTests
 
         Assert.AreEqual(0, disposableCounter.Count);
 
-        appHost.Dispose();
+        (appHost as IDisposable).Dispose();
 
         Assert.AreEqual(1, disposableCounter.Count);
 
-        appHost.Dispose();
+        (appHost as IDisposable).Dispose();
 
         Assert.AreEqual(1, disposableCounter.Count);
     }

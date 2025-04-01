@@ -27,26 +27,46 @@ namespace SingleFinite.Mvvm.Internal.Services;
 /// <summary>
 /// Implementation of <see cref="IPresentableDialog"/>.
 /// </summary>
-/// <param name="viewBuilder">Used to build view objects.</param>
-internal class PresentableDialog(IViewBuilder viewBuilder) :
+internal class PresentableDialog :
     IPresentableDialog,
-    IDisposable
+    IDisposeObservable
 {
     #region Fields
-
-    /// <summary>
-    /// Set to true when this object has been disposed.
-    /// </summary>
-    private bool _isDisposed;
 
     /// <summary>
     /// Holds the stack of dialog views.
     /// </summary>
     private readonly ViewStack _stack = new();
 
+    /// <summary>
+    /// Holds view builder used to build objects.
+    /// </summary>
+    private readonly IViewBuilder _viewBuilder;
+
+    #endregion
+
+    #region Constructors
+
+    /// <summary>
+    /// Constructor.
+    /// </summary>
+    /// <param name="viewBuilder">Used to build view objects.</param>
+    public PresentableDialog(IViewBuilder viewBuilder)
+    {
+        _viewBuilder = viewBuilder;
+        _disposeState = new(
+            owner: this,
+            onDispose: Clear
+        );
+    }
+
     #endregion
 
     #region Properties
+
+    /// <inheritdoc/>
+    DisposeState IDisposeObservable.DisposeState => _disposeState;
+    private readonly DisposeState _disposeState;
 
     /// <inheritdoc/>
     public IView? Current => _stack.Current;
@@ -61,9 +81,9 @@ internal class PresentableDialog(IViewBuilder viewBuilder) :
     /// <inheritdoc/>
     public IViewModel Show(IViewModelDescriptor viewModelDescriptor)
     {
-        ObjectDisposedException.ThrowIf(_isDisposed, this);
+        _disposeState.ThrowIfDisposed();
 
-        var view = viewBuilder.Build(viewModelDescriptor);
+        var view = _viewBuilder.Build(viewModelDescriptor);
         _stack.Push(
             views: [view],
             popCount: 0
@@ -80,7 +100,7 @@ internal class PresentableDialog(IViewBuilder viewBuilder) :
     /// <inheritdoc/>
     public Task<IViewModel> ShowAsync(IViewModelDescriptor viewModelDescriptor)
     {
-        ObjectDisposedException.ThrowIf(_isDisposed, this);
+        _disposeState.ThrowIfDisposed();
 
         var taskSource = new TaskCompletionSource<IViewModel>();
         var viewModel = Show(viewModelDescriptor);
@@ -103,28 +123,15 @@ internal class PresentableDialog(IViewBuilder viewBuilder) :
     /// <inheritdoc/>
     public void Close(IViewModel viewModel)
     {
-        ObjectDisposedException.ThrowIf(_isDisposed, this);
+        _disposeState.ThrowIfDisposed();
         _stack.Close(viewModel);
     }
 
     /// <inheritdoc/>
     public void Clear()
     {
-        ObjectDisposedException.ThrowIf(_isDisposed, this);
+        _disposeState.ThrowIfDisposed();
         _stack.Clear();
-    }
-
-    /// <summary>
-    /// Dispose of this object.
-    /// </summary>
-    public void Dispose()
-    {
-        if (_isDisposed)
-            return;
-
-        Clear();
-
-        _isDisposed = true;
     }
 
     #endregion

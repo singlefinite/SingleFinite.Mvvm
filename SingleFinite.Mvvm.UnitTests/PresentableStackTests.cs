@@ -150,20 +150,20 @@ public class PresentableStackTests
 
         presentableStack.PushAll([viewModelDescriptor1, viewModelDescriptor2, viewModelDescriptor3]);
         var result1 = presentableStack.PopTo<TestViewModel1>(inclusive: true);
-        Assert.AreEqual(true, result1);
+        Assert.IsTrue(result1);
         Assert.AreEqual(0, presentableStack.ViewModels.Length);
-        Assert.AreEqual(null, presentableStack.Current);
+        Assert.IsNull(presentableStack.Current);
 
         presentableStack.PushAll([viewModelDescriptor1, viewModelDescriptor2]);
         var result2 = presentableStack.PopTo<TestViewModel3>(inclusive: true);
-        Assert.AreEqual(false, result2);
+        Assert.IsFalse(result2);
         Assert.AreEqual(2, presentableStack.ViewModels.Length);
         Assert.IsNotNull(presentableStack.Current);
 
         var result3 = presentableStack.PopTo<TestViewModel1>(inclusive: true);
-        Assert.AreEqual(true, result3);
+        Assert.IsTrue(result3);
         Assert.AreEqual(0, presentableStack.ViewModels.Length);
-        Assert.AreEqual(null, presentableStack.Current);
+        Assert.IsNull(presentableStack.Current);
     }
 
     [TestMethod]
@@ -184,7 +184,7 @@ public class PresentableStackTests
             fromTop: false,
             inclusive: true
         );
-        Assert.AreEqual(true, result1);
+        Assert.IsTrue(result1);
         Assert.AreEqual(0, presentableStack.ViewModels.Length);
 
         presentableStack.PushAll([viewModelDescriptor1, viewModelDescriptor2, viewModelDescriptor3, viewModelDescriptor1]);
@@ -193,7 +193,7 @@ public class PresentableStackTests
             fromTop: true,
             inclusive: true
         );
-        Assert.AreEqual(true, result1);
+        Assert.IsTrue(result1);
         Assert.AreEqual(3, presentableStack.ViewModels.Length);
         Assert.AreEqual(presentableStack.ViewModels[0].GetType(), typeof(TestViewModel3));
         Assert.AreEqual(presentableStack.ViewModels[1].GetType(), typeof(TestViewModel2));

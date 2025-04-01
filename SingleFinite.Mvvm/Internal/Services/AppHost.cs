@@ -29,14 +29,9 @@ namespace SingleFinite.Mvvm.Internal.Services;
 /// <summary>
 /// Implementation of <see cref="IAppHost"/>.
 /// </summary>
-internal sealed class AppHost : IAppHost, IDisposable
+internal sealed class AppHost : IAppHost, IDisposeObservable
 {
     #region Fields
-
-    /// <summary>
-    /// Set to true when this object is disposed.
-    /// </summary>
-    private bool _isDisposed = false;
 
     /// <summary>
     /// Holds the service collection for the app.
@@ -77,6 +72,11 @@ internal sealed class AppHost : IAppHost, IDisposable
         IList<Action<IServiceProvider>> onStarted
     )
     {
+        _disposeState = new(
+            owner: this,
+            onDispose: () => (_serviceProvider as IDisposable)?.Dispose()
+        );
+
         _onStarted = onStarted;
 
         _services.AddMvvm(
@@ -94,6 +94,10 @@ internal sealed class AppHost : IAppHost, IDisposable
     #region Properties
 
     /// <inheritdoc/>
+    DisposeState IDisposeObservable.DisposeState => _disposeState;
+    private readonly DisposeState _disposeState;
+
+    /// <inheritdoc/>
     public IServiceProvider ServiceProvider => _serviceProvider ??
         throw new InvalidOperationException("The host has not been started.");
 
@@ -104,7 +108,7 @@ internal sealed class AppHost : IAppHost, IDisposable
     /// <inheritdoc/>
     public void Start()
     {
-        ObjectDisposedException.ThrowIf(_isDisposed, this);
+        _disposeState.ThrowIfDisposed();
 
         if (_serviceProvider is not null)
             return;
@@ -120,7 +124,7 @@ internal sealed class AppHost : IAppHost, IDisposable
     /// <inheritdoc/>
     public async Task<bool> CloseAsync()
     {
-        if (_isDisposed)
+        if (_disposeState.IsDisposed)
             return true;
 
         var cancelEventArgs = new CancelEventArgs();
@@ -130,18 +134,6 @@ internal sealed class AppHost : IAppHost, IDisposable
             _closedSource.Emit();
 
         return !cancelEventArgs.Cancel;
-    }
-
-    /// <summary>
-    /// Dispose of this object.
-    /// </summary>
-    public void Dispose()
-    {
-        if (_isDisposed)
-            return;
-
-        (_serviceProvider as IDisposable)?.Dispose();
-        _isDisposed = true;
     }
 
     #endregion

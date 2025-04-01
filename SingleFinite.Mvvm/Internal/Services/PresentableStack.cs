@@ -27,26 +27,42 @@ namespace SingleFinite.Mvvm.Internal.Services;
 /// <summary>
 /// Implementation of <see cref="IPresentableStack"/>.
 /// </summary>
-/// <param name="viewBuilder">Used to build view objects.</param>
-internal sealed class PresentableStack(IViewBuilder viewBuilder) :
+internal sealed class PresentableStack :
     IPresentableStack,
-    IDisposable
+    IDisposeObservable
 {
     #region Fields
-
-    /// <summary>
-    /// Set to true when this object is disposed.
-    /// </summary>
-    private bool _isDisposed = false;
 
     /// <summary>
     /// Holds the underlying stack.
     /// </summary>
     private readonly ViewStack _stack = new();
 
+    /// <summary>
+    /// Holds view builder used to build objects.
+    /// </summary>
+    private readonly IViewBuilder _viewBuilder;
+
+    #endregion
+
+    #region Constructors
+
+    public PresentableStack(IViewBuilder viewBuilder)
+    {
+        _viewBuilder = viewBuilder;
+        _disposeState = new(
+            owner: this,
+            onDispose: Clear
+        );
+    }
+
     #endregion
 
     #region Properties
+
+    /// <inheritdoc/>
+    DisposeState IDisposeObservable.DisposeState => _disposeState;
+    private readonly DisposeState _disposeState;
 
     /// <inheritdoc/>
     public IView? Current => _stack.Current;
@@ -138,9 +154,9 @@ internal sealed class PresentableStack(IViewBuilder viewBuilder) :
         PopOptions? popOptions = default
     )
     {
-        ObjectDisposedException.ThrowIf(_isDisposed, this);
+        _disposeState.ThrowIfDisposed();
 
-        var view = viewBuilder.Build(viewModelDescriptor);
+        var view = _viewBuilder.Build(viewModelDescriptor);
         _stack.Push(
             views: [view],
             popCount: GetPopCount(popOptions)
@@ -184,10 +200,10 @@ internal sealed class PresentableStack(IViewBuilder viewBuilder) :
         params IEnumerable<IViewModelDescriptor> viewModelDescriptors
     )
     {
-        ObjectDisposedException.ThrowIf(_isDisposed, this);
+        _disposeState.ThrowIfDisposed();
 
         var viewList = viewModelDescriptors
-            .Select(viewBuilder.Build)
+            .Select(_viewBuilder.Build)
             .ToList();
 
         if (viewList.Count == 0)
@@ -205,9 +221,9 @@ internal sealed class PresentableStack(IViewBuilder viewBuilder) :
         PopOptions? popOptions = default
     )
     {
-        ObjectDisposedException.ThrowIf(_isDisposed, this);
+        _disposeState.ThrowIfDisposed();
 
-        var view = viewBuilder.Build(viewModelDescriptor);
+        var view = _viewBuilder.Build(viewModelDescriptor);
         _stack.Add(
             index: index,
             views: [view]
@@ -258,10 +274,10 @@ internal sealed class PresentableStack(IViewBuilder viewBuilder) :
         params IEnumerable<IViewModelDescriptor> viewModelDescriptors
     )
     {
-        ObjectDisposedException.ThrowIf(_isDisposed, this);
+        _disposeState.ThrowIfDisposed();
 
         var viewList = viewModelDescriptors
-            .Select(viewBuilder.Build)
+            .Select(_viewBuilder.Build)
             .ToList();
 
         if (viewList.Count == 0)
@@ -275,7 +291,7 @@ internal sealed class PresentableStack(IViewBuilder viewBuilder) :
     /// <inheritdoc/>
     public bool Pop()
     {
-        ObjectDisposedException.ThrowIf(_isDisposed, this);
+        _disposeState.ThrowIfDisposed();
         return _stack.Pop(1);
     }
 
@@ -285,7 +301,7 @@ internal sealed class PresentableStack(IViewBuilder viewBuilder) :
         bool inclusive = false
     ) where TViewModel : IViewModel
     {
-        ObjectDisposedException.ThrowIf(_isDisposed, this);
+        _disposeState.ThrowIfDisposed();
 
         return _stack.Pop(
             GetPopCount(
@@ -304,7 +320,7 @@ internal sealed class PresentableStack(IViewBuilder viewBuilder) :
         bool inclusive = false
     )
     {
-        ObjectDisposedException.ThrowIf(_isDisposed, this);
+        _disposeState.ThrowIfDisposed();
 
         return _stack.Pop(
             GetPopCount(
@@ -320,28 +336,15 @@ internal sealed class PresentableStack(IViewBuilder viewBuilder) :
     /// <inheritdoc/>
     public void Clear()
     {
-        ObjectDisposedException.ThrowIf(_isDisposed, this);
+        _disposeState.ThrowIfDisposed();
         _stack.Clear();
     }
 
     /// <inheritdoc/>
     public void Close(params IEnumerable<IViewModel> viewModels)
     {
-        ObjectDisposedException.ThrowIf(_isDisposed, this);
+        _disposeState.ThrowIfDisposed();
         _stack.Close(viewModels);
-    }
-
-    /// <summary>
-    /// Clear the stack.
-    /// </summary>
-    public void Dispose()
-    {
-        if (_isDisposed)
-            return;
-
-        Clear();
-
-        _isDisposed = true;
     }
 
     #endregion

@@ -40,15 +40,15 @@ public class ViewModelTests
         var viewModel2 = viewModel1.CreateChild("second");
         var viewModel3 = viewModel2.CreateChild("third");
 
-        Assert.AreEqual(false, viewModel1.IsDisposed);
-        Assert.AreEqual(false, viewModel2.IsDisposed);
-        Assert.AreEqual(false, viewModel3.IsDisposed);
+        Assert.IsFalse(viewModel1.IsDisposed);
+        Assert.IsFalse(viewModel2.IsDisposed);
+        Assert.IsFalse(viewModel3.IsDisposed);
 
         viewModel1.ClearChildren();
 
-        Assert.AreEqual(false, viewModel1.IsDisposed);
-        Assert.AreEqual(true, viewModel2.IsDisposed);
-        Assert.AreEqual(true, viewModel3.IsDisposed);
+        Assert.IsFalse(viewModel1.IsDisposed);
+        Assert.IsTrue(viewModel2.IsDisposed);
+        Assert.IsTrue(viewModel3.IsDisposed);
     }
 
     [TestMethod]
@@ -118,7 +118,7 @@ public class ViewModelTests
         Assert.AreEqual(0, onDisposeCount);
 
         Assert.AreEqual(1, isActiveChanged.Count);
-        Assert.AreEqual(true, isActiveChanged[0]);
+        Assert.IsTrue(isActiveChanged[0]);
         isActiveChanged.Clear();
 
         Assert.IsTrue(viewModel.IsActive);
@@ -143,7 +143,7 @@ public class ViewModelTests
         Assert.AreEqual(0, onDisposeCount);
 
         Assert.AreEqual(1, isActiveChanged.Count);
-        Assert.AreEqual(false, isActiveChanged[0]);
+        Assert.IsFalse(isActiveChanged[0]);
         isActiveChanged.Clear();
 
         Assert.IsFalse(viewModel.IsActive);

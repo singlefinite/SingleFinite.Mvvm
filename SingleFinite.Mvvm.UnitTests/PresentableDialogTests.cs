@@ -184,7 +184,7 @@ public class PresentableDialogTests
         Assert.IsFalse(dialog2.IsDisposed);
         Assert.IsFalse(dialog3.IsDisposed);
 
-        presentableDialog.Dispose();
+        (presentableDialog as IDisposable)?.Dispose();
 
         Assert.AreEqual(0, presentableDialog.ViewModels.Length);
         Assert.IsNull(presentableDialog.Current);

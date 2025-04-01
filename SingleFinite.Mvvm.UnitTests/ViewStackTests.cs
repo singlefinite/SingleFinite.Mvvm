@@ -213,7 +213,7 @@ public class ViewStackTests
 
         viewStack.Push(view1, view2);
 
-        Assert.ThrowsException<IndexOutOfRangeException>(() =>
+        Assert.ThrowsExactly<IndexOutOfRangeException>(() =>
         {
             viewStack.Add(3, view3);
         });

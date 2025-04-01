@@ -19,6 +19,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using SingleFinite.Essentials;
 using SingleFinite.Mvvm.Services;
 
 namespace SingleFinite.Mvvm.Internal.Services;
@@ -28,14 +29,9 @@ namespace SingleFinite.Mvvm.Internal.Services;
 /// </summary>
 internal sealed class CancellationTokenProvider :
     ICancellationTokenProvider,
-    IDisposable
+    IDisposeObservable
 {
     #region Fields
-
-    /// <summary>
-    /// Set to true when this object is disposed.
-    /// </summary>
-    private bool _isDisposed = false;
 
     /// <summary>
     /// Holds the source for the CancellationToken.
@@ -52,11 +48,19 @@ internal sealed class CancellationTokenProvider :
     public CancellationTokenProvider()
     {
         CancellationToken = _cancellationTokenSource.Token;
+        _disposeState = new(
+            owner: this,
+            onDispose: OnDispose
+        );
     }
 
     #endregion
 
     #region Properties
+
+    /// <inheritdoc/>
+    DisposeState IDisposeObservable.DisposeState => _disposeState;
+    private readonly DisposeState _disposeState;
 
     /// <inheritdoc/>
     public CancellationToken CancellationToken { get; }
@@ -68,14 +72,10 @@ internal sealed class CancellationTokenProvider :
     /// <summary>
     /// Cancel the CancellationToken when this service is disposed.
     /// </summary>
-    public void Dispose()
+    private void OnDispose()
     {
-        if (_isDisposed)
-            return;
-
         _cancellationTokenSource.Cancel();
         _cancellationTokenSource.Dispose();
-        _isDisposed = true;
     }
 
     #endregion

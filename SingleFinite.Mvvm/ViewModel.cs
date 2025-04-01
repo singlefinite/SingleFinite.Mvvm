@@ -33,15 +33,6 @@ public abstract class ViewModel :
     IViewModel,
     ILifecycleAware
 {
-    #region Finalizers
-
-    /// <summary>
-    /// Call Dispose.
-    /// </summary>
-    ~ViewModel() => Dispose(false);
-
-    #endregion
-
     #region Fields
 
     /// <summary>
@@ -52,7 +43,26 @@ public abstract class ViewModel :
 
     #endregion
 
+    #region Constructors
+
+    /// <summary>
+    /// Constructor.
+    /// </summary>
+    public ViewModel()
+    {
+        _disposeState = new(
+            owner: this,
+            onDispose: OnDispose
+        );
+    }
+
+    #endregion
+
     #region Properties
+
+    /// <inheritdoc/>
+    DisposeState IDisposeObservable.DisposeState => _disposeState;
+    private readonly DisposeState _disposeState;
 
     /// <summary>
     /// Indicates if this view model has been initialized.
@@ -78,7 +88,7 @@ public abstract class ViewModel :
     /// <summary>
     /// Indicates if this view model has been disposed.
     /// </summary>
-    public bool IsDisposed { get; private set; }
+    public bool IsDisposed => _disposeState.IsDisposed;
 
     #endregion
 
@@ -120,34 +130,6 @@ public abstract class ViewModel :
         IsActive = false;
         OnDeactivate();
         _deactivatedSource.Emit();
-    }
-
-    /// <summary>
-    /// Dispose of the scope that belongs to this view model.
-    /// </summary>
-    void IDisposable.Dispose()
-    {
-        Dispose(true);
-        GC.SuppressFinalize(this);
-    }
-
-    /// <summary>
-    /// Dispose of the view model.
-    /// </summary>
-    /// <param name="isDisposing">
-    /// true when called from Dispose.
-    /// false when called from finalizer.
-    /// </param>
-    protected virtual void Dispose(bool isDisposing)
-    {
-        if (IsDisposed)
-            return;
-
-        IsDisposed = true;
-        if (isDisposing)
-            OnDispose();
-
-        _disposedSource.Emit();
     }
 
     /// <summary>
@@ -199,8 +181,7 @@ public abstract class ViewModel :
     private readonly ObservableSource _deactivatedSource = new();
 
     /// <inheritdoc/>
-    public Observable Disposed => _disposedSource.Observable;
-    private readonly ObservableSource _disposedSource = new();
+    public Observable Disposed => _disposeState.Disposed;
 
     /// <inheritdoc/>
     public Observable<bool> IsActiveChanged => _isActiveChangedSource.Observable;

@@ -33,7 +33,7 @@ public class CancellationTokenProviderTests
 
         Assert.IsFalse(cancellationTokenProvider.CancellationToken.IsCancellationRequested);
 
-        cancellationTokenProvider.Dispose();
+        (cancellationTokenProvider as IDisposable)?.Dispose();
 
         Assert.IsTrue(cancellationTokenProvider.CancellationToken.IsCancellationRequested);
     }

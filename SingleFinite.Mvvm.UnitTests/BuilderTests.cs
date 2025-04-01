@@ -70,7 +70,7 @@ public class BuilderTests
 
         var builder = new Builder(serviceProvider);
 
-        Assert.ThrowsException<InvalidOperationException>(() => builder.Build<ExampleClass>());
+        Assert.ThrowsExactly<InvalidOperationException>(() => builder.Build<ExampleClass>());
     }
 
     [TestMethod]
@@ -81,7 +81,7 @@ public class BuilderTests
 
         var builder = new Builder(serviceProvider);
 
-        Assert.ThrowsException<InvalidOperationException>(() => builder.Build<ExampleClass>("test 1", 81));
+        Assert.ThrowsExactly<InvalidOperationException>(() => builder.Build<ExampleClass>("test 1", 81));
     }
 
     #region Types
