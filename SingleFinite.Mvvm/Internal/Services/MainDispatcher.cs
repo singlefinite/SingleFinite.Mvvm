@@ -35,6 +35,6 @@ namespace SingleFinite.Mvvm.Internal.Services;
 internal sealed class MainDispatcher(
     IExceptionHandler exceptionHandler
 ) :
-    DedicatedThreadDispatcher(exceptionHandler.Handle),
+    DedicatedThreadDispatcher(onError: exceptionHandler.Handle),
     IApplicationMainDispatcher,
     IMainDispatcher;
