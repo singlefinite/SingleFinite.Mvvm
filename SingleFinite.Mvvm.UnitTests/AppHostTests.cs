@@ -44,8 +44,6 @@ public class AppHostTests
         );
 
         appHost.Start();
-
-        Assert.IsNotNull(appHost.ServiceProvider);
     }
 
     [TestMethod]
@@ -106,7 +104,7 @@ public class AppHostTests
             onStarted: []
         );
 
-        (appHost as IDisposable).Dispose();
+        appHost.Dispose();
 
         Assert.ThrowsExactly<ObjectDisposedException>(appHost.Start);
     }
@@ -131,11 +129,11 @@ public class AppHostTests
 
         Assert.AreEqual(0, disposableCounter.Count);
 
-        (appHost as IDisposable).Dispose();
+        appHost.Dispose();
 
         Assert.AreEqual(1, disposableCounter.Count);
 
-        (appHost as IDisposable).Dispose();
+        appHost.Dispose();
 
         Assert.AreEqual(1, disposableCounter.Count);
     }

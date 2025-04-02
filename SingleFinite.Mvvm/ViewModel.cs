@@ -31,9 +31,14 @@ namespace SingleFinite.Mvvm;
 public abstract class ViewModel :
     Changeable,
     IViewModel,
-    ILifecycleAware
+    ILifecycleMutable
 {
     #region Fields
+
+    /// <summary>
+    /// Holds the dispose state for this object.
+    /// </summary>
+    private readonly DisposeState _disposeState;
 
     /// <summary>
     /// Holds token that is provided with the OnActivated method and which will 
@@ -59,10 +64,6 @@ public abstract class ViewModel :
     #endregion
 
     #region Properties
-
-    /// <inheritdoc/>
-    DisposeState IDisposeObservable.DisposeState => _disposeState;
-    private readonly DisposeState _disposeState;
 
     /// <summary>
     /// Indicates if this view model has been initialized.
@@ -95,7 +96,7 @@ public abstract class ViewModel :
     #region Methods
 
     /// <inheritdoc/>
-    void ILifecycleAware.Initialize()
+    void ILifecycleMutable.Initialize()
     {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
         if (IsInitialized) return;
@@ -106,7 +107,7 @@ public abstract class ViewModel :
     }
 
     /// <inheritdoc/>
-    void ILifecycleAware.Activate()
+    void ILifecycleMutable.Activate()
     {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
         if (IsActive) return;
@@ -118,7 +119,7 @@ public abstract class ViewModel :
     }
 
     /// <inheritdoc/>
-    void ILifecycleAware.Deactivate()
+    void ILifecycleMutable.Deactivate()
     {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
         if (!IsActive) return;
@@ -130,6 +131,13 @@ public abstract class ViewModel :
         IsActive = false;
         OnDeactivate();
         _deactivatedSource.Emit();
+    }
+
+    /// <inheritdoc/>
+    public void Dispose()
+    {
+        GC.SuppressFinalize(this);
+        _disposeState.Dispose();
     }
 
     /// <summary>
@@ -185,7 +193,7 @@ public abstract class ViewModel :
 
     /// <inheritdoc/>
     public Observable<bool> IsActiveChanged => _isActiveChangedSource.Observable;
-    private ObservableSource<bool> _isActiveChangedSource = new();
+    private readonly ObservableSource<bool> _isActiveChangedSource = new();
 
     #endregion
 }

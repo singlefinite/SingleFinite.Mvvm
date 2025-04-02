@@ -22,9 +22,9 @@
 namespace SingleFinite.Mvvm;
 
 /// <summary>
-/// An object that can be moved to different states of a lifecycle.
+/// An object that can be moved to different states in a lifecycle.
 /// </summary>
-public interface ILifecycleAware : IDisposable
+public interface ILifecycleMutable : IDisposable
 {
     /// <summary>
     /// Called immediately after this object is created.

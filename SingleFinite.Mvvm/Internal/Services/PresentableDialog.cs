@@ -29,9 +29,15 @@ namespace SingleFinite.Mvvm.Internal.Services;
 /// </summary>
 internal class PresentableDialog :
     IPresentableDialog,
+    IDisposable,
     IDisposeObservable
 {
     #region Fields
+
+    /// <summary>
+    /// Holds the dispose state for this object.
+    /// </summary>
+    private readonly DisposeState _disposeState;
 
     /// <summary>
     /// Holds the stack of dialog views.
@@ -65,8 +71,7 @@ internal class PresentableDialog :
     #region Properties
 
     /// <inheritdoc/>
-    DisposeState IDisposeObservable.DisposeState => _disposeState;
-    private readonly DisposeState _disposeState;
+    public bool IsDisposed => _disposeState.IsDisposed;
 
     /// <inheritdoc/>
     public IView? Current => _stack.Current;
@@ -134,6 +139,9 @@ internal class PresentableDialog :
         _stack.Clear();
     }
 
+    /// <inheritdoc/>
+    public void Dispose() => _disposeState.Dispose();
+
     #endregion
 
     #region Events
@@ -141,6 +149,9 @@ internal class PresentableDialog :
     /// <inheritdoc/>
     public Observable<IPresentable.CurrentChangedEventArgs> CurrentChanged =>
         _stack.CurrentChanged;
+
+    /// <inheritdoc/>
+    public Observable Disposed => _disposeState.Disposed;
 
     #endregion
 }

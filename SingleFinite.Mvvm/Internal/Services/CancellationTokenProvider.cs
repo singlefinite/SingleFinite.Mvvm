@@ -29,9 +29,15 @@ namespace SingleFinite.Mvvm.Internal.Services;
 /// </summary>
 internal sealed class CancellationTokenProvider :
     ICancellationTokenProvider,
+    IDisposable,
     IDisposeObservable
 {
     #region Fields
+
+    /// <summary>
+    /// Holds the dispose state for this object.
+    /// </summary>
+    private readonly DisposeState _disposeState;
 
     /// <summary>
     /// Holds the source for the CancellationToken.
@@ -59,8 +65,7 @@ internal sealed class CancellationTokenProvider :
     #region Properties
 
     /// <inheritdoc/>
-    DisposeState IDisposeObservable.DisposeState => _disposeState;
-    private readonly DisposeState _disposeState;
+    public bool IsDisposed => _disposeState.IsDisposed;
 
     /// <inheritdoc/>
     public CancellationToken CancellationToken { get; }
@@ -68,6 +73,9 @@ internal sealed class CancellationTokenProvider :
     #endregion
 
     #region Methods
+
+    /// <inheritdoc/>
+    public void Dispose() => _disposeState.Dispose();
 
     /// <summary>
     /// Cancel the CancellationToken when this service is disposed.
@@ -77,6 +85,13 @@ internal sealed class CancellationTokenProvider :
         _cancellationTokenSource.Cancel();
         _cancellationTokenSource.Dispose();
     }
+
+    #endregion
+
+    #region Events
+
+    /// <inheritdoc/>
+    public Observable Disposed => _disposeState.Disposed;
 
     #endregion
 }

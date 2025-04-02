@@ -35,6 +35,34 @@ namespace SingleFinite.Mvvm.Internal.Services;
 internal sealed class MainDispatcher(
     IExceptionHandler exceptionHandler
 ) :
-    DedicatedThreadDispatcher(onError: exceptionHandler.Handle),
     IApplicationMainDispatcher,
-    IMainDispatcher;
+    IMainDispatcher
+{
+    #region Fields
+
+    /// <summary>
+    /// Dispatcher used to invoke functions.
+    /// </summary>
+    private readonly DedicatedThreadDispatcher _dispatcher =
+        new(onError: exceptionHandler.Handle);
+
+    #endregion
+
+    #region Properties
+
+    /// <inheritdoc/>
+    public CancellationToken CancellationToken => _dispatcher.CancellationToken;
+
+    #endregion
+
+    #region Methods
+
+    /// <inheritdoc/>
+    public Task<TResult> RunAsync<TResult>(Func<Task<TResult>> func) =>
+        _dispatcher.RunAsync(func);
+
+    /// <inheritdoc/>
+    public void OnError(Exception ex) => _dispatcher.OnError(ex);
+
+    #endregion
+}

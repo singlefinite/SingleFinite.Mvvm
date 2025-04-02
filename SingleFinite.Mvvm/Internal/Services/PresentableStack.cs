@@ -29,9 +29,15 @@ namespace SingleFinite.Mvvm.Internal.Services;
 /// </summary>
 internal sealed class PresentableStack :
     IPresentableStack,
+    IDisposable,
     IDisposeObservable
 {
     #region Fields
+
+    /// <summary>
+    /// Holds the dispose state for this object.
+    /// </summary>
+    private readonly DisposeState _disposeState;
 
     /// <summary>
     /// Holds the underlying stack.
@@ -61,8 +67,7 @@ internal sealed class PresentableStack :
     #region Properties
 
     /// <inheritdoc/>
-    DisposeState IDisposeObservable.DisposeState => _disposeState;
-    private readonly DisposeState _disposeState;
+    public bool IsDisposed => _disposeState.IsDisposed;
 
     /// <inheritdoc/>
     public IView? Current => _stack.Current;
@@ -347,6 +352,9 @@ internal sealed class PresentableStack :
         _stack.Close(viewModels);
     }
 
+    /// <inheritdoc/>
+    public void Dispose() => _disposeState.Dispose();
+
     #endregion
 
     #region Events
@@ -354,6 +362,9 @@ internal sealed class PresentableStack :
     /// <inheritdoc/>
     public Observable<IPresentable.CurrentChangedEventArgs> CurrentChanged =>
         _stack.CurrentChanged;
+
+    /// <inheritdoc/>
+    public Observable Disposed => _disposeState.Disposed;
 
     #endregion
 }

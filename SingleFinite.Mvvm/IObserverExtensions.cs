@@ -40,7 +40,7 @@ public static class IObserverExtensions
     /// </returns>
     public static IObserver On(
         this IObserver observer,
-        ILifecycle lifecycle
+        ILifecycleObservable lifecycle
     )
     {
         lifecycle.Disposed
@@ -63,7 +63,7 @@ public static class IObserverExtensions
     /// </returns>
     public static Essentials.IObserver<TArgs> On<TArgs>(
         this Essentials.IObserver<TArgs> observer,
-        ILifecycle lifecycle
+        ILifecycleObservable lifecycle
     )
     {
         lifecycle.Disposed

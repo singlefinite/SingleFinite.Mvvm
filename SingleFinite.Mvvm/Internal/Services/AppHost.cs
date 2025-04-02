@@ -29,9 +29,14 @@ namespace SingleFinite.Mvvm.Internal.Services;
 /// <summary>
 /// Implementation of <see cref="IAppHost"/>.
 /// </summary>
-internal sealed class AppHost : IAppHost, IDisposeObservable
+internal sealed class AppHost : IAppHost, IDisposable, IDisposeObservable
 {
     #region Fields
+
+    /// <summary>
+    /// Holds the dispose state for this object.
+    /// </summary>
+    private readonly DisposeState _disposeState;
 
     /// <summary>
     /// Holds the service collection for the app.
@@ -94,8 +99,7 @@ internal sealed class AppHost : IAppHost, IDisposeObservable
     #region Properties
 
     /// <inheritdoc/>
-    DisposeState IDisposeObservable.DisposeState => _disposeState;
-    private readonly DisposeState _disposeState;
+    public bool IsDisposed => _disposeState.IsDisposed;
 
     /// <inheritdoc/>
     public IServiceProvider ServiceProvider => _serviceProvider ??
@@ -136,6 +140,9 @@ internal sealed class AppHost : IAppHost, IDisposeObservable
         return !cancelEventArgs.Cancel;
     }
 
+    /// <inheritdoc/>
+    public void Dispose() => _disposeState.Dispose();
+
     #endregion
 
     #region Events
@@ -151,6 +158,9 @@ internal sealed class AppHost : IAppHost, IDisposeObservable
     /// <inheritdoc/>
     public Observable Closed => _closedSource.Observable;
     private readonly ObservableSource _closedSource = new();
+
+    /// <inheritdoc/>
+    public Observable Disposed => _disposeState.Disposed;
 
     #endregion
 }

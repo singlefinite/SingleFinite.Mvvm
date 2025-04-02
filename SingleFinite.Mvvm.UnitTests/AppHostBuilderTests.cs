@@ -113,7 +113,8 @@ public class AppHostBuilderTests
     private class ExampleAppMainDispatcher() :
         IApplicationMainDispatcher
     {
-        public DisposeState DisposeState => throw new NotImplementedException();
+        public CancellationToken CancellationToken =>
+            throw new NotImplementedException();
 
         public void OnError(Exception ex) =>
             throw new NotImplementedException();

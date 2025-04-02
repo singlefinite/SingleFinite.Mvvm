@@ -155,7 +155,7 @@ public class PresentableItemTests
         var viewModelContext = new ViewModelTestContext(output);
         var viewModelDescriptor = new ViewModelDescriptor<TestViewModel1>(viewModelContext);
 
-        (presentableItem as IDisposable)?.Dispose();
+        presentableItem.Dispose();
 
         Assert.ThrowsExactly<ObjectDisposedException>(() => presentableItem.Set(viewModelDescriptor));
     }

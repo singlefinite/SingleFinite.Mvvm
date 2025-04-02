@@ -27,7 +27,7 @@ namespace SingleFinite.Mvvm.Internal.Services;
 /// Implementation of <see cref="IDialogs"/>.
 /// </summary>
 /// <param name="viewBuilder">Passed to the super class.</param>
-internal class Dialogs(IViewBuilder viewBuilder) :
+internal sealed class Dialogs(IViewBuilder viewBuilder) :
     PresentableDialog(viewBuilder),
     IDialogs
 {

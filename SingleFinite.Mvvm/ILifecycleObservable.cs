@@ -27,7 +27,7 @@ namespace SingleFinite.Mvvm;
 /// An object that can be observed moving through different states in a
 /// lifecycle.
 /// </summary>
-public interface ILifecycle
+public interface ILifecycleObservable : IDisposeObservable
 {
     /// <summary>
     /// Indicates if this view model has been initialized.
@@ -38,11 +38,6 @@ public interface ILifecycle
     /// Indicates if this view model is currently active.
     /// </summary>
     bool IsActive { get; }
-
-    /// <summary>
-    /// Indicates if this view model has been disposed.
-    /// </summary>
-    bool IsDisposed { get; }
 
     /// <summary>
     /// Event raised when this object has been initialized.
@@ -58,11 +53,6 @@ public interface ILifecycle
     /// Event raised when this object has been deactivated.
     /// </summary>
     Observable Deactivated { get; }
-
-    /// <summary>
-    /// Event raised when this object has been disposed.
-    /// </summary>
-    Observable Disposed { get; }
 
     /// <summary>
     /// Event raised when the IsActive property is changed.
