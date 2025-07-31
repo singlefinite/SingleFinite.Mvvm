@@ -341,7 +341,6 @@ internal sealed class PresentableStack :
     /// <inheritdoc/>
     public void Clear()
     {
-        _disposeState.ThrowIfDisposed();
         _stack.Clear();
     }
 

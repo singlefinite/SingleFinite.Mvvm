@@ -135,7 +135,6 @@ internal class PresentableDialog :
     /// <inheritdoc/>
     public void Clear()
     {
-        _disposeState.ThrowIfDisposed();
         _stack.Clear();
     }
 
