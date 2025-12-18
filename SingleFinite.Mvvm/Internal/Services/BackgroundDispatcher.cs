@@ -59,10 +59,10 @@ internal sealed class BackgroundDispatcher(
 
     /// <inheritdoc/>
     public Task<TResult> RunAsync<TResult>(
-        Func<Task<TResult>> func,
+        Func<Task<TResult>> function,
         CancellationToken cancellationToken = default
     ) =>
-        _dispatcher.RunAsync(func, cancellationToken);
+        _dispatcher.RunAsync(function, cancellationToken);
 
     /// <inheritdoc/>
     public void OnError(Exception ex) => _dispatcher.OnError(ex);

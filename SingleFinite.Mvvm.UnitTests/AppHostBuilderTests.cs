@@ -120,7 +120,7 @@ public class AppHostBuilderTests
             throw new NotImplementedException();
 
         public Task<TResult> RunAsync<TResult>(
-            Func<Task<TResult>> func,
+            Func<Task<TResult>> function,
             CancellationToken cancellationToken = default
         ) =>
             throw new NotImplementedException();
