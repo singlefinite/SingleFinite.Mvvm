@@ -29,8 +29,8 @@ namespace SingleFinite.Mvvm.Internal.Services;
 /// </summary>
 /// <param name="exceptionHandler">
 /// Used to handle exceptions that are thrown when invoking actions passed to
-/// the Run method if they wouldn't otherwise be handled the code that invoked
-/// the Run method.
+/// the Run method if they wouldn't otherwise be handled by the code that
+/// invoked the Run method.
 /// </param>
 internal sealed class MainDispatcher(
     IExceptionHandler exceptionHandler

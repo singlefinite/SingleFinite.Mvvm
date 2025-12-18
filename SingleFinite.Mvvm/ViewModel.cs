@@ -134,7 +134,7 @@ public abstract class ViewModel :
     }
 
     /// <inheritdoc/>
-    public void Dispose()
+    void IDisposable.Dispose()
     {
         GC.SuppressFinalize(this);
         _disposeState.Dispose();
