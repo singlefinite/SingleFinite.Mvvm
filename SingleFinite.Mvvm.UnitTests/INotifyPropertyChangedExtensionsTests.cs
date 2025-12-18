@@ -36,11 +36,11 @@ public sealed class INotifyPropertyChangedExtensionsTests
         var observer = component.ObservePropertyChanged()
             .OnEach(observedNames.Add);
 
-        Assert.AreEqual(0, observedNames.Count);
+        Assert.IsEmpty(observedNames);
 
         component.Number = 9;
 
-        Assert.AreEqual(1, observedNames.Count);
+        Assert.HasCount(1, observedNames);
         Assert.AreEqual("Number", observedNames[0]);
     }
 
@@ -54,15 +54,15 @@ public sealed class INotifyPropertyChangedExtensionsTests
             property: () => component.Text
         ).OnEach(observedNames.Add);
 
-        Assert.AreEqual(0, observedNames.Count);
+        Assert.IsEmpty(observedNames);
 
         component.Number = 9;
 
-        Assert.AreEqual(0, observedNames.Count);
+        Assert.IsEmpty(observedNames);
 
         component.Text = "Hello";
 
-        Assert.AreEqual(1, observedNames.Count);
+        Assert.HasCount(1, observedNames);
         Assert.AreEqual("Text", observedNames[0]);
     }
 

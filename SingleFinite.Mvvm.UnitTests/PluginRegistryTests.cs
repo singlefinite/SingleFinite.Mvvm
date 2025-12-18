@@ -37,7 +37,7 @@ public class PluginRegistryTests
         var pluginRegistry = new PluginRegistry(pluginCollection);
 
         var pluginsForA = pluginRegistry.GetPlugins(new ExampleAPluginHost());
-        Assert.AreEqual(2, pluginsForA.Count);
+        Assert.HasCount(2, pluginsForA);
         Assert.IsTrue(
             pluginsForA.Any(
                 descriptor =>
@@ -54,7 +54,7 @@ public class PluginRegistryTests
         );
 
         var pluginsForB = pluginRegistry.GetPlugins(new ExampleBPluginHost());
-        Assert.AreEqual(1, pluginsForB.Count);
+        Assert.HasCount(1, pluginsForB);
         Assert.IsTrue(
             pluginsForB.Any(
                 descriptor =>
@@ -82,7 +82,7 @@ public class PluginRegistryTests
         var pluginRegistry = new PluginRegistry(pluginCollection);
 
         var pluginsForB = pluginRegistry.GetPlugins(new ExampleBPluginHost());
-        Assert.AreEqual(0, pluginsForB.Count);
+        Assert.HasCount(0, pluginsForB);
     }
 
     #region Types

@@ -66,7 +66,7 @@ public class AppHostBuilderTests
         var pluginHost = new ExamplePluginHost();
         var pluginRegistry = appHost.ServiceProvider.GetRequiredService<IPluginRegistry>();
         var plugins = pluginRegistry.GetPlugins(pluginHost);
-        Assert.AreEqual(1, plugins.Count);
+        Assert.HasCount(1, plugins);
         Assert.AreEqual(typeof(ExamplePlugin), plugins[0].PluginType);
         Assert.AreEqual(typeof(ExamplePluginHost), plugins[0].PluginHostType);
 
@@ -119,7 +119,10 @@ public class AppHostBuilderTests
         public void OnError(Exception ex) =>
             throw new NotImplementedException();
 
-        public Task<TResult> RunAsync<TResult>(Func<Task<TResult>> func) =>
+        public Task<TResult> RunAsync<TResult>(
+            Func<Task<TResult>> func,
+            CancellationToken cancellationToken = default
+        ) =>
             throw new NotImplementedException();
     }
 

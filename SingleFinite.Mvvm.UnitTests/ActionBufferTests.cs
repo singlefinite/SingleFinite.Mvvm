@@ -55,7 +55,7 @@ public class ActionBufferTests
 
         buffer.Flush();
 
-        Assert.AreEqual(3, output.Count);
+        Assert.HasCount(3, output);
         Assert.AreEqual("0", output[0]);
         Assert.AreEqual("1a", output[1]);
         Assert.AreEqual("2", output[2]);

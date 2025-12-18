@@ -58,8 +58,11 @@ internal sealed class BackgroundDispatcher(
     #region Methods
 
     /// <inheritdoc/>
-    public Task<TResult> RunAsync<TResult>(Func<Task<TResult>> func) =>
-        _dispatcher.RunAsync(func);
+    public Task<TResult> RunAsync<TResult>(
+        Func<Task<TResult>> func,
+        CancellationToken cancellationToken = default
+    ) =>
+        _dispatcher.RunAsync(func, cancellationToken);
 
     /// <inheritdoc/>
     public void OnError(Exception ex) => _dispatcher.OnError(ex);

@@ -37,26 +37,26 @@ public class ViewStackTests
         var view3 = new TestView(new TestViewModel("3", output));
 
         Assert.IsNull(viewStack.Current);
-        Assert.AreEqual(0, viewStack.Views.Length);
-        Assert.AreEqual(0, viewStack.ViewModels.Length);
+        Assert.IsEmpty(viewStack.Views);
+        Assert.IsEmpty(viewStack.ViewModels);
 
         viewStack.Push(view1);
 
         Assert.AreEqual(view1, viewStack.Current);
-        Assert.AreEqual(1, viewStack.Views.Length);
-        Assert.AreEqual(1, viewStack.ViewModels.Length);
+        Assert.HasCount(1, viewStack.Views);
+        Assert.HasCount(1, viewStack.ViewModels);
 
-        Assert.AreEqual(1, output.Count);
+        Assert.HasCount(1, output);
         Assert.AreEqual("1 Activate", output[0]);
         output.Clear();
 
         viewStack.Push(view2);
 
         Assert.AreEqual(view2, viewStack.Current);
-        Assert.AreEqual(2, viewStack.Views.Length);
-        Assert.AreEqual(2, viewStack.ViewModels.Length);
+        Assert.HasCount(2, viewStack.Views);
+        Assert.HasCount(2, viewStack.ViewModels);
 
-        Assert.AreEqual(2, output.Count);
+        Assert.HasCount(2, output);
         Assert.AreEqual("1 Deactivate", output[0]);
         Assert.AreEqual("2 Activate", output[1]);
         output.Clear();
@@ -64,10 +64,10 @@ public class ViewStackTests
         viewStack.Push(view3);
 
         Assert.AreEqual(view3, viewStack.Current);
-        Assert.AreEqual(3, viewStack.Views.Length);
-        Assert.AreEqual(3, viewStack.ViewModels.Length);
+        Assert.HasCount(3, viewStack.Views);
+        Assert.HasCount(3, viewStack.ViewModels);
 
-        Assert.AreEqual(2, output.Count);
+        Assert.HasCount(2, output);
         Assert.AreEqual("2 Deactivate", output[0]);
         Assert.AreEqual("3 Activate", output[1]);
         output.Clear();
@@ -75,10 +75,10 @@ public class ViewStackTests
         viewStack.Pop(1);
 
         Assert.AreEqual(view2, viewStack.Current);
-        Assert.AreEqual(2, viewStack.Views.Length);
-        Assert.AreEqual(2, viewStack.ViewModels.Length);
+        Assert.HasCount(2, viewStack.Views);
+        Assert.HasCount(2, viewStack.ViewModels);
 
-        Assert.AreEqual(3, output.Count);
+        Assert.HasCount(3, output);
         Assert.AreEqual("3 Deactivate", output[0]);
         Assert.AreEqual("3 Dispose", output[1]);
         Assert.AreEqual("2 Activate", output[2]);
@@ -87,10 +87,10 @@ public class ViewStackTests
         viewStack.Pop(1);
 
         Assert.AreEqual(view1, viewStack.Current);
-        Assert.AreEqual(1, viewStack.Views.Length);
-        Assert.AreEqual(1, viewStack.ViewModels.Length);
+        Assert.HasCount(1, viewStack.Views);
+        Assert.HasCount(1, viewStack.ViewModels);
 
-        Assert.AreEqual(3, output.Count);
+        Assert.HasCount(3, output);
         Assert.AreEqual("2 Deactivate", output[0]);
         Assert.AreEqual("2 Dispose", output[1]);
         Assert.AreEqual("1 Activate", output[2]);
@@ -99,10 +99,10 @@ public class ViewStackTests
         viewStack.Pop(1);
 
         Assert.IsNull(viewStack.Current);
-        Assert.AreEqual(0, viewStack.Views.Length);
-        Assert.AreEqual(0, viewStack.ViewModels.Length);
+        Assert.IsEmpty(viewStack.Views);
+        Assert.IsEmpty(viewStack.ViewModels);
 
-        Assert.AreEqual(2, output.Count);
+        Assert.HasCount(2, output);
         Assert.AreEqual("1 Deactivate", output[0]);
         Assert.AreEqual("1 Dispose", output[1]);
         output.Clear();
@@ -120,8 +120,8 @@ public class ViewStackTests
         viewStack.Push(view1, view2, view3);
 
         Assert.AreEqual(view3, viewStack.Current);
-        Assert.AreEqual(3, viewStack.Views.Length);
-        Assert.AreEqual(3, viewStack.ViewModels.Length);
+        Assert.HasCount(3, viewStack.Views);
+        Assert.HasCount(3, viewStack.ViewModels);
         Assert.AreEqual(view3, viewStack.Views[0]);
         Assert.AreEqual(view2, viewStack.Views[1]);
         Assert.AreEqual(view1, viewStack.Views[2]);
@@ -129,7 +129,7 @@ public class ViewStackTests
         Assert.AreEqual(view2.ViewModel, viewStack.Views[1].ViewModel);
         Assert.AreEqual(view1.ViewModel, viewStack.Views[2].ViewModel);
 
-        Assert.AreEqual(1, output.Count);
+        Assert.HasCount(1, output);
         Assert.AreEqual("3 Activate", output[0]);
     }
 
@@ -146,8 +146,8 @@ public class ViewStackTests
         viewStack.Add(0, view2, view3);
 
         Assert.AreEqual(view3, viewStack.Current);
-        Assert.AreEqual(3, viewStack.Views.Length);
-        Assert.AreEqual(3, viewStack.ViewModels.Length);
+        Assert.HasCount(3, viewStack.Views);
+        Assert.HasCount(3, viewStack.ViewModels);
         Assert.AreEqual(view3, viewStack.Views[0]);
         Assert.AreEqual(view2, viewStack.Views[1]);
         Assert.AreEqual(view1, viewStack.Views[2]);
@@ -169,8 +169,8 @@ public class ViewStackTests
         viewStack.Add(1, view2, view3);
 
         Assert.AreEqual(view1, viewStack.Current);
-        Assert.AreEqual(3, viewStack.Views.Length);
-        Assert.AreEqual(3, viewStack.ViewModels.Length);
+        Assert.HasCount(3, viewStack.Views);
+        Assert.HasCount(3, viewStack.ViewModels);
         Assert.AreEqual(view1, viewStack.Views[0]);
         Assert.AreEqual(view3, viewStack.Views[1]);
         Assert.AreEqual(view2, viewStack.Views[2]);
@@ -192,8 +192,8 @@ public class ViewStackTests
         viewStack.Add(1, view3);
 
         Assert.AreEqual(view2, viewStack.Current);
-        Assert.AreEqual(3, viewStack.Views.Length);
-        Assert.AreEqual(3, viewStack.ViewModels.Length);
+        Assert.HasCount(3, viewStack.Views);
+        Assert.HasCount(3, viewStack.ViewModels);
         Assert.AreEqual(view2, viewStack.Views[0]);
         Assert.AreEqual(view3, viewStack.Views[1]);
         Assert.AreEqual(view1, viewStack.Views[2]);
@@ -234,12 +234,12 @@ public class ViewStackTests
         viewStack.Pop(2);
 
         Assert.AreEqual(view1, viewStack.Current);
-        Assert.AreEqual(1, viewStack.Views.Length);
-        Assert.AreEqual(1, viewStack.ViewModels.Length);
+        Assert.HasCount(1, viewStack.Views);
+        Assert.HasCount(1, viewStack.ViewModels);
         Assert.AreEqual(view1, viewStack.Views[0]);
         Assert.AreEqual(view1.ViewModel, viewStack.Views[0].ViewModel);
 
-        Assert.AreEqual(4, output.Count);
+        Assert.HasCount(4, output);
         Assert.AreEqual("3 Deactivate", output[0]);
         Assert.AreEqual("3 Dispose", output[1]);
         Assert.AreEqual("2 Dispose", output[2]);
@@ -261,10 +261,10 @@ public class ViewStackTests
         viewStack.Close(view3.ViewModel);
 
         Assert.AreEqual(view2, viewStack.Current);
-        Assert.AreEqual(2, viewStack.Views.Length);
-        Assert.AreEqual(2, viewStack.ViewModels.Length);
+        Assert.HasCount(2, viewStack.Views);
+        Assert.HasCount(2, viewStack.ViewModels);
 
-        Assert.AreEqual(3, output.Count);
+        Assert.HasCount(3, output);
         Assert.AreEqual("3 Deactivate", output[0]);
         Assert.AreEqual("3 Dispose", output[1]);
         Assert.AreEqual("2 Activate", output[2]);
@@ -285,10 +285,10 @@ public class ViewStackTests
         viewStack.Close(view2.ViewModel);
 
         Assert.AreEqual(view3, viewStack.Current);
-        Assert.AreEqual(2, viewStack.Views.Length);
-        Assert.AreEqual(2, viewStack.ViewModels.Length);
+        Assert.HasCount(2, viewStack.Views);
+        Assert.HasCount(2, viewStack.ViewModels);
 
-        Assert.AreEqual(1, output.Count);
+        Assert.HasCount(1, output);
         Assert.AreEqual("2 Dispose", output[0]);
     }
 
@@ -307,10 +307,10 @@ public class ViewStackTests
         viewStack.Close(view1.ViewModel);
 
         Assert.AreEqual(view3, viewStack.Current);
-        Assert.AreEqual(2, viewStack.Views.Length);
-        Assert.AreEqual(2, viewStack.ViewModels.Length);
+        Assert.HasCount(2, viewStack.Views);
+        Assert.HasCount(2, viewStack.ViewModels);
 
-        Assert.AreEqual(1, output.Count);
+        Assert.HasCount(1, output);
         Assert.AreEqual("1 Dispose", output[0]);
     }
 
@@ -330,14 +330,14 @@ public class ViewStackTests
         viewStack.Close(view3.ViewModel, view1.ViewModel);
 
         Assert.AreEqual(view4, viewStack.Current);
-        Assert.AreEqual(2, viewStack.Views.Length);
-        Assert.AreEqual(2, viewStack.ViewModels.Length);
+        Assert.HasCount(2, viewStack.Views);
+        Assert.HasCount(2, viewStack.ViewModels);
         Assert.AreEqual(view4, viewStack.Views[0]);
         Assert.AreEqual(view2, viewStack.Views[1]);
         Assert.AreEqual(view4.ViewModel, viewStack.Views[0].ViewModel);
         Assert.AreEqual(view2.ViewModel, viewStack.Views[1].ViewModel);
 
-        Assert.AreEqual(2, output.Count);
+        Assert.HasCount(2, output);
         Assert.AreEqual("1 Dispose", output[0]);
         Assert.AreEqual("3 Dispose", output[1]);
     }
@@ -357,10 +357,10 @@ public class ViewStackTests
         viewStack.Clear();
 
         Assert.IsNull(viewStack.Current);
-        Assert.AreEqual(0, viewStack.Views.Length);
-        Assert.AreEqual(0, viewStack.ViewModels.Length);
+        Assert.IsEmpty(viewStack.Views);
+        Assert.IsEmpty(viewStack.ViewModels);
 
-        Assert.AreEqual(4, output.Count);
+        Assert.HasCount(4, output);
         Assert.AreEqual("3 Deactivate", output[0]);
         Assert.AreEqual("3 Dispose", output[1]);
         Assert.AreEqual("2 Dispose", output[2]);
@@ -382,14 +382,14 @@ public class ViewStackTests
         view2.ViewModel.Close();
 
         Assert.AreEqual(view3, viewStack.Current);
-        Assert.AreEqual(2, viewStack.Views.Length);
-        Assert.AreEqual(2, viewStack.ViewModels.Length);
+        Assert.HasCount(2, viewStack.Views);
+        Assert.HasCount(2, viewStack.ViewModels);
         Assert.AreEqual(view3, viewStack.Views[0]);
         Assert.AreEqual(view1, viewStack.Views[1]);
         Assert.AreEqual(view3.ViewModel, viewStack.Views[0].ViewModel);
         Assert.AreEqual(view1.ViewModel, viewStack.Views[1].ViewModel);
 
-        Assert.AreEqual(1, output.Count);
+        Assert.HasCount(1, output);
         Assert.AreEqual("2 Dispose", output[0]);
     }
 
@@ -409,19 +409,19 @@ public class ViewStackTests
 
         viewStack.Push(view1, view2, view3);
 
-        Assert.AreEqual(1, output.Count);
+        Assert.HasCount(1, output);
         Assert.AreEqual("View:ViewModel:3,True", output[0]);
         output.Clear();
 
         viewStack.Pop(1);
 
-        Assert.AreEqual(1, output.Count);
+        Assert.HasCount(1, output);
         Assert.AreEqual("View:ViewModel:2,False", output[0]);
         output.Clear();
 
         viewStack.Clear();
 
-        Assert.AreEqual(1, output.Count);
+        Assert.HasCount(1, output);
         Assert.AreEqual(",False", output[0]);
         output.Clear();
     }
@@ -443,7 +443,7 @@ public class ViewStackTests
 
         viewStack.Push(2, []);
 
-        Assert.AreEqual(0, output.Count);
+        Assert.IsEmpty(output);
         Assert.AreEqual(view3, viewStack.Current);
     }
 

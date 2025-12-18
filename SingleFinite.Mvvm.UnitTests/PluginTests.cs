@@ -39,7 +39,7 @@ public class PluginTests
         var viewModel = presenter.Set<ExamplePluginHost>();
         var lines = viewModel.Lines;
 
-        Assert.AreEqual(6, lines.Count);
+        Assert.HasCount(6, lines);
         Assert.AreEqual("ExamplePluginHost OnInitialize", lines[0]);
         Assert.AreEqual("ExamplePluginA OnInitialize", lines[1]);
         Assert.AreEqual("ExamplePluginB OnInitialize", lines[2]);
@@ -50,7 +50,7 @@ public class PluginTests
         lines.Clear();
         presenter.Clear();
 
-        Assert.AreEqual(6, lines.Count);
+        Assert.HasCount(6, lines);
         Assert.AreEqual("ExamplePluginHost OnDeactivate", lines[0]);
         Assert.AreEqual("ExamplePluginA OnDeactivate", lines[1]);
         Assert.AreEqual("ExamplePluginB OnDeactivate", lines[2]);

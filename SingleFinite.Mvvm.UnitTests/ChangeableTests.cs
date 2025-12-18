@@ -39,16 +39,16 @@ public class ChangeableTests
         };
 
         testClass.FieldOne = "hello";
-        Assert.AreEqual(1, observedEvents.Count);
+        Assert.HasCount(1, observedEvents);
         Assert.AreEqual("FieldOne", observedEvents[0]);
         observedEvents.Clear();
 
         testClass.FieldOne = "hello";
-        Assert.AreEqual(0, observedEvents.Count);
+        Assert.IsEmpty(observedEvents);
         observedEvents.Clear();
 
         testClass.FieldOne = "changed";
-        Assert.AreEqual(1, observedEvents.Count);
+        Assert.HasCount(1, observedEvents);
         Assert.AreEqual("FieldOne", observedEvents[0]);
         observedEvents.Clear();
     }
@@ -79,7 +79,7 @@ public class ChangeableTests
 
         testClass.FieldOne = 9;
 
-        Assert.AreEqual(6, output.Count);
+        Assert.HasCount(6, output);
         Assert.AreEqual("PropertyChanging: FieldOne 0,0,0", output[0]);
         Assert.AreEqual("PropertyChanging: FieldTwo 9,0,0", output[1]);
         Assert.AreEqual("PropertyChanging: FieldThree 9,9,0", output[2]);
@@ -112,15 +112,15 @@ public class ChangeableTests
             .ObservePropertyChanging(() => testClass.FieldOne)
             .OnEach(observedEvents.Add);
 
-        Assert.AreEqual(0, observedEvents.Count);
+        Assert.IsEmpty(observedEvents);
 
         testClass.FieldTwo = 99;
 
-        Assert.AreEqual(0, observedEvents.Count);
+        Assert.IsEmpty(observedEvents);
 
         testClass.FieldOne = "hello";
 
-        Assert.AreEqual(1, observedEvents.Count);
+        Assert.HasCount(1, observedEvents);
         Assert.AreEqual("FieldOne", observedEvents[0]);
     }
 
@@ -134,15 +134,15 @@ public class ChangeableTests
             .ObservePropertyChanged(() => testClass.FieldOne)
             .OnEach(observedEvents.Add);
 
-        Assert.AreEqual(0, observedEvents.Count);
+        Assert.IsEmpty(observedEvents);
 
         testClass.FieldTwo = 99;
 
-        Assert.AreEqual(0, observedEvents.Count);
+        Assert.IsEmpty(observedEvents);
 
         testClass.FieldOne = "hello";
 
-        Assert.AreEqual(1, observedEvents.Count);
+        Assert.HasCount(1, observedEvents);
         Assert.AreEqual("FieldOne", observedEvents[0]);
     }
 

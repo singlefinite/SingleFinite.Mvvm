@@ -83,7 +83,7 @@ public class ViewModelTests
         Assert.AreEqual(0, onActivateCount);
         Assert.AreEqual(0, onDeactivateCount);
         Assert.AreEqual(0, onDisposeCount);
-        Assert.AreEqual(0, isActiveChanged.Count);
+        Assert.IsEmpty(isActiveChanged);
 
         Assert.IsFalse(viewModel.IsActive);
         Assert.IsFalse(viewModel.IsDisposed);
@@ -94,7 +94,7 @@ public class ViewModelTests
         Assert.AreEqual(0, onActivateCount);
         Assert.AreEqual(0, onDeactivateCount);
         Assert.AreEqual(0, onDisposeCount);
-        Assert.AreEqual(0, isActiveChanged.Count);
+        Assert.IsEmpty(isActiveChanged);
 
         Assert.IsFalse(viewModel.IsActive);
         Assert.IsFalse(viewModel.IsDisposed);
@@ -105,7 +105,7 @@ public class ViewModelTests
         Assert.AreEqual(0, onActivateCount);
         Assert.AreEqual(0, onDeactivateCount);
         Assert.AreEqual(0, onDisposeCount);
-        Assert.AreEqual(0, isActiveChanged.Count);
+        Assert.IsEmpty(isActiveChanged);
 
         Assert.IsFalse(viewModel.IsActive);
         Assert.IsFalse(viewModel.IsDisposed);
@@ -117,7 +117,7 @@ public class ViewModelTests
         Assert.AreEqual(0, onDeactivateCount);
         Assert.AreEqual(0, onDisposeCount);
 
-        Assert.AreEqual(1, isActiveChanged.Count);
+        Assert.HasCount(1, isActiveChanged);
         Assert.IsTrue(isActiveChanged[0]);
         isActiveChanged.Clear();
 
@@ -130,7 +130,7 @@ public class ViewModelTests
         Assert.AreEqual(1, onActivateCount);
         Assert.AreEqual(0, onDeactivateCount);
         Assert.AreEqual(0, onDisposeCount);
-        Assert.AreEqual(0, isActiveChanged.Count);
+        Assert.IsEmpty(isActiveChanged);
 
         Assert.IsTrue(viewModel.IsActive);
         Assert.IsFalse(viewModel.IsDisposed);
@@ -142,7 +142,7 @@ public class ViewModelTests
         Assert.AreEqual(1, onDeactivateCount);
         Assert.AreEqual(0, onDisposeCount);
 
-        Assert.AreEqual(1, isActiveChanged.Count);
+        Assert.HasCount(1, isActiveChanged);
         Assert.IsFalse(isActiveChanged[0]);
         isActiveChanged.Clear();
 
@@ -155,7 +155,7 @@ public class ViewModelTests
         Assert.AreEqual(1, onActivateCount);
         Assert.AreEqual(1, onDeactivateCount);
         Assert.AreEqual(0, onDisposeCount);
-        Assert.AreEqual(0, isActiveChanged.Count);
+        Assert.IsEmpty(isActiveChanged);
 
         Assert.IsFalse(viewModel.IsActive);
         Assert.IsFalse(viewModel.IsDisposed);
@@ -166,7 +166,7 @@ public class ViewModelTests
         Assert.AreEqual(1, onActivateCount);
         Assert.AreEqual(1, onDeactivateCount);
         Assert.AreEqual(1, onDisposeCount);
-        Assert.AreEqual(0, isActiveChanged.Count);
+        Assert.IsEmpty(isActiveChanged);
 
         Assert.IsFalse(viewModel.IsActive);
         Assert.IsTrue(viewModel.IsDisposed);
@@ -177,7 +177,7 @@ public class ViewModelTests
         Assert.AreEqual(1, onActivateCount);
         Assert.AreEqual(1, onDeactivateCount);
         Assert.AreEqual(1, onDisposeCount);
-        Assert.AreEqual(0, isActiveChanged.Count);
+        Assert.IsEmpty(isActiveChanged);
 
         Assert.IsFalse(viewModel.IsActive);
         Assert.IsTrue(viewModel.IsDisposed);
@@ -195,12 +195,12 @@ public class ViewModelTests
             observedEvents.Add((sender, args));
         };
 
-        Assert.AreEqual(0, observedEvents.Count);
+        Assert.IsEmpty(observedEvents);
         Assert.AreEqual("positive", simpleView.DerivedNumber);
 
         simpleViewModel.Number = -5;
 
-        Assert.AreEqual(1, observedEvents.Count);
+        Assert.HasCount(1, observedEvents);
         var (sender, args) = observedEvents[0];
         Assert.AreEqual(simpleView, sender);
         Assert.AreEqual("DerivedNumber", args.PropertyName);
@@ -219,12 +219,12 @@ public class ViewModelTests
             observedEvents.Add((sender, args));
         };
 
-        Assert.AreEqual(0, observedEvents.Count);
+        Assert.IsEmpty(observedEvents);
         Assert.AreEqual(0, simpleViewModel.Number);
 
         simpleView.DerivedNumber = "negative";
 
-        Assert.AreEqual(1, observedEvents.Count);
+        Assert.HasCount(1, observedEvents);
         var (sender, args) = observedEvents[0];
         Assert.AreEqual(simpleViewModel, sender);
         Assert.AreEqual("Number", args.PropertyName);
@@ -243,12 +243,12 @@ public class ViewModelTests
             observedEvents.Add((sender, args));
         };
 
-        Assert.AreEqual(0, observedEvents.Count);
+        Assert.IsEmpty(observedEvents);
         Assert.AreEqual("0:", view.Label);
 
         viewModel.Number = 9;
 
-        Assert.AreEqual(1, observedEvents.Count);
+        Assert.HasCount(1, observedEvents);
         var (sender, args) = observedEvents[0];
         Assert.AreEqual(view, sender);
         Assert.AreEqual("Label", args.PropertyName);

@@ -40,25 +40,25 @@ public class PresentableItemTests
         var viewModelDescriptor1 = new ViewModelDescriptor<TestViewModel1>(viewModelContext);
 
         presentableItem.Set(viewModelDescriptor1);
-        Assert.AreEqual(2, output.Count);
+        Assert.HasCount(2, output);
         Assert.AreEqual("OnInit - TestViewModel1", output[0]);
         Assert.AreEqual("OnStart - TestViewModel1", output[1]);
 
         output.Clear();
         presentableItem.Clear();
-        Assert.AreEqual(2, output.Count);
+        Assert.HasCount(2, output);
         Assert.AreEqual("OnStop - TestViewModel1", output[0]);
         Assert.AreEqual("OnDispose - TestViewModel1", output[1]);
 
         output.Clear();
         presentableItem.Set<TestViewModel2>(viewModelContext);
-        Assert.AreEqual(2, output.Count);
+        Assert.HasCount(2, output);
         Assert.AreEqual("OnInit - TestViewModel2", output[0]);
         Assert.AreEqual("OnStart - TestViewModel2", output[1]);
 
         output.Clear();
         presentableItem.Set<TestViewModel3>(viewModelContext);
-        Assert.AreEqual(4, output.Count);
+        Assert.HasCount(4, output);
         Assert.AreEqual("OnInit - TestViewModel3", output[0]);
         Assert.AreEqual("OnStop - TestViewModel2", output[1]);
         Assert.AreEqual("OnDispose - TestViewModel2", output[2]);
@@ -66,7 +66,7 @@ public class PresentableItemTests
 
         output.Clear();
         presentableItem.Clear();
-        Assert.AreEqual(2, output.Count);
+        Assert.HasCount(2, output);
         Assert.AreEqual("OnStop - TestViewModel3", output[0]);
         Assert.AreEqual("OnDispose - TestViewModel3", output[1]);
     }
