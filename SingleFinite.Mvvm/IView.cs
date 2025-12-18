@@ -27,32 +27,13 @@ namespace SingleFinite.Mvvm;
 /// A view is responsible for displaying information to the user and collecting 
 /// user input.
 /// </summary>
-public interface IView : INotifyPropertyChanged
+public interface IView
 {
     /// <summary>
     /// The view model that provides information for the view and handles 
     /// processing of the user input.
     /// </summary>
     IViewModel ViewModel { get; }
-
-    /// <summary>
-    /// Default implementation for <see cref="INotifyPropertyChanged"/> that
-    /// supports <see cref="IDerivableProperties"/> if the ViewModel implements
-    /// the interface.
-    /// </summary>
-    event PropertyChangedEventHandler? INotifyPropertyChanged.PropertyChanged
-    {
-        add
-        {
-            if (ViewModel is IDerivableProperties derivableProperties)
-                derivableProperties.DerivedPropertyChanged += value;
-        }
-        remove
-        {
-            if (ViewModel is IDerivableProperties derivableProperties)
-                derivableProperties.DerivedPropertyChanged -= value;
-        }
-    }
 }
 
 /// <summary>

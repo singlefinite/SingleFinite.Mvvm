@@ -34,8 +34,7 @@ namespace SingleFinite.Mvvm;
 /// </summary>
 public abstract partial class Changeable :
     INotifyPropertyChanged,
-    INotifyPropertyChanging,
-    IDerivableProperties
+    INotifyPropertyChanging
 {
     #region Fields
 
@@ -55,11 +54,6 @@ public abstract partial class Changeable :
     /// Flag that gets set to true while the Change method is executing.
     /// </summary>
     private bool _isChanging = false;
-
-    /// <summary>
-    /// Holds derived properties.
-    /// </summary>
-    private readonly DerivedPropertyCollection _derivedProperties = new();
 
     #endregion
 
@@ -113,15 +107,12 @@ public abstract partial class Changeable :
     }
 
     /// <summary>
-    /// Raise any pending PropertyChanged and DerivedPropertyChanged events when
-    /// a transaction has been closed.
+    /// Raise any pending PropertyChanged events when a transaction has been
+    /// closed.
     /// </summary>
     private void OnTransactionClosed()
     {
-        var propertyNames = _propertyChangedBuffer.Keys;
         _propertyChangedBuffer.Flush();
-
-        RaiseDerivedPropertyChanged(propertyNames);
     }
 
     /// <summary>
@@ -153,21 +144,6 @@ public abstract partial class Changeable :
         _propertyChanged?.Invoke(
             sender: this,
             e: new PropertyChangedEventArgs(propertyName)
-        );
-    }
-
-    /// <summary>
-    /// Raise the DerivedPropertyChanged event.
-    /// </summary>
-    /// <param name="propertyNames">
-    /// The property names of all the source properties whose derived properties
-    /// will have the DerivedPropertyChanged event raised.
-    /// </param>
-    private void RaiseDerivedPropertyChanged(IEnumerable<string> propertyNames)
-    {
-        _derivedProperties.RaiseDerivedPropertyChangedEvents(
-            sourcePropertyNames: propertyNames,
-            emit: (sender, args) => _derivedPropertyChanged?.Invoke(sender, args)
         );
     }
 
@@ -233,27 +209,6 @@ public abstract partial class Changeable :
             Change();
     }
 
-    /// <inheritdoc/>
-    public void AddDerivedProperty(
-        object derivedPropertyOwner,
-        string derivedPropertyName,
-        params IEnumerable<string> sourcePropertyNames
-    )
-    {
-        ArgumentNullException.ThrowIfNullOrWhiteSpace(derivedPropertyName);
-
-        foreach (var sourcePropertyName in sourcePropertyNames)
-        {
-            ArgumentNullException.ThrowIfNullOrWhiteSpace(sourcePropertyName);
-
-            _derivedProperties.Add(
-                sourcePropertyName,
-                derivedPropertyOwner,
-                derivedPropertyName
-            );
-        }
-    }
-
     #endregion
 
     #region Events
@@ -277,14 +232,6 @@ public abstract partial class Changeable :
         remove { _propertyChanged -= value; }
     }
     private PropertyChangedEventHandler? _propertyChanged;
-
-    /// <inheritdoc/>
-    event PropertyChangedEventHandler? IDerivableProperties.DerivedPropertyChanged
-    {
-        add { _derivedPropertyChanged += value; }
-        remove { _derivedPropertyChanged -= value; }
-    }
-    private PropertyChangedEventHandler? _derivedPropertyChanged;
 
     #endregion
 }
