@@ -51,7 +51,7 @@ public sealed class INotifyPropertyChangingExtensionsTests
         var observedNames = new List<string?>();
 
         var observer = component.ObservePropertyChanging(
-            property: () => component.Text
+            property: it => it.Text
         ).OnEach(observedNames.Add);
 
         Assert.IsEmpty(observedNames);
@@ -63,7 +63,7 @@ public sealed class INotifyPropertyChangingExtensionsTests
         component.Text = "Hello";
 
         Assert.HasCount(1, observedNames);
-        Assert.AreEqual("Text", observedNames[0]);
+        Assert.AreEqual("", observedNames[0]);
     }
 
     #region Types
@@ -83,7 +83,7 @@ public sealed class INotifyPropertyChangingExtensionsTests
             }
         }
 
-        public string? Text
+        public string Text
         {
             get => field;
             set
@@ -94,7 +94,7 @@ public sealed class INotifyPropertyChangingExtensionsTests
                     field = value;
                 }
             }
-        }
+        } = "";
 
         public event PropertyChangingEventHandler? PropertyChanging;
     }

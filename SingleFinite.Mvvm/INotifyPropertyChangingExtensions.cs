@@ -30,48 +30,52 @@ namespace SingleFinite.Mvvm;
 /// </summary>
 public static partial class INotifyPropertyChangingExtensions
 {
-    /// <summary>
-    /// Observe when a property is changing.
-    /// </summary>
-    /// <param name="component">
-    /// The component to listen for property changes on.
-    /// </param>
-    /// <returns>
-    /// An observer that when disposed will unregister the callback.
-    /// </returns>
-    public static Essentials.IObserver<string?> ObservePropertyChanging(
-        this INotifyPropertyChanging component
-    ) => Observable<string?>.Observe<PropertyChangingEventHandler>(
-        register: handler => component.PropertyChanging += handler,
-        unregister: handler => component.PropertyChanging -= handler,
-        handler: raiseNext => (sender, args) => raiseNext(args.PropertyName)
-    );
-
-    /// <summary>
-    /// Observe when the given property is changing.
-    /// </summary>
-    /// <param name="component">
-    /// The component to listen for property changes on.
-    /// </param>
-    /// <param name="property">
-    /// An expression in the form of `() => component.property` that identifies
-    /// the property to listen for changes on.
-    /// </param>
-    /// <param name="propertyExpression">
-    /// When left as null the compiler will set this from the property argument.
-    /// </param>
-    /// <returns>
-    /// An observer that when disposed will unregister the callback.
-    /// </returns>
-    public static Essentials.IObserver<string?> ObservePropertyChanging(
-        this INotifyPropertyChanging component,
-        Func<object?> property,
-        [CallerArgumentExpression(nameof(property))]
-        string? propertyExpression = default
-    )
+    extension<TComponent>(TComponent component)
+        where TComponent : INotifyPropertyChanging
     {
-        var propertyName = INotifyPropertyChangedExtensions.ParsePropertyName(propertyExpression);
-        return ObservePropertyChanging(component)
-            .Where(changedPropertyName => changedPropertyName == propertyName);
+        /// <summary>
+        /// Observe when a property is changing.
+        /// </summary>
+        /// <returns>
+        /// An observer that when disposed will unregister the callback.
+        /// </returns>
+        public Essentials.IObserver<string?> ObservePropertyChanging() =>
+            Observable<string?>.Observe<PropertyChangingEventHandler>(
+                register: handler => component.PropertyChanging += handler,
+                unregister: handler => component.PropertyChanging -= handler,
+                handler: raiseNext => (sender, args) => raiseNext(args.PropertyName)
+            );
+
+        /// <summary>
+        /// Observe when the given property is changing and provide the current
+        /// value to the observer.
+        /// </summary>
+        /// <typeparam name="TProperty">
+        /// The type of the property value to observe.
+        /// </typeparam>
+        /// <param name="property">
+        /// A function that selects the property to observe from the component
+        /// instance.
+        /// </param>
+        /// <param name="propertyExpression">
+        /// The source expression used to identify the property, typically
+        /// provided by the compiler. This parameter is optional.
+        /// </param>
+        /// <returns>
+        /// An observer that emits the property's value each time it changes.
+        /// </returns>
+        public Essentials.IObserver<TProperty> ObservePropertyChanging<TProperty>(
+            Func<TComponent, TProperty> property,
+            [CallerArgumentExpression(nameof(property))]
+            string? propertyExpression = default
+        )
+        {
+            var propertyName = INotifyPropertyChangedExtensions
+                .ParsePropertyName(propertyExpression);
+
+            return ObservePropertyChanging(component)
+                .Where(changedPropertyName => changedPropertyName == propertyName)
+                .Select(_ => property(component));
+        }
     }
 }

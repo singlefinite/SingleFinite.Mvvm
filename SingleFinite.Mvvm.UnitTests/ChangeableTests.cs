@@ -109,7 +109,7 @@ public class ChangeableTests
 
         var testClass = new TestClass();
         testClass
-            .ObservePropertyChanging(() => testClass.FieldOne)
+            .ObservePropertyChanging(it => it.FieldOne)
             .OnEach(observedEvents.Add);
 
         Assert.IsEmpty(observedEvents);
@@ -121,7 +121,7 @@ public class ChangeableTests
         testClass.FieldOne = "hello";
 
         Assert.HasCount(1, observedEvents);
-        Assert.AreEqual("FieldOne", observedEvents[0]);
+        Assert.AreEqual("", observedEvents[0]);
     }
 
     [TestMethod]
@@ -131,7 +131,7 @@ public class ChangeableTests
 
         var testClass = new TestClass();
         testClass
-            .ObservePropertyChanged(() => testClass.FieldOne)
+            .ObservePropertyChanged(it => it.FieldOne)
             .OnEach(observedEvents.Add);
 
         Assert.IsEmpty(observedEvents);
@@ -143,7 +143,7 @@ public class ChangeableTests
         testClass.FieldOne = "hello";
 
         Assert.HasCount(1, observedEvents);
-        Assert.AreEqual("FieldOne", observedEvents[0]);
+        Assert.AreEqual("hello", observedEvents[0]);
     }
 
     #region Types

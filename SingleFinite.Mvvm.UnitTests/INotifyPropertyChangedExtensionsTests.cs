@@ -28,7 +28,7 @@ namespace SingleFinite.Mvvm.UnitTests;
 public sealed class INotifyPropertyChangedExtensionsTests
 {
     [TestMethod]
-    public void ObservePropertyChanged_Emits_When_Event_Raised()
+    public void ObservePropertyChanged_All_Emits_When_Event_Raised()
     {
         var component = new ExampleComponent();
         var observedNames = new List<string?>();
@@ -45,25 +45,28 @@ public sealed class INotifyPropertyChangedExtensionsTests
     }
 
     [TestMethod]
-    public void ObservePropertyChanged_With_PropertyName_Emits_When_Event_Raised()
+    public void ObservePropertyChanged_Emits_When_Event_Raised()
     {
         var component = new ExampleComponent();
-        var observedNames = new List<string?>();
+        var observedNumbers = new List<int>();
 
         var observer = component.ObservePropertyChanged(
-            property: () => component.Text
-        ).OnEach(observedNames.Add);
+            property: it => it.Number
+        ).OnEach(observedNumbers.Add);
 
-        Assert.IsEmpty(observedNames);
+        Assert.IsEmpty(observedNumbers);
 
         component.Number = 9;
 
-        Assert.IsEmpty(observedNames);
+        Assert.HasCount(1, observedNumbers);
+        Assert.AreEqual(9, observedNumbers[0]);
 
-        component.Text = "Hello";
+        observedNumbers.Clear();
 
-        Assert.HasCount(1, observedNames);
-        Assert.AreEqual("Text", observedNames[0]);
+        component.Number = 42;
+
+        Assert.HasCount(1, observedNumbers);
+        Assert.AreEqual(42, observedNumbers[0]);
     }
 
     #region Types

@@ -31,49 +31,51 @@ namespace SingleFinite.Mvvm;
 /// </summary>
 public static partial class INotifyPropertyChangedExtensions
 {
-    /// <summary>
-    /// Observe when a property is changed.
-    /// </summary>
-    /// <param name="component">
-    /// The component to listen for property changes on.
-    /// </param>
-    /// <returns>
-    /// An observer that when disposed will unregister the callback.
-    /// </returns>
-    public static Essentials.IObserver<string?> ObservePropertyChanged(
-        this INotifyPropertyChanged component
-    ) => Observable<string?>.Observe<PropertyChangedEventHandler>(
-        register: handler => component.PropertyChanged += handler,
-        unregister: handler => component.PropertyChanged -= handler,
-        handler: raiseNext => (sender, args) => raiseNext(args.PropertyName)
-    );
-
-    /// <summary>
-    /// Observe when the given property is changed.
-    /// </summary>
-    /// <param name="component">
-    /// The component to listen for property changes on.
-    /// </param>
-    /// <param name="property">
-    /// An expression in the form of `() => component.property` that identifies
-    /// the property to listen for changes on.
-    /// </param>
-    /// <param name="propertyExpression">
-    /// When left as null the compiler will set this from the property argument.
-    /// </param>
-    /// <returns>
-    /// An observer that when disposed will unregister the callback.
-    /// </returns>
-    public static Essentials.IObserver<string?> ObservePropertyChanged(
-        this INotifyPropertyChanged component,
-        Func<object?> property,
-        [CallerArgumentExpression(nameof(property))]
-        string? propertyExpression = default
-    )
+    extension<TComponent>(TComponent component)
+        where TComponent : INotifyPropertyChanged
     {
-        var propertyName = ParsePropertyName(propertyExpression);
-        return ObservePropertyChanged(component)
-            .Where(changedPropertyName => changedPropertyName == propertyName);
+        /// <summary>
+        /// Observe when a property is changed.
+        /// </summary>
+        /// <returns>
+        /// An observer that when disposed will unregister the callback.
+        /// </returns>
+        public Essentials.IObserver<string?> ObservePropertyChanged() =>
+            Observable<string?>.Observe<PropertyChangedEventHandler>(
+                register: handler => component.PropertyChanged += handler,
+                unregister: handler => component.PropertyChanged -= handler,
+                handler: raiseNext => (sender, args) => raiseNext(args.PropertyName)
+            );
+
+        /// <summary>
+        /// Observe when the given property is changed and provide the new value
+        /// to the observer.
+        /// </summary>
+        /// <typeparam name="TProperty">
+        /// The type of the property value to observe.
+        /// </typeparam>
+        /// <param name="property">
+        /// A function that selects the property to observe from the component
+        /// instance.
+        /// </param>
+        /// <param name="propertyExpression">
+        /// The source expression used to identify the property, typically
+        /// provided by the compiler. This parameter is optional.
+        /// </param>
+        /// <returns>
+        /// An observer that emits the property's value each time it changes.
+        /// </returns>
+        public Essentials.IObserver<TProperty> ObservePropertyChanged<TProperty>(
+            Func<TComponent, TProperty> property,
+            [CallerArgumentExpression(nameof(property))]
+            string? propertyExpression = default
+        )
+        {
+            var propertyName = ParsePropertyName(propertyExpression);
+            return ObservePropertyChanged(component)
+                .Where(changedPropertyName => changedPropertyName == propertyName)
+                .Select(_ => property(component));
+        }
     }
 
     /// <summary>
@@ -99,7 +101,7 @@ public static partial class INotifyPropertyChangedExtensions
         if (string.IsNullOrEmpty(matchValue))
         {
             throw new ArgumentException(
-                message: "expression must be in the form of 'object.property'",
+                message: "expression must be in the form of 'component.property'",
                 paramName: nameof(propertyExpression)
             );
         }
