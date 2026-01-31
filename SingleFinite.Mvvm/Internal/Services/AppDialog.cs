@@ -19,12 +19,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-namespace SingleFinite.Mvvm.Services;
+using SingleFinite.Mvvm.Services;
+
+namespace SingleFinite.Mvvm.Internal.Services;
 
 /// <summary>
-/// An instance of <seealso cref="IPresentableDialog"/> that is registered as a
-/// singleton.
+/// Implementation of <see cref="IAppDialog"/>.
 /// </summary>
-public interface IDialogs : IPresentableDialog
+/// <param name="viewBuilder">Passed to the super class.</param>
+internal sealed class AppDialog(IViewBuilder viewBuilder) :
+    PresentableDialog(viewBuilder),
+    IAppDialog
 {
 }

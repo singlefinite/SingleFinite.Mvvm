@@ -22,6 +22,7 @@
 using SingleFinite.Mvvm.Internal.Services;
 using SingleFinite.Mvvm.Services;
 using Microsoft.Extensions.DependencyInjection;
+using SingleFinite.Essentials;
 
 namespace SingleFinite.Mvvm.Internal;
 
@@ -57,17 +58,17 @@ internal static class IServiceCollectionExtensions
     ) => services
         .AddSingleton(host)
         .AddSingleton<IExceptionHandler, ExceptionHandler>()
-        .AddSingleton<IApplicationMainDispatcher, MainDispatcher>()
-        .AddSingleton<IApplicationBackgroundDispatcher, BackgroundDispatcher>()
+        .AddSingleton<IMainDispatcher, MainDispatcher>()
+        .AddSingleton<IBackgroundDispatcher, BackgroundDispatcher>()
         .AddSingleton<IViewRegistry>(new ViewRegistry(views))
         .AddSingleton<IPluginRegistry>(new PluginRegistry(plugins))
         .AddSingleton<IPluginLoader, PluginLoader>()
-        .AddSingleton<IDialogs, Dialogs>()
+        .AddSingleton<IAppTaskScope, AppTaskScope>()
+        .AddSingleton<IAppDialog, AppDialog>()
         .AddScoped<IBuilder, Builder>()
         .AddScoped<IViewBuilder, ViewBuilder>()
         .AddScoped<ICancellationTokenProvider, CancellationTokenProvider>()
-        .AddScoped<IBackgroundDispatcher, BackgroundDispatcher>()
-        .AddScoped<IMainDispatcher, MainDispatcher>()
+        .AddScoped<ITaskScope, AppTaskScope>()
         .AddTransient<IPresentableItem, PresentableItem>()
         .AddTransient<IPresentableStack, PresentableStack>()
         .AddTransient<IPresentableDialog, PresentableDialog>();

@@ -27,31 +27,14 @@ namespace SingleFinite.Mvvm.Internal.Services;
 /// <summary>
 /// Dispatcher that uses the thread pool to dispatch actions and functions.
 /// </summary>
-/// <param name="exceptionHandler">
-/// Used to handle exceptions that are thrown when invoking actions passed to
-/// the Run method if they wouldn't otherwise be handled the code that invoked
-/// the Run method.
-/// </param>
-internal sealed class BackgroundDispatcher(
-    IExceptionHandler exceptionHandler
-) :
-    IApplicationBackgroundDispatcher,
-    IBackgroundDispatcher
+internal sealed class BackgroundDispatcher : IBackgroundDispatcher
 {
     #region Fields
 
     /// <summary>
     /// Dispatcher used to invoke functions.
     /// </summary>
-    private readonly ThreadPoolDispatcher _dispatcher =
-        new(exceptionHandler.Handle);
-
-    #endregion
-
-    #region Properties
-
-    /// <inheritdoc/>
-    public CancellationToken CancellationToken => _dispatcher.CancellationToken;
+    private readonly ThreadPoolDispatcher _dispatcher = new();
 
     #endregion
 
@@ -63,9 +46,6 @@ internal sealed class BackgroundDispatcher(
         CancellationToken cancellationToken = default
     ) =>
         _dispatcher.RunAsync(function, cancellationToken);
-
-    /// <inheritdoc/>
-    public void OnError(Exception ex) => _dispatcher.OnError(ex);
 
     #endregion
 }

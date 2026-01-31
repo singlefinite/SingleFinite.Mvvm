@@ -80,11 +80,11 @@ public class AppHostBuilderTests
     {
         var builder = new AppHostBuilder();
         var appHost = builder
-            .AddServices(services => services.AddSingleton<IApplicationMainDispatcher, ExampleAppMainDispatcher>())
+            .AddServices(services => services.AddSingleton<IMainDispatcher, ExampleMainDispatcher>())
             .BuildAndStart();
 
-        var dispatcher = appHost.ServiceProvider.GetRequiredService<IApplicationMainDispatcher>();
-        Assert.IsInstanceOfType<ExampleAppMainDispatcher>(dispatcher);
+        var dispatcher = appHost.ServiceProvider.GetRequiredService<IMainDispatcher>();
+        Assert.IsInstanceOfType<ExampleMainDispatcher>(dispatcher);
     }
 
     #region Types
@@ -110,15 +110,8 @@ public class AppHostBuilderTests
         public ExampleViewModel ViewModel => throw new NotImplementedException();
     }
 
-    private class ExampleAppMainDispatcher() :
-        IApplicationMainDispatcher
+    private class ExampleMainDispatcher : IMainDispatcher
     {
-        public CancellationToken CancellationToken =>
-            throw new NotImplementedException();
-
-        public void OnError(Exception ex) =>
-            throw new NotImplementedException();
-
         public Task<TResult> RunAsync<TResult>(
             Func<Task<TResult>> function,
             CancellationToken cancellationToken = default

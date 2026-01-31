@@ -24,10 +24,8 @@ using SingleFinite.Essentials;
 namespace SingleFinite.Mvvm.Services;
 
 /// <summary>
-/// A service that implements the <see cref="IDispatcher"/> interface and 
-/// executes code on the main thread.  This service is registered as a
-/// singleton.
+/// The TaskScope associated with the application lifetime.
 /// </summary>
-public interface IApplicationMainDispatcher : IDispatcher
+public interface IAppTaskScope : ITaskScope
 {
 }
