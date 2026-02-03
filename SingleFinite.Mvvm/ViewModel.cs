@@ -91,6 +91,13 @@ public abstract class ViewModel :
     /// </summary>
     public bool IsDisposed => _disposeState.IsDisposed;
 
+    /// <summary>
+    /// The cancellation token that will be cancelled when the view model is
+    /// deactivated.  This will be null when the view model isn't active.
+    /// </summary>
+    protected CancellationToken? ActiveCancellationToken =>
+        _activeCancellationTokenSource?.Token;
+
     #endregion
 
     #region Methods
