@@ -19,23 +19,20 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using SingleFinite.Essentials;
-
 namespace SingleFinite.Mvvm.Services;
 
 /// <summary>
-/// A service used to handle exceptions.
+/// A service used to handle exceptions.  Unhandled AppDomain and Dispatcher
+/// exceptions will be sent to this service through the Handle method.
 /// </summary>
 public interface IExceptionHandler
 {
     /// <summary>
     /// Handle the given exception.
     /// </summary>
-    /// <param name="ex">The exception to handle.</param>
-    void Handle(Exception ex);
-
-    /// <summary>
-    /// Event that is raised whenever an exception is handled by this service.
-    /// </summary>
-    Observable<Exception> ExceptionHandled { get; }
+    /// <param name="exception">The exception to handle.</param>
+    /// <param name="sourceArgs">
+    /// Optional arguments that accompanied the exception.
+    /// </param>
+    void Handle(object? exception, object? sourceArgs);
 }

@@ -20,6 +20,7 @@
 // SOFTWARE.
 
 using System.ComponentModel;
+using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using SingleFinite.Essentials;
 using SingleFinite.Mvvm.Services;
@@ -118,6 +119,22 @@ internal sealed class AppHost : IAppHost, IDisposable, IDisposeObservable
             return;
 
         _serviceProvider = _services.BuildServiceProvider();
+
+        var exceptionHandler = _serviceProvider.GetService<IExceptionHandler>();
+
+        Observable<UnhandledExceptionEventArgs>
+            .Observe<UnhandledExceptionEventHandler>(
+                register: handler => AppDomain.CurrentDomain.UnhandledException += handler,
+                unregister: handler => AppDomain.CurrentDomain.UnhandledException -= handler,
+                handler: nextEvent => (object sender, UnhandledExceptionEventArgs e) => nextEvent(e)
+            )
+            .OnEach(e => exceptionHandler?.Handle(e.ExceptionObject, e))
+            .Until(_disposeState.CancellationToken);
+
+        Dispatcher.UnhandledDispatcherException
+            .Observe()
+            .OnEach(e => exceptionHandler?.Handle(e.Exception, e))
+            .Until(_disposeState.CancellationToken);
 
         foreach (var onStarted in _onStarted)
             onStarted(_serviceProvider);
