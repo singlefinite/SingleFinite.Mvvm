@@ -32,7 +32,7 @@ public class PresentableDialogTests
     [TestMethod]
     public void Dialog_View_Model_Has_Expected_Lifecycle()
     {
-        using var context = new TestContext();
+        using var context = new MvvmTestContext();
 
         var presentableDialog = new PresentableDialog(
             context.ServiceProvider.GetRequiredService<IViewBuilder>()
@@ -48,7 +48,7 @@ public class PresentableDialogTests
         Assert.AreEqual(dialog1, presentableDialog.ViewModels[0]);
 
         Assert.HasCount(2, output);
-        Assert.AreEqual("1 Initialize", output[0]);
+        Assert.AreEqual("1 Create", output[0]);
         Assert.AreEqual("1 Activate", output[1]);
         output.Clear();
 
@@ -61,7 +61,7 @@ public class PresentableDialogTests
         Assert.AreEqual(dialog1, presentableDialog.ViewModels[1]);
 
         Assert.HasCount(3, output);
-        Assert.AreEqual("2 Initialize", output[0]);
+        Assert.AreEqual("2 Create", output[0]);
         Assert.AreEqual("1 Deactivate", output[1]);
         Assert.AreEqual("2 Activate", output[2]);
         output.Clear();
@@ -93,7 +93,7 @@ public class PresentableDialogTests
     [TestMethod]
     public void Changed_Event_Is_Raised()
     {
-        using var context = new TestContext();
+        using var context = new MvvmTestContext();
 
         var presentableDialog = new PresentableDialog(
             context.ServiceProvider.GetRequiredService<IViewBuilder>()
@@ -137,7 +137,7 @@ public class PresentableDialogTests
     [TestMethod]
     public void Dialog_View_Model_Will_Dispose_All_When_Cleared()
     {
-        using var context = new TestContext();
+        using var context = new MvvmTestContext();
 
         var presentableDialog = new PresentableDialog(
             context.ServiceProvider.GetRequiredService<IViewBuilder>()
@@ -167,7 +167,7 @@ public class PresentableDialogTests
     [TestMethod]
     public void Dispose_Will_Clear()
     {
-        using var context = new TestContext();
+        using var context = new MvvmTestContext();
 
         var presentableDialog = new PresentableDialog(
             context.ServiceProvider.GetRequiredService<IViewBuilder>()
@@ -197,7 +197,7 @@ public class PresentableDialogTests
     [TestMethod]
     public void Close_From_Middle_Of_Stack_Has_Expected_Lifecycle()
     {
-        using var context = new TestContext();
+        using var context = new MvvmTestContext();
 
         var presentableDialog = new PresentableDialog(
             context.ServiceProvider.GetRequiredService<IViewBuilder>()
@@ -227,9 +227,9 @@ public class PresentableDialogTests
 
     private class Dialog1Lifecycle(List<string> output) : ViewModel
     {
-        protected override void OnInitialize()
+        protected override void OnCreated()
         {
-            output.Add("1 Initialize");
+            output.Add("1 Create");
         }
 
         protected override void OnActivate(CancellationToken cancellationToken)
@@ -255,9 +255,9 @@ public class PresentableDialogTests
 
     private class Dialog2Lifecycle(List<string> output) : ViewModel
     {
-        protected override void OnInitialize()
+        protected override void OnCreated()
         {
-            output.Add("2 Initialize");
+            output.Add("2 Create");
         }
 
         protected override void OnActivate(CancellationToken cancellationToken)
@@ -283,9 +283,9 @@ public class PresentableDialogTests
 
     private class Dialog3Lifecycle(List<string> output) : ViewModel
     {
-        protected override void OnInitialize()
+        protected override void OnCreated()
         {
-            output.Add("3 Initialize");
+            output.Add("3 Create");
         }
 
         protected override void OnActivate(CancellationToken cancellationToken)

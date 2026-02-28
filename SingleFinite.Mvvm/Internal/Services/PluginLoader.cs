@@ -57,20 +57,20 @@ internal class PluginLoader(
             pluginHost.Activated
                 .Observe()
                 .OnEach(plugin.Activate)
-                .On(plugin);
+                .Until(plugin);
 
             pluginHost.Deactivated
                 .Observe()
                 .OnEach(plugin.Deactivate)
-                .On(plugin);
+                .Until(plugin);
 
             pluginHost.Disposed
                 .Observe()
                 .OnEach(plugin.Dispose)
-                .On(plugin);
+                .Until(plugin);
 
             plugin.Load(pluginHost);
-            plugin.Initialize();
+            plugin.Create();
         }
     }
 

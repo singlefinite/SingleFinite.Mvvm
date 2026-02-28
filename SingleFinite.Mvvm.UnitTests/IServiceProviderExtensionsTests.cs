@@ -30,7 +30,7 @@ public class IServiceProviderExtensionsTests
     [TestMethod]
     public void CreateLinkedScope_Scope_Is_Disposed_When_Parent_Is_Disposed()
     {
-        var context = new TestContext(
+        var context = new MvvmTestContext(
             configureServices: services => services.AddScoped<ExampleService>()
         );
 

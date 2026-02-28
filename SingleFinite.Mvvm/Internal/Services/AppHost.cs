@@ -19,7 +19,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using System.ComponentModel;
 using Microsoft.Extensions.DependencyInjection;
 using SingleFinite.Essentials;
 using SingleFinite.Mvvm.Services;
@@ -29,7 +28,7 @@ namespace SingleFinite.Mvvm.Internal.Services;
 /// <summary>
 /// Implementation of <see cref="IAppHost"/>.
 /// </summary>
-internal sealed class AppHost : IAppHost, IDisposable, IDisposeObservable
+internal sealed class AppHost : IAppHost
 {
     #region Fields
 
@@ -47,6 +46,11 @@ internal sealed class AppHost : IAppHost, IDisposable, IDisposeObservable
     /// Holds the actions to invoke when the app is started.
     /// </summary>
     private readonly IList<Action<IServiceProvider>> _onStarted;
+
+    /// <summary>
+    /// Holds the optional platform for this app.
+    /// </summary>
+    private IPlatform? _platform;
 
     /// <summary>
     /// Holds the service provider for the app.
@@ -138,42 +142,44 @@ internal sealed class AppHost : IAppHost, IDisposable, IDisposeObservable
         foreach (var onStarted in _onStarted)
             onStarted(_serviceProvider);
 
-        _startedSource.Emit();
+        _platform = _serviceProvider.GetService<IPlatform>();
+        if (_platform is null)
+        {
+            _lifecycleEvent.Emit(AppLifecycleEvent.Created);
+            _lifecycleEvent.Emit(AppLifecycleEvent.Activated);
+        }
+        else
+        {
+            _platform.LifecycleEvent
+                .Observe()
+                .OnEach(e => _lifecycleEvent.Emit(e))
+                .Until(_disposeState.CancellationToken);
+        }
     }
 
     /// <inheritdoc/>
-    public async Task<bool> CloseAsync()
+    public void Dispose()
     {
         if (_disposeState.IsDisposed)
-            return true;
+            return;
 
-        var cancelEventArgs = new CancelEventArgs();
-        await _closingSource.EmitAsync(cancelEventArgs);
+        if (_platform is null)
+        {
+            _lifecycleEvent.Emit(AppLifecycleEvent.Deactivated);
+            _lifecycleEvent.Emit(AppLifecycleEvent.Stopped);
+            _lifecycleEvent.Emit(AppLifecycleEvent.Disposed);
+        }
 
-        if (!cancelEventArgs.Cancel)
-            _closedSource.Emit();
-
-        return !cancelEventArgs.Cancel;
+        _disposeState.Dispose();
     }
-
-    /// <inheritdoc/>
-    public void Dispose() => _disposeState.Dispose();
 
     #endregion
 
     #region Events
 
     /// <inheritdoc/>
-    public Observable Started => _startedSource.Observable;
-    private readonly ObservableSource _startedSource = new();
-
-    /// <inheritdoc/>
-    public AsyncObservable<CancelEventArgs> Closing => _closingSource.Observable;
-    private readonly AsyncObservableSource<CancelEventArgs> _closingSource = new();
-
-    /// <inheritdoc/>
-    public Observable Closed => _closedSource.Observable;
-    private readonly ObservableSource _closedSource = new();
+    public Observable<AppLifecycleEvent> LifecycleEvent => _lifecycleEvent.Observable;
+    private readonly ObservableSource<AppLifecycleEvent> _lifecycleEvent = new();
 
     /// <inheritdoc/>
     public Observable Disposed => _disposeState.Disposed;

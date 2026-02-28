@@ -20,50 +20,17 @@
 // SOFTWARE.
 
 using SingleFinite.Essentials;
-using SingleFinite.Mvvm.Internal;
 
-namespace SingleFinite.Mvvm;
+namespace SingleFinite.Mvvm.Services;
 
 /// <summary>
-/// Base class for a plugin.
+/// Libraries can provide platform specific behaviors by providing an
+/// implementation of this service.
 /// </summary>
-/// <typeparam name="TPluginHost">
-/// The type of view model that hosts the plugin.
-/// </typeparam>
-public abstract class Plugin<TPluginHost> : ViewModel, IPlugin<TPluginHost>
-    where TPluginHost : IPluginHost
+public interface IPlatform
 {
-    #region Properties
-
     /// <summary>
-    /// The view model that hosts the plugin.  It gets set right before the 
-    /// create method is called.
-    /// If this property is accessed before the create method is called an 
-    /// exception will be thrown.
+    /// Raised when an app lifecylce event occurs.
     /// </summary>
-    protected TPluginHost PluginHost => _pluginHost.ThrowIfNull();
-    private TPluginHost? _pluginHost;
-
-    #endregion
-
-    #region Methods
-
-    /// <inheritdoc/>
-    void IPlugin.Load(IPluginHost pluginHost)
-    {
-        ObjectDisposedException.ThrowIf(IsDisposed, this);
-
-        if (_pluginHost is not null)
-            throw new InvalidOperationException(
-                "The plugin has already been loaded in a plugin host."
-            );
-        if (pluginHost is not TPluginHost typedHost)
-            throw new NotSupportedException(
-                $"The plugin host must be of type {typeof(TPluginHost)}."
-            );
-
-        _pluginHost = typedHost;
-    }
-
-    #endregion
+    Observable<AppLifecycleEvent> LifecycleEvent { get; }
 }

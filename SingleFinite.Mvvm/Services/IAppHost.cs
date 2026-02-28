@@ -19,7 +19,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using System.ComponentModel;
 using SingleFinite.Essentials;
 
 namespace SingleFinite.Mvvm.Services;
@@ -27,7 +26,7 @@ namespace SingleFinite.Mvvm.Services;
 /// <summary>
 /// The top level object that holds the application state.
 /// </summary>
-public interface IAppHost
+public interface IAppHost : IDisposable, IDisposeObservable
 {
     /// <summary>
     /// The application service provider.
@@ -47,24 +46,7 @@ public interface IAppHost
     void Start();
 
     /// <summary>
-    /// Request that the app be closed.  The request can be canceled by
-    /// subscribers to the Closing event.
+    /// Raised when an app lifecylce event occurs.
     /// </summary>
-    /// <returns>true if the app was stopped, false if it wasn't.</returns>
-    Task<bool> CloseAsync();
-
-    /// <summary>
-    /// Raised when this app host is started.
-    /// </summary>
-    Observable Started { get; }
-
-    /// <summary>
-    /// Raised when the app is being closed.
-    /// </summary>
-    AsyncObservable<CancelEventArgs> Closing { get; }
-
-    /// <summary>
-    /// Raised after the app has been closed.
-    /// </summary>
-    Observable Closed { get; }
+    Observable<AppLifecycleEvent> LifecycleEvent { get; }
 }

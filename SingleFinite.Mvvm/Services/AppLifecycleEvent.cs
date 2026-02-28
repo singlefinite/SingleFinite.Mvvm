@@ -19,44 +19,40 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using SingleFinite.Essentials;
-
-namespace SingleFinite.Mvvm;
+namespace SingleFinite.Mvvm.Services;
 
 /// <summary>
-/// An object that can be observed moving through different states in a
-/// lifecycle.
+/// Possible lifecycle events for an app host.
 /// </summary>
-public interface ILifecycleObservable : IDisposeObservable
+public enum AppLifecycleEvent
 {
     /// <summary>
-    /// Indicates if this view model has finished being created.
+    /// The app has been created but might not be visible yet.
     /// </summary>
-    bool IsCreated { get; }
+    Created,
 
     /// <summary>
-    /// Indicates if this view model is currently active.
+    /// The app has become visible and has focus.
     /// </summary>
-    bool IsActive { get; }
+    Activated,
 
     /// <summary>
-    /// Event raised when this object has been created.
+    /// The app no longer has focus but may still be visible.
     /// </summary>
-    Observable Created { get; }
+    Deactivated,
 
     /// <summary>
-    /// Event raised when this object has been activated.
+    /// The app is no longer visible and may be about to be disposed.
     /// </summary>
-    Observable Activated { get; }
+    Stopped,
 
     /// <summary>
-    /// Event raised when this object has been deactivated.
+    /// The app was stopped and has now resumed.
     /// </summary>
-    Observable Deactivated { get; }
+    Resumed,
 
     /// <summary>
-    /// Event raised when the IsActive property is changed.
-    /// The new IsActive value is passed as arguments with the event.
+    /// The app is disposed.
     /// </summary>
-    Observable<bool> IsActiveChanged { get; }
+    Disposed
 }

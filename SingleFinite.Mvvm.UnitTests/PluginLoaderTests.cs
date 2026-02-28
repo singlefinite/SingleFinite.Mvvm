@@ -45,7 +45,7 @@ public class PluginLoaderTests
     [TestMethod]
     public void LoadPlugins_Method_Builds_And_Wires_Up_Registered_Plugins()
     {
-        using var testContext = new TestContext();
+        using var testContext = new MvvmTestContext();
         var pluginCollection = new PluginCollection
         {
             new PluginDescriptor(
@@ -70,28 +70,28 @@ public class PluginLoaderTests
         Assert.IsNotNull(plugin);
         Assert.AreEqual(pluginHost, plugin.Host);
 
-        Assert.AreEqual(1, plugin.OnInitializeCount);
+        Assert.AreEqual(1, plugin.OnCreatedCount);
         Assert.AreEqual(0, plugin.OnActivateCount);
         Assert.AreEqual(0, plugin.OnDeactivateCount);
         Assert.AreEqual(0, plugin.OnDisposeCount);
 
         hostViewModel.Activate();
 
-        Assert.AreEqual(1, plugin.OnInitializeCount);
+        Assert.AreEqual(1, plugin.OnCreatedCount);
         Assert.AreEqual(1, plugin.OnActivateCount);
         Assert.AreEqual(0, plugin.OnDeactivateCount);
         Assert.AreEqual(0, plugin.OnDisposeCount);
 
         hostViewModel.Deactivate();
 
-        Assert.AreEqual(1, plugin.OnInitializeCount);
+        Assert.AreEqual(1, plugin.OnCreatedCount);
         Assert.AreEqual(1, plugin.OnActivateCount);
         Assert.AreEqual(1, plugin.OnDeactivateCount);
         Assert.AreEqual(0, plugin.OnDisposeCount);
 
         hostViewModel.Dispose();
 
-        Assert.AreEqual(1, plugin.OnInitializeCount);
+        Assert.AreEqual(1, plugin.OnCreatedCount);
         Assert.AreEqual(1, plugin.OnActivateCount);
         Assert.AreEqual(1, plugin.OnDeactivateCount);
         Assert.AreEqual(1, plugin.OnDisposeCount);
@@ -100,7 +100,7 @@ public class PluginLoaderTests
     [TestMethod]
     public void LoadPlugins_Method_Does_Not_Break_If_No_Registered_Plugins()
     {
-        using var testContext = new TestContext();
+        using var testContext = new MvvmTestContext();
         var pluginCollection = new PluginCollection();
         var pluginRegistry = new PluginRegistry(pluginCollection);
 
@@ -134,16 +134,16 @@ public class PluginLoaderTests
     {
         public ExamplePluginHost? Host { get; private set; }
 
-        public int OnInitializeCount { get; private set; }
+        public int OnCreatedCount { get; private set; }
         public int OnActivateCount { get; private set; }
         public int OnDeactivateCount { get; private set; }
         public int OnDisposeCount { get; private set; }
 
-        protected override void OnInitialize()
+        protected override void OnCreated()
         {
             Host = PluginHost;
             PluginHost.Plugin = this;
-            OnInitializeCount++;
+            OnCreatedCount++;
         }
         protected override void OnActivate(CancellationToken cancellationToken) => OnActivateCount++;
         protected override void OnDeactivate() => OnDeactivateCount++;

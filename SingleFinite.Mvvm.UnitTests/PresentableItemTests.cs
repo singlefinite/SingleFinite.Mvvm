@@ -32,7 +32,7 @@ public class PresentableItemTests
     [TestMethod]
     public void Lifecycle_Events_Raised_When_Expected()
     {
-        using var context = new TestContext();
+        using var context = new MvvmTestContext();
         var presentableItem = (PresentableItem)context.ServiceProvider.GetRequiredService<IPresentableItem>();
 
         var output = new List<string>();
@@ -74,7 +74,7 @@ public class PresentableItemTests
     [TestMethod]
     public void Changed_Event_Is_Raised()
     {
-        using var context = new TestContext();
+        using var context = new MvvmTestContext();
         var presentableItem = (PresentableItem)context.ServiceProvider.GetRequiredService<IPresentableItem>();
 
         IPresentable.CurrentChangedEventArgs? observedArgs = null;
@@ -115,7 +115,7 @@ public class PresentableItemTests
     [TestMethod]
     public void Presenter_Is_Disposed_When_ServiceScope_Is_Disposed()
     {
-        using var context = new TestContext();
+        using var context = new MvvmTestContext();
         var scope = context.ServiceProvider.CreateScope();
         var presentableItemInScope = (PresentableItem)scope.ServiceProvider.GetRequiredService<IPresentableItem>();
         var presentableItemInRoot = (PresentableItem)context.ServiceProvider.GetRequiredService<IPresentableItem>();
@@ -137,7 +137,7 @@ public class PresentableItemTests
     [TestMethod]
     public void Set_Method_With_Template_Creates_View_With_Template()
     {
-        using var context = new TestContext();
+        using var context = new MvvmTestContext();
         var presentableItem = (PresentableItem)context.ServiceProvider.GetRequiredService<IPresentableItem>();
         var viewModelTestContext = new ViewModelTestContext([]);
         var viewModel = presentableItem.Set<TestViewModel1>(viewModelTestContext);
@@ -148,7 +148,7 @@ public class PresentableItemTests
     [TestMethod]
     public void Set_Method_Throws_If_Disposed()
     {
-        using var context = new TestContext();
+        using var context = new MvvmTestContext();
         var presentableItem = (PresentableItem)context.ServiceProvider.GetRequiredService<IPresentableItem>();
 
         var output = new List<string>();
@@ -163,7 +163,7 @@ public class PresentableItemTests
     [TestMethod]
     public void Closable_Event_Removes_View_Model()
     {
-        using var context = new TestContext();
+        using var context = new MvvmTestContext();
         var presentableItem = (PresentableItem)context.ServiceProvider.GetRequiredService<IPresentableItem>();
         var viewModelTestContext = new ViewModelTestContext([]);
         var viewModel = presentableItem.Set<TestViewModel1>(viewModelTestContext);
@@ -198,7 +198,7 @@ public class PresentableItemTests
     {
         protected ViewModelTestContext Context => context;
 
-        protected override void OnInitialize() => Context.Output.Add($"OnInit - {nameof(TestViewModel1)}");
+        protected override void OnCreated() => Context.Output.Add($"OnInit - {nameof(TestViewModel1)}");
         protected override void OnActivate(CancellationToken _) => Context.Output.Add($"OnStart - {nameof(TestViewModel1)}");
         protected override void OnDeactivate() => Context.Output.Add($"OnStop - {nameof(TestViewModel1)}");
         protected override void OnDispose() => Context.Output.Add($"OnDispose - {nameof(TestViewModel1)}");
@@ -211,7 +211,7 @@ public class PresentableItemTests
 
     private class TestViewModel2(ViewModelTestContext context) : TestViewModel1(context)
     {
-        protected override void OnInitialize() => Context.Output.Add($"OnInit - {nameof(TestViewModel2)}");
+        protected override void OnCreated() => Context.Output.Add($"OnInit - {nameof(TestViewModel2)}");
         protected override void OnActivate(CancellationToken _) => Context.Output.Add($"OnStart - {nameof(TestViewModel2)}");
         protected override void OnDeactivate() => Context.Output.Add($"OnStop - {nameof(TestViewModel2)}");
         protected override void OnDispose() => Context.Output.Add($"OnDispose - {nameof(TestViewModel2)}");
@@ -219,7 +219,7 @@ public class PresentableItemTests
 
     private class TestViewModel3(ViewModelTestContext context) : TestViewModel2(context)
     {
-        protected override void OnInitialize() => Context.Output.Add($"OnInit - {nameof(TestViewModel3)}");
+        protected override void OnCreated() => Context.Output.Add($"OnInit - {nameof(TestViewModel3)}");
         protected override void OnActivate(CancellationToken _) => Context.Output.Add($"OnStart - {nameof(TestViewModel3)}");
         protected override void OnDeactivate() => Context.Output.Add($"OnStop - {nameof(TestViewModel3)}");
         protected override void OnDispose() => Context.Output.Add($"OnDispose - {nameof(TestViewModel3)}");

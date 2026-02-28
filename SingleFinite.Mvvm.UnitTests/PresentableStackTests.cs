@@ -32,7 +32,7 @@ public class PresentableStackTests
     [TestMethod]
     public void Lifecycle_Events_Raised_When_Expected()
     {
-        using var context = new TestContext();
+        using var context = new MvvmTestContext();
         var presentableStack = (PresentableStack)context.ServiceProvider.GetRequiredService<IPresentableStack>();
 
         var output = new List<string>();
@@ -72,7 +72,7 @@ public class PresentableStackTests
     [TestMethod]
     public void Add_To_Middle_Of_Stack()
     {
-        using var context = new TestContext();
+        using var context = new MvvmTestContext();
         var presentableStack = (PresentableStack)context.ServiceProvider.GetRequiredService<IPresentableStack>();
 
         var output = new List<string>();
@@ -98,7 +98,7 @@ public class PresentableStackTests
     [TestMethod]
     public void Changed_Event_Is_Raised()
     {
-        using var context = new TestContext();
+        using var context = new MvvmTestContext();
         var presentableStack = (PresentableStack)context.ServiceProvider.GetRequiredService<IPresentableStack>();
 
         IPresentable.CurrentChangedEventArgs? observedArgs = null;
@@ -139,7 +139,7 @@ public class PresentableStackTests
     [TestMethod]
     public void PopTo_Method_With_ViewModel_Type_Pops_Views()
     {
-        using var context = new TestContext();
+        using var context = new MvvmTestContext();
         var presentableStack = (PresentableStack)context.ServiceProvider.GetRequiredService<IPresentableStack>();
 
         var output = new List<string>();
@@ -169,7 +169,7 @@ public class PresentableStackTests
     [TestMethod]
     public void PopTo_Method_With_Query_Pops_Views()
     {
-        using var context = new TestContext();
+        using var context = new MvvmTestContext();
         var presentableStack = (PresentableStack)context.ServiceProvider.GetRequiredService<IPresentableStack>();
 
         var output = new List<string>();
@@ -203,7 +203,7 @@ public class PresentableStackTests
     [TestMethod]
     public void Presenter_Is_Disposed_When_ServiceScope_Is_Disposed()
     {
-        using var context = new TestContext();
+        using var context = new MvvmTestContext();
         var scope = context.ServiceProvider.CreateScope();
         var presentableStackInScope = (PresentableStack)scope.ServiceProvider.GetRequiredService<IPresentableStack>();
         var presentableStackInRoot = (PresentableStack)context.ServiceProvider.GetRequiredService<IPresentableStack>();
@@ -227,7 +227,7 @@ public class PresentableStackTests
     [TestMethod]
     public void Stack_Property_Is_List_Ordered_From_Stack_Top_To_Stack_Bottom()
     {
-        using var context = new TestContext();
+        using var context = new MvvmTestContext();
 
         var output = new List<string>();
         var viewModelTestContext = new ViewModelTestContext(output);
@@ -250,7 +250,7 @@ public class PresentableStackTests
     [TestMethod]
     public void Push_Method_With_Template_Returns_View_With_Template()
     {
-        using var context = new TestContext();
+        using var context = new MvvmTestContext();
 
         var viewModelTestContext = new ViewModelTestContext([]);
 
@@ -263,7 +263,7 @@ public class PresentableStackTests
     [TestMethod]
     public void Closable_Event_Removes_View_Model()
     {
-        using var context = new TestContext();
+        using var context = new MvvmTestContext();
 
         var viewModelTestContext = new ViewModelTestContext([]);
 
@@ -300,7 +300,7 @@ public class PresentableStackTests
     {
         protected ViewModelTestContext Context => context;
 
-        protected override void OnInitialize() => Context.Output.Add($"OnInit - {nameof(TestViewModel1)}");
+        protected override void OnCreated() => Context.Output.Add($"OnInit - {nameof(TestViewModel1)}");
         protected override void OnActivate(CancellationToken _) => Context.Output.Add($"OnStart - {nameof(TestViewModel1)}");
         protected override void OnDeactivate() => Context.Output.Add($"OnStop - {nameof(TestViewModel1)}");
         protected override void OnDispose() => Context.Output.Add($"OnDispose - {nameof(TestViewModel1)}");
@@ -313,7 +313,7 @@ public class PresentableStackTests
 
     private class TestViewModel2(ViewModelTestContext context) : TestViewModel1(context)
     {
-        protected override void OnInitialize() => Context.Output.Add($"OnInit - {nameof(TestViewModel2)}");
+        protected override void OnCreated() => Context.Output.Add($"OnInit - {nameof(TestViewModel2)}");
         protected override void OnActivate(CancellationToken _) => Context.Output.Add($"OnStart - {nameof(TestViewModel2)}");
         protected override void OnDeactivate() => Context.Output.Add($"OnStop - {nameof(TestViewModel2)}");
         protected override void OnDispose() => Context.Output.Add($"OnDispose - {nameof(TestViewModel2)}");
@@ -321,7 +321,7 @@ public class PresentableStackTests
 
     private class TestViewModel3(ViewModelTestContext context) : TestViewModel2(context)
     {
-        protected override void OnInitialize() => Context.Output.Add($"OnInit - {nameof(TestViewModel3)}");
+        protected override void OnCreated() => Context.Output.Add($"OnInit - {nameof(TestViewModel3)}");
         protected override void OnActivate(CancellationToken _) => Context.Output.Add($"OnStart - {nameof(TestViewModel3)}");
         protected override void OnDeactivate() => Context.Output.Add($"OnStop - {nameof(TestViewModel3)}");
         protected override void OnDispose() => Context.Output.Add($"OnDispose - {nameof(TestViewModel3)}");

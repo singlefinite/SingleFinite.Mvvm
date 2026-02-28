@@ -65,7 +65,7 @@ internal sealed class ViewBuilder(
             viewModel
         );
 
-        viewModel.Initialize();
+        viewModel.Create();
 
         // Attach plugins if needed.
         //

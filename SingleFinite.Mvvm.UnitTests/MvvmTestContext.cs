@@ -27,7 +27,7 @@ namespace SingleFinite.Mvvm.UnitTests;
 /// <summary>
 /// This is a helper class for testing services.
 /// </summary>
-public sealed class TestContext : IDisposable
+public sealed class MvvmTestContext : IDisposable
 {
     #region Fields
 
@@ -46,7 +46,7 @@ public sealed class TestContext : IDisposable
     /// <param name="configureServices">Optional action used to customize the service configuration.</param>
     /// <param name="configureViews">Optional action used to customize the view configuration.</param>
     /// <param name="configurePlugins">Optional action used to customize the plugin configuration.</param>
-    public TestContext(
+    public MvvmTestContext(
         Action<IServiceCollection>? configureServices = null,
         Action<IViewCollection>? configureViews = null,
         Action<IPluginCollection>? configurePlugins = null

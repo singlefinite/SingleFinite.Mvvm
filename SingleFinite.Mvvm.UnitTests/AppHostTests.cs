@@ -27,7 +27,7 @@ using SingleFinite.Mvvm.Services;
 namespace SingleFinite.Mvvm.UnitTests;
 
 [TestClass]
-public class AppHostTests
+public class AppHostTests(TestContext testContext)
 {
     [TestMethod]
     public void ServiceProvider_Property_Throws_Until_Started()
@@ -72,9 +72,9 @@ public class AppHostTests
     }
 
     [TestMethod]
-    public void Started_Event_Raised_When_Start_Method_Invoked()
+    public void LifecycleEvent_Raised_When_Start_Method_Invoked()
     {
-        var onStartedCount = 0;
+        var observedEvents = new List<AppLifecycleEvent>();
 
         var appHost = new AppHost(
             services: new ServiceCollection(),
@@ -83,19 +83,22 @@ public class AppHostTests
             onStarted: []
         );
 
-        appHost.Started
+        appHost.LifecycleEvent
             .Observe()
-            .OnEach(() => onStartedCount++);
+            .OnEach(observedEvents.Add)
+            .Until(testContext.CancellationToken);
 
-        Assert.AreEqual(0, onStartedCount);
+        Assert.IsEmpty(observedEvents);
 
         appHost.Start();
 
-        Assert.AreEqual(1, onStartedCount);
+        Assert.HasCount(2, observedEvents);
+        Assert.AreEqual(AppLifecycleEvent.Created, observedEvents[0]);
+        Assert.AreEqual(AppLifecycleEvent.Activated, observedEvents[1]);
     }
 
     [TestMethod]
-    public void Start_Method_Throw_When_Disposed()
+    public void Start_Method_Throws_When_Disposed()
     {
         var appHost = new AppHost(
             services: new ServiceCollection(),
@@ -139,6 +142,35 @@ public class AppHostTests
     }
 
     [TestMethod]
+    public void LifecycleEvent_Raised_When_Dispose_Method_Invoked()
+    {
+        var observedEvents = new List<AppLifecycleEvent>();
+
+        var appHost = new AppHost(
+            services: new ServiceCollection(),
+            views: new ViewCollection(),
+            plugins: new PluginCollection(),
+            onStarted: []
+        );
+
+        appHost.Start();
+
+        appHost.LifecycleEvent
+            .Observe()
+            .OnEach(observedEvents.Add)
+            .Until(testContext.CancellationToken);
+
+        Assert.IsEmpty(observedEvents);
+
+        appHost.Dispose();
+
+        Assert.HasCount(3, observedEvents);
+        Assert.AreEqual(AppLifecycleEvent.Deactivated, observedEvents[0]);
+        Assert.AreEqual(AppLifecycleEvent.Stopped, observedEvents[1]);
+        Assert.AreEqual(AppLifecycleEvent.Disposed, observedEvents[2]);
+    }
+
+    [TestMethod]
     public void Start_Method_Adds_AppHost_As_Service()
     {
         var appHost = new AppHost(
@@ -157,7 +189,7 @@ public class AppHostTests
     [TestMethod]
     public void Start_Method_Invoked_More_Than_Once_Has_No_Effect()
     {
-        var onStartedCount = 0;
+        var observedEvents = new List<AppLifecycleEvent>();
 
         var services = new ServiceCollection();
         services.AddSingleton<DisposableCounter>();
@@ -169,20 +201,25 @@ public class AppHostTests
             onStarted: []
         );
 
-        appHost.Started
+        appHost.LifecycleEvent
             .Observe()
-            .OnEach(() => onStartedCount++);
+            .OnEach(observedEvents.Add)
+            .Until(testContext.CancellationToken);
 
         appHost.Start();
 
-        Assert.AreEqual(1, onStartedCount);
+        Assert.HasCount(2, observedEvents);
+        Assert.AreEqual(AppLifecycleEvent.Created, observedEvents[0]);
+        Assert.AreEqual(AppLifecycleEvent.Activated, observedEvents[1]);
 
         var exampleService1 =
             appHost.ServiceProvider.GetRequiredService<DisposableCounter>();
 
         appHost.Start();
 
-        Assert.AreEqual(1, onStartedCount);
+        Assert.HasCount(2, observedEvents);
+        Assert.AreEqual(AppLifecycleEvent.Created, observedEvents[0]);
+        Assert.AreEqual(AppLifecycleEvent.Activated, observedEvents[1]);
 
         var exampleService2 =
             appHost.ServiceProvider.GetRequiredService<DisposableCounter>();
@@ -191,52 +228,36 @@ public class AppHostTests
     }
 
     [TestMethod]
-    public async Task Close_Returns_True_When_Not_Canceled_And_Does_Not_Raise_Event_Async()
+    public void Platform_Events_Raised_When_Platform_Emits_LifecycleEvent()
     {
+        var observedEvents = new List<AppLifecycleEvent>();
+
+        var services = new ServiceCollection();
+        services.AddSingleton<IPlatform, PlatformTester>();
+
         var appHost = new AppHost(
-            services: new ServiceCollection(),
+            services: services,
             views: new ViewCollection(),
             plugins: new PluginCollection(),
             onStarted: []
         );
 
-        var closedObserved = false;
-        appHost.Closed
+        appHost.LifecycleEvent
             .Observe()
-            .OnEach(() => closedObserved = true);
+            .OnEach(observedEvents.Add)
+            .Until(testContext.CancellationToken);
 
-        var result = await appHost.CloseAsync();
+        appHost.Start();
 
-        Assert.IsTrue(result);
-        Assert.IsTrue(closedObserved);
-    }
+        Assert.IsEmpty(observedEvents);
 
-    [TestMethod]
-    public async Task Close_Returns_False_When_Canceled_And_Raises_Event_Async()
-    {
-        var appHost = new AppHost(
-            services: new ServiceCollection(),
-            views: new ViewCollection(),
-            plugins: new PluginCollection(),
-            onStarted: []
-        );
+        var platform = (PlatformTester)appHost.ServiceProvider.GetRequiredService<IPlatform>();
+        platform.Emit(AppLifecycleEvent.Activated);
+        platform.Emit(AppLifecycleEvent.Deactivated);
 
-        var closedObserved = false;
-        appHost.Closed
-            .Observe()
-            .OnEach(() => closedObserved = true);
-
-        appHost.Closing
-            .Observe()
-            .OnEach(async args =>
-            {
-                await Task.Run(() => args.Cancel = true);
-            });
-
-        var result = await appHost.CloseAsync();
-
-        Assert.IsFalse(result);
-        Assert.IsFalse(closedObserved);
+        Assert.HasCount(2, observedEvents);
+        Assert.AreEqual(AppLifecycleEvent.Activated, observedEvents[0]);
+        Assert.AreEqual(AppLifecycleEvent.Deactivated, observedEvents[1]);
     }
 
     #region Types
@@ -246,6 +267,15 @@ public class AppHostTests
         public int Count { get; private set; }
 
         public void Dispose() => Count++;
+    }
+
+    private class PlatformTester : IPlatform
+    {
+        public void Emit(AppLifecycleEvent lifecycleEvent) =>
+            _lifecycleEventSource.Emit(lifecycleEvent);
+
+        public Observable<AppLifecycleEvent> LifecycleEvent => _lifecycleEventSource.Observable;
+        private ObservableSource<AppLifecycleEvent> _lifecycleEventSource = new();
     }
 
     #endregion

@@ -32,7 +32,7 @@ public class ViewModelTests
     [TestMethod]
     public void Dispose_Method_Disposes_All_Descendants()
     {
-        using var context = new TestContext();
+        using var context = new MvvmTestContext();
         var scope = context.ServiceProvider.CreateLinkedScope();
 
         var viewModel1 = new NestingViewModel(scope.ServiceProvider.GetRequiredService<IPresentableStack>());
@@ -53,7 +53,7 @@ public class ViewModelTests
     [TestMethod]
     public void Lifecycle_Events_Fire_In_Expected_Order()
     {
-        var onInitializeCount = 0;
+        var onCreatedCount = 0;
         var onActivateCount = 0;
         var onDeactivateCount = 0;
         var onDisposeCount = 0;
@@ -62,9 +62,9 @@ public class ViewModelTests
         var viewModel = new SimpleViewModel();
         var viewModelInterface = (IViewModel)viewModel;
 
-        viewModel.Initialized
+        viewModel.Created
             .Observe()
-            .OnEach(() => onInitializeCount++);
+            .OnEach(() => onCreatedCount++);
         viewModel.Activated
             .Observe()
             .OnEach(() => onActivateCount++);
@@ -78,7 +78,7 @@ public class ViewModelTests
             .Observe()
             .OnEach(isActiveChanged.Add);
 
-        Assert.AreEqual(0, onInitializeCount);
+        Assert.AreEqual(0, onCreatedCount);
         Assert.AreEqual(0, onActivateCount);
         Assert.AreEqual(0, onDeactivateCount);
         Assert.AreEqual(0, onDisposeCount);
@@ -87,9 +87,9 @@ public class ViewModelTests
         Assert.IsFalse(viewModel.IsActive);
         Assert.IsFalse(viewModel.IsDisposed);
 
-        viewModelInterface.Initialize();
+        viewModelInterface.Create();
 
-        Assert.AreEqual(1, onInitializeCount);
+        Assert.AreEqual(1, onCreatedCount);
         Assert.AreEqual(0, onActivateCount);
         Assert.AreEqual(0, onDeactivateCount);
         Assert.AreEqual(0, onDisposeCount);
@@ -98,9 +98,9 @@ public class ViewModelTests
         Assert.IsFalse(viewModel.IsActive);
         Assert.IsFalse(viewModel.IsDisposed);
 
-        viewModelInterface.Initialize();
+        viewModelInterface.Create();
 
-        Assert.AreEqual(1, onInitializeCount);
+        Assert.AreEqual(1, onCreatedCount);
         Assert.AreEqual(0, onActivateCount);
         Assert.AreEqual(0, onDeactivateCount);
         Assert.AreEqual(0, onDisposeCount);
@@ -111,7 +111,7 @@ public class ViewModelTests
 
         viewModelInterface.Activate();
 
-        Assert.AreEqual(1, onInitializeCount);
+        Assert.AreEqual(1, onCreatedCount);
         Assert.AreEqual(1, onActivateCount);
         Assert.AreEqual(0, onDeactivateCount);
         Assert.AreEqual(0, onDisposeCount);
@@ -125,7 +125,7 @@ public class ViewModelTests
 
         viewModelInterface.Activate();
 
-        Assert.AreEqual(1, onInitializeCount);
+        Assert.AreEqual(1, onCreatedCount);
         Assert.AreEqual(1, onActivateCount);
         Assert.AreEqual(0, onDeactivateCount);
         Assert.AreEqual(0, onDisposeCount);
@@ -136,7 +136,7 @@ public class ViewModelTests
 
         viewModelInterface.Deactivate();
 
-        Assert.AreEqual(1, onInitializeCount);
+        Assert.AreEqual(1, onCreatedCount);
         Assert.AreEqual(1, onActivateCount);
         Assert.AreEqual(1, onDeactivateCount);
         Assert.AreEqual(0, onDisposeCount);
@@ -150,7 +150,7 @@ public class ViewModelTests
 
         viewModelInterface.Deactivate();
 
-        Assert.AreEqual(1, onInitializeCount);
+        Assert.AreEqual(1, onCreatedCount);
         Assert.AreEqual(1, onActivateCount);
         Assert.AreEqual(1, onDeactivateCount);
         Assert.AreEqual(0, onDisposeCount);
@@ -161,7 +161,7 @@ public class ViewModelTests
 
         viewModelInterface.Dispose();
 
-        Assert.AreEqual(1, onInitializeCount);
+        Assert.AreEqual(1, onCreatedCount);
         Assert.AreEqual(1, onActivateCount);
         Assert.AreEqual(1, onDeactivateCount);
         Assert.AreEqual(1, onDisposeCount);
@@ -172,7 +172,7 @@ public class ViewModelTests
 
         viewModelInterface.Dispose();
 
-        Assert.AreEqual(1, onInitializeCount);
+        Assert.AreEqual(1, onCreatedCount);
         Assert.AreEqual(1, onActivateCount);
         Assert.AreEqual(1, onDeactivateCount);
         Assert.AreEqual(1, onDisposeCount);

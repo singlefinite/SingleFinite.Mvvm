@@ -66,9 +66,9 @@ public abstract class ViewModel :
     #region Properties
 
     /// <summary>
-    /// Indicates if this view model has been initialized.
+    /// Indicates if this view model has finished being created.
     /// </summary>
-    public bool IsInitialized { get; private set; }
+    public bool IsCreated { get; private set; }
 
     /// <summary>
     /// Indicates if this view model is currently active.
@@ -103,14 +103,14 @@ public abstract class ViewModel :
     #region Methods
 
     /// <inheritdoc/>
-    void ILifecycleMutable.Initialize()
+    void ILifecycleMutable.Create()
     {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
-        if (IsInitialized) return;
+        if (IsCreated) return;
 
-        IsInitialized = true;
-        OnInitialize();
-        _initializedSource.Emit();
+        IsCreated = true;
+        OnCreated();
+        _createdSource.Emit();
     }
 
     /// <inheritdoc/>
@@ -150,7 +150,7 @@ public abstract class ViewModel :
     /// <summary>
     /// Called immediately after this view model is created.
     /// </summary>
-    protected virtual void OnInitialize()
+    protected virtual void OnCreated()
     {
     }
 
@@ -184,8 +184,8 @@ public abstract class ViewModel :
     #region Events
 
     /// <inheritdoc/>
-    public Observable Initialized => _initializedSource.Observable;
-    private readonly ObservableSource _initializedSource = new();
+    public Observable Created => _createdSource.Observable;
+    private readonly ObservableSource _createdSource = new();
 
     /// <inheritdoc/>
     public Observable Activated => _activatedSource.Observable;

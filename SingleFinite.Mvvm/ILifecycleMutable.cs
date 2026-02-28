@@ -32,7 +32,7 @@ public interface ILifecycleMutable : IDisposable
     /// <exception cref="ObjectDisposedException">
     /// Thrown if this object has been disposed.
     /// </exception>
-    void Initialize();
+    void Create();
 
     /// <summary>
     /// Called after this object has been made active.

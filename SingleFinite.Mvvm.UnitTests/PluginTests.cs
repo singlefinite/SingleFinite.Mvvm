@@ -34,15 +34,15 @@ public class PluginTests
     [TestMethod]
     public void LifeCycleEventsCalled()
     {
-        using var context = new TestContext();
+        using var context = new MvvmTestContext();
         var presenter = context.ServiceProvider.GetRequiredService<IPresentableItem>();
         var viewModel = presenter.Set<ExamplePluginHost>();
         var lines = viewModel.Lines;
 
         Assert.HasCount(6, lines);
-        Assert.AreEqual("ExamplePluginHost OnInitialize", lines[0]);
-        Assert.AreEqual("ExamplePluginA OnInitialize", lines[1]);
-        Assert.AreEqual("ExamplePluginB OnInitialize", lines[2]);
+        Assert.AreEqual("ExamplePluginHost OnCreated", lines[0]);
+        Assert.AreEqual("ExamplePluginA OnCreated", lines[1]);
+        Assert.AreEqual("ExamplePluginB OnCreated", lines[2]);
         Assert.AreEqual("ExamplePluginHost OnActivate", lines[3]);
         Assert.AreEqual("ExamplePluginA OnActivate", lines[4]);
         Assert.AreEqual("ExamplePluginB OnActivate", lines[5]);
@@ -66,8 +66,8 @@ public class PluginTests
     {
         public List<string> Lines { get; } = [];
 
-        protected override void OnInitialize() =>
-            Lines.Add("ExamplePluginHost OnInitialize");
+        protected override void OnCreated() =>
+            Lines.Add("ExamplePluginHost OnCreated");
 
         protected override void OnActivate(CancellationToken cancellationToken) =>
             Lines.Add("ExamplePluginHost OnActivate");
@@ -84,8 +84,8 @@ public class PluginTests
     /// </summary>
     private class ExamplePluginA : Plugin<ExamplePluginHost>
     {
-        protected override void OnInitialize() =>
-            PluginHost.Lines.Add("ExamplePluginA OnInitialize");
+        protected override void OnCreated() =>
+            PluginHost.Lines.Add("ExamplePluginA OnCreated");
 
         protected override void OnActivate(CancellationToken cancellationToken) =>
             PluginHost.Lines.Add("ExamplePluginA OnActivate");
@@ -102,8 +102,8 @@ public class PluginTests
     /// </summary>
     private class ExamplePluginB : Plugin<ExamplePluginHost>
     {
-        protected override void OnInitialize() =>
-            PluginHost.Lines.Add("ExamplePluginB OnInitialize");
+        protected override void OnCreated() =>
+            PluginHost.Lines.Add("ExamplePluginB OnCreated");
 
         protected override void OnActivate(CancellationToken cancellationToken) =>
             PluginHost.Lines.Add("ExamplePluginB OnActivate");
@@ -118,13 +118,8 @@ public class PluginTests
     /// <summary>
     /// Class used for unit tests.
     /// </summary>
-    private class ExamplePluginHostView : IView<ExamplePluginHost>
+    private class ExamplePluginHostView(ExamplePluginHost viewModel) : IView<ExamplePluginHost>
     {
-        public ExamplePluginHostView(ExamplePluginHost viewModel)
-        {
-            ViewModel = viewModel;
-        }
-
-        public ExamplePluginHost ViewModel { get; }
+        public ExamplePluginHost ViewModel { get; } = viewModel;
     }
 }
