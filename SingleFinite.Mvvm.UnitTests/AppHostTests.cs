@@ -274,8 +274,8 @@ public class AppHostTests(TestContext testContext)
         public void Emit(AppLifecycleEvent lifecycleEvent) =>
             _lifecycleEventSource.Emit(lifecycleEvent);
 
-        public Observable<AppLifecycleEvent> LifecycleEvent => _lifecycleEventSource.Observable;
-        private ObservableSource<AppLifecycleEvent> _lifecycleEventSource = new();
+        public IEventObservable<AppLifecycleEvent> LifecycleEvent => _lifecycleEventSource.Observable;
+        private EventObservableSource<AppLifecycleEvent> _lifecycleEventSource = new();
     }
 
     #endregion

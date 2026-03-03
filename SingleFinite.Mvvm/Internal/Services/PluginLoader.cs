@@ -52,22 +52,23 @@ internal class PluginLoader(
         {
             var pluginScope = serviceProvider.CreateLinkedScope();
             var builder = pluginScope.ServiceProvider.GetRequiredService<IBuilder>();
+            var cancellationTokenProvider = pluginScope.ServiceProvider.GetRequiredService<ICancellationTokenProvider>();
             var plugin = (IPlugin)builder.Build(descriptor.PluginType);
 
             pluginHost.Activated
                 .Observe()
                 .OnEach(plugin.Activate)
-                .Until(plugin);
+                .Until(cancellationTokenProvider.CancellationToken);
 
             pluginHost.Deactivated
                 .Observe()
                 .OnEach(plugin.Deactivate)
-                .Until(plugin);
+                .Until(cancellationTokenProvider.CancellationToken);
 
             pluginHost.Disposed
                 .Observe()
                 .OnEach(plugin.Dispose)
-                .Until(plugin);
+                .Until(cancellationTokenProvider.CancellationToken);
 
             plugin.Load(pluginHost);
             plugin.Create();

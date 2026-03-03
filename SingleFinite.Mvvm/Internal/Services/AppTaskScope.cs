@@ -65,9 +65,6 @@ internal class AppTaskScope(
     /// <inheritdoc/>
     public CancellationToken CancellationToken => _taskScope.CancellationToken;
 
-    /// <inheritdoc/>
-    public bool IsDisposed => _taskScope.IsDisposed;
-
     #endregion
 
     #region Methods
@@ -89,13 +86,6 @@ internal class AppTaskScope(
         IDispatcher? dispatcher = null,
         CancellationToken cancellationToken = default
     ) => _taskScope.RunAsync(function, dispatcher, cancellationToken);
-
-    #endregion
-
-    #region Events
-
-    /// <inheritdoc/>
-    public Observable Disposed => _taskScope.Disposed;
 
     #endregion
 }

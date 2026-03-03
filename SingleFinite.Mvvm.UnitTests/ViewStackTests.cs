@@ -449,7 +449,7 @@ public class ViewStackTests
 
     #region Types
 
-    private class TestViewModel(string name, List<string> output) : ViewModel, IClosable
+    private class TestViewModel(string name, List<string> output) : ViewModel, ICloseObservable
     {
         public string Name => name;
 
@@ -472,8 +472,8 @@ public class ViewStackTests
 
         public void Close() => _closedSource.Emit(this);
 
-        public Observable<IClosable> Closed => _closedSource.Observable;
-        private readonly ObservableSource<IClosable> _closedSource = new();
+        public IEventObservable<ICloseObservable> Closed => _closedSource.Observable;
+        private readonly EventObservableSource<ICloseObservable> _closedSource = new();
     }
 
     private class TestView(TestViewModel viewModel) : IView<TestViewModel>

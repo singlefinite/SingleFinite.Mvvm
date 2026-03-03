@@ -26,7 +26,7 @@ namespace SingleFinite.Mvvm.Services;
 /// <summary>
 /// The top level object that holds the application state.
 /// </summary>
-public interface IAppHost : IDisposable, IDisposeObservable
+public interface IAppHost : IDisposable
 {
     /// <summary>
     /// The application service provider.
@@ -48,5 +48,5 @@ public interface IAppHost : IDisposable, IDisposeObservable
     /// <summary>
     /// Raised when an app lifecylce event occurs.
     /// </summary>
-    Observable<AppLifecycleEvent> LifecycleEvent { get; }
+    IEventObservable<AppLifecycleEvent> LifecycleEvent { get; }
 }

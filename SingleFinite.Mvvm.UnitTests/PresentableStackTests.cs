@@ -296,7 +296,7 @@ public class PresentableStackTests
 
     private record ViewModelTestContext(List<string> Output);
 
-    private class TestViewModel1(ViewModelTestContext context) : ViewModel, IClosable
+    private class TestViewModel1(ViewModelTestContext context) : ViewModel, ICloseObservable
     {
         protected ViewModelTestContext Context => context;
 
@@ -307,8 +307,8 @@ public class PresentableStackTests
 
         public void Close() => _closedSource.Emit(this);
 
-        public Observable<IClosable> Closed => _closedSource.Observable;
-        private readonly ObservableSource<IClosable> _closedSource = new();
+        public IEventObservable<ICloseObservable> Closed => _closedSource.Observable;
+        private readonly EventObservableSource<ICloseObservable> _closedSource = new();
     }
 
     private class TestViewModel2(ViewModelTestContext context) : TestViewModel1(context)

@@ -239,7 +239,7 @@ internal class ViewStack
     /// <param name="viewModel">The view model to subscribe to.</param>
     private void Subscribe(IViewModel viewModel)
     {
-        if (viewModel is IClosable closable)
+        if (viewModel is ICloseObservable closable)
             closable.Closed.Event += OnClosed;
     }
 
@@ -249,7 +249,7 @@ internal class ViewStack
     /// <param name="viewModel">The view model to unsubscribe from.</param>
     private void Unsubscribe(IViewModel viewModel)
     {
-        if (viewModel is IClosable closable)
+        if (viewModel is ICloseObservable closable)
             closable.Closed.Event -= OnClosed;
     }
 
@@ -304,7 +304,7 @@ internal class ViewStack
     /// Handle the Closed event raised by an IClosable object.
     /// </summary>
     /// <param name="closable">The IClosable that raised the event.</param>
-    private void OnClosed(IClosable closable)
+    private void OnClosed(ICloseObservable closable)
     {
         if (closable is IViewModel viewModel)
             Close(viewModel);
@@ -317,8 +317,8 @@ internal class ViewStack
     /// <summary>
     /// Event raised when the current view has been changed.
     /// </summary>
-    public Observable<IPresentable.CurrentChangedEventArgs> CurrentChanged => _currentChanged.Observable;
-    private readonly ObservableSource<IPresentable.CurrentChangedEventArgs> _currentChanged = new();
+    public IEventObservable<IPresentable.CurrentChangedEventArgs> CurrentChanged => _currentChanged.Observable;
+    private readonly EventObservableSource<IPresentable.CurrentChangedEventArgs> _currentChanged = new();
 
     #endregion
 }

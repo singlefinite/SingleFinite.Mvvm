@@ -36,7 +36,7 @@ public interface IPresentable
     /// <summary>
     /// Event that is raised when the current view has changed.
     /// </summary>
-    Observable<CurrentChangedEventArgs> CurrentChanged { get; }
+    IEventObservable<CurrentChangedEventArgs> CurrentChanged { get; }
 
     /// <summary>
     /// Arguments for the CurrentChanged event.

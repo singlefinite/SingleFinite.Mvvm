@@ -103,9 +103,6 @@ internal sealed class AppHost : IAppHost
     #region Properties
 
     /// <inheritdoc/>
-    public bool IsDisposed => _disposeState.IsDisposed;
-
-    /// <inheritdoc/>
     public IServiceProvider ServiceProvider => _serviceProvider ??
         throw new InvalidOperationException("The host has not been started.");
 
@@ -125,8 +122,8 @@ internal sealed class AppHost : IAppHost
 
         var exceptionHandler = _serviceProvider.GetService<IExceptionHandler>();
 
-        Observable<UnhandledExceptionEventArgs>
-            .Observe<UnhandledExceptionEventHandler>(
+        EventObservable
+            .Observe<UnhandledExceptionEventHandler, UnhandledExceptionEventArgs>(
                 register: handler => AppDomain.CurrentDomain.UnhandledException += handler,
                 unregister: handler => AppDomain.CurrentDomain.UnhandledException -= handler,
                 handler: nextEvent => (object sender, UnhandledExceptionEventArgs e) => nextEvent(e)
@@ -134,7 +131,7 @@ internal sealed class AppHost : IAppHost
             .OnEach(e => exceptionHandler?.Handle(e.ExceptionObject, e))
             .Until(_disposeState.CancellationToken);
 
-        Dispatcher.UnhandledDispatcherException
+        Dispatcher.UnhandledException
             .Observe()
             .OnEach(e => exceptionHandler?.Handle(e.Exception, e))
             .Until(_disposeState.CancellationToken);
@@ -178,11 +175,8 @@ internal sealed class AppHost : IAppHost
     #region Events
 
     /// <inheritdoc/>
-    public Observable<AppLifecycleEvent> LifecycleEvent => _lifecycleEvent.Observable;
-    private readonly ObservableSource<AppLifecycleEvent> _lifecycleEvent = new();
-
-    /// <inheritdoc/>
-    public Observable Disposed => _disposeState.Disposed;
+    public IEventObservable<AppLifecycleEvent> LifecycleEvent => _lifecycleEvent.Observable;
+    private readonly EventObservableSource<AppLifecycleEvent> _lifecycleEvent = new();
 
     #endregion
 }

@@ -26,11 +26,11 @@ namespace SingleFinite.Mvvm;
 /// <summary>
 /// An object that can be closed.
 /// </summary>
-public interface IClosable
+public interface ICloseObservable
 {
     /// <summary>
     /// Event that is raised when the object should be closed.
     /// This object should be passed with the event.
     /// </summary>
-    Observable<IClosable> Closed { get; }
+    IEventObservable<ICloseObservable> Closed { get; }
 }

@@ -184,23 +184,23 @@ public abstract class ViewModel :
     #region Events
 
     /// <inheritdoc/>
-    public Observable Created => _createdSource.Observable;
-    private readonly ObservableSource _createdSource = new();
+    public IEventObservable Created => _createdSource.Observable;
+    private readonly EventObservableSource _createdSource = new();
 
     /// <inheritdoc/>
-    public Observable Activated => _activatedSource.Observable;
-    private readonly ObservableSource _activatedSource = new();
+    public IEventObservable Activated => _activatedSource.Observable;
+    private readonly EventObservableSource _activatedSource = new();
 
     /// <inheritdoc/>
-    public Observable Deactivated => _deactivatedSource.Observable;
-    private readonly ObservableSource _deactivatedSource = new();
+    public IEventObservable Deactivated => _deactivatedSource.Observable;
+    private readonly EventObservableSource _deactivatedSource = new();
 
     /// <inheritdoc/>
-    public Observable Disposed => _disposeState.Disposed;
+    public IEventObservable Disposed => _disposeState.Disposed;
 
     /// <inheritdoc/>
-    public Observable<bool> IsActiveChanged => _isActiveChangedSource.Observable;
-    private readonly ObservableSource<bool> _isActiveChangedSource = new();
+    public IEventObservable<bool> IsActiveChanged => _isActiveChangedSource.Observable;
+    private readonly EventObservableSource<bool> _isActiveChangedSource = new();
 
     #endregion
 }

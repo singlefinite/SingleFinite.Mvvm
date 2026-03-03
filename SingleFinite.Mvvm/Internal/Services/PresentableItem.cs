@@ -29,8 +29,7 @@ namespace SingleFinite.Mvvm.Internal.Services;
 /// </summary>
 internal sealed class PresentableItem :
     IPresentableItem,
-    IDisposable,
-    IDisposeObservable
+    IDisposable
 {
     #region Fields
 
@@ -112,11 +111,8 @@ internal sealed class PresentableItem :
     #region Events
 
     /// <inheritdoc/>
-    public Observable<IPresentable.CurrentChangedEventArgs> CurrentChanged =>
+    public IEventObservable<IPresentable.CurrentChangedEventArgs> CurrentChanged =>
         _stack.CurrentChanged;
-
-    /// <inheritdoc/>
-    public Observable Disposed => _disposeState.Disposed;
 
     #endregion
 }

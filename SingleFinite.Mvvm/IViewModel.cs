@@ -19,13 +19,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using SingleFinite.Essentials;
-
 namespace SingleFinite.Mvvm;
 
 /// <summary>
 /// Interface for a view model.
 /// </summary>
-public interface IViewModel : ILifecycleObservable, IDisposeObservable
+public interface IViewModel : ILifecycleObservable
 {
 }

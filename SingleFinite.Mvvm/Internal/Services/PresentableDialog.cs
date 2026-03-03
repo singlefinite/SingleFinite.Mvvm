@@ -29,8 +29,7 @@ namespace SingleFinite.Mvvm.Internal.Services;
 /// </summary>
 internal class PresentableDialog :
     IPresentableDialog,
-    IDisposable,
-    IDisposeObservable
+    IDisposable
 {
     #region Fields
 
@@ -69,9 +68,6 @@ internal class PresentableDialog :
     #endregion
 
     #region Properties
-
-    /// <inheritdoc/>
-    public bool IsDisposed => _disposeState.IsDisposed;
 
     /// <inheritdoc/>
     public IView? Current => _stack.Current;
@@ -146,11 +142,8 @@ internal class PresentableDialog :
     #region Events
 
     /// <inheritdoc/>
-    public Observable<IPresentable.CurrentChangedEventArgs> CurrentChanged =>
+    public IEventObservable<IPresentable.CurrentChangedEventArgs> CurrentChanged =>
         _stack.CurrentChanged;
-
-    /// <inheritdoc/>
-    public Observable Disposed => _disposeState.Disposed;
 
     #endregion
 }

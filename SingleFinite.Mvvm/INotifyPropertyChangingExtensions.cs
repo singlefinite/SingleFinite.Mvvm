@@ -39,8 +39,8 @@ public static partial class INotifyPropertyChangingExtensions
         /// <returns>
         /// An observer that when disposed will unregister the callback.
         /// </returns>
-        public Essentials.IObserver<string?> ObservePropertyChanging() =>
-            Observable<string?>.Observe<PropertyChangingEventHandler>(
+        public IEventObserver<string?> ObservePropertyChanging() =>
+            EventObservable.Observe<PropertyChangingEventHandler, string?>(
                 register: handler => component.PropertyChanging += handler,
                 unregister: handler => component.PropertyChanging -= handler,
                 handler: raiseNext => (sender, args) => raiseNext(args.PropertyName)
@@ -64,7 +64,7 @@ public static partial class INotifyPropertyChangingExtensions
         /// <returns>
         /// An observer that emits the property's value each time it changes.
         /// </returns>
-        public Essentials.IObserver<TProperty> ObservePropertyChanging<TProperty>(
+        public IEventObserver<TProperty> ObservePropertyChanging<TProperty>(
             Func<TComponent, TProperty> property,
             [CallerArgumentExpression(nameof(property))]
             string? propertyExpression = default

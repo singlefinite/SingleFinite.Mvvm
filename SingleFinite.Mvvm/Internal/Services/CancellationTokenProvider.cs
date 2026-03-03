@@ -29,8 +29,7 @@ namespace SingleFinite.Mvvm.Internal.Services;
 /// </summary>
 internal sealed class CancellationTokenProvider :
     ICancellationTokenProvider,
-    IDisposable,
-    IDisposeObservable
+    IDisposable
 {
     #region Fields
 
@@ -65,9 +64,6 @@ internal sealed class CancellationTokenProvider :
     #region Properties
 
     /// <inheritdoc/>
-    public bool IsDisposed => _disposeState.IsDisposed;
-
-    /// <inheritdoc/>
     public CancellationToken CancellationToken { get; }
 
     #endregion
@@ -85,13 +81,6 @@ internal sealed class CancellationTokenProvider :
         _cancellationTokenSource.Cancel();
         _cancellationTokenSource.Dispose();
     }
-
-    #endregion
-
-    #region Events
-
-    /// <inheritdoc/>
-    public Observable Disposed => _disposeState.Disposed;
 
     #endregion
 }

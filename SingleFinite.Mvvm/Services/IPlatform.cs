@@ -32,5 +32,5 @@ public interface IPlatform
     /// <summary>
     /// Raised when an app lifecylce event occurs.
     /// </summary>
-    Observable<AppLifecycleEvent> LifecycleEvent { get; }
+    IEventObservable<AppLifecycleEvent> LifecycleEvent { get; }
 }
