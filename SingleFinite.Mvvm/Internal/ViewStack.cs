@@ -20,7 +20,7 @@
 // SOFTWARE.
 
 using SingleFinite.Essentials;
-using SingleFinite.Mvvm.Services;
+using SingleFinite.Mvvm.Services.Presenters;
 
 namespace SingleFinite.Mvvm.Internal;
 
@@ -317,8 +317,8 @@ internal class ViewStack
     /// <summary>
     /// Event raised when the current view has been changed.
     /// </summary>
-    public IEventObservable<IPresentable.CurrentChangedEventArgs> CurrentChanged => _currentChanged.Observable;
-    private readonly EventObservableSource<IPresentable.CurrentChangedEventArgs> _currentChanged = new();
+    public IEventObservable<IPresenter.CurrentChangedEventArgs> CurrentChanged => _currentChanged.Observable;
+    private readonly EventObservableSource<IPresenter.CurrentChangedEventArgs> _currentChanged = new();
 
     #endregion
 }

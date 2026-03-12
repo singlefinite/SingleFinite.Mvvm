@@ -19,14 +19,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-namespace SingleFinite.Mvvm.Services;
+namespace SingleFinite.Mvvm.Services.Presenters;
 
 /// <summary>
 /// A presenter for <see cref="IView"/> objects in a stack.  The stack will 
 /// create and invoke the lifecycle methods for the view models that are part of
 /// the stack.
 /// </summary>
-public interface IPresentableStack : IPresentable
+public interface IStackPresenter : IPresenter
 {
     /// <summary>
     /// The current view models in the stack.

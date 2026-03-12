@@ -21,14 +21,15 @@
 
 using SingleFinite.Essentials;
 using SingleFinite.Mvvm.Services;
+using SingleFinite.Mvvm.Services.Presenters;
 
-namespace SingleFinite.Mvvm.Internal.Services;
+namespace SingleFinite.Mvvm.Internal.Services.Presenters;
 
 /// <summary>
-/// Implementation of <see cref="IPresentableStack"/>.
+/// Implementation of <see cref="IStackPresenter"/>.
 /// </summary>
-internal sealed class PresentableStack :
-    IPresentableStack,
+internal sealed class StackPresenter :
+    IStackPresenter,
     IDisposable
 {
     #region Fields
@@ -52,7 +53,7 @@ internal sealed class PresentableStack :
 
     #region Constructors
 
-    public PresentableStack(IViewBuilder viewBuilder)
+    public StackPresenter(IViewBuilder viewBuilder)
     {
         _viewBuilder = viewBuilder;
         _disposeState = new(
@@ -355,7 +356,7 @@ internal sealed class PresentableStack :
     #region Events
 
     /// <inheritdoc/>
-    public IEventObservable<IPresentable.CurrentChangedEventArgs> CurrentChanged =>
+    public IEventObservable<IPresenter.CurrentChangedEventArgs> CurrentChanged =>
         _stack.CurrentChanged;
 
     #endregion

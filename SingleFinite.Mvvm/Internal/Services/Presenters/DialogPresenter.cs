@@ -21,14 +21,15 @@
 
 using SingleFinite.Essentials;
 using SingleFinite.Mvvm.Services;
+using SingleFinite.Mvvm.Services.Presenters;
 
-namespace SingleFinite.Mvvm.Internal.Services;
+namespace SingleFinite.Mvvm.Internal.Services.Presenters;
 
 /// <summary>
-/// Implementation of <see cref="IPresentableItem"/>.
+/// Implementation of <see cref="IDialogPresenter"/>.
 /// </summary>
-internal sealed class PresentableItem :
-    IPresentableItem,
+internal class DialogPresenter :
+    IDialogPresenter,
     IDisposable
 {
     #region Fields
@@ -39,8 +40,7 @@ internal sealed class PresentableItem :
     private readonly DisposeState _disposeState;
 
     /// <summary>
-    /// Holds the current view.  A ViewStack is used here as it supports
-    /// lifecycle management of the view.
+    /// Holds the stack of dialog views.
     /// </summary>
     private readonly ViewStack _stack = new();
 
@@ -53,7 +53,11 @@ internal sealed class PresentableItem :
 
     #region Constructors
 
-    public PresentableItem(IViewBuilder viewBuilder)
+    /// <summary>
+    /// Constructor.
+    /// </summary>
+    /// <param name="viewBuilder">Used to build view objects.</param>
+    public DialogPresenter(IViewBuilder viewBuilder)
     {
         _viewBuilder = viewBuilder;
         _disposeState = new(
@@ -67,35 +71,63 @@ internal sealed class PresentableItem :
     #region Properties
 
     /// <inheritdoc/>
-    public bool IsDisposed => _disposeState.IsDisposed;
+    public IView? Current => _stack.Current;
 
     /// <inheritdoc/>
-    public IView? Current => _stack.Current;
+    public IViewModel[] ViewModels => _stack.ViewModels;
 
     #endregion
 
     #region Methods
 
     /// <inheritdoc/>
-    public IViewModel Set(IViewModelDescriptor viewModelDescriptor)
+    public IViewModel Show(IViewModelDescriptor viewModelDescriptor)
     {
         _disposeState.ThrowIfDisposed();
 
         var view = _viewBuilder.Build(viewModelDescriptor);
         _stack.Push(
             views: [view],
-            popCount: 1
+            popCount: 0
         );
 
         return view.ViewModel;
     }
 
     /// <inheritdoc/>
-    public TViewModel Set<TViewModel>(params object[] parameters)
+    public TViewModel Show<TViewModel>(params object[] parameters)
         where TViewModel : IViewModel =>
-        (TViewModel)Set(
+        (TViewModel)Show(new ViewModelDescriptor<TViewModel>(parameters));
+
+    /// <inheritdoc/>
+    public Task<IViewModel> ShowAsync(IViewModelDescriptor viewModelDescriptor)
+    {
+        _disposeState.ThrowIfDisposed();
+
+        var taskSource = new TaskCompletionSource<IViewModel>();
+        var viewModel = Show(viewModelDescriptor);
+        viewModel.Disposed
+            .Observe()
+            .OnEach(() => taskSource.TrySetResult(viewModel))
+            .Once();
+        return taskSource.Task;
+    }
+
+    /// <inheritdoc/>
+    public async Task<TViewModel> ShowAsync<TViewModel>(
+        params object[] parameters
+    )
+        where TViewModel : IViewModel =>
+        (TViewModel)await ShowAsync(
             new ViewModelDescriptor<TViewModel>(parameters)
         );
+
+    /// <inheritdoc/>
+    public void Close(IViewModel viewModel)
+    {
+        _disposeState.ThrowIfDisposed();
+        _stack.Close(viewModel);
+    }
 
     /// <inheritdoc/>
     public void Clear()
@@ -111,7 +143,7 @@ internal sealed class PresentableItem :
     #region Events
 
     /// <inheritdoc/>
-    public IEventObservable<IPresentable.CurrentChangedEventArgs> CurrentChanged =>
+    public IEventObservable<IPresenter.CurrentChangedEventArgs> CurrentChanged =>
         _stack.CurrentChanged;
 
     #endregion

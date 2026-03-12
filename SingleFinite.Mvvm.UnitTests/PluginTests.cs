@@ -20,8 +20,8 @@
 // SOFTWARE.
 
 
-using SingleFinite.Mvvm.Services;
 using Microsoft.Extensions.DependencyInjection;
+using SingleFinite.Mvvm.Services.Presenters;
 
 namespace SingleFinite.Mvvm.UnitTests;
 
@@ -35,7 +35,7 @@ public class PluginTests
     public void LifeCycleEventsCalled()
     {
         using var context = new MvvmTestContext();
-        var presenter = context.ServiceProvider.GetRequiredService<IPresentableItem>();
+        var presenter = context.ServiceProvider.GetRequiredService<IItemPresenter>();
         var viewModel = presenter.Set<ExamplePluginHost>();
         var lines = viewModel.Lines;
 

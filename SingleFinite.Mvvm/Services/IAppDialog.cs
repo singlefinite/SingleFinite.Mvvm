@@ -19,11 +19,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using SingleFinite.Mvvm.Services.Presenters;
+
 namespace SingleFinite.Mvvm.Services;
 
 /// <summary>
 /// The application wide dialog service.
 /// </summary>
-public interface IAppDialog : IPresentableDialog
+public interface IAppDialog : IDialogPresenter
 {
 }

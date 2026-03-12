@@ -19,10 +19,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using SingleFinite.Mvvm.Services.Presenters;
+
 namespace SingleFinite.Mvvm.Services;
 
 /// <summary>
-/// Options for popping view models off of a <see cref="IPresentableStack"/>.
+/// Options for popping view models off of a <see cref="IStackPresenter"/>.
 /// </summary>
 public abstract record PopOptions
 {

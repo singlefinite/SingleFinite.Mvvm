@@ -69,21 +69,21 @@ Let's create a new instance of `MyViewModel` from the `IAppHost` instance we cre
 
 // ...
 
-var presentable = appHost.ServiceProvider.GetRequiredService<IPresentableItem>();
-var viewModel = presentable.Set<MyViewModel>();
+var presenter = appHost.ServiceProvider.GetRequiredService<IItemPresenter>();
+var viewModel = presenter.Set<MyViewModel>();
 
 Console.WriteLine($"My ViewModel => {viewModel.GetType().FullName}");
-Console.WriteLine($"My View => {presentable.Current.GetType().FullName}");
+Console.WriteLine($"My View => {presenter.Current.GetType().FullName}");
 ```
 
 SingleFinite.MVVM is built on top of the [Microsoft Dependency Injection library](Microsoft.Extensions.DependencyInjection) and the `IAppHost` object contains
-an `IServiceProvider` that holds all of the registered services.  We get a new instance of `IPresentableItem` from the `IServiceProvider` which we use to create
+an `IServiceProvider` that holds all of the registered services.  We get a new instance of `IItemPresenter` from the `IServiceProvider` which we use to create
 a new instance of our view model.
 
-`IPresentable` services are used to create and manage the lifecycle of view models and their views.  Both the view model and view
+`IPresenter` services are used to create and manage the lifecycle of view models and their views.  Both the view model and view
 will be created with a new dependency injection scope and will be injected with services as defined in their constructors.  Normally you will use
 another platform specific library like [SingleFinite.Mvvm.WinUI](https://github.com/singlefinite/SingleFinite.Mvvm.WinUI/) to manage the `IAppHost` instance and
-to present views for `IPresentable` based services.
+to present views for `IPresenter` based services.
 
 #### Learn more
 

@@ -21,12 +21,12 @@
 
 using SingleFinite.Essentials;
 
-namespace SingleFinite.Mvvm.Services;
+namespace SingleFinite.Mvvm.Services.Presenters;
 
 /// <summary>
 /// A service that presents a view.
 /// </summary>
-public interface IPresentable
+public interface IPresenter
 {
     /// <summary>
     /// The current view to present.

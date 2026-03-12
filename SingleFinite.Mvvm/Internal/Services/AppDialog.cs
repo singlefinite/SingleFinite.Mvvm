@@ -19,6 +19,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using SingleFinite.Mvvm.Internal.Services.Presenters;
 using SingleFinite.Mvvm.Services;
 
 namespace SingleFinite.Mvvm.Internal.Services;
@@ -28,7 +29,7 @@ namespace SingleFinite.Mvvm.Internal.Services;
 /// </summary>
 /// <param name="viewBuilder">Passed to the super class.</param>
 internal sealed class AppDialog(IViewBuilder viewBuilder) :
-    PresentableDialog(viewBuilder),
+    DialogPresenter(viewBuilder),
     IAppDialog
 {
 }

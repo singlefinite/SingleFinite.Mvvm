@@ -19,30 +19,33 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-namespace SingleFinite.Mvvm.Services;
+namespace SingleFinite.Mvvm.Services.Presenters;
 
 /// <summary>
-/// Service used to display dialogs.
+/// A presenter for a single <see cref="IView"/> object.  This presenter will
+/// create and invoke the lifecycle methods when a view model is added and when
+/// it is removed.
 /// </summary>
-public interface IPresentableDialog : IPresentable
+public interface IItemPresenter : IPresenter
 {
     /// <summary>
-    /// All currently open dialogs in order from top to bottom with the top
-    /// most dialog at index 0.
-    /// </summary>
-    IViewModel[] ViewModels { get; }
-
-    /// <summary>
-    /// Display a dialog.
+    /// Create a view model and set it as the current view model.  If there is
+    /// already a current view model it will be removed before the new view
+    /// model is made the current view model.
     /// </summary>
     /// <param name="viewModelDescriptor">
     /// Describes the view model to build.
     /// </param>
     /// <returns>The newly created view model.</returns>
-    IViewModel Show(IViewModelDescriptor viewModelDescriptor);
+    /// <exception cref="ObjectDisposedException">
+    /// Thrown if this presenter has been disposed.
+    /// </exception>
+    IViewModel Set(IViewModelDescriptor viewModelDescriptor);
 
     /// <summary>
-    /// Display a dialog.
+    /// Create a view model and set it as the current view model.  If there is
+    /// already a current view model it will be removed before the new view
+    /// model is made the current view model.
     /// </summary>
     /// <typeparam name="TViewModel">
     /// The type of view model to build.
@@ -51,44 +54,14 @@ public interface IPresentableDialog : IPresentable
     /// The parameters that will be provided to the view model.
     /// </param>
     /// <returns>The newly created view model.</returns>
-    TViewModel Show<TViewModel>(
-        params object[] parameters
-    )
+    /// <exception cref="ObjectDisposedException">
+    /// Thrown if this presenter has been disposed.
+    /// </exception>
+    TViewModel Set<TViewModel>(params object[] parameters)
         where TViewModel : IViewModel;
 
     /// <summary>
-    /// Display a dialog and wait until the dialog is closed.
-    /// </summary>
-    /// <param name="viewModelDescriptor">
-    /// Describes the view model to build.
-    /// </param>
-    /// <returns>The newly created view model.</returns>
-    Task<IViewModel> ShowAsync(IViewModelDescriptor viewModelDescriptor);
-
-    /// <summary>
-    /// Display a dialog and wait until the dialog is closed.
-    /// </summary>
-    /// <typeparam name="TViewModel">
-    /// The type of view model to build.
-    /// </typeparam>
-    /// <param name="parameters">
-    /// The parameters that will be provided to the view model.
-    /// </param>
-    /// <returns>The newly created view model.</returns>
-    Task<TViewModel> ShowAsync<TViewModel>(
-        params object[] parameters
-    )
-        where TViewModel : IViewModel;
-
-    /// <summary>
-    /// Close the given view model.  If the view model isn't open this method
-    /// will have no effect.
-    /// </summary>
-    /// <param name="viewModel">The view model to close.</param>
-    void Close(IViewModel viewModel);
-
-    /// <summary>
-    /// Close all currently open view models.
+    /// Remove the current view model if there is one.
     /// </summary>
     void Clear();
 }

@@ -20,9 +20,9 @@
 // SOFTWARE.
 
 using SingleFinite.Mvvm.Internal;
-using SingleFinite.Mvvm.Services;
 using Microsoft.Extensions.DependencyInjection;
 using SingleFinite.Essentials;
+using SingleFinite.Mvvm.Services.Presenters;
 
 namespace SingleFinite.Mvvm.UnitTests;
 
@@ -35,7 +35,7 @@ public class ViewModelTests
         using var context = new MvvmTestContext();
         var scope = context.ServiceProvider.CreateLinkedScope();
 
-        var viewModel1 = new NestingViewModel(scope.ServiceProvider.GetRequiredService<IPresentableStack>());
+        var viewModel1 = new NestingViewModel(scope.ServiceProvider.GetRequiredService<IStackPresenter>());
         var viewModel2 = viewModel1.CreateChild("second");
         var viewModel3 = viewModel2.CreateChild("third");
 
@@ -203,7 +203,7 @@ public class ViewModelTests
         public NestingViewModel ViewModel => viewModel;
     }
 
-    private class NestingViewModel(IPresentableStack presenterStack) : ViewModel
+    private class NestingViewModel(IStackPresenter presenterStack) : ViewModel
     {
         private string _name = "first";
         public string Name => _name;

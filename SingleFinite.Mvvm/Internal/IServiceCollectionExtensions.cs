@@ -23,6 +23,8 @@ using SingleFinite.Mvvm.Internal.Services;
 using SingleFinite.Mvvm.Services;
 using Microsoft.Extensions.DependencyInjection;
 using SingleFinite.Essentials;
+using SingleFinite.Mvvm.Services.Presenters;
+using SingleFinite.Mvvm.Internal.Services.Presenters;
 
 namespace SingleFinite.Mvvm.Internal;
 
@@ -69,7 +71,7 @@ internal static class IServiceCollectionExtensions
         .AddScoped<IViewBuilder, ViewBuilder>()
         .AddScoped<ICancellationTokenProvider, CancellationTokenProvider>()
         .AddScoped<ITaskScope, AppTaskScope>()
-        .AddTransient<IPresentableItem, PresentableItem>()
-        .AddTransient<IPresentableStack, PresentableStack>()
-        .AddTransient<IPresentableDialog, PresentableDialog>();
+        .AddTransient<IItemPresenter, ItemPresenter>()
+        .AddTransient<IStackPresenter, StackPresenter>()
+        .AddTransient<IDialogPresenter, DialogPresenter>();
 }
