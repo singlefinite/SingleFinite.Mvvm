@@ -66,7 +66,6 @@ internal static class IServiceCollectionExtensions
         .AddSingleton<IPluginRegistry>(new PluginRegistry(plugins))
         .AddSingleton<IPluginLoader, PluginLoader>()
         .AddSingleton<IAppTaskScope, AppTaskScope>()
-        .AddSingleton<IAppDialog, AppDialog>()
         .AddScoped<IBuilder, Builder>()
         .AddScoped<IViewBuilder, ViewBuilder>()
         .AddScoped<ICancellationTokenProvider, CancellationTokenProvider>()

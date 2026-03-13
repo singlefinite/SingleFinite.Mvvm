@@ -24,11 +24,7 @@ using SingleFinite.Essentials;
 namespace SingleFinite.Mvvm.Services;
 
 /// <summary>
-/// A dispatcher that belongs to a dependency injection scope and dispatches 
-/// code execution to the main thread.  Functions and actions executed through 
-/// this dispatcher will be provided a <see cref="CancellationToken"/> that is 
-/// cancelled when the dependency injection scope this service belongs to is 
-/// disposed.
+/// A dispatcher that dispatches code execution to the main thread.
 /// </summary>
 public interface IMainDispatcher : IDispatcher
 {

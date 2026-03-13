@@ -24,7 +24,7 @@ using SingleFinite.Essentials;
 namespace SingleFinite.Mvvm.Services;
 
 /// <summary>
-/// The TaskScope associated with the application lifetime.
+/// A TaskScope that shares the same lifetime as the application.
 /// </summary>
 public interface IAppTaskScope : ITaskScope
 {
