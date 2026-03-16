@@ -82,7 +82,7 @@ internal sealed class ItemPresenter :
     {
         _disposeState.ThrowIfDisposed();
 
-        var view = _viewBuilder.Build(viewModelDescriptor);
+        var view = _viewBuilder.BuildFromDescriptor(viewModelDescriptor);
         _stack.Push(
             views: [view],
             popCount: 1

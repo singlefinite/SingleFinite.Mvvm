@@ -19,17 +19,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using SingleFinite.Mvvm.Services;
-using Microsoft.Extensions.DependencyInjection;
 using SingleFinite.Essentials;
+using SingleFinite.Mvvm.Services;
 
 namespace SingleFinite.Mvvm.Internal.Services;
 
 /// <summary>
 /// Implementation of <see cref="IViewBuilder"/> that uses the service provider 
-/// to build view objects.
+/// to build views.
 /// </summary>
-/// <param name="serviceProvider">Used to build new objects.</param>
+/// <param name="serviceProvider">Used to build views.</param>
 internal sealed class ViewBuilder(
     IServiceProvider serviceProvider
 ) : IViewBuilder
@@ -37,52 +36,29 @@ internal sealed class ViewBuilder(
     #region Methods
 
     /// <inheritdoc/>
-    public IView Build(IViewModelDescriptor viewModelDescriptor)
-    {
-        var viewModelScope = serviceProvider.CreateLinkedScope();
-        var builder = viewModelScope.ServiceProvider.GetRequiredService<IBuilder>();
-
-        // Create view model.
-        //
-        var viewModel = (IViewModel)builder.Build(
-            instanceType: viewModelDescriptor.ViewModelType,
-            viewModelDescriptor.ViewModelParameters
-        );
-
-        // Dispose of scope when view model is disposed.
-        //
-        viewModel.Disposed
-            .Observe()
-            .OnEach(viewModelScope.Dispose)
-            .Once();
-
-        // Create view.
-        //
-        var viewRegistry = serviceProvider.GetRequiredService<IViewRegistry>();
-        var viewType = viewRegistry.GetViewType(viewModelDescriptor.ViewModelType);
-        var view = (IView)builder.Build(
-            instanceType: viewType,
-            viewModel
-        );
-
-        viewModel.Create();
-
-        // Attach plugins if needed.
-        //
-        if (viewModel is IPluginHost pluginHost)
-        {
-            var pluginLoader = viewModelScope.ServiceProvider.GetRequiredService<IPluginLoader>();
-            pluginLoader.LoadPlugins(pluginHost);
-        }
-
-        return view;
-    }
+    public IView BuildFromDescriptor(IViewModelDescriptor viewModelDescriptor) =>
+        AssembleFromDescriptor(viewModelDescriptor).Also(it => it.Start()).View;
 
     /// <inheritdoc/>
     public IView<TViewModel> Build<TViewModel>(params object[] parameters)
         where TViewModel : IViewModel =>
-        (IView<TViewModel>)Build(
-            new ViewModelDescriptor<TViewModel>(parameters)
+        Assemble<TViewModel>(parameters).Also(it => it.Start()).View;
+
+    /// <inheritdoc/>
+    public IViewAssembleResult AssembleFromDescriptor(
+        IViewModelDescriptor viewModelDescriptor
+    ) => new ViewAssembleResult(
+        serviceProvider: serviceProvider,
+        viewModelDescriptor: viewModelDescriptor
+    );
+
+    /// <inheritdoc/>
+    public IViewAssembleResult<TViewModel> Assemble<TViewModel>(
+        params object[] parameters
+    )
+        where TViewModel : IViewModel => new ViewAssembleResult<TViewModel>(
+            serviceProvider: serviceProvider,
+            viewModelDescriptor: new ViewModelDescriptor<TViewModel>(parameters)
         );
 
     #endregion

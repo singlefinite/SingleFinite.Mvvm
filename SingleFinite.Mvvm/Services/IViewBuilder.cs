@@ -33,7 +33,9 @@ public interface IViewBuilder
     /// The view model descriptor to build a view for.
     /// </param>
     /// <returns>The newly built view.</returns>
-    IView Build(IViewModelDescriptor viewModelDescriptor);
+    IView BuildFromDescriptor(
+        IViewModelDescriptor viewModelDescriptor
+    );
 
     /// <summary>
     /// Build a new view using the provided type parameters.
@@ -46,5 +48,37 @@ public interface IViewBuilder
     /// </param>
     /// <returns>The newly built view.</returns>
     IView<TViewModel> Build<TViewModel>(params object[] parameters)
+        where TViewModel : IViewModel;
+
+    /// <summary>
+    /// Creates a new view but doesn't call the view model OnCreated method or
+    /// load plugins.
+    /// </summary>
+    /// <param name="viewModelDescriptor">
+    /// The view model descriptor to build a view for.
+    /// </param>
+    /// <returns>
+    /// The result which includes the created view and a method to start the
+    /// view which will call the view model OnCreated method and load plugins.
+    /// </returns>
+    IViewAssembleResult AssembleFromDescriptor(
+        IViewModelDescriptor viewModelDescriptor
+    );
+
+    /// <summary>
+    /// Creates a new view but doesn't call the view model OnCreated method or
+    /// load plugins.
+    /// </summary>
+    /// <typeparam name="TViewModel">
+    /// The type of view model to build for the view.
+    /// </typeparam>
+    /// <param name="parameters">
+    /// The parameters to provide to the view model that is built for the view.
+    /// </param>
+    /// <returns>
+    /// The result which includes the created view and a method to start the
+    /// view which will call the view model OnCreated method and load plugins.
+    /// </returns>
+    IViewAssembleResult<TViewModel> Assemble<TViewModel>(params object[] parameters)
         where TViewModel : IViewModel;
 }

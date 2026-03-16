@@ -158,7 +158,7 @@ internal sealed class StackPresenter :
     {
         _disposeState.ThrowIfDisposed();
 
-        var view = _viewBuilder.Build(viewModelDescriptor);
+        var view = _viewBuilder.BuildFromDescriptor(viewModelDescriptor);
         _stack.Push(
             views: [view],
             popCount: GetPopCount(popOptions)
@@ -205,7 +205,7 @@ internal sealed class StackPresenter :
         _disposeState.ThrowIfDisposed();
 
         var viewList = viewModelDescriptors
-            .Select(_viewBuilder.Build)
+            .Select(_viewBuilder.BuildFromDescriptor)
             .ToList();
 
         if (viewList.Count == 0)
@@ -213,7 +213,7 @@ internal sealed class StackPresenter :
 
         _stack.Push(GetPopCount(popOptions), viewList);
 
-        return viewList.Select(view => view.ViewModel).ToArray();
+        return [.. viewList.Select(view => view.ViewModel)];
     }
 
     /// <inheritdoc/>
@@ -225,7 +225,7 @@ internal sealed class StackPresenter :
     {
         _disposeState.ThrowIfDisposed();
 
-        var view = _viewBuilder.Build(viewModelDescriptor);
+        var view = _viewBuilder.BuildFromDescriptor(viewModelDescriptor);
         _stack.Add(
             index: index,
             views: [view]
@@ -279,7 +279,7 @@ internal sealed class StackPresenter :
         _disposeState.ThrowIfDisposed();
 
         var viewList = viewModelDescriptors
-            .Select(_viewBuilder.Build)
+            .Select(_viewBuilder.BuildFromDescriptor)
             .ToList();
 
         if (viewList.Count == 0)
@@ -287,7 +287,7 @@ internal sealed class StackPresenter :
 
         _stack.Add(index, viewList);
 
-        return viewList.Select(view => view.ViewModel).ToArray();
+        return [.. viewList.Select(view => view.ViewModel)];
     }
 
     /// <inheritdoc/>
