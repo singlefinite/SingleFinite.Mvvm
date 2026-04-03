@@ -22,9 +22,9 @@
 namespace SingleFinite.Mvvm.Services.Presenters;
 
 /// <summary>
-/// A presenter for a single <see cref="IView"/> object.  This presenter will
-/// create and invoke the lifecycle methods when a view model is added and when
-/// it is removed.
+/// A presenter for a single <see cref="IView"/> object.  The presenter is
+/// responsible for creating and invoking the lifecycle methods for the view
+/// models it manages.
 /// </summary>
 public interface IItemPresenter : IPresenter
 {

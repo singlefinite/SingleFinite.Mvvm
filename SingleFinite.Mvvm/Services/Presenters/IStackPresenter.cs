@@ -22,9 +22,9 @@
 namespace SingleFinite.Mvvm.Services.Presenters;
 
 /// <summary>
-/// A presenter for <see cref="IView"/> objects in a stack.  The stack will 
-/// create and invoke the lifecycle methods for the view models that are part of
-/// the stack.
+/// A presenter for <see cref="IView"/> objects in a stack.  The presenter is
+/// responsible for creating and invoking the lifecycle methods for the view
+/// models it manages.
 /// </summary>
 public interface IStackPresenter : IPresenter
 {

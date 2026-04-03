@@ -22,7 +22,9 @@
 namespace SingleFinite.Mvvm.Services.Presenters;
 
 /// <summary>
-/// Service used to display dialogs.
+/// A presenter for <see cref="IView"/> objects as dialogs.  The presenter is
+/// responsible for creating and invoking the lifecycle methods for the view
+/// models it manages.
 /// </summary>
 public interface IDialogPresenter : IPresenter
 {
