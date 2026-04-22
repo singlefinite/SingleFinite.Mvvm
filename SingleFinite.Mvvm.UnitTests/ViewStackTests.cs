@@ -447,6 +447,31 @@ public class ViewStackTests
         Assert.AreEqual(view3, viewStack.Current);
     }
 
+    [TestMethod]
+    public void IsForceDeactivate_Prevents_Activation()
+    {
+        var output = new List<string>();
+        var viewStack = new ViewStack();
+        var view1 = new TestView(new TestViewModel("1", output));
+        var view2 = new TestView(new TestViewModel("2", output));
+
+        viewStack.IsActive = false;
+
+        viewStack.Push(view1);
+
+        Assert.IsFalse(view1.ViewModel.IsActive);
+
+        viewStack.Push(view2);
+
+        Assert.IsFalse(view1.ViewModel.IsActive);
+        Assert.IsFalse(view2.ViewModel.IsActive);
+
+        viewStack.IsActive = true;
+
+        Assert.IsFalse(view1.ViewModel.IsActive);
+        Assert.IsTrue(view2.ViewModel.IsActive);
+    }
+
     #region Types
 
     private class TestViewModel(string name, List<string> output) : ViewModel, ICloseObservable

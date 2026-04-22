@@ -26,7 +26,7 @@ namespace SingleFinite.Mvvm.Services;
 /// injection scope. The CancellationToken will be cancelled when the dependency
 /// injection scope the service belongs to is disposed.
 /// </summary>
-public interface ICancellationTokenProvider
+public interface IScopeContext
 {
     /// <summary>
     /// The CancellationToken that will be cancelled when the dependency 

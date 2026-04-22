@@ -54,13 +54,29 @@ internal sealed class ItemPresenter :
 
     #region Constructors
 
-    public ItemPresenter(IViewBuilder viewBuilder)
+    /// <summary>
+    /// Constructor.
+    /// </summary>
+    /// <param name="viewBuilder">Used to build views.</param>
+    /// <param name="viewModelNode">
+    /// Used to observe when a parents IsActive value changes.
+    /// </param>
+    public ItemPresenter(
+        IViewBuilder viewBuilder,
+        ViewModelNode viewModelNode
+    )
     {
         _viewBuilder = viewBuilder;
         _disposeState = new(
             owner: this,
             onDispose: Clear
         );
+
+        _stack.IsActive = viewModelNode.IsActiveFromRoot;
+        viewModelNode.IsActiveFromRootChanged
+            .Observe()
+            .OnEach(isActiveFromRoot => _stack.IsActive = isActiveFromRoot)
+            .Until(_disposeState.CancellationToken);
     }
 
     #endregion

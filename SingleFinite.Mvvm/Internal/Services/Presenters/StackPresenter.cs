@@ -53,13 +53,29 @@ internal sealed class StackPresenter :
 
     #region Constructors
 
-    public StackPresenter(IViewBuilder viewBuilder)
+    /// <summary>
+    /// Constructor.
+    /// </summary>
+    /// <param name="viewBuilder">Used to build view objects.</param>
+    /// <param name="viewModelNode">
+    /// Used to observe when a parents IsActive value changes.
+    /// </param>
+    public StackPresenter(
+        IViewBuilder viewBuilder,
+        ViewModelNode viewModelNode
+    )
     {
         _viewBuilder = viewBuilder;
         _disposeState = new(
             owner: this,
             onDispose: Clear
         );
+
+        _stack.IsActive = viewModelNode.IsActiveFromRoot;
+        viewModelNode.IsActiveFromRootChanged
+            .Observe()
+            .OnEach(isActiveFromRoot => _stack.IsActive = isActiveFromRoot)
+            .Until(_disposeState.CancellationToken);
     }
 
     #endregion

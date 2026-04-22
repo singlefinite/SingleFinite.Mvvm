@@ -24,17 +24,17 @@ using SingleFinite.Mvvm.Internal.Services;
 namespace SingleFinite.Mvvm.UnitTests;
 
 [TestClass]
-public class CancellationTokenProviderTests
+public class ScopeContextTests
 {
     [TestMethod]
     public void Dispose_Method_Cancels_Cancellation_Token()
     {
-        var cancellationTokenProvider = new CancellationTokenProvider();
+        var scopeContext = new ScopeContext();
 
-        Assert.IsFalse(cancellationTokenProvider.CancellationToken.IsCancellationRequested);
+        Assert.IsFalse(scopeContext.CancellationToken.IsCancellationRequested);
 
-        cancellationTokenProvider.Dispose();
+        scopeContext.Dispose();
 
-        Assert.IsTrue(cancellationTokenProvider.CancellationToken.IsCancellationRequested);
+        Assert.IsTrue(scopeContext.CancellationToken.IsCancellationRequested);
     }
 }

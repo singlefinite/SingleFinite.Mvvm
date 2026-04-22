@@ -32,8 +32,8 @@ namespace SingleFinite.Mvvm.Internal.Services;
 /// <remarks>
 /// Constructor.
 /// </remarks>
-/// <param name="cancellationTokenProvider">
-/// The cancellation token from this provider will be passed to the task scope
+/// <param name="scopeContext">
+/// The cancellation token from this context will be passed to the task scope
 /// so that when it is cancelled the task scope will also be cancelled.
 /// </param>
 /// <param name="backgroundDispatcher">
@@ -41,7 +41,7 @@ namespace SingleFinite.Mvvm.Internal.Services;
 /// default dispatcher for the task scope.
 /// </param>
 internal class AppTaskScope(
-    ICancellationTokenProvider cancellationTokenProvider,
+    IScopeContext scopeContext,
     IBackgroundDispatcher backgroundDispatcher
 ) : IAppTaskScope
 {
@@ -52,7 +52,7 @@ internal class AppTaskScope(
     /// </summary>
     private readonly TaskScope _taskScope = new(
         dispatcher: backgroundDispatcher,
-        parentCancellationToken: cancellationTokenProvider.CancellationToken
+        parentCancellationToken: scopeContext.CancellationToken
     );
 
     #endregion

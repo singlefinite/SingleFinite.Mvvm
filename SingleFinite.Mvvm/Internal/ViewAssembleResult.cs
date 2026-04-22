@@ -21,6 +21,7 @@
 
 using Microsoft.Extensions.DependencyInjection;
 using SingleFinite.Essentials;
+using SingleFinite.Mvvm.Internal.Services;
 using SingleFinite.Mvvm.Services;
 
 namespace SingleFinite.Mvvm.Internal;
@@ -85,6 +86,15 @@ internal class ViewAssembleResult : IViewAssembleResult
         View = (IView)builder.Build(
             instanceType: viewType,
             _viewModel
+        );
+
+        // Create ViewModelNode and wire it up.
+        //
+        var parentNode = serviceProvider.GetRequiredService<ViewModelNode>();
+        var childNode = _viewModelScope.ServiceProvider.GetRequiredService<ViewModelNode>();
+        childNode.Initialize(
+            viewModel: _viewModel,
+            parent: parentNode
         );
     }
 

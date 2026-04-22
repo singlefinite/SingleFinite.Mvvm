@@ -54,6 +54,26 @@ internal class ViewStack
     /// </summary>
     public IView? Current { get; private set; }
 
+    /// <summary>
+    /// When this property is set to false it forces all view models in the stack
+    /// to be deactivated.
+    /// </summary>
+    public bool IsActive
+    {
+        get;
+        set
+        {
+            if (field == value)
+                return;
+
+            field = value;
+            if (value)
+                ActivateTop();
+            else
+                DeactivateTop();
+        }
+    } = true;
+
     #endregion
 
     #region Methods
@@ -199,7 +219,7 @@ internal class ViewStack
         var isNew = newTopView is not null && !Views.Contains(newTopView);
 
         Views = [.. _views];
-        ViewModels = _views.Select(view => view.ViewModel).ToArray();
+        ViewModels = [.. _views.Select(view => view.ViewModel)];
 
         if (Current != newTopView)
         {
@@ -230,8 +250,13 @@ internal class ViewStack
     /// <summary>
     /// Activate the top most view model in the stack.
     /// </summary>
-    private void ActivateTop() =>
+    private void ActivateTop()
+    {
+        if (!IsActive)
+            return;
+
         _views.FirstOrDefault()?.ViewModel?.Activate();
+    }
 
     /// <summary>
     /// Subscribe to events for the view model.

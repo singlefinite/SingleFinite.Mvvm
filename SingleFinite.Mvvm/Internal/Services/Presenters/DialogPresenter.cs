@@ -57,13 +57,25 @@ internal class DialogPresenter :
     /// Constructor.
     /// </summary>
     /// <param name="viewBuilder">Used to build view objects.</param>
-    public DialogPresenter(IViewBuilder viewBuilder)
+    /// <param name="viewModelNode">
+    /// Used to observe when a parents IsActive value changes.
+    /// </param>
+    public DialogPresenter(
+        IViewBuilder viewBuilder,
+        ViewModelNode viewModelNode
+    )
     {
         _viewBuilder = viewBuilder;
         _disposeState = new(
             owner: this,
             onDispose: Clear
         );
+
+        _stack.IsActive = viewModelNode.IsActiveFromRoot;
+        viewModelNode.IsActiveFromRootChanged
+            .Observe()
+            .OnEach(isActiveFromRoot => _stack.IsActive = isActiveFromRoot)
+            .Until(_disposeState.CancellationToken);
     }
 
     #endregion

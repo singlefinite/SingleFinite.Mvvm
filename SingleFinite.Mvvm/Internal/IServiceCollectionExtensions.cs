@@ -68,8 +68,9 @@ internal static class IServiceCollectionExtensions
         .AddSingleton<IAppTaskScope, AppTaskScope>()
         .AddScoped<IBuilder, Builder>()
         .AddScoped<IViewBuilder, ViewBuilder>()
-        .AddScoped<ICancellationTokenProvider, CancellationTokenProvider>()
+        .AddScoped<IScopeContext, ScopeContext>()
         .AddScoped<ITaskScope, AppTaskScope>()
+        .AddScoped<ViewModelNode>()
         .AddTransient<IItemPresenter, ItemPresenter>()
         .AddTransient<IStackPresenter, StackPresenter>()
         .AddTransient<IDialogPresenter, DialogPresenter>();

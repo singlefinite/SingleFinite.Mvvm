@@ -21,6 +21,7 @@
 
 using Microsoft.Extensions.DependencyInjection;
 using SingleFinite.Essentials;
+using SingleFinite.Mvvm.Internal;
 using SingleFinite.Mvvm.Internal.Services.Presenters;
 using SingleFinite.Mvvm.Services.Presenters;
 
@@ -175,6 +176,31 @@ public class ItemPresenterTests
         Assert.IsNull(itemPresenter.Current);
     }
 
+    [TestMethod]
+    public void Nested_Presenter_Deactivates_When_Parent_Deactivates()
+    {
+        using var context = new MvvmTestContext();
+        var itemPresenter = (ItemPresenter)context.ServiceProvider.GetRequiredService<IItemPresenter>();
+
+        var parentViewModel = itemPresenter.Set<ParentViewModel>();
+
+        Assert.IsTrue(parentViewModel.IsActive);
+        Assert.IsTrue(parentViewModel.Child?.IsActive);
+        Assert.IsTrue(parentViewModel.Child?.Example?.IsActive);
+
+        parentViewModel.Deactivate();
+
+        Assert.IsFalse(parentViewModel.IsActive);
+        Assert.IsFalse(parentViewModel.Child?.IsActive);
+        Assert.IsFalse(parentViewModel.Child?.Example?.IsActive);
+
+        parentViewModel.Activate();
+
+        Assert.IsTrue(parentViewModel.IsActive);
+        Assert.IsTrue(parentViewModel.Child?.IsActive);
+        Assert.IsTrue(parentViewModel.Child?.Example?.IsActive);
+    }
+
     #region Types
 
     private class TestView1(TestViewModel1 viewModel) : IView<TestViewModel1>
@@ -190,6 +216,21 @@ public class ItemPresenterTests
     private class TestView3(TestViewModel3 viewModel) : IView<TestViewModel3>
     {
         public TestViewModel3 ViewModel => viewModel;
+    }
+
+    private class ParentView(ParentViewModel viewModel) : IView<ParentViewModel>
+    {
+        public ParentViewModel ViewModel => viewModel;
+    }
+
+    private class ChildView(ChildViewModel viewModel) : IView<ChildViewModel>
+    {
+        public ChildViewModel ViewModel => viewModel;
+    }
+
+    private class ExampleView(ExampleViewModel viewModel) : IView<ExampleViewModel>
+    {
+        public ExampleViewModel ViewModel => viewModel;
     }
 
     private record ViewModelTestContext(List<string> Output);
@@ -223,6 +264,30 @@ public class ItemPresenterTests
         protected override void OnActivate(CancellationToken _) => Context.Output.Add($"OnStart - {nameof(TestViewModel3)}");
         protected override void OnDeactivate() => Context.Output.Add($"OnStop - {nameof(TestViewModel3)}");
         protected override void OnDispose() => Context.Output.Add($"OnDispose - {nameof(TestViewModel3)}");
+    }
+
+    private class ParentViewModel(IItemPresenter presenter) : ViewModel
+    {
+        public ChildViewModel? Child { get; private set; }
+
+        protected override void OnCreated()
+        {
+            Child = presenter.Set<ChildViewModel>();
+        }
+    }
+
+    private class ChildViewModel(IItemPresenter presenter) : ViewModel
+    {
+        public ExampleViewModel? Example { get; private set; }
+
+        protected override void OnCreated()
+        {
+            Example = presenter.Set<ExampleViewModel>();
+        }
+    }
+
+    private class ExampleViewModel : ViewModel
+    {
     }
 
     #endregion

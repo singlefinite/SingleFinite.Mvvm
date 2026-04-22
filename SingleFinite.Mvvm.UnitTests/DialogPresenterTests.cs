@@ -21,6 +21,7 @@
 
 using Microsoft.Extensions.DependencyInjection;
 using SingleFinite.Essentials;
+using SingleFinite.Mvvm.Internal.Services;
 using SingleFinite.Mvvm.Internal.Services.Presenters;
 using SingleFinite.Mvvm.Services;
 using SingleFinite.Mvvm.Services.Presenters;
@@ -36,7 +37,8 @@ public class DialogPresenterTests
         using var context = new MvvmTestContext();
 
         var dialogPresenter = new DialogPresenter(
-            context.ServiceProvider.GetRequiredService<IViewBuilder>()
+            viewBuilder: context.ServiceProvider.GetRequiredService<IViewBuilder>(),
+            viewModelNode: context.ServiceProvider.GetRequiredService<ViewModelNode>()
         );
 
         var output = new List<string>();
@@ -97,7 +99,8 @@ public class DialogPresenterTests
         using var context = new MvvmTestContext();
 
         var dialogPresenter = new DialogPresenter(
-            context.ServiceProvider.GetRequiredService<IViewBuilder>()
+            viewBuilder: context.ServiceProvider.GetRequiredService<IViewBuilder>(),
+            viewModelNode: context.ServiceProvider.GetRequiredService<ViewModelNode>()
         );
 
         IPresenter.CurrentChangedEventArgs? observedArgs = null;
@@ -141,7 +144,8 @@ public class DialogPresenterTests
         using var context = new MvvmTestContext();
 
         var dialogPresenter = new DialogPresenter(
-            context.ServiceProvider.GetRequiredService<IViewBuilder>()
+            viewBuilder: context.ServiceProvider.GetRequiredService<IViewBuilder>(),
+            viewModelNode: context.ServiceProvider.GetRequiredService<ViewModelNode>()
         );
 
         var dialog1 = dialogPresenter.Show<Dialog1Lifecycle>(new List<string>());
@@ -171,7 +175,8 @@ public class DialogPresenterTests
         using var context = new MvvmTestContext();
 
         var dialogPresenter = new DialogPresenter(
-            context.ServiceProvider.GetRequiredService<IViewBuilder>()
+            viewBuilder: context.ServiceProvider.GetRequiredService<IViewBuilder>(),
+            viewModelNode: context.ServiceProvider.GetRequiredService<ViewModelNode>()
         );
 
         var dialog1 = dialogPresenter.Show<Dialog1Lifecycle>(new List<string>());
@@ -201,7 +206,8 @@ public class DialogPresenterTests
         using var context = new MvvmTestContext();
 
         var dialogPresenter = new DialogPresenter(
-            context.ServiceProvider.GetRequiredService<IViewBuilder>()
+            viewBuilder: context.ServiceProvider.GetRequiredService<IViewBuilder>(),
+            viewModelNode: context.ServiceProvider.GetRequiredService<ViewModelNode>()
         );
 
         var output = new List<string>();
