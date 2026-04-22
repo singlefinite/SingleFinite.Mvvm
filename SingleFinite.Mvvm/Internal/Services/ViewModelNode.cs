@@ -20,17 +20,13 @@
 // SOFTWARE.
 
 using SingleFinite.Essentials;
-using SingleFinite.Mvvm.Services;
 
 namespace SingleFinite.Mvvm.Internal.Services;
 
 /// <summary>
 /// This class holds a ViewModel and a reference to its parent.
 /// </summary>
-/// <param name="scopeContext">
-/// This node will be cleaned up when the cancellation token is cancelled.
-/// </param>
-internal class ViewModelNode(IScopeContext scopeContext)
+internal class ViewModelNode
 {
     #region Fields
 
@@ -96,12 +92,12 @@ internal class ViewModelNode(IScopeContext scopeContext)
         viewModel.IsActiveChanged
             .Observe()
             .OnEach(UpdateIsActiveFromRoot)
-            .Until(scopeContext.CancellationToken);
+            .Until(viewModel.Disposed);
 
         parent?.IsActiveFromRootChanged
             .Observe()
             .OnEach(UpdateIsActiveFromRoot)
-            .Until(scopeContext.CancellationToken);
+            .Until(viewModel.Disposed);
     }
 
     /// <summary>

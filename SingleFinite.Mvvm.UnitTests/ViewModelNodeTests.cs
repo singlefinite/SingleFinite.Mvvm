@@ -31,7 +31,7 @@ public class ViewModelNodeTests(TestContext testContext)
     [TestMethod]
     public void Calling_Initialized_More_Than_Once_Throws()
     {
-        var node = new ViewModelNode(new ScopeContext());
+        var node = new ViewModelNode();
         node.Initialize(
             viewModel: new ExampleViewModel(),
             parent: null
@@ -50,21 +50,20 @@ public class ViewModelNodeTests(TestContext testContext)
     public void IsActiveToRoot_Change_From_Parent_Changes_Child()
     {
         var observedChanges = new List<bool>();
-        var scopeContext = new ScopeContext();
 
-        var rootParentNode = new ViewModelNode(scopeContext);
+        var rootParentNode = new ViewModelNode();
         rootParentNode.Initialize(
             viewModel: new ExampleViewModel(),
             parent: null
         );
 
-        var firstParentNode = new ViewModelNode(scopeContext);
+        var firstParentNode = new ViewModelNode();
         firstParentNode.Initialize(
             viewModel: new ExampleViewModel(),
             parent: rootParentNode
         );
 
-        var childNode = new ViewModelNode(scopeContext);
+        var childNode = new ViewModelNode();
         childNode.Initialize(
             viewModel: new ExampleViewModel(),
             parent: firstParentNode
@@ -93,12 +92,11 @@ public class ViewModelNodeTests(TestContext testContext)
         Assert.IsTrue(observedChanges[1]);
         Assert.IsTrue(childNode.IsActiveFromRoot);
 
-        scopeContext.Dispose();
-
         rootParentNode.ViewModel?.Deactivate();
 
-        Assert.HasCount(2, observedChanges);
-        Assert.IsTrue(childNode.IsActiveFromRoot);
+        Assert.HasCount(3, observedChanges);
+        Assert.IsFalse(observedChanges[2]);
+        Assert.IsFalse(childNode.IsActiveFromRoot);
     }
 
     #region Types
