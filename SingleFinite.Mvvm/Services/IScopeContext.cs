@@ -22,14 +22,12 @@
 namespace SingleFinite.Mvvm.Services;
 
 /// <summary>
-/// This service is used to provide a CancellationToken for a dependency 
-/// injection scope. The CancellationToken will be cancelled when the dependency
-/// injection scope the service belongs to is disposed.
+/// This is the context for a dependency injection scope.
 /// </summary>
 public interface IScopeContext
 {
     /// <summary>
-    /// The CancellationToken that will be cancelled when the dependency 
+    /// A CancellationToken that will be cancelled when the dependency 
     /// injection scope this service belongs to is disposed.
     /// </summary>
     CancellationToken CancellationToken { get; }
