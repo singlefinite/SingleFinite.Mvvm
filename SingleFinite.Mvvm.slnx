@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path=".gitignore" />
+    <File Path="ICON.png" />
+    <File Path="LICENSE.txt" />
+    <File Path="README.md" />
+  </Folder>
+  <Project Path="SingleFinite.Mvvm.UnitTests/SingleFinite.Mvvm.UnitTests.csproj" />
+  <Project Path="SingleFinite.Mvvm/SingleFinite.Mvvm.csproj" />
+</Solution>
