@@ -59,7 +59,7 @@ internal sealed class ItemPresenter :
     /// </summary>
     /// <param name="viewBuilder">Used to build views.</param>
     /// <param name="viewModelNode">
-    /// Used to observe when a parents IsActive value changes.
+    /// Used to observe when a parent IsActive value changes.
     /// </param>
     public ItemPresenter(
         IViewBuilder viewBuilder,

@@ -58,7 +58,7 @@ internal class DialogPresenter :
     /// </summary>
     /// <param name="viewBuilder">Used to build view objects.</param>
     /// <param name="viewModelNode">
-    /// Used to observe when a parents IsActive value changes.
+    /// Used to observe when a parent IsActive value changes.
     /// </param>
     public DialogPresenter(
         IViewBuilder viewBuilder,
@@ -138,7 +138,7 @@ internal class DialogPresenter :
     public void Close(IViewModel viewModel)
     {
         _disposeState.ThrowIfDisposed();
-        _stack.Close(viewModel);
+        _stack.Remove(viewModel);
     }
 
     /// <inheritdoc/>

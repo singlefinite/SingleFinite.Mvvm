@@ -270,5 +270,5 @@ public interface IStackPresenter : IPresenter
     /// <param name="viewModels">
     /// The view models to remove from the stack.
     /// </param>
-    void Close(params IEnumerable<IViewModel> viewModels);
+    void Remove(params IEnumerable<IViewModel> viewModels);
 }

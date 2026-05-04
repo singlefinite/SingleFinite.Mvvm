@@ -58,7 +58,7 @@ internal sealed class StackPresenter :
     /// </summary>
     /// <param name="viewBuilder">Used to build view objects.</param>
     /// <param name="viewModelNode">
-    /// Used to observe when a parents IsActive value changes.
+    /// Used to observe when a parent IsActive value changes.
     /// </param>
     public StackPresenter(
         IViewBuilder viewBuilder,
@@ -358,10 +358,10 @@ internal sealed class StackPresenter :
     }
 
     /// <inheritdoc/>
-    public void Close(params IEnumerable<IViewModel> viewModels)
+    public void Remove(params IEnumerable<IViewModel> viewModels)
     {
         _disposeState.ThrowIfDisposed();
-        _stack.Close(viewModels);
+        _stack.Remove(viewModels);
     }
 
     /// <inheritdoc/>

@@ -258,7 +258,7 @@ public class ViewStackTests
         viewStack.Push(view1, view2, view3);
         output.Clear();
 
-        viewStack.Close(view3.ViewModel);
+        viewStack.Remove(view3.ViewModel);
 
         Assert.AreEqual(view2, viewStack.Current);
         Assert.HasCount(2, viewStack.Views);
@@ -282,7 +282,7 @@ public class ViewStackTests
         viewStack.Push(view1, view2, view3);
         output.Clear();
 
-        viewStack.Close(view2.ViewModel);
+        viewStack.Remove(view2.ViewModel);
 
         Assert.AreEqual(view3, viewStack.Current);
         Assert.HasCount(2, viewStack.Views);
@@ -304,7 +304,7 @@ public class ViewStackTests
         viewStack.Push(view1, view2, view3);
         output.Clear();
 
-        viewStack.Close(view1.ViewModel);
+        viewStack.Remove(view1.ViewModel);
 
         Assert.AreEqual(view3, viewStack.Current);
         Assert.HasCount(2, viewStack.Views);
@@ -327,7 +327,7 @@ public class ViewStackTests
         viewStack.Push(view1, view2, view3, view4);
         output.Clear();
 
-        viewStack.Close(view3.ViewModel, view1.ViewModel);
+        viewStack.Remove(view3.ViewModel, view1.ViewModel);
 
         Assert.AreEqual(view4, viewStack.Current);
         Assert.HasCount(2, viewStack.Views);

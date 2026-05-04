@@ -55,8 +55,8 @@ internal class ViewStack
     public IView? Current { get; private set; }
 
     /// <summary>
-    /// When this property is set to false it forces all view models in the stack
-    /// to be deactivated.
+    /// When this property is set to false it forces all view models to be
+    /// deactivated.
     /// </summary>
     public bool IsActive
     {
@@ -167,7 +167,7 @@ internal class ViewStack
     /// </summary>
     /// <param name="viewModels">The view models to remove.</param>
     /// <returns>true if the stack was modifed, false if it wasn't.</returns>
-    public bool Close(params IEnumerable<IViewModel> viewModels)
+    public bool Remove(params IEnumerable<IViewModel> viewModels)
     {
         var indices = _views
             .Select((view, index) => viewModels.Contains(view.ViewModel) ? index : -1)
@@ -332,7 +332,7 @@ internal class ViewStack
     private void OnClosed(ICloseObservable closable)
     {
         if (closable is IViewModel viewModel)
-            Close(viewModel);
+            Remove(viewModel);
     }
 
     #endregion

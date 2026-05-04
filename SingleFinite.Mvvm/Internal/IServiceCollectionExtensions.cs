@@ -73,5 +73,6 @@ internal static class IServiceCollectionExtensions
         .AddScoped<ViewModelNode>()
         .AddTransient<IItemPresenter, ItemPresenter>()
         .AddTransient<IStackPresenter, StackPresenter>()
-        .AddTransient<IDialogPresenter, DialogPresenter>();
+        .AddTransient<IDialogPresenter, DialogPresenter>()
+        .AddTransient<IListPresenter, ListPresenter>();
 }
