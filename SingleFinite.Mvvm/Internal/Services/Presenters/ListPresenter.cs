@@ -81,6 +81,9 @@ internal class ListPresenter : IListPresenter, IDisposable
     #region Properties
 
     /// <inheritdoc/>
+    public int CurrentIndex { get; private set; } = -1;
+
+    /// <inheritdoc/>
     public IViewModel[] ViewModels { get; private set; } = [];
 
     /// <inheritdoc/>
@@ -111,7 +114,7 @@ internal class ListPresenter : IListPresenter, IDisposable
     #region Methods
 
     /// <inheritdoc/>
-    public void SetCurrent(int index)
+    public void SetCurrentIndex(int index)
     {
         var view = index == -1 ? null : _views[index];
         if (Current == view)
@@ -123,12 +126,16 @@ internal class ListPresenter : IListPresenter, IDisposable
         if (IsActive)
             Current?.ViewModel?.Activate();
 
+        CurrentIndex = index;
+
         _currentChangedSource.Emit(
             args: new(
                 view: Current,
                 isNew: false
             )
         );
+
+        _currentIndexChangedSource.Emit(index);
     }
 
     /// <inheritdoc/>
@@ -138,7 +145,17 @@ internal class ListPresenter : IListPresenter, IDisposable
             -1 :
             _views.FindIndex(view => view.ViewModel == viewModel);
 
-        SetCurrent(index);
+        SetCurrentIndex(index);
+    }
+
+    /// <inheritdoc/>
+    public void SetCurrent<TViewModel>()
+        where TViewModel : IViewModel
+    {
+        var viewModelType = typeof(TViewModel);
+        var index = _views.FindIndex(view => view.ViewModel.GetType() == viewModelType);
+
+        SetCurrentIndex(index);
     }
 
     /// <inheritdoc/>
@@ -317,6 +334,10 @@ internal class ListPresenter : IListPresenter, IDisposable
     /// <inheritdoc/>
     public IEventObservable<IPresenter.CurrentChangedEventArgs> CurrentChanged => _currentChangedSource.Observable;
     private readonly EventObservableSource<IPresenter.CurrentChangedEventArgs> _currentChangedSource = new();
+
+    /// <inheritdoc/>
+    public IEventObservable<int> CurrentIndexChanged => _currentIndexChangedSource.Observable;
+    private readonly EventObservableSource<int> _currentIndexChangedSource = new();
 
     #endregion
 }

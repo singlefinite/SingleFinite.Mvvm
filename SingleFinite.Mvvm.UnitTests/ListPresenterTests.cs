@@ -46,7 +46,7 @@ public class ListPresenterTests
         Assert.HasCount(1, output);
         Assert.AreEqual("OnInit - TestViewModel1", output[0]);
 
-        listPresenter.SetCurrent(0);
+        listPresenter.SetCurrentIndex(0);
         Assert.HasCount(2, output);
         Assert.AreEqual("OnStart - TestViewModel1", output[1]);
 
@@ -57,7 +57,7 @@ public class ListPresenterTests
         Assert.AreEqual("OnInit - TestViewModel2", output[0]);
         Assert.AreEqual("OnInit - TestViewModel3", output[1]);
 
-        listPresenter.SetCurrent(2);
+        listPresenter.SetCurrentIndex(2);
         Assert.HasCount(4, output);
         Assert.AreEqual("OnStop - TestViewModel1", output[2]);
         Assert.AreEqual("OnStart - TestViewModel3", output[3]);
@@ -69,7 +69,7 @@ public class ListPresenterTests
         Assert.AreEqual("OnStop - TestViewModel3", output[0]);
         Assert.AreEqual("OnDispose - TestViewModel3", output[1]);
 
-        listPresenter.SetCurrent(1);
+        listPresenter.SetCurrentIndex(1);
         Assert.HasCount(3, output);
         Assert.AreEqual("OnStart - TestViewModel2", output[2]);
 
@@ -80,6 +80,38 @@ public class ListPresenterTests
         Assert.AreEqual("OnStop - TestViewModel2", output[0]);
         Assert.AreEqual("OnDispose - TestViewModel1", output[1]);
         Assert.AreEqual("OnDispose - TestViewModel2", output[2]);
+    }
+
+    [TestMethod]
+    public void SetCurrent_With_Type()
+    {
+        using var context = new MvvmTestContext();
+        var listPresenter = (ListPresenter)context.ServiceProvider.GetRequiredService<IListPresenter>();
+
+        var output = new List<string>();
+        var viewModelContext = new ViewModelTestContext(output);
+        var viewModelDescriptor1 = new ViewModelDescriptor<TestViewModel1>(viewModelContext);
+        var viewModelDescriptor2 = new ViewModelDescriptor<TestViewModel2>(viewModelContext);
+
+        listPresenter.AddAll([viewModelDescriptor1, viewModelDescriptor2]);
+
+        Assert.IsNull(listPresenter.Current);
+        Assert.AreEqual(-1, listPresenter.CurrentIndex);
+
+        listPresenter.SetCurrent<TestViewModel1>();
+
+        Assert.IsInstanceOfType<TestViewModel1>(listPresenter.Current?.ViewModel);
+        Assert.AreEqual(0, listPresenter.CurrentIndex);
+
+        listPresenter.SetCurrent<TestViewModel2>();
+
+        Assert.IsInstanceOfType<TestViewModel2>(listPresenter.Current?.ViewModel);
+        Assert.AreEqual(1, listPresenter.CurrentIndex);
+
+        listPresenter.SetCurrent<TestViewModel3>();
+
+        Assert.IsNull(listPresenter.Current);
+        Assert.AreEqual(-1, listPresenter.CurrentIndex);
     }
 
     [TestMethod]

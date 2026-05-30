@@ -19,6 +19,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using SingleFinite.Essentials;
+
 namespace SingleFinite.Mvvm.Services.Presenters;
 
 /// <summary>
@@ -28,6 +30,12 @@ namespace SingleFinite.Mvvm.Services.Presenters;
 /// </summary>
 public interface IListPresenter : IPresenter
 {
+    /// <summary>
+    /// The index of the view model that is the current view model.  If there is
+    /// no current view model this will be -1.
+    /// </summary>
+    int CurrentIndex { get; }
+
     /// <summary>
     /// The current view models in the list.
     /// </summary>
@@ -40,7 +48,7 @@ public interface IListPresenter : IPresenter
     /// The index of the view model to make current.  If this is -1 Current will
     /// be set to null.
     /// </param>
-    void SetCurrent(int index);
+    void SetCurrentIndex(int index);
 
     /// <summary>
     /// Make the given view model the current view model.
@@ -50,6 +58,17 @@ public interface IListPresenter : IPresenter
     /// collection for this object.
     /// </param>
     void SetCurrent(IViewModel? viewModel);
+
+    /// <summary>
+    /// Make the first view model in the list of the given type the current view
+    /// model.  If there is no view model of the given type in the list then
+    /// the Current will be set to null..
+    /// </summary>
+    /// <typeparam name="TViewModel">
+    /// The type of view model to make the current view model.
+    /// </typeparam>
+    void SetCurrent<TViewModel>()
+        where TViewModel : IViewModel;
 
     /// <summary>
     /// Create a view model and add it to the list at the given index.
@@ -149,4 +168,10 @@ public interface IListPresenter : IPresenter
     /// Remove all view models from the list.
     /// </summary>
     void Clear();
+
+    /// <summary>
+    /// When the CurrentIndex value changes this observable will emit the new
+    /// value.
+    /// </summary>
+    IEventObservable<int> CurrentIndexChanged { get; }
 }
