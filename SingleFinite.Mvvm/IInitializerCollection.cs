@@ -19,18 +19,20 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using SingleFinite.Essentials;
-
-namespace SingleFinite.Mvvm.Services;
+namespace SingleFinite.Mvvm;
 
 /// <summary>
-/// Libraries can provide platform specific behaviors by providing an
-/// implementation of this service.
+/// Specifies the contract for a collection of initializers to invoke when the
+/// app is started.
 /// </summary>
-public interface IPlatform
+public interface IInitializerCollection : IList<Action<IServiceProvider>>
 {
     /// <summary>
-    /// Raised when an app lifecylce event occurs.
+    /// Creates a copy of this collection.
     /// </summary>
-    IEventObservable<AppLifecycleEvent> LifecycleEvent { get; }
+    /// <returns>
+    /// A copy of this collection that can be modified without affecting this
+    /// collection.
+    /// </returns>
+    IInitializerCollection Copy();
 }

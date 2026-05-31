@@ -19,34 +19,34 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using SingleFinite.Essentials;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace SingleFinite.Mvvm.Services;
+namespace SingleFinite.Mvvm;
 
 /// <summary>
-/// The top level object that holds the application state.
+/// Extensions for the <see cref="IInitializerCollection"/> interface.
 /// </summary>
-public interface IAppHost : IDisposable
+public static class IInitializerCollectionExtensions
 {
     /// <summary>
-    /// The application service provider.
+    /// Add initializer to invoke when the host is started.
     /// </summary>
-    /// <exception cref="InvalidOperationException">
-    /// Thrown if this app host has not been started yet.
-    /// </exception>
-    public IServiceProvider ServiceProvider { get; }
-
-    /// <summary>
-    /// Start this app host.
-    /// If the app host has already been started this method will have no effect.
-    /// </summary>
-    /// <exception cref="ObjectDisposedException">
-    /// Thrown if this app host has been disposed.
-    /// </exception>
-    void Start();
-
-    /// <summary>
-    /// Raised when an app lifecylce event occurs.
-    /// </summary>
-    IEventObservable<AppLifecycleEvent> LifecycleEvent { get; }
+    /// <typeparam name="TService">
+    /// The type of service to provide to the initializer.
+    /// </typeparam>
+    /// <param name="initializerCollection">
+    /// The collection that is extended.
+    /// </param>
+    /// <param name="initializer">The initializer to add to the host.</param>
+    public static void Add<TService>(
+        this IInitializerCollection initializerCollection,
+        Action<TService> initializer
+    ) where TService : notnull
+    {
+        initializerCollection.Add(provider =>
+        {
+            var service = provider.GetRequiredService<TService>();
+            initializer(service);
+        });
+    }
 }

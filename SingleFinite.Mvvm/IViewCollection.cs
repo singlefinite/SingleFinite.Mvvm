@@ -26,4 +26,12 @@ namespace SingleFinite.Mvvm;
 /// </summary>
 public interface IViewCollection : IList<ViewDescriptor>
 {
+    /// <summary>
+    /// Creates a copy of this collection.
+    /// </summary>
+    /// <returns>
+    /// A copy of this collection that can be modified without affecting this
+    /// collection.
+    /// </returns>
+    IViewCollection Copy();
 }

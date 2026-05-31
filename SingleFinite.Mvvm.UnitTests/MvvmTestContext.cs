@@ -54,13 +54,16 @@ public sealed class MvvmTestContext : IDisposable
     {
         var callingAssembly = Assembly.GetCallingAssembly();
 
+        var services = new ServiceCollection();
+
         var host = new AppHostBuilder()
             .AddServices(configureServices ?? (_ => { }))
             .AddViews(configureViews ?? (views => views.Scan(callingAssembly)))
             .AddPlugins(configurePlugins ?? (plugins => plugins.Scan(callingAssembly)))
-            .BuildAndStart();
+            .Build(services);
 
-        ServiceProvider = host.ServiceProvider;
+        ServiceProvider = services.BuildServiceProvider();
+        host.Start(ServiceProvider);
     }
 
     #endregion

@@ -20,7 +20,6 @@
 // SOFTWARE.
 
 using Microsoft.Extensions.DependencyInjection;
-using SingleFinite.Essentials;
 using SingleFinite.Mvvm.Services;
 
 namespace SingleFinite.Mvvm.UnitTests;
@@ -33,9 +32,11 @@ public class AppHostBuilderTests
     {
         var onStartedCount = 0;
 
+        var services = new ServiceCollection();
+
         var builder = new AppHostBuilder();
         builder
-            .AddOnStarted(() => onStartedCount++)
+            .AddInitializers(initializers => initializers.Add(_ => onStartedCount++))
             .AddServices(services => services.AddSingleton<ExampleService>())
             .AddPlugins(
                 plugins => plugins.Add(
@@ -54,23 +55,27 @@ public class AppHostBuilderTests
                 )
             );
 
+        var appHost = builder.Build(services);
+
+        var provider = services.BuildServiceProvider();
+
         Assert.AreEqual(0, onStartedCount);
 
-        var appHost = builder.BuildAndStart();
+        appHost.Start(provider);
 
         Assert.AreEqual(1, onStartedCount);
 
-        var service = appHost.ServiceProvider.GetService<ExampleService>();
+        var service = provider.GetService<ExampleService>();
         Assert.IsNotNull(service);
 
         var pluginHost = new ExamplePluginHost();
-        var pluginRegistry = appHost.ServiceProvider.GetRequiredService<IPluginRegistry>();
+        var pluginRegistry = provider.GetRequiredService<IPluginRegistry>();
         var plugins = pluginRegistry.GetPlugins(pluginHost);
         Assert.HasCount(1, plugins);
         Assert.AreEqual(typeof(ExamplePlugin), plugins[0].PluginType);
         Assert.AreEqual(typeof(ExamplePluginHost), plugins[0].PluginHostType);
 
-        var viewRegistry = appHost.ServiceProvider.GetRequiredService<IViewRegistry>();
+        var viewRegistry = provider.GetRequiredService<IViewRegistry>();
         var viewType = viewRegistry.GetViewType(typeof(ExampleViewModel));
         Assert.AreEqual(typeof(ExampleView), viewType);
     }
@@ -78,13 +83,32 @@ public class AppHostBuilderTests
     [TestMethod]
     public void Build_Overwrites_Services_From_Mvvm()
     {
+        var services = new ServiceCollection();
         var builder = new AppHostBuilder();
         var appHost = builder
             .AddServices(services => services.AddSingleton<IMainDispatcher, ExampleMainDispatcher>())
-            .BuildAndStart();
+            .Build(services);
 
-        var dispatcher = appHost.ServiceProvider.GetRequiredService<IMainDispatcher>();
+        var provider = services.BuildServiceProvider();
+        appHost.Start(provider);
+
+        var dispatcher = provider.GetRequiredService<IMainDispatcher>();
         Assert.IsInstanceOfType<ExampleMainDispatcher>(dispatcher);
+    }
+
+    [TestMethod]
+    public void Build_Adds_AppHost_As_Service()
+    {
+        var services = new ServiceCollection();
+        var builder = new AppHostBuilder();
+
+        var appHost = builder.Build(services);
+
+        var provider = services.BuildServiceProvider();
+        appHost.Start(provider);
+
+        var appHostService = provider.GetService<AppHost>();
+        Assert.AreEqual(appHost, appHostService);
     }
 
     #region Types

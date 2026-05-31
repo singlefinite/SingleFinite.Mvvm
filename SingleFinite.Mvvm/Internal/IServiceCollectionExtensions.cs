@@ -40,30 +40,14 @@ internal static class IServiceCollectionExtensions
     /// <param name="services">
     /// The service collection to register services with.
     /// </param>
-    /// <param name="host">The host that holds the application state.</param>
-    /// <param name="views">
-    /// The views collection that defines which views use which view models.
-    /// </param>
-    /// <param name="plugins">
-    /// The plugins collection that defines which plugins are attached to which 
-    /// plugin hosts.
-    /// </param>
     /// <returns>
     /// The service collection that was passed in so a fluent style call chain 
     /// can be used to register services.
     /// </returns>
-    internal static IServiceCollection AddMvvm(
-        this IServiceCollection services,
-        IAppHost host,
-        IViewCollection views,
-        IPluginCollection plugins
-    ) => services
-        .AddSingleton(host)
+    internal static IServiceCollection AddMvvm(this IServiceCollection services) => services
         .AddSingleton<IExceptionHandler, ExceptionHandler>()
         .AddSingleton<IMainDispatcher, MainDispatcher>()
         .AddSingleton<IBackgroundDispatcher, BackgroundDispatcher>()
-        .AddSingleton<IViewRegistry>(new ViewRegistry(views))
-        .AddSingleton<IPluginRegistry>(new PluginRegistry(plugins))
         .AddSingleton<IPluginLoader, PluginLoader>()
         .AddSingleton<IAppTaskScope, AppTaskScope>()
         .AddScoped<IBuilder, Builder>()

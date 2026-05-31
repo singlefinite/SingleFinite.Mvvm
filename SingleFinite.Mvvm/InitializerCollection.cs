@@ -24,16 +24,16 @@ using System.Collections;
 namespace SingleFinite.Mvvm;
 
 /// <summary>
-/// Implementation of <see cref="IViewCollection"/>.
+/// Implementation of <see cref="IInitializerCollection"/>.
 /// </summary>
-public class ViewCollection : IViewCollection
+public class InitializerCollection : IInitializerCollection
 {
     #region Fields
 
     /// <summary>
     /// The underlying list.
     /// </summary>
-    private readonly IList<ViewDescriptor> _list = [];
+    private readonly IList<Action<IServiceProvider>> _list = [];
 
     #endregion
 
@@ -42,15 +42,15 @@ public class ViewCollection : IViewCollection
     /// <summary>
     /// Constructor.
     /// </summary>
-    /// <param name="initialViews">
-    /// The initial views to add to the collection.
+    /// <param name="initialInitializers">
+    /// The initial initializers to add to the collection.
     /// </param>
-    public ViewCollection(IViewCollection? initialViews = null)
+    public InitializerCollection(IInitializerCollection? initialInitializers = null)
     {
-        if (initialViews is not null)
+        if (initialInitializers is not null)
         {
-            foreach (var viewDescriptor in initialViews)
-                _list.Add(viewDescriptor);
+            foreach (var initializer in initialInitializers)
+                _list.Add(initializer);
         }
     }
 
@@ -59,7 +59,7 @@ public class ViewCollection : IViewCollection
     #region Properties
 
     /// <inheritdoc/>
-    public ViewDescriptor this[int index]
+    public Action<IServiceProvider> this[int index]
     {
         get => _list[index];
         set => _list[index] = value;
@@ -76,33 +76,33 @@ public class ViewCollection : IViewCollection
     #region Methods
 
     /// <inheritdoc/>
-    public IViewCollection Copy() => new ViewCollection(this);
+    public IInitializerCollection Copy() => new InitializerCollection(this);
 
     /// <inheritdoc/>
-    public void Add(ViewDescriptor item) => _list.Add(item);
+    public void Add(Action<IServiceProvider> item) => _list.Add(item);
 
     /// <inheritdoc/>
     public void Clear() => _list.Clear();
 
     /// <inheritdoc/>
-    public bool Contains(ViewDescriptor item) => _list.Contains(item);
+    public bool Contains(Action<IServiceProvider> item) => _list.Contains(item);
 
     /// <inheritdoc/>
-    public void CopyTo(ViewDescriptor[] array, int arrayIndex) =>
+    public void CopyTo(Action<IServiceProvider>[] array, int arrayIndex) =>
         _list.CopyTo(array, arrayIndex);
 
     /// <inheritdoc/>
-    public IEnumerator<ViewDescriptor> GetEnumerator() => _list.GetEnumerator();
+    public IEnumerator<Action<IServiceProvider>> GetEnumerator() => _list.GetEnumerator();
 
     /// <inheritdoc/>
-    public int IndexOf(ViewDescriptor item) => _list.IndexOf(item);
+    public int IndexOf(Action<IServiceProvider> item) => _list.IndexOf(item);
 
     /// <inheritdoc/>
-    public void Insert(int index, ViewDescriptor item) =>
+    public void Insert(int index, Action<IServiceProvider> item) =>
         _list.Insert(index, item);
 
     /// <inheritdoc/>
-    public bool Remove(ViewDescriptor item) => _list.Remove(item);
+    public bool Remove(Action<IServiceProvider> item) => _list.Remove(item);
 
     /// <inheritdoc/>
     public void RemoveAt(int index) => _list.RemoveAt(index);

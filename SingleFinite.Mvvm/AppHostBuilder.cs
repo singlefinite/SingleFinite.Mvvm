@@ -19,14 +19,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using Microsoft.Extensions.DependencyInjection;
+using SingleFinite.Mvvm.Internal;
 using SingleFinite.Mvvm.Internal.Services;
 using SingleFinite.Mvvm.Services;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace SingleFinite.Mvvm;
 
 /// <summary>
-/// This classed is used to build a new instance of <see cref="IAppHost"/>.
+/// This classed is used to build a new instance of <see cref="AppHost"/>.
 /// </summary>
 public sealed class AppHostBuilder
 {
@@ -35,22 +36,22 @@ public sealed class AppHostBuilder
     /// <summary>
     /// Holds the services configured by the builder.
     /// </summary>
-    private readonly IServiceCollection _services = new ServiceCollection();
+    private readonly ServiceCollection _services = [];
 
     /// <summary>
     /// Holds the views configured by the builder.
     /// </summary>
-    private readonly IViewCollection _views = new ViewCollection();
+    private readonly ViewCollection _views = [];
 
     /// <summary>
     /// Holds the plugins configured by the builder.
     /// </summary>
-    private readonly IPluginCollection _plugins = new PluginCollection();
+    private readonly PluginCollection _plugins = [];
 
     /// <summary>
-    /// Holds the on started actions configured by the builder.
+    /// Holds the initializers configured by the builder.
     /// </summary>
-    private readonly IList<Action<IServiceProvider>> _onStarted = [];
+    private readonly InitializerCollection _initializers = [];
 
     #endregion
 
@@ -87,7 +88,7 @@ public sealed class AppHostBuilder
     }
 
     /// <summary>
-    /// Add plugins to host.
+    /// Add plugins to the host.
     /// </summary>
     /// <param name="configure">
     /// Action called to configure the plugin collection.
@@ -102,36 +103,17 @@ public sealed class AppHostBuilder
     }
 
     /// <summary>
-    /// Add action to invoke when the host is started or reset.
+    /// Add initializers to the host..
     /// </summary>
-    /// <param name="onStarted">The action to add to the host.</param>
+    /// <param name="configure">
+    /// Action called to configure the initializer collection.
+    /// </param>
     /// <returns>
     /// A reference to this object so a fluent pattern can be used.
     /// </returns>
-    public AppHostBuilder AddOnStarted(Action onStarted)
+    public AppHostBuilder AddInitializers(Action<IInitializerCollection> configure)
     {
-        _onStarted.Add(_ => onStarted());
-        return this;
-    }
-
-    /// <summary>
-    /// Add action to invoke when the host is started or reset.
-    /// </summary>
-    /// <typeparam name="TService">
-    /// The type of service to provide to the onStarted action.
-    /// </typeparam>
-    /// <param name="onStarted">The action to add to the host.</param>
-    /// <returns>
-    /// A reference to this object so a fluent pattern can be used.
-    /// </returns>
-    public AppHostBuilder AddOnStarted<TService>(Action<TService> onStarted)
-        where TService : notnull
-    {
-        _onStarted.Add(serviceProvider =>
-        {
-            var service = serviceProvider.GetRequiredService<TService>();
-            onStarted(service);
-        });
+        configure(_initializers);
         return this;
     }
 
@@ -139,23 +121,21 @@ public sealed class AppHostBuilder
     /// Build a new host using the configurations made through this builder.
     /// </summary>
     /// <returns>A newly built host.</returns>
-    public IAppHost Build() => new AppHost(
-        services: _services,
-        views: _views,
-        plugins: _plugins,
-        onStarted: _onStarted
-    );
-
-    /// <summary>
-    /// Build a new host using the configurations made through this builder and 
-    /// then start it.
-    /// </summary>
-    /// <returns>A newly built host that has been started.</returns>
-    public IAppHost BuildAndStart()
+    public AppHost Build(IServiceCollection services)
     {
-        var host = Build();
-        host.Start();
-        return host;
+        services
+            .AddMvvm()
+            .AddSingleton<IViewRegistry>(new ViewRegistry(_views.Copy()))
+            .AddSingleton<IPluginRegistry>(new PluginRegistry(_plugins.Copy()));
+
+        foreach (var service in _services)
+            services.Add(service);
+
+        var appHost = new AppHost(initializers: _initializers.Copy());
+
+        services.AddSingleton(appHost);
+
+        return appHost;
     }
 
     #endregion

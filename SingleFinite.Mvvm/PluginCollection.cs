@@ -37,6 +37,25 @@ public class PluginCollection : IPluginCollection
 
     #endregion
 
+    #region Constructors
+
+    /// <summary>
+    /// Constructor.
+    /// </summary>
+    /// <param name="initialPlugins">
+    /// The initial plugins to add to the collection.
+    /// </param>
+    public PluginCollection(IPluginCollection? initialPlugins = null)
+    {
+        if (initialPlugins is not null)
+        {
+            foreach (var pluginDescriptor in initialPlugins)
+                _list.Add(pluginDescriptor);
+        }
+    }
+
+    #endregion
+
     #region Properties
 
     /// <inheritdoc/>
@@ -55,6 +74,9 @@ public class PluginCollection : IPluginCollection
     #endregion
 
     #region Methods
+
+    /// <inheritdoc/>
+    public IPluginCollection Copy() => new PluginCollection(this);
 
     /// <inheritdoc/>
     public void Add(PluginDescriptor item) => _list.Add(item);
