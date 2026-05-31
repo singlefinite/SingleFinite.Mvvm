@@ -38,7 +38,7 @@ public class MyView(MyViewModel viewModel) : IView<MyViewModel>
 }
 ```
 
-Now that we have a view model and view defined we can configure an instance of `IAppHost` that will host our application state:
+Now that we have a view model and view defined we can configure an instance of `AppHost` that will host our application state:
 
 ```csharp
 // Program.cs
@@ -48,9 +48,15 @@ using SingleFinite.Mvvm;
 
 namespace MyApp;
 
+var services = new ServiceCollection();
+
 var appHost = new AppHostBuilder()
     .AddViews(views => views.Add<MyViewModel, MyView>())
-    .BuildAndStart();
+    .Build(services);
+
+var provider = services.BuildServiceProvider();
+
+appHost.Start(provider);
 ```
 
 As you can see above we use the `AddViews` method to register the `MyViewModel` and `MyView` types.  Now when we want to display an instance
@@ -61,7 +67,7 @@ of `MyViewModel` an instance of `MyView` will be used to display it.
 > There is an extension method for registering views that can be used to scan assemblies for `ViewModel` and `IView` types to register but we manually
 > register them here for better clarity in the example.
 
-Let's create a new instance of `MyViewModel` from the `IAppHost` instance we created above:
+Let's create a new instance of `MyViewModel` from the `AppHost` instance we created above:
 
 ```csharp
 // Program.cs
@@ -69,20 +75,20 @@ Let's create a new instance of `MyViewModel` from the `IAppHost` instance we cre
 
 // ...
 
-var presenter = appHost.ServiceProvider.GetRequiredService<IItemPresenter>();
+var presenter = provider.GetRequiredService<IItemPresenter>();
 var viewModel = presenter.Set<MyViewModel>();
 
 Console.WriteLine($"My ViewModel => {viewModel.GetType().FullName}");
 Console.WriteLine($"My View => {presenter.Current.GetType().FullName}");
 ```
 
-SingleFinite.MVVM is built on top of the [Microsoft Dependency Injection library](Microsoft.Extensions.DependencyInjection) and the `IAppHost` object contains
-an `IServiceProvider` that holds all of the registered services.  We get a new instance of `IItemPresenter` from the `IServiceProvider` which we use to create
-a new instance of our view model.
+SingleFinite.MVVM is built on top of the [Microsoft Dependency Injection library](Microsoft.Extensions.DependencyInjection) and the `AppHostBuilder` is
+used to register services for the app.  We get a new instance of `IItemPresenter` from the `IServiceProvider` which we use to create a new instance of
+our view model.
 
 `IPresenter` services are used to create and manage the lifecycle of view models and their views.  Both the view model and view
 will be created with a new dependency injection scope and will be injected with services as defined in their constructors.  Normally you will use
-another platform specific library like [SingleFinite.Mvvm.WinUI](https://github.com/singlefinite/SingleFinite.Mvvm.WinUI/) to manage the `IAppHost` instance and
+another platform specific library like [SingleFinite.Mvvm.Maui](https://github.com/singlefinite/SingleFinite.Mvvm.Maui/) to manage the `AppHost` instance and
 to present views for `IPresenter` based services.
 
 #### Learn more
