@@ -29,7 +29,7 @@ namespace SingleFinite.Mvvm;
 /// <summary>
 /// This classed is used to build a new instance of <see cref="AppHost"/>.
 /// </summary>
-public sealed class AppHostBuilder
+public class AppHostBuilder
 {
     #region Fields
 
@@ -118,6 +118,15 @@ public sealed class AppHostBuilder
     }
 
     /// <summary>
+    /// Create the app host instance.  This can be overridden to create a custom
+    /// app host.
+    /// </summary>
+    /// <param name="initializers">The initializers for the app host.</param>
+    /// <returns>The newly created app host.</returns>
+    protected virtual AppHost CreateAppHost(IInitializerCollection initializers) =>
+        new(initializers);
+
+    /// <summary>
     /// Build a new host using the configurations made through this builder.
     /// </summary>
     /// <returns>A newly built host.</returns>
@@ -131,7 +140,7 @@ public sealed class AppHostBuilder
         foreach (var service in _services)
             services.Add(service);
 
-        var appHost = new AppHost(initializers: _initializers.Copy());
+        var appHost = CreateAppHost(initializers: _initializers.Copy());
 
         services.AddSingleton(appHost);
 
