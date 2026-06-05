@@ -103,7 +103,7 @@ public sealed class AppHostBuilder
     }
 
     /// <summary>
-    /// Add initializers to the host..
+    /// Add initializers to the host.
     /// </summary>
     /// <param name="configure">
     /// Action called to configure the initializer collection.

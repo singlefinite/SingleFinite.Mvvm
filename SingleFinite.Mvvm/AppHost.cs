@@ -28,7 +28,7 @@ namespace SingleFinite.Mvvm;
 /// <summary>
 /// Host for the MVVM services.
 /// </summary>
-public sealed class AppHost : IDisposable
+public class AppHost : IDisposable
 {
     #region Fields
 
@@ -103,7 +103,11 @@ public sealed class AppHost : IDisposable
     /// <summary>
     /// Dispose of this object.
     /// </summary>
-    public void Dispose() => _disposeState.Dispose();
+    public void Dispose()
+    {
+        GC.SuppressFinalize(this);
+        _disposeState.Dispose();
+    }
 
     #endregion
 }
