@@ -71,7 +71,7 @@ public class AppHost : IDisposable
     /// Start the app host.
     /// </summary>
     /// <param name="provider">The service provider for the app.</param>
-    public void Start(IServiceProvider provider)
+    public virtual void Start(IServiceProvider provider)
     {
         _disposeState.ThrowIfDisposed();
 
