@@ -52,6 +52,8 @@ internal static class IServiceCollectionExtensions
         .AddSingleton<IAppTaskScope, AppTaskScope>()
         .AddScoped<IBuilder, Builder>()
         .AddScoped<IViewBuilder, ViewBuilder>()
+        .AddScoped<IViewAssembler, ViewAssembler>()
+        .AddScoped<IViewProvider, ViewProvider>()
         .AddScoped<IScopeContext, ScopeContext>()
         .AddScoped<ITaskScope, AppTaskScope>()
         .AddScoped<ViewModelNode>()

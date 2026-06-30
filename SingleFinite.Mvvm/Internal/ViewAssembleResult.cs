@@ -27,7 +27,7 @@ using SingleFinite.Mvvm.Services;
 namespace SingleFinite.Mvvm.Internal;
 
 /// <summary>
-/// Used to build a view.
+/// Used to assemble a view.
 /// </summary>
 internal class ViewAssembleResult : IViewAssembleResult
 {
@@ -64,6 +64,7 @@ internal class ViewAssembleResult : IViewAssembleResult
     {
         _viewModelScope = serviceProvider.CreateLinkedScope();
         var builder = _viewModelScope.ServiceProvider.GetRequiredService<IBuilder>();
+        var viewBuilder = _viewModelScope.ServiceProvider.GetRequiredService<IViewBuilder>();
 
         // Create view model.
         //
@@ -83,9 +84,9 @@ internal class ViewAssembleResult : IViewAssembleResult
         //
         var viewRegistry = serviceProvider.GetRequiredService<IViewRegistry>();
         var viewType = viewRegistry.GetViewType(viewModelDescriptor.ViewModelType);
-        View = (IView)builder.Build(
-            instanceType: viewType,
-            _viewModel
+        View = viewBuilder.Build(
+            viewType: viewType,
+            viewModel: _viewModel
         );
 
         // Create ViewModelNode and wire it up.
@@ -131,7 +132,7 @@ internal class ViewAssembleResult : IViewAssembleResult
 }
 
 /// <summary>
-/// Used to build a view.
+/// Used to assemble a view.
 /// </summary>
 /// <param name="serviceProvider">Used to build the view.</param>
 /// <param name="viewModelDescriptor">The view to build.</param>

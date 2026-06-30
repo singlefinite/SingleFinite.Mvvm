@@ -24,12 +24,12 @@ using SingleFinite.Mvvm.Services;
 namespace SingleFinite.Mvvm;
 
 /// <summary>
-/// The result from assembling a view through an <see cref="IViewBuilder"/>.
+/// The result from assembling a view through an <see cref="IViewAssembler"/>.
 /// </summary>
 public interface IViewAssembleResult
 {
     /// <summary>
-    /// The view that was built.
+    /// The view that was created.
     /// </summary>
     IView View { get; }
 
@@ -41,7 +41,7 @@ public interface IViewAssembleResult
 }
 
 /// <summary>
-/// The result from assembling a view through an <see cref="IViewBuilder"/>.
+/// The result from assembling a view through an <see cref="IViewAssembler"/>.
 /// </summary>
 /// <typeparam name="TViewModel">
 /// The type of view model the view was assembled for.
@@ -50,7 +50,7 @@ public interface IViewAssembleResult<TViewModel> : IViewAssembleResult
     where TViewModel : IViewModel
 {
     /// <summary>
-    /// The view that was built.
+    /// The view that was created.
     /// </summary>
     new IView<TViewModel> View { get; }
 }

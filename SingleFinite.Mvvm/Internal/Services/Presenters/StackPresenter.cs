@@ -45,9 +45,9 @@ internal sealed class StackPresenter :
     private readonly ViewStack _stack = new();
 
     /// <summary>
-    /// Holds view builder used to build objects.
+    /// Holds view provider used to provide views.
     /// </summary>
-    private readonly IViewBuilder _viewBuilder;
+    private readonly IViewProvider _viewProvider;
 
     #endregion
 
@@ -56,16 +56,16 @@ internal sealed class StackPresenter :
     /// <summary>
     /// Constructor.
     /// </summary>
-    /// <param name="viewBuilder">Used to build view objects.</param>
+    /// <param name="viewProvider">Used to provide views.</param>
     /// <param name="viewModelNode">
     /// Used to observe when a parent IsActive value changes.
     /// </param>
     public StackPresenter(
-        IViewBuilder viewBuilder,
+        IViewProvider viewProvider,
         ViewModelNode viewModelNode
     )
     {
-        _viewBuilder = viewBuilder;
+        _viewProvider = viewProvider;
         _disposeState = new(
             owner: this,
             onDispose: Clear
@@ -174,7 +174,7 @@ internal sealed class StackPresenter :
     {
         _disposeState.ThrowIfDisposed();
 
-        var view = _viewBuilder.BuildFromDescriptor(viewModelDescriptor);
+        var view = _viewProvider.ProvideFromDescriptor(viewModelDescriptor);
         _stack.Push(
             views: [view],
             popCount: GetPopCount(popOptions)
@@ -221,7 +221,7 @@ internal sealed class StackPresenter :
         _disposeState.ThrowIfDisposed();
 
         var viewList = viewModelDescriptors
-            .Select(_viewBuilder.BuildFromDescriptor)
+            .Select(_viewProvider.ProvideFromDescriptor)
             .ToList();
 
         if (viewList.Count == 0)
@@ -241,7 +241,7 @@ internal sealed class StackPresenter :
     {
         _disposeState.ThrowIfDisposed();
 
-        var view = _viewBuilder.BuildFromDescriptor(viewModelDescriptor);
+        var view = _viewProvider.ProvideFromDescriptor(viewModelDescriptor);
         _stack.Add(
             index: index,
             views: [view]
@@ -295,7 +295,7 @@ internal sealed class StackPresenter :
         _disposeState.ThrowIfDisposed();
 
         var viewList = viewModelDescriptors
-            .Select(_viewBuilder.BuildFromDescriptor)
+            .Select(_viewProvider.ProvideFromDescriptor)
             .ToList();
 
         if (viewList.Count == 0)

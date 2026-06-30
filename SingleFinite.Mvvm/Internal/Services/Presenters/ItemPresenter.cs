@@ -46,9 +46,9 @@ internal sealed class ItemPresenter :
     private readonly ViewStack _stack = new();
 
     /// <summary>
-    /// Holds view builder used to build objects.
+    /// Holds view provider used to provide views.
     /// </summary>
-    private readonly IViewBuilder _viewBuilder;
+    private readonly IViewProvider _viewProvider;
 
     #endregion
 
@@ -57,16 +57,16 @@ internal sealed class ItemPresenter :
     /// <summary>
     /// Constructor.
     /// </summary>
-    /// <param name="viewBuilder">Used to build views.</param>
+    /// <param name="viewProvider">Used to provide views.</param>
     /// <param name="viewModelNode">
     /// Used to observe when a parent IsActive value changes.
     /// </param>
     public ItemPresenter(
-        IViewBuilder viewBuilder,
+        IViewProvider viewProvider,
         ViewModelNode viewModelNode
     )
     {
-        _viewBuilder = viewBuilder;
+        _viewProvider = viewProvider;
         _disposeState = new(
             owner: this,
             onDispose: Clear
@@ -98,7 +98,7 @@ internal sealed class ItemPresenter :
     {
         _disposeState.ThrowIfDisposed();
 
-        var view = _viewBuilder.BuildFromDescriptor(viewModelDescriptor);
+        var view = _viewProvider.ProvideFromDescriptor(viewModelDescriptor);
         _stack.Push(
             views: [view],
             popCount: 1

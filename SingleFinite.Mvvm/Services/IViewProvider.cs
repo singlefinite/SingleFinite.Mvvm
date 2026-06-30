@@ -19,25 +19,35 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using SingleFinite.Mvvm.Services;
-
-namespace SingleFinite.Mvvm.Internal.Services;
+namespace SingleFinite.Mvvm.Services;
 
 /// <summary>
-/// Implementation of <see cref="IViewBuilder"/> that uses an
-/// <see cref="IBuilder"/> to build views.
+/// Interface that provides <see cref="IView"/> instances for
+/// <see cref="IViewModel"/> types.
 /// </summary>
-/// <param name="builder">The service used to views.</param>
-internal class ViewBuilder(IBuilder builder) : IViewBuilder
+public interface IViewProvider
 {
-    #region Methods
+    /// <summary>
+    /// Provide a view using the given view model descriptor.
+    /// </summary>
+    /// <param name="viewModelDescriptor">
+    /// The view model descriptor to provide a view for.
+    /// </param>
+    /// <returns>The view.</returns>
+    IView ProvideFromDescriptor(
+        IViewModelDescriptor viewModelDescriptor
+    );
 
-    /// <inheritdoc />
-    public IView Build(Type viewType, IViewModel viewModel) =>
-        (IView)builder.Build(
-            instanceType: viewType,
-            viewModel
-        );
-
-    #endregion
+    /// <summary>
+    /// Provide a view using the given type parameter.
+    /// </summary>
+    /// <typeparam name="TViewModel">
+    /// The type of view model to provide a view for.
+    /// </typeparam>
+    /// <param name="parameters">
+    /// The parameters to provide to the view model that is built.
+    /// </param>
+    /// <returns>The view.</returns>
+    IView<TViewModel> Provide<TViewModel>(params object[] parameters)
+        where TViewModel : IViewModel;
 }

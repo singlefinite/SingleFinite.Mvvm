@@ -22,17 +22,39 @@
 namespace SingleFinite.Mvvm.Services;
 
 /// <summary>
-/// This service is used to create instances of <see cref="IView"/>.
+/// This service is used to assemble <see cref="IView"/> objects.
 /// </summary>
-public interface IViewBuilder
+public interface IViewAssembler
 {
     /// <summary>
-    /// Create the IView instance.
+    /// Creates a new view but doesn't call the view model OnCreated method or
+    /// load plugins.
     /// </summary>
-    /// <param name="viewType">The view type.</param>
-    /// <param name="viewModel">The view model.</param>
+    /// <param name="viewModelDescriptor">
+    /// The view model descriptor to build a view for.
+    /// </param>
     /// <returns>
-    /// The newly created IView instance.
+    /// The result which includes the created view and a method to start the
+    /// view which will call the view model OnCreated method and load plugins.
     /// </returns>
-    IView Build(Type viewType, IViewModel viewModel);
+    IViewAssembleResult AssembleFromDescriptor(
+        IViewModelDescriptor viewModelDescriptor
+    );
+
+    /// <summary>
+    /// Creates a new view but doesn't call the view model OnCreated method or
+    /// load plugins.
+    /// </summary>
+    /// <typeparam name="TViewModel">
+    /// The type of view model to build for the view.
+    /// </typeparam>
+    /// <param name="parameters">
+    /// The parameters to provide to the view model that is built for the view.
+    /// </param>
+    /// <returns>
+    /// The result which includes the created view and a method to start the
+    /// view which will call the view model OnCreated method and load plugins.
+    /// </returns>
+    IViewAssembleResult<TViewModel> Assemble<TViewModel>(params object[] parameters)
+        where TViewModel : IViewModel;
 }

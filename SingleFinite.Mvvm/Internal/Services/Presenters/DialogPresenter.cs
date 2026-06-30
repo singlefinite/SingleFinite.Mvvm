@@ -45,9 +45,9 @@ internal class DialogPresenter :
     private readonly ViewStack _stack = new();
 
     /// <summary>
-    /// Holds view builder used to build objects.
+    /// Holds view provide used to provide views.
     /// </summary>
-    private readonly IViewBuilder _viewBuilder;
+    private readonly IViewProvider _viewProvider;
 
     #endregion
 
@@ -56,16 +56,16 @@ internal class DialogPresenter :
     /// <summary>
     /// Constructor.
     /// </summary>
-    /// <param name="viewBuilder">Used to build view objects.</param>
+    /// <param name="viewProvider">Used to provide views.</param>
     /// <param name="viewModelNode">
     /// Used to observe when a parent IsActive value changes.
     /// </param>
     public DialogPresenter(
-        IViewBuilder viewBuilder,
+        IViewProvider viewProvider,
         ViewModelNode viewModelNode
     )
     {
-        _viewBuilder = viewBuilder;
+        _viewProvider = viewProvider;
         _disposeState = new(
             owner: this,
             onDispose: Clear
@@ -97,7 +97,7 @@ internal class DialogPresenter :
     {
         _disposeState.ThrowIfDisposed();
 
-        var view = _viewBuilder.BuildFromDescriptor(viewModelDescriptor);
+        var view = _viewProvider.ProvideFromDescriptor(viewModelDescriptor);
         _stack.Push(
             views: [view],
             popCount: 0

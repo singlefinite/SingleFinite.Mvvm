@@ -37,7 +37,7 @@ public class DialogPresenterTests
         using var context = new MvvmTestContext();
 
         var dialogPresenter = new DialogPresenter(
-            viewBuilder: context.ServiceProvider.GetRequiredService<IViewBuilder>(),
+            viewProvider: context.ServiceProvider.GetRequiredService<IViewProvider>(),
             viewModelNode: context.ServiceProvider.GetRequiredService<ViewModelNode>()
         );
 
@@ -99,7 +99,7 @@ public class DialogPresenterTests
         using var context = new MvvmTestContext();
 
         var dialogPresenter = new DialogPresenter(
-            viewBuilder: context.ServiceProvider.GetRequiredService<IViewBuilder>(),
+            viewProvider: context.ServiceProvider.GetRequiredService<IViewProvider>(),
             viewModelNode: context.ServiceProvider.GetRequiredService<ViewModelNode>()
         );
 
@@ -144,7 +144,7 @@ public class DialogPresenterTests
         using var context = new MvvmTestContext();
 
         var dialogPresenter = new DialogPresenter(
-            viewBuilder: context.ServiceProvider.GetRequiredService<IViewBuilder>(),
+            viewProvider: context.ServiceProvider.GetRequiredService<IViewProvider>(),
             viewModelNode: context.ServiceProvider.GetRequiredService<ViewModelNode>()
         );
 
@@ -175,7 +175,7 @@ public class DialogPresenterTests
         using var context = new MvvmTestContext();
 
         var dialogPresenter = new DialogPresenter(
-            viewBuilder: context.ServiceProvider.GetRequiredService<IViewBuilder>(),
+            viewProvider: context.ServiceProvider.GetRequiredService<IViewProvider>(),
             viewModelNode: context.ServiceProvider.GetRequiredService<ViewModelNode>()
         );
 
@@ -206,7 +206,7 @@ public class DialogPresenterTests
         using var context = new MvvmTestContext();
 
         var dialogPresenter = new DialogPresenter(
-            viewBuilder: context.ServiceProvider.GetRequiredService<IViewBuilder>(),
+            viewProvider: context.ServiceProvider.GetRequiredService<IViewProvider>(),
             viewModelNode: context.ServiceProvider.GetRequiredService<ViewModelNode>()
         );
 

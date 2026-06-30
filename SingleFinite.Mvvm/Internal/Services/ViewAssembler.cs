@@ -24,20 +24,30 @@ using SingleFinite.Mvvm.Services;
 namespace SingleFinite.Mvvm.Internal.Services;
 
 /// <summary>
-/// Implementation of <see cref="IViewBuilder"/> that uses an
-/// <see cref="IBuilder"/> to build views.
+/// Implementation of <see cref="IViewAssembler"/>.
 /// </summary>
-/// <param name="builder">The service used to views.</param>
-internal class ViewBuilder(IBuilder builder) : IViewBuilder
+/// <param name="serviceProvider">Used to build views.</param>
+internal sealed class ViewAssembler(
+    IServiceProvider serviceProvider
+) : IViewAssembler
 {
     #region Methods
 
-    /// <inheritdoc />
-    public IView Build(Type viewType, IViewModel viewModel) =>
-        (IView)builder.Build(
-            instanceType: viewType,
-            viewModel
-        );
+    /// <inheritdoc/>
+    public IViewAssembleResult AssembleFromDescriptor(
+        IViewModelDescriptor viewModelDescriptor
+    ) => new ViewAssembleResult(
+        serviceProvider: serviceProvider,
+        viewModelDescriptor: viewModelDescriptor
+    );
+
+    /// <inheritdoc/>
+    public IViewAssembleResult<TViewModel> Assemble<TViewModel>(
+        params object[] parameters
+    ) where TViewModel : IViewModel => new ViewAssembleResult<TViewModel>(
+        serviceProvider: serviceProvider,
+        viewModelDescriptor: new ViewModelDescriptor<TViewModel>(parameters)
+    );
 
     #endregion
 }

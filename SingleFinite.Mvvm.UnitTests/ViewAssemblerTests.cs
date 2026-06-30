@@ -26,15 +26,15 @@ using SingleFinite.Mvvm.Services;
 namespace SingleFinite.Mvvm.UnitTests;
 
 [TestClass]
-public class ViewBuilderTests
+public class ViewAssemblerTests
 {
     [TestMethod]
     public void AssembleDoesNotCallOnCreatedUntilStartIsCalled()
     {
         using var context = new MvvmTestContext();
-        var viewBuilder = (ViewBuilder)context.ServiceProvider.GetRequiredService<IViewBuilder>();
+        var viewAssembler = (ViewAssembler)context.ServiceProvider.GetRequiredService<IViewAssembler>();
 
-        var assembleResult = viewBuilder.Assemble<TestViewModel>();
+        var assembleResult = viewAssembler.Assemble<TestViewModel>();
 
         Assert.AreEqual(0, assembleResult.View.ViewModel.OnCreatedCount);
         Assert.AreEqual(0, assembleResult.View.ViewModel.OnPluginOnCreatedCount);

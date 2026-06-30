@@ -43,9 +43,9 @@ internal class ListPresenter : IListPresenter, IDisposable
     private readonly List<IView> _views = [];
 
     /// <summary>
-    /// Holds view builder used to build objects.
+    /// Holds view provider used to provide views.
     /// </summary>
-    private readonly IViewBuilder _viewBuilder;
+    private readonly IViewProvider _viewProvider;
 
     #endregion
 
@@ -54,16 +54,16 @@ internal class ListPresenter : IListPresenter, IDisposable
     /// <summary>
     /// Constructor.
     /// </summary>
-    /// <param name="viewBuilder">Used to build view objects.</param>
+    /// <param name="viewProvider">Used to provide views.</param>
     /// <param name="viewModelNode">
     /// Used to observe when a parent IsActive value changes.
     /// </param>
     public ListPresenter(
-        IViewBuilder viewBuilder,
+        IViewProvider viewProvider,
         ViewModelNode viewModelNode
     )
     {
-        _viewBuilder = viewBuilder;
+        _viewProvider = viewProvider;
         _disposeState = new(
             owner: this,
             onDispose: Clear
@@ -163,7 +163,7 @@ internal class ListPresenter : IListPresenter, IDisposable
     {
         _disposeState.ThrowIfDisposed();
 
-        var view = _viewBuilder.BuildFromDescriptor(viewModelDescriptor);
+        var view = _viewProvider.ProvideFromDescriptor(viewModelDescriptor);
         _views.Insert(index, view);
         Subscribe(view.ViewModel);
         UpdateViewModels();
@@ -205,7 +205,7 @@ internal class ListPresenter : IListPresenter, IDisposable
         _disposeState.ThrowIfDisposed();
 
         var views = viewModelDescriptors
-            .Select(_viewBuilder.BuildFromDescriptor)
+            .Select(_viewProvider.ProvideFromDescriptor)
             .ToArray();
 
         foreach (var view in views.Reverse())
