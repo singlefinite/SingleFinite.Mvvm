@@ -28,7 +28,7 @@ namespace SingleFinite.Mvvm;
 /// <summary>
 /// Extension functions for the INotifyPropertyChanging class.
 /// </summary>
-public static partial class INotifyPropertyChangingExtensions
+public static class INotifyPropertyChangingExtensions
 {
     extension<TComponent>(TComponent component)
         where TComponent : INotifyPropertyChanging

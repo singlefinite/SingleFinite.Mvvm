@@ -27,14 +27,11 @@ using SingleFinite.Mvvm.Internal;
 namespace SingleFinite.Mvvm;
 
 /// <summary>
-/// This class implements the <see cref="INotifyPropertyChanged"/> and 
-/// <see cref="INotifyPropertyChanging"/> interfaces and provides methods that 
-/// inheriting classes can use to raise PropertyChanged and PropertyChanging 
-/// events.
+/// This class implements the <see cref="IChangeable"/> interface and provides
+/// methods that inheriting classes can use to raise PropertyChanged and
+/// PropertyChanging events
 /// </summary>
-public abstract partial class Changeable :
-    INotifyPropertyChanged,
-    INotifyPropertyChanging
+public abstract class Changeable : IChangeable
 {
     #region Fields
 
@@ -113,6 +110,7 @@ public abstract partial class Changeable :
     private void OnTransactionClosed()
     {
         _propertyChangedBuffer.Flush();
+        _changedSource.Emit();
     }
 
     /// <summary>
@@ -213,9 +211,7 @@ public abstract partial class Changeable :
 
     #region Events
 
-    /// <summary>
-    /// Raised when a property value is about to be changed.
-    /// </summary>
+    /// <inheritdoc/>
     event PropertyChangingEventHandler? INotifyPropertyChanging.PropertyChanging
     {
         add { _propertyChanging += value; }
@@ -223,15 +219,17 @@ public abstract partial class Changeable :
     }
     private PropertyChangingEventHandler? _propertyChanging;
 
-    /// <summary>
-    /// Raised when a property value has changed.
-    /// </summary>
+    /// <inheritdoc/>
     event PropertyChangedEventHandler? INotifyPropertyChanged.PropertyChanged
     {
         add { _propertyChanged += value; }
         remove { _propertyChanged -= value; }
     }
     private PropertyChangedEventHandler? _propertyChanged;
+
+    /// <inheritdoc/>
+    public IEventObservable Changed => _changedSource.Observable;
+    private readonly EventObservableSource _changedSource = new();
 
     #endregion
 }

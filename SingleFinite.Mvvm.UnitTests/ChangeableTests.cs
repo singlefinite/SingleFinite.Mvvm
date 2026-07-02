@@ -146,6 +146,29 @@ public class ChangeableTests
         Assert.AreEqual("hello", observedEvents[0]);
     }
 
+    [TestMethod]
+    public void Changed_Observable_Emits_After_Property_Changed()
+    {
+        var testClass = new TestOnStateChangedRecurseClass();
+        var observedEvents = new List<string?>();
+
+        ((INotifyPropertyChanged)testClass).PropertyChanged += (sender, args) =>
+        {
+            observedEvents.Add(args.PropertyName);
+        };
+
+        testClass.Changed
+            .Observe()
+            .OnEach(() => observedEvents.Add("Changed"));
+
+        testClass.FieldOne = 1;
+
+        Assert.HasCount(3, observedEvents);
+        Assert.AreEqual("FieldOne", observedEvents[0]);
+        Assert.AreEqual("FieldTwo", observedEvents[1]);
+        Assert.AreEqual("Changed", observedEvents[2]);
+    }
+
     #region Types
 
     private class TestClass : Changeable
