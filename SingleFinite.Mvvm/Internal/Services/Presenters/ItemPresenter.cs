@@ -89,6 +89,10 @@ internal sealed class ItemPresenter :
     /// <inheritdoc/>
     public IView? Current => _stack.Current;
 
+    /// <inheritdoc/>
+    public IDictionary<string, object?> ViewState { get; } =
+        new Dictionary<string, object?>();
+
     #endregion
 
     #region Methods

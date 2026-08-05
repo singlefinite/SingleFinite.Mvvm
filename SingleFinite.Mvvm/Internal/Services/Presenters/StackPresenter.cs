@@ -88,6 +88,10 @@ internal sealed class StackPresenter :
     /// <inheritdoc/>
     public IViewModel[] ViewModels => _stack.ViewModels;
 
+    /// <inheritdoc/>
+    public IDictionary<string, object?> ViewState { get; } =
+        new Dictionary<string, object?>();
+
     #endregion
 
     #region Methods

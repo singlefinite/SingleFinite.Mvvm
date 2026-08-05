@@ -89,6 +89,10 @@ internal class ListPresenter : IListPresenter, IDisposable
     /// <inheritdoc/>
     public IView? Current { get; private set; }
 
+    /// <inheritdoc/>
+    public IDictionary<string, object?> ViewState { get; } =
+        new Dictionary<string, object?>();
+
     /// <summary>
     /// When this property is set to false it forces all view models to be
     /// deactivated.

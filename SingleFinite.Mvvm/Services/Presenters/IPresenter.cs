@@ -34,6 +34,11 @@ public interface IPresenter
     IView? Current { get; }
 
     /// <summary>
+    /// Optional state that view frameworks can utilize.
+    /// </summary>
+    IDictionary<string, object?> ViewState { get; }
+
+    /// <summary>
     /// Event that is raised when the current view has changed.
     /// </summary>
     IEventObservable<CurrentChangedEventArgs> CurrentChanged { get; }
