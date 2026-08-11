@@ -70,15 +70,11 @@ internal class AppTaskScope(
     #region Methods
 
     /// <inheritdoc/>
-    public TaskScope CreateChildScope(IDispatcher? dispatcher = null) =>
-        _taskScope.CreateChildScope(dispatcher);
+    public void Cancel() => _taskScope.Cancel();
 
     /// <inheritdoc/>
-    public Task<TResult> RunAsync<TResult>(
-        Func<Task<TResult>> function,
-        IDispatcher? dispatcher = null,
-        CancellationToken cancellationToken = default
-    ) => _taskScope.RunAsync(function, dispatcher, cancellationToken);
+    public TaskScope CreateChildScope(IDispatcher? dispatcher = null) =>
+        _taskScope.CreateChildScope(dispatcher);
 
     /// <inheritdoc/>
     public Task<TResult> RunAsync<TResult>(
