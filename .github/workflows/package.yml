@@ -10,13 +10,22 @@ jobs:
     permissions:
       packages: write
       contents: read
+      id-token: write
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-dotnet@v5
         with:
           dotnet-version: '10.0.x'
       - run: dotnet build --configuration Release SingleFinite.Mvvm
+
       - name: Create the package
         run: dotnet pack --configuration Release SingleFinite.Mvvm
+
+      - name: NuGet login (OIDC → temp API key)
+        uses: NuGet/login@v1
+        id: login
+        with:
+          user: ${{ secrets.NUGET_USER }}
+
       - name: Publish the package
-        run: dotnet nuget push SingleFinite.Mvvm/bin/Release/*.nupkg -s https://api.nuget.org/v3/index.json -k ${{secrets.NUGET_TOKEN}}
+        run: dotnet nuget push SingleFinite.Mvvm/bin/Release/*.nupkg -s https://api.nuget.org/v3/index.json --api-key ${{steps.login.outputs.NUGET_API_KEY}}
