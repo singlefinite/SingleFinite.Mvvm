@@ -43,8 +43,8 @@ internal sealed class MainDispatcher : IMainDispatcher, IDisposable
     /// <inheritdoc/>
     public Task<TResult> RunAsync<TResult>(
         Func<Task<TResult>> function,
-        CancellationToken cancellationToken = default
-    ) => _dispatcher.RunAsync(function, cancellationToken);
+        ITaskScopeContext context
+    ) => _dispatcher.RunAsync(function, context);
 
     /// <inheritdoc/>
     public void Dispose() => _dispatcher.Dispose();

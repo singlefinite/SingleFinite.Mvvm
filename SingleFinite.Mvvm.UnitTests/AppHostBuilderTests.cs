@@ -20,6 +20,7 @@
 // SOFTWARE.
 
 using Microsoft.Extensions.DependencyInjection;
+using SingleFinite.Essentials;
 using SingleFinite.Mvvm.Services;
 
 namespace SingleFinite.Mvvm.UnitTests;
@@ -138,7 +139,7 @@ public class AppHostBuilderTests
     {
         public Task<TResult> RunAsync<TResult>(
             Func<Task<TResult>> function,
-            CancellationToken cancellationToken = default
+            ITaskScopeContext context
         ) =>
             throw new NotImplementedException();
     }

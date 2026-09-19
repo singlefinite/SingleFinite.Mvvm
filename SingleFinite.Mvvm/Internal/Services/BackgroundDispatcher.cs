@@ -43,9 +43,9 @@ internal sealed class BackgroundDispatcher : IBackgroundDispatcher
     /// <inheritdoc/>
     public Task<TResult> RunAsync<TResult>(
         Func<Task<TResult>> function,
-        CancellationToken cancellationToken = default
+        ITaskScopeContext context
     ) =>
-        _dispatcher.RunAsync(function, cancellationToken);
+        _dispatcher.RunAsync(function, context);
 
     #endregion
 }

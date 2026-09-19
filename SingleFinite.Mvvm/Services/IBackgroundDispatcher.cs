@@ -27,6 +27,6 @@ namespace SingleFinite.Mvvm.Services;
 /// A dispatcher that dispatches execution of functions and actions to a
 /// background thread.
 /// </summary>
-public interface IBackgroundDispatcher : IDispatcher
+public interface IBackgroundDispatcher : ITaskDispatcher
 {
 }

@@ -26,8 +26,6 @@ namespace SingleFinite.Mvvm.Internal.Services;
 
 /// <summary>
 /// Implementation of the <see cref="IAppTaskScope"/> interface.
-/// This task scope is tied to the current service scope and has the
-/// BackgroundDispatcher as its default dispatcher.
 /// </summary>
 /// <remarks>
 /// Constructor.
@@ -36,13 +34,8 @@ namespace SingleFinite.Mvvm.Internal.Services;
 /// The cancellation token from this context will be passed to the task scope
 /// so that when it is cancelled the task scope will also be cancelled.
 /// </param>
-/// <param name="backgroundDispatcher">
-/// The background dispatcher will be passed to the task scope and used as the
-/// default dispatcher for the task scope.
-/// </param>
 internal class AppTaskScope(
-    IScopeContext scopeContext,
-    IBackgroundDispatcher backgroundDispatcher
+    IScopeContext scopeContext
 ) : IAppTaskScope
 {
     #region Fields
@@ -51,7 +44,6 @@ internal class AppTaskScope(
     /// The underlying task scope.
     /// </summary>
     private readonly TaskScope _taskScope = new(
-        dispatcher: backgroundDispatcher,
         parentCancellationToken: scopeContext.CancellationToken
     );
 
@@ -60,7 +52,7 @@ internal class AppTaskScope(
     #region Properties
 
     /// <inheritdoc/>
-    public IDispatcher Dispatcher => _taskScope.Dispatcher;
+    public ITaskDispatcher Dispatcher => _taskScope.Dispatcher;
 
     /// <inheritdoc/>
     public CancellationToken CancellationToken => _taskScope.CancellationToken;
@@ -73,15 +65,15 @@ internal class AppTaskScope(
     public void Cancel() => _taskScope.Cancel();
 
     /// <inheritdoc/>
-    public TaskScope CreateChildScope(IDispatcher? dispatcher = null) =>
+    public TaskScope CreateChildScope(ITaskDispatcher? dispatcher = null) =>
         _taskScope.CreateChildScope(dispatcher);
 
     /// <inheritdoc/>
-    public Task<TResult> RunAsync<TResult>(
-        Func<CancellationToken, Task<TResult>> function,
-        IDispatcher? dispatcher = null,
-        CancellationToken cancellationToken = default
-    ) => _taskScope.RunAsync(function, dispatcher, cancellationToken);
+    public ITaskJob<TResult> Run<TResult>(
+        Func<Task<TResult>> function,
+        ITaskDispatcher? dispatcher = null
+    ) =>
+        _taskScope.Run(function, dispatcher);
 
     #endregion
 }

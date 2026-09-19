@@ -91,7 +91,7 @@ public class AppHost : IDisposable
             .OnEach(e => exceptionHandler?.Handle(e.ExceptionObject, e))
             .Until(_disposeState.CancellationToken);
 
-        Dispatcher.UnhandledException
+        TaskDispatcher.UnhandledException
             .Observe()
             .OnEach(e => exceptionHandler?.Handle(e.Exception, e))
             .Until(_disposeState.CancellationToken);

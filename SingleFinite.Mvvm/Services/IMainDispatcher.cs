@@ -26,6 +26,6 @@ namespace SingleFinite.Mvvm.Services;
 /// <summary>
 /// A dispatcher that dispatches code execution to the main thread.
 /// </summary>
-public interface IMainDispatcher : IDispatcher
+public interface IMainDispatcher : ITaskDispatcher
 {
 }
