@@ -54,7 +54,7 @@ internal static class IServiceCollectionExtensions
         .AddScoped<IViewBuilder, ViewBuilder>()
         .AddScoped<IViewAssembler, ViewAssembler>()
         .AddScoped<IViewProvider, ViewProvider>()
-        .AddScoped<IScopeContext, ScopeContext>()
+        .AddScoped<IServiceScopeLifecycle, ServiceScopeLifecycle>()
         .AddScoped<ITaskScope, AppTaskScope>()
         .AddScoped<ViewModelNode>()
         .AddTransient<IItemPresenter, ItemPresenter>()

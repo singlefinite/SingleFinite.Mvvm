@@ -30,12 +30,12 @@ namespace SingleFinite.Mvvm.Internal.Services;
 /// <remarks>
 /// Constructor.
 /// </remarks>
-/// <param name="scopeContext">
-/// The cancellation token from this context will be passed to the task scope
+/// <param name="lifecycle">
+/// The cancellation token from this service will be passed to the task scope
 /// so that when it is cancelled the task scope will also be cancelled.
 /// </param>
 internal class AppTaskScope(
-    IScopeContext scopeContext
+    IServiceScopeLifecycle lifecycle
 ) : IAppTaskScope
 {
     #region Fields
@@ -44,7 +44,7 @@ internal class AppTaskScope(
     /// The underlying task scope.
     /// </summary>
     private readonly TaskScope _taskScope = new(
-        parentCancellationToken: scopeContext.CancellationToken
+        parentCancellationToken: lifecycle.CancellationToken
     );
 
     #endregion

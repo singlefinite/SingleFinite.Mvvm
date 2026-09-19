@@ -25,10 +25,10 @@ using SingleFinite.Mvvm.Services;
 namespace SingleFinite.Mvvm.Internal.Services;
 
 /// <summary>
-/// Implementation of <see cref="IScopeContext"/>.
+/// Implementation of <see cref="IServiceScopeLifecycle"/>.
 /// </summary>
-internal sealed class ScopeContext :
-    IScopeContext,
+internal sealed class ServiceScopeLifecycle :
+    IServiceScopeLifecycle,
     IDisposable
 {
     #region Fields
@@ -50,7 +50,7 @@ internal sealed class ScopeContext :
     /// <summary>
     /// Constructor.
     /// </summary>
-    public ScopeContext()
+    public ServiceScopeLifecycle()
     {
         CancellationToken = _cancellationTokenSource.Token;
         _disposeState = new(

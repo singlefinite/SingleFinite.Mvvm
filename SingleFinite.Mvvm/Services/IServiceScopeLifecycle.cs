@@ -22,9 +22,9 @@
 namespace SingleFinite.Mvvm.Services;
 
 /// <summary>
-/// This is the context for a dependency injection scope.
+/// This is the lifecycle for a service scope.
 /// </summary>
-public interface IScopeContext
+public interface IServiceScopeLifecycle
 {
     /// <summary>
     /// A CancellationToken that will be cancelled when the dependency 

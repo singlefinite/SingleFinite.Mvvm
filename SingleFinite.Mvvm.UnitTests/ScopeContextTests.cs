@@ -29,7 +29,7 @@ public class ScopeContextTests
     [TestMethod]
     public void Dispose_Method_Cancels_Cancellation_Token()
     {
-        var scopeContext = new ScopeContext();
+        var scopeContext = new ServiceScopeLifecycle();
 
         Assert.IsFalse(scopeContext.CancellationToken.IsCancellationRequested);
 
