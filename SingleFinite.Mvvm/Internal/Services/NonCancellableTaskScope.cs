@@ -24,7 +24,7 @@ using SingleFinite.Mvvm.Services;
 
 namespace SingleFinite.Mvvm.Internal.Services;
 
-internal class NonCancellableTaskScopeContext : INonCancellableTaskScopeContext
+internal class NonCancellableTaskScope : INonCancellableTaskScope
 {
     #region Fields
 

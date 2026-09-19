@@ -25,7 +25,7 @@ using SingleFinite.Mvvm.Services;
 namespace SingleFinite.Mvvm.Internal.Services;
 
 /// <summary>
-/// Implementation of the <see cref="IAppTaskScopeContext"/> interface.
+/// Implementation of the <see cref="IAppTaskScope"/> interface.
 /// </summary>
 /// <remarks>
 /// Constructor.
@@ -34,9 +34,9 @@ namespace SingleFinite.Mvvm.Internal.Services;
 /// The cancellation token from this service will be passed to the task scope
 /// so that when it is cancelled the task scope will also be cancelled.
 /// </param>
-internal class AppTaskScopeContext(
+internal class AppTaskScope(
     IServiceLifecycle lifecycle
-) : IAppTaskScopeContext
+) : IAppTaskScope
 {
     #region Fields
 

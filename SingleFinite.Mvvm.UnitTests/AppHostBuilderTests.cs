@@ -139,7 +139,7 @@ public class AppHostBuilderTests
     {
         public Task<TResult> RunAsync<TResult>(
             Func<Task<TResult>> function,
-            ITaskScopeContext context
+            ITaskScope scope
         ) =>
             throw new NotImplementedException();
     }
