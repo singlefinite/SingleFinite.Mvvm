@@ -24,8 +24,9 @@ using SingleFinite.Essentials;
 namespace SingleFinite.Mvvm.Services;
 
 /// <summary>
-/// A TaskScope that shares the same lifetime as the application.
+/// A task scope that will not be cancelled when the app is closed.  Note that
+/// jobs run on the scope can still be cancelled individually.
 /// </summary>
-public interface IAppTaskScope : ITaskScope
+public interface INonCancellableTaskScopeContext : ITaskScopeContext
 {
 }

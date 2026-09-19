@@ -24,28 +24,14 @@ using SingleFinite.Mvvm.Services;
 
 namespace SingleFinite.Mvvm.Internal.Services;
 
-/// <summary>
-/// Implementation of the <see cref="IAppTaskScope"/> interface.
-/// </summary>
-/// <remarks>
-/// Constructor.
-/// </remarks>
-/// <param name="lifecycle">
-/// The cancellation token from this service will be passed to the task scope
-/// so that when it is cancelled the task scope will also be cancelled.
-/// </param>
-internal class AppTaskScope(
-    IServiceLifecycle lifecycle
-) : IAppTaskScope
+internal class NonCancellableTaskScopeContext : INonCancellableTaskScopeContext
 {
     #region Fields
 
     /// <summary>
     /// The underlying task scope.
     /// </summary>
-    private readonly TaskScope _taskScope = new(
-        parentCancellationToken: lifecycle.CancellationToken
-    );
+    private readonly TaskScope _taskScope = new();
 
     #endregion
 
@@ -60,9 +46,6 @@ internal class AppTaskScope(
     #endregion
 
     #region Methods
-
-    /// <inheritdoc/>
-    public void Cancel() => _taskScope.Cancel();
 
     /// <inheritdoc/>
     public TaskScope CreateChildScope(ITaskDispatcher? dispatcher = null) =>
