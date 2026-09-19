@@ -19,16 +19,22 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-namespace SingleFinite.Mvvm.Services;
+using SingleFinite.Mvvm.Internal.Services;
 
-/// <summary>
-/// This is the lifecycle for a service scope.
-/// </summary>
-public interface IServiceScopeLifecycle
+namespace SingleFinite.Mvvm.UnitTests;
+
+[TestClass]
+public class ServiceLifecycleTests
 {
-    /// <summary>
-    /// A CancellationToken that will be cancelled when the dependency 
-    /// injection scope this service belongs to is disposed.
-    /// </summary>
-    CancellationToken CancellationToken { get; }
+    [TestMethod]
+    public void Dispose_Method_Cancels_Cancellation_Token()
+    {
+        var lifecycle = new ServiceLifecycle();
+
+        Assert.IsFalse(lifecycle.CancellationToken.IsCancellationRequested);
+
+        lifecycle.Dispose();
+
+        Assert.IsTrue(lifecycle.CancellationToken.IsCancellationRequested);
+    }
 }

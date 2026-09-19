@@ -52,7 +52,7 @@ internal class PluginLoader(
         {
             var pluginScope = serviceProvider.CreateLinkedScope();
             var builder = pluginScope.ServiceProvider.GetRequiredService<IBuilder>();
-            var lifecycle = pluginScope.ServiceProvider.GetRequiredService<IServiceScopeLifecycle>();
+            var lifecycle = pluginScope.ServiceProvider.GetRequiredService<IServiceLifecycle>();
             var plugin = (IPlugin)builder.Build(descriptor.PluginType);
 
             pluginHost.Activated

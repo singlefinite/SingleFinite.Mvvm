@@ -35,7 +35,7 @@ namespace SingleFinite.Mvvm.Internal.Services;
 /// so that when it is cancelled the task scope will also be cancelled.
 /// </param>
 internal class AppTaskScope(
-    IServiceScopeLifecycle lifecycle
+    IServiceLifecycle lifecycle
 ) : IAppTaskScope
 {
     #region Fields

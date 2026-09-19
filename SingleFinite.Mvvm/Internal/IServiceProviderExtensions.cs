@@ -43,8 +43,8 @@ internal static class IServiceProviderExtensions
     public static IServiceScope CreateLinkedScope(this IServiceProvider serviceProvider)
     {
         var childScope = serviceProvider.CreateScope();
-        var childCancellationToken = childScope.ServiceProvider.GetRequiredService<IServiceScopeLifecycle>().CancellationToken;
-        var parentCancellationToken = serviceProvider.GetRequiredService<IServiceScopeLifecycle>().CancellationToken;
+        var childCancellationToken = childScope.ServiceProvider.GetRequiredService<IServiceLifecycle>().CancellationToken;
+        var parentCancellationToken = serviceProvider.GetRequiredService<IServiceLifecycle>().CancellationToken;
         var parentCancellationObserver = parentCancellationToken.Register(childScope.Dispose);
         childCancellationToken.Register(parentCancellationObserver.Dispose);
         return childScope;
