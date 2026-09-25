@@ -29,9 +29,9 @@ namespace SingleFinite.Mvvm.UnitTests;
 public class ViewProviderTests
 {
     [TestMethod]
-    public void ProvideCallsOnCreated()
+    public async Task ProvideCallsOnCreated()
     {
-        using var context = new MvvmTestContext();
+        using var context = await MvvmTestContext.CreateAsync();
         var viewProvider = (ViewProvider)context.ServiceProvider.GetRequiredService<IViewProvider>();
 
         var view = viewProvider.Provide<TestViewModel>();

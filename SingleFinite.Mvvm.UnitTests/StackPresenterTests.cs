@@ -30,9 +30,9 @@ namespace SingleFinite.Mvvm.UnitTests;
 public class StackPresenterTests
 {
     [TestMethod]
-    public void Lifecycle_Events_Raised_When_Expected()
+    public async Task Lifecycle_Events_Raised_When_Expected()
     {
-        using var context = new MvvmTestContext();
+        using var context = await MvvmTestContext.CreateAsync();
         var stackPresenter = (StackPresenter)context.ServiceProvider.GetRequiredService<IStackPresenter>();
 
         var output = new List<string>();
@@ -70,9 +70,9 @@ public class StackPresenterTests
     }
 
     [TestMethod]
-    public void Add_To_Middle_Of_Stack()
+    public async Task Add_To_Middle_Of_Stack()
     {
-        using var context = new MvvmTestContext();
+        using var context = await MvvmTestContext.CreateAsync();
         var stackPresenter = (StackPresenter)context.ServiceProvider.GetRequiredService<IStackPresenter>();
 
         var output = new List<string>();
@@ -96,9 +96,9 @@ public class StackPresenterTests
     }
 
     [TestMethod]
-    public void Changed_Event_Is_Raised()
+    public async Task Changed_Event_Is_Raised()
     {
-        using var context = new MvvmTestContext();
+        using var context = await MvvmTestContext.CreateAsync();
         var stackPresenter = (StackPresenter)context.ServiceProvider.GetRequiredService<IStackPresenter>();
 
         IPresenter.CurrentChangedEventArgs? observedArgs = null;
@@ -137,9 +137,9 @@ public class StackPresenterTests
     }
 
     [TestMethod]
-    public void PopTo_Method_With_ViewModel_Type_Pops_Views()
+    public async Task PopTo_Method_With_ViewModel_Type_Pops_Views()
     {
-        using var context = new MvvmTestContext();
+        using var context = await MvvmTestContext.CreateAsync();
         var stackPresenter = (StackPresenter)context.ServiceProvider.GetRequiredService<IStackPresenter>();
 
         var output = new List<string>();
@@ -167,9 +167,9 @@ public class StackPresenterTests
     }
 
     [TestMethod]
-    public void PopTo_Method_With_Query_Pops_Views()
+    public async Task PopTo_Method_With_Query_Pops_Views()
     {
-        using var context = new MvvmTestContext();
+        using var context = await MvvmTestContext.CreateAsync();
         var stackPresenter = (StackPresenter)context.ServiceProvider.GetRequiredService<IStackPresenter>();
 
         var output = new List<string>();
@@ -201,9 +201,9 @@ public class StackPresenterTests
     }
 
     [TestMethod]
-    public void Presenter_Is_Disposed_When_ServiceScope_Is_Disposed()
+    public async Task Presenter_Is_Disposed_When_ServiceScope_Is_Disposed()
     {
-        using var context = new MvvmTestContext();
+        using var context = await MvvmTestContext.CreateAsync();
         var scope = context.ServiceProvider.CreateScope();
         var stackPresenterInScope = (StackPresenter)scope.ServiceProvider.GetRequiredService<IStackPresenter>();
         var stackPresenterInRoot = (StackPresenter)context.ServiceProvider.GetRequiredService<IStackPresenter>();
@@ -225,9 +225,9 @@ public class StackPresenterTests
     }
 
     [TestMethod]
-    public void Stack_Property_Is_List_Ordered_From_Stack_Top_To_Stack_Bottom()
+    public async Task Stack_Property_Is_List_Ordered_From_Stack_Top_To_Stack_Bottom()
     {
-        using var context = new MvvmTestContext();
+        using var context = await MvvmTestContext.CreateAsync();
 
         var output = new List<string>();
         var viewModelTestContext = new ViewModelTestContext(output);
@@ -248,9 +248,9 @@ public class StackPresenterTests
     }
 
     [TestMethod]
-    public void Push_Method_With_Template_Returns_View_With_Template()
+    public async Task Push_Method_With_Template_Returns_View_With_Template()
     {
-        using var context = new MvvmTestContext();
+        using var context = await MvvmTestContext.CreateAsync();
 
         var viewModelTestContext = new ViewModelTestContext([]);
 
@@ -261,9 +261,9 @@ public class StackPresenterTests
     }
 
     [TestMethod]
-    public void Closable_Event_Removes_View_Model()
+    public async Task Closable_Event_Removes_View_Model()
     {
-        using var context = new MvvmTestContext();
+        using var context = await MvvmTestContext.CreateAsync();
 
         var viewModelTestContext = new ViewModelTestContext([]);
 

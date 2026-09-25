@@ -43,27 +43,12 @@ public sealed class MvvmTestContext : IDisposable
     /// <summary>
     /// Constructor.
     /// </summary>
-    /// <param name="configureServices">Optional action used to customize the service configuration.</param>
-    /// <param name="configureViews">Optional action used to customize the view configuration.</param>
-    /// <param name="configurePlugins">Optional action used to customize the plugin configuration.</param>
-    public MvvmTestContext(
-        Action<IServiceCollection>? configureServices = null,
-        Action<IViewCollection>? configureViews = null,
-        Action<IPluginCollection>? configurePlugins = null
-    )
+    /// <param name="serviceProvider">
+    /// The service provider for this context.
+    /// </param>
+    private MvvmTestContext(ServiceProvider serviceProvider)
     {
-        var callingAssembly = Assembly.GetCallingAssembly();
-
-        var services = new ServiceCollection();
-
-        var host = new AppHostBuilder()
-            .AddServices(configureServices ?? (_ => { }))
-            .AddViews(configureViews ?? (views => views.Scan(callingAssembly)))
-            .AddPlugins(configurePlugins ?? (plugins => plugins.Scan(callingAssembly)))
-            .Build(services);
-
-        ServiceProvider = services.BuildServiceProvider();
-        host.Start(ServiceProvider);
+        ServiceProvider = serviceProvider;
     }
 
     #endregion
@@ -78,6 +63,35 @@ public sealed class MvvmTestContext : IDisposable
     #endregion
 
     #region Methods
+
+    /// <summary>
+    /// Create a new MvvmTestContext instance.
+    /// </summary>
+    /// <param name="configureServices">Optional action used to customize the service configuration.</param>
+    /// <param name="configureViews">Optional action used to customize the view configuration.</param>
+    /// <param name="configurePlugins">Optional action used to customize the plugin configuration.</param>
+    /// <returns>A new MvvmTestContext instance.</returns>
+    public static async Task<MvvmTestContext> CreateAsync(
+        Action<IServiceCollection>? configureServices = null,
+        Action<IViewCollection>? configureViews = null,
+        Action<IPluginCollection>? configurePlugins = null
+    )
+    {
+        var callingAssembly = typeof(MvvmTestContext).Assembly;
+
+        var services = new ServiceCollection();
+
+        var host = new AppHostBuilder()
+            .AddServices(configureServices ?? (_ => { }))
+            .AddViews(configureViews ?? (views => views.Scan(callingAssembly)))
+            .AddPlugins(configurePlugins ?? (plugins => plugins.Scan(callingAssembly)))
+            .Build(services);
+
+        var serviceProvider = services.BuildServiceProvider();
+        await host.StartAsync(serviceProvider);
+
+        return new MvvmTestContext(serviceProvider);
+    }
 
     /// <summary>
     /// Dispose of the ServiceProvider.

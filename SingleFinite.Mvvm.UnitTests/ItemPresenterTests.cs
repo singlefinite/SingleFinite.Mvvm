@@ -31,9 +31,9 @@ namespace SingleFinite.Mvvm.UnitTests;
 public class ItemPresenterTests
 {
     [TestMethod]
-    public void Lifecycle_Events_Raised_When_Expected()
+    public async Task Lifecycle_Events_Raised_When_Expected()
     {
-        using var context = new MvvmTestContext();
+        using var context = await MvvmTestContext.CreateAsync();
         var itemPresenter = (ItemPresenter)context.ServiceProvider.GetRequiredService<IItemPresenter>();
 
         var output = new List<string>();
@@ -73,9 +73,9 @@ public class ItemPresenterTests
     }
 
     [TestMethod]
-    public void Changed_Event_Is_Raised()
+    public async Task Changed_Event_Is_Raised()
     {
-        using var context = new MvvmTestContext();
+        using var context = await MvvmTestContext.CreateAsync();
         var itemPresenter = (ItemPresenter)context.ServiceProvider.GetRequiredService<IItemPresenter>();
 
         IPresenter.CurrentChangedEventArgs? observedArgs = null;
@@ -114,9 +114,9 @@ public class ItemPresenterTests
     }
 
     [TestMethod]
-    public void Presenter_Is_Disposed_When_ServiceScope_Is_Disposed()
+    public async Task Presenter_Is_Disposed_When_ServiceScope_Is_Disposed()
     {
-        using var context = new MvvmTestContext();
+        using var context = await MvvmTestContext.CreateAsync();
         var scope = context.ServiceProvider.CreateScope();
         var itemPresenterInScope = (ItemPresenter)scope.ServiceProvider.GetRequiredService<IItemPresenter>();
         var itemPresenterInRoot = (ItemPresenter)context.ServiceProvider.GetRequiredService<IItemPresenter>();
@@ -136,9 +136,9 @@ public class ItemPresenterTests
     }
 
     [TestMethod]
-    public void Set_Method_With_Template_Creates_View_With_Template()
+    public async Task Set_Method_With_Template_Creates_View_With_Template()
     {
-        using var context = new MvvmTestContext();
+        using var context = await MvvmTestContext.CreateAsync();
         var itemPresenter = (ItemPresenter)context.ServiceProvider.GetRequiredService<IItemPresenter>();
         var viewModelTestContext = new ViewModelTestContext([]);
         var viewModel = itemPresenter.Set<TestViewModel1>(viewModelTestContext);
@@ -147,9 +147,9 @@ public class ItemPresenterTests
     }
 
     [TestMethod]
-    public void Set_Method_Throws_If_Disposed()
+    public async Task Set_Method_Throws_If_Disposed()
     {
-        using var context = new MvvmTestContext();
+        using var context = await MvvmTestContext.CreateAsync();
         var itemPresenter = (ItemPresenter)context.ServiceProvider.GetRequiredService<IItemPresenter>();
 
         var output = new List<string>();
@@ -162,9 +162,9 @@ public class ItemPresenterTests
     }
 
     [TestMethod]
-    public void Closable_Event_Removes_View_Model()
+    public async Task Closable_Event_Removes_View_Model()
     {
-        using var context = new MvvmTestContext();
+        using var context = await MvvmTestContext.CreateAsync();
         var itemPresenter = (ItemPresenter)context.ServiceProvider.GetRequiredService<IItemPresenter>();
         var viewModelTestContext = new ViewModelTestContext([]);
         var viewModel = itemPresenter.Set<TestViewModel1>(viewModelTestContext);
@@ -177,9 +177,9 @@ public class ItemPresenterTests
     }
 
     [TestMethod]
-    public void Nested_Presenter_Deactivates_When_Parent_Deactivates()
+    public async Task Nested_Presenter_Deactivates_When_Parent_Deactivates()
     {
-        using var context = new MvvmTestContext();
+        using var context = await MvvmTestContext.CreateAsync();
         var itemPresenter = (ItemPresenter)context.ServiceProvider.GetRequiredService<IItemPresenter>();
 
         var parentViewModel = itemPresenter.Set<ParentViewModel>();

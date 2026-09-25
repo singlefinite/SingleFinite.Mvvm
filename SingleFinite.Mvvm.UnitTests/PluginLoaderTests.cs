@@ -43,9 +43,9 @@ public class PluginLoaderTests
     }
 
     [TestMethod]
-    public void LoadPlugins_Method_Builds_And_Wires_Up_Registered_Plugins()
+    public async Task LoadPlugins_Method_Builds_And_Wires_Up_Registered_Plugins()
     {
-        using var testContext = new MvvmTestContext();
+        using var testContext = await MvvmTestContext.CreateAsync();
         var pluginCollection = new PluginCollection
         {
             new PluginDescriptor(
@@ -98,9 +98,9 @@ public class PluginLoaderTests
     }
 
     [TestMethod]
-    public void LoadPlugins_Method_Does_Not_Break_If_No_Registered_Plugins()
+    public async Task LoadPlugins_Method_Does_Not_Break_If_No_Registered_Plugins()
     {
-        using var testContext = new MvvmTestContext();
+        using var testContext = await MvvmTestContext.CreateAsync();
         var pluginCollection = new PluginCollection();
         var pluginRegistry = new PluginRegistry(pluginCollection);
 

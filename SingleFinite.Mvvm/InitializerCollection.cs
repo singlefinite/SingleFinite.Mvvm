@@ -33,7 +33,7 @@ public class InitializerCollection : IInitializerCollection
     /// <summary>
     /// The underlying list.
     /// </summary>
-    private readonly IList<Action<IServiceProvider>> _list = [];
+    private readonly IList<Func<IServiceProvider, Task>> _list = [];
 
     #endregion
 
@@ -59,7 +59,7 @@ public class InitializerCollection : IInitializerCollection
     #region Properties
 
     /// <inheritdoc/>
-    public Action<IServiceProvider> this[int index]
+    public Func<IServiceProvider, Task> this[int index]
     {
         get => _list[index];
         set => _list[index] = value;
@@ -79,30 +79,30 @@ public class InitializerCollection : IInitializerCollection
     public IInitializerCollection Copy() => new InitializerCollection(this);
 
     /// <inheritdoc/>
-    public void Add(Action<IServiceProvider> item) => _list.Add(item);
+    public void Add(Func<IServiceProvider, Task> item) => _list.Add(item);
 
     /// <inheritdoc/>
     public void Clear() => _list.Clear();
 
     /// <inheritdoc/>
-    public bool Contains(Action<IServiceProvider> item) => _list.Contains(item);
+    public bool Contains(Func<IServiceProvider, Task> item) => _list.Contains(item);
 
     /// <inheritdoc/>
-    public void CopyTo(Action<IServiceProvider>[] array, int arrayIndex) =>
+    public void CopyTo(Func<IServiceProvider, Task>[] array, int arrayIndex) =>
         _list.CopyTo(array, arrayIndex);
 
     /// <inheritdoc/>
-    public IEnumerator<Action<IServiceProvider>> GetEnumerator() => _list.GetEnumerator();
+    public IEnumerator<Func<IServiceProvider, Task>> GetEnumerator() => _list.GetEnumerator();
 
     /// <inheritdoc/>
-    public int IndexOf(Action<IServiceProvider> item) => _list.IndexOf(item);
+    public int IndexOf(Func<IServiceProvider, Task> item) => _list.IndexOf(item);
 
     /// <inheritdoc/>
-    public void Insert(int index, Action<IServiceProvider> item) =>
+    public void Insert(int index, Func<IServiceProvider, Task> item) =>
         _list.Insert(index, item);
 
     /// <inheritdoc/>
-    public bool Remove(Action<IServiceProvider> item) => _list.Remove(item);
+    public bool Remove(Func<IServiceProvider, Task> item) => _list.Remove(item);
 
     /// <inheritdoc/>
     public void RemoveAt(int index) => _list.RemoveAt(index);

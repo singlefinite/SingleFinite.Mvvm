@@ -31,9 +31,9 @@ namespace SingleFinite.Mvvm.UnitTests;
 public class ListPresenterTests
 {
     [TestMethod]
-    public void Lifecycle_Events_Raised_When_Expected()
+    public async Task Lifecycle_Events_Raised_When_Expected()
     {
-        using var context = new MvvmTestContext();
+        using var context = await MvvmTestContext.CreateAsync();
         var listPresenter = (ListPresenter)context.ServiceProvider.GetRequiredService<IListPresenter>();
 
         var output = new List<string>();
@@ -83,9 +83,9 @@ public class ListPresenterTests
     }
 
     [TestMethod]
-    public void SetCurrent_With_Type()
+    public async Task SetCurrent_With_Type()
     {
-        using var context = new MvvmTestContext();
+        using var context = await MvvmTestContext.CreateAsync();
         var listPresenter = (ListPresenter)context.ServiceProvider.GetRequiredService<IListPresenter>();
 
         var output = new List<string>();
@@ -115,9 +115,9 @@ public class ListPresenterTests
     }
 
     [TestMethod]
-    public void Closable_Event_Removes_View_Model()
+    public async Task Closable_Event_Removes_View_Model()
     {
-        using var context = new MvvmTestContext();
+        using var context = await MvvmTestContext.CreateAsync();
 
         var viewModelTestContext = new ViewModelTestContext([]);
 
@@ -134,9 +134,9 @@ public class ListPresenterTests
     }
 
     [TestMethod]
-    public void Nested_Presenter_Deactivates_When_Parent_Deactivates()
+    public async Task Nested_Presenter_Deactivates_When_Parent_Deactivates()
     {
-        using var context = new MvvmTestContext();
+        using var context = await MvvmTestContext.CreateAsync();
         var listPresenter = (ListPresenter)context.ServiceProvider.GetRequiredService<IListPresenter>();
 
         var parentViewModel = listPresenter.Add<ParentViewModel>();

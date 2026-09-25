@@ -30,9 +30,9 @@ namespace SingleFinite.Mvvm.UnitTests;
 public class ViewModelTests
 {
     [TestMethod]
-    public void Dispose_Method_Disposes_All_Descendants()
+    public async Task Dispose_Method_Disposes_All_Descendants()
     {
-        using var context = new MvvmTestContext();
+        using var context = await MvvmTestContext.CreateAsync();
         var scope = context.ServiceProvider.CreateLinkedScope();
 
         var viewModel1 = new NestingViewModel(scope.ServiceProvider.GetRequiredService<IStackPresenter>());

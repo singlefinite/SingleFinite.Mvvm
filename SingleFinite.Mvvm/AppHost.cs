@@ -71,7 +71,8 @@ public class AppHost : IDisposable
     /// Start the app host.
     /// </summary>
     /// <param name="provider">The service provider for the app.</param>
-    public virtual void Start(IServiceProvider provider)
+    /// <returns>The running Task.</returns>
+    public virtual async Task StartAsync(IServiceProvider provider)
     {
         _disposeState.ThrowIfDisposed();
 
@@ -92,7 +93,7 @@ public class AppHost : IDisposable
             .Until(_disposeState.CancellationToken);
 
         foreach (var initializer in _initializers)
-            initializer(provider);
+            await initializer(provider);
     }
 
     /// <summary>

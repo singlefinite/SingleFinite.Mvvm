@@ -31,6 +31,25 @@ public static class IInitializerCollectionExtensions
     /// <summary>
     /// Add initializer to invoke when the host is started.
     /// </summary>
+    /// <param name="initializerCollection">
+    /// The collection that is extended.
+    /// </param>
+    /// <param name="initializer">The initializer to add to the host.</param>
+    public static void Add(
+        this IInitializerCollection initializerCollection,
+        Action<IServiceProvider> initializer
+    )
+    {
+        initializerCollection.Add(provider =>
+        {
+            initializer(provider);
+            return Task.CompletedTask;
+        });
+    }
+
+    /// <summary>
+    /// Add initializer to invoke when the host is started.
+    /// </summary>
     /// <typeparam name="TService">
     /// The type of service to provide to the initializer.
     /// </typeparam>
@@ -47,6 +66,29 @@ public static class IInitializerCollectionExtensions
         {
             var service = provider.GetRequiredService<TService>();
             initializer(service);
+            return Task.CompletedTask;
+        });
+    }
+
+    /// <summary>
+    /// Add initializer to invoke when the host is started.
+    /// </summary>
+    /// <typeparam name="TService">
+    /// The type of service to provide to the initializer.
+    /// </typeparam>
+    /// <param name="initializerCollection">
+    /// The collection that is extended.
+    /// </param>
+    /// <param name="initializer">The initializer to add to the host.</param>
+    public static void Add<TService>(
+        this IInitializerCollection initializerCollection,
+        Func<TService, Task> initializer
+    ) where TService : notnull
+    {
+        initializerCollection.Add(provider =>
+        {
+            var service = provider.GetRequiredService<TService>();
+            return initializer(service);
         });
     }
 }

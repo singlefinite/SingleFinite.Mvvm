@@ -32,9 +32,9 @@ public class PluginTests
     /// Verify the lifecycle methods get called when expected.
     /// </summary>
     [TestMethod]
-    public void LifeCycleEventsCalled()
+    public async Task LifeCycleEventsCalled()
     {
-        using var context = new MvvmTestContext();
+        using var context = await MvvmTestContext.CreateAsync();
         var presenter = context.ServiceProvider.GetRequiredService<IItemPresenter>();
         var viewModel = presenter.Set<ExamplePluginHost>();
         var lines = viewModel.Lines;

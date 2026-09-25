@@ -27,7 +27,7 @@ namespace SingleFinite.Mvvm.UnitTests;
 public class AppHostTests
 {
     [TestMethod]
-    public void Start_Method_Invoke_OnStarted_Actions()
+    public async Task Start_Method_Invoke_Initializers()
     {
         var onStarted1Count = 0;
         var onStarted2Count = 0;
@@ -47,19 +47,19 @@ public class AppHostTests
         Assert.AreEqual(0, onStarted1Count);
         Assert.AreEqual(0, onStarted2Count);
 
-        appHost.Start(provider);
+        await appHost.StartAsync(provider);
 
         Assert.AreEqual(1, onStarted1Count);
         Assert.AreEqual(1, onStarted2Count);
 
-        appHost.Start(provider);
+        await appHost.StartAsync(provider);
 
         Assert.AreEqual(1, onStarted1Count);
         Assert.AreEqual(1, onStarted2Count);
     }
 
     [TestMethod]
-    public void Start_Method_Throws_When_Disposed()
+    public async Task Start_Method_Throws_When_Disposed()
     {
         var services = new ServiceCollection();
 
@@ -71,6 +71,8 @@ public class AppHostTests
 
         appHost.Dispose();
 
-        Assert.ThrowsExactly<ObjectDisposedException>(() => appHost.Start(provider));
+        await Assert.ThrowsExactlyAsync<ObjectDisposedException>(
+            () => appHost.StartAsync(provider)
+        );
     }
 }

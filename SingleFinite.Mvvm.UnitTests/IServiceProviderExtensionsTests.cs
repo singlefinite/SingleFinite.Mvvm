@@ -28,9 +28,9 @@ namespace SingleFinite.Mvvm.UnitTests;
 public class IServiceProviderExtensionsTests
 {
     [TestMethod]
-    public void CreateLinkedScope_Scope_Is_Disposed_When_Parent_Is_Disposed()
+    public async Task CreateLinkedScope_Scope_Is_Disposed_When_Parent_Is_Disposed()
     {
-        var context = new MvvmTestContext(
+        var context = await MvvmTestContext.CreateAsync(
             configureServices: services => services.AddScoped<ExampleService>()
         );
 

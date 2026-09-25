@@ -32,9 +32,9 @@ namespace SingleFinite.Mvvm.UnitTests;
 public class DialogPresenterTests
 {
     [TestMethod]
-    public void Dialog_View_Model_Has_Expected_Lifecycle()
+    public async Task Dialog_View_Model_Has_Expected_Lifecycle()
     {
-        using var context = new MvvmTestContext();
+        using var context = await MvvmTestContext.CreateAsync();
 
         var dialogPresenter = new DialogPresenter(
             viewProvider: context.ServiceProvider.GetRequiredService<IViewProvider>(),
@@ -94,9 +94,9 @@ public class DialogPresenterTests
     }
 
     [TestMethod]
-    public void Changed_Event_Is_Raised()
+    public async Task Changed_Event_Is_Raised()
     {
-        using var context = new MvvmTestContext();
+        using var context = await MvvmTestContext.CreateAsync();
 
         var dialogPresenter = new DialogPresenter(
             viewProvider: context.ServiceProvider.GetRequiredService<IViewProvider>(),
@@ -139,9 +139,9 @@ public class DialogPresenterTests
     }
 
     [TestMethod]
-    public void Dialog_View_Model_Will_Dispose_All_When_Cleared()
+    public async Task Dialog_View_Model_Will_Dispose_All_When_Cleared()
     {
-        using var context = new MvvmTestContext();
+        using var context = await MvvmTestContext.CreateAsync();
 
         var dialogPresenter = new DialogPresenter(
             viewProvider: context.ServiceProvider.GetRequiredService<IViewProvider>(),
@@ -170,9 +170,9 @@ public class DialogPresenterTests
     }
 
     [TestMethod]
-    public void Dispose_Will_Clear()
+    public async Task Dispose_Will_Clear()
     {
-        using var context = new MvvmTestContext();
+        using var context = await MvvmTestContext.CreateAsync();
 
         var dialogPresenter = new DialogPresenter(
             viewProvider: context.ServiceProvider.GetRequiredService<IViewProvider>(),
@@ -201,9 +201,9 @@ public class DialogPresenterTests
     }
 
     [TestMethod]
-    public void Close_From_Middle_Of_Stack_Has_Expected_Lifecycle()
+    public async Task Close_From_Middle_Of_Stack_Has_Expected_Lifecycle()
     {
-        using var context = new MvvmTestContext();
+        using var context = await MvvmTestContext.CreateAsync();
 
         var dialogPresenter = new DialogPresenter(
             viewProvider: context.ServiceProvider.GetRequiredService<IViewProvider>(),

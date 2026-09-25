@@ -29,9 +29,9 @@ namespace SingleFinite.Mvvm.UnitTests;
 public class ViewAssemblerTests
 {
     [TestMethod]
-    public void AssembleDoesNotCallOnCreatedUntilStartIsCalled()
+    public async Task AssembleDoesNotCallOnCreatedUntilStartIsCalled()
     {
-        using var context = new MvvmTestContext();
+        using var context = await MvvmTestContext.CreateAsync();
         var viewAssembler = (ViewAssembler)context.ServiceProvider.GetRequiredService<IViewAssembler>();
 
         var assembleResult = viewAssembler.Assemble<TestViewModel>();

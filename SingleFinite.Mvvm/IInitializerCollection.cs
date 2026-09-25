@@ -25,7 +25,7 @@ namespace SingleFinite.Mvvm;
 /// Specifies the contract for a collection of initializers to invoke when the
 /// app is started.
 /// </summary>
-public interface IInitializerCollection : IList<Action<IServiceProvider>>
+public interface IInitializerCollection : IList<Func<IServiceProvider, Task>>
 {
     /// <summary>
     /// Creates a copy of this collection.

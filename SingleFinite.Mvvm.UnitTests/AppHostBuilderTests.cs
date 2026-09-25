@@ -29,7 +29,7 @@ namespace SingleFinite.Mvvm.UnitTests;
 public class AppHostBuilderTests
 {
     [TestMethod]
-    public void Build_Creates_AppHost_With_Given_Configuration()
+    public async Task Build_Creates_AppHost_With_Given_Configuration()
     {
         var onStartedCount = 0;
 
@@ -62,7 +62,7 @@ public class AppHostBuilderTests
 
         Assert.AreEqual(0, onStartedCount);
 
-        appHost.Start(provider);
+        await appHost.StartAsync(provider);
 
         Assert.AreEqual(1, onStartedCount);
 
@@ -82,7 +82,7 @@ public class AppHostBuilderTests
     }
 
     [TestMethod]
-    public void Build_Overwrites_Services_From_Mvvm()
+    public async Task Build_Overwrites_Services_From_Mvvm()
     {
         var services = new ServiceCollection();
         var builder = new AppHostBuilder();
@@ -91,14 +91,14 @@ public class AppHostBuilderTests
             .Build(services);
 
         var provider = services.BuildServiceProvider();
-        appHost.Start(provider);
+        await appHost.StartAsync(provider);
 
         var dispatcher = provider.GetRequiredService<IMainDispatcher>();
         Assert.IsInstanceOfType<ExampleMainDispatcher>(dispatcher);
     }
 
     [TestMethod]
-    public void Build_Adds_AppHost_As_Service()
+    public async Task Build_Adds_AppHost_As_Service()
     {
         var services = new ServiceCollection();
         var builder = new AppHostBuilder();
@@ -106,7 +106,7 @@ public class AppHostBuilderTests
         var appHost = builder.Build(services);
 
         var provider = services.BuildServiceProvider();
-        appHost.Start(provider);
+        await appHost.StartAsync(provider);
 
         var appHostService = provider.GetService<AppHost>();
         Assert.AreEqual(appHost, appHostService);

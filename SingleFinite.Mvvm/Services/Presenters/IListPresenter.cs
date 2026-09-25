@@ -62,7 +62,7 @@ public interface IListPresenter : IPresenter
     /// <summary>
     /// Make the first view model in the list of the given type the current view
     /// model.  If there is no view model of the given type in the list then
-    /// the Current will be set to null..
+    /// the Current will be set to null.
     /// </summary>
     /// <typeparam name="TViewModel">
     /// The type of view model to make the current view model.
