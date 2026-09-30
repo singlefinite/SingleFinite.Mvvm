@@ -84,6 +84,20 @@ public interface IListPresenter : IPresenter
     );
 
     /// <summary>
+    /// Create a view model and add it to the list at the given index and make
+    /// it the current view model.
+    /// </summary>
+    /// <param name="index">The index to add the view model at.</param>
+    /// <param name="viewModelDescriptor">
+    /// Describes the view model to build.
+    /// </param>
+    /// <returns>The newly created view model.</returns>
+    IViewModel AddAndSetCurrent(
+        int index,
+        IViewModelDescriptor viewModelDescriptor
+    );
+
+    /// <summary>
     /// Create a view model and add it to the list at the given index.
     /// </summary>
     /// <typeparam name="TViewModel">
@@ -101,6 +115,24 @@ public interface IListPresenter : IPresenter
         where TViewModel : IViewModel;
 
     /// <summary>
+    /// Create a view model and add it to the list at the given index and make
+    /// it the current view model.
+    /// </summary>
+    /// <typeparam name="TViewModel">
+    /// The type of view model to build.
+    /// </typeparam>
+    /// <param name="index">The index to add the view model at.</param>
+    /// <param name="parameters">
+    /// The parameters that will be provided to the view model.
+    /// </param>
+    /// <returns>The newly created view model.</returns>
+    TViewModel AddAndSetCurrent<TViewModel>(
+        int index,
+        params object[] parameters
+    )
+        where TViewModel : IViewModel;
+
+    /// <summary>
     /// Create a view model and add it to the end of the list.
     /// </summary>
     /// <param name="viewModelDescriptor">
@@ -108,6 +140,18 @@ public interface IListPresenter : IPresenter
     /// </param>
     /// <returns>The newly created view model.</returns>
     IViewModel Add(
+        IViewModelDescriptor viewModelDescriptor
+    );
+
+    /// <summary>
+    /// Create a view model and add it to the end of the list and make it the 
+    /// current view model.
+    /// </summary>
+    /// <param name="viewModelDescriptor">
+    /// Describes the view model to build.
+    /// </param>
+    /// <returns>The newly created view model.</returns>
+    IViewModel AddAndSetCurrent(
         IViewModelDescriptor viewModelDescriptor
     );
 
@@ -122,6 +166,22 @@ public interface IListPresenter : IPresenter
     /// </param>
     /// <returns>The newly created view model.</returns>
     TViewModel Add<TViewModel>(
+        params object[] parameters
+    )
+        where TViewModel : IViewModel;
+
+    /// <summary>
+    /// Create a view model and add it to the end of the list and make it the
+    /// current view model.
+    /// </summary>
+    /// <typeparam name="TViewModel">
+    /// The type of view model to build.
+    /// </typeparam>
+    /// <param name="parameters">
+    /// The parameters that will be provided to the view model.
+    /// </param>
+    /// <returns>The newly created view model.</returns>
+    TViewModel AddAndSetCurrent<TViewModel>(
         params object[] parameters
     )
         where TViewModel : IViewModel;

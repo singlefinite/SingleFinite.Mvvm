@@ -176,6 +176,17 @@ internal class ListPresenter : IListPresenter, IDisposable
     }
 
     /// <inheritdoc/>
+    public IViewModel AddAndSetCurrent(
+        int index,
+        IViewModelDescriptor viewModelDescriptor
+    )
+    {
+        var viewModel = Add(index, viewModelDescriptor);
+        SetCurrentIndex(index);
+        return viewModel;
+    }
+
+    /// <inheritdoc/>
     public TViewModel Add<TViewModel>(
         int index,
         params object[] parameters
@@ -186,11 +197,33 @@ internal class ListPresenter : IListPresenter, IDisposable
         );
 
     /// <inheritdoc/>
+    public TViewModel AddAndSetCurrent<TViewModel>(
+        int index,
+        params object[] parameters
+    )
+        where TViewModel : IViewModel
+    {
+        var viewModel = Add<TViewModel>(index, parameters);
+        SetCurrentIndex(index);
+        return viewModel;
+    }
+
+    /// <inheritdoc/>
     public IViewModel Add(IViewModelDescriptor viewModelDescriptor) =>
         Add(
             index: _views.Count,
             viewModelDescriptor: viewModelDescriptor
         );
+
+    /// <inheritdoc/>
+    public IViewModel AddAndSetCurrent(
+        IViewModelDescriptor viewModelDescriptor
+    )
+    {
+        var viewModel = Add(viewModelDescriptor);
+        SetCurrentIndex(_views.Count - 1);
+        return viewModel;
+    }
 
     /// <inheritdoc/>
     public TViewModel Add<TViewModel>(params object[] parameters)
@@ -199,6 +232,17 @@ internal class ListPresenter : IListPresenter, IDisposable
             index: _views.Count,
             viewModelDescriptor: new ViewModelDescriptor<TViewModel>(parameters)
         );
+
+    /// <inheritdoc/>
+    public TViewModel AddAndSetCurrent<TViewModel>(
+        params object[] parameters
+    )
+        where TViewModel : IViewModel
+    {
+        var viewModel = Add<TViewModel>(parameters);
+        SetCurrentIndex(_views.Count - 1);
+        return viewModel;
+    }
 
     /// <inheritdoc/>
     public IViewModel[] AddAll(

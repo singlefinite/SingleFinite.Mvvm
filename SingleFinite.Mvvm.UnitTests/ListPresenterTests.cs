@@ -160,6 +160,34 @@ public class ListPresenterTests
         Assert.IsTrue(parentViewModel.Child?.Example?.IsActive);
     }
 
+    [TestMethod]
+    public async Task AddAnSetCurrent_Makes_New_ViewModel_Current()
+    {
+        using var context = await MvvmTestContext.CreateAsync();
+        var listPresenter = (ListPresenter)context.ServiceProvider.GetRequiredService<IListPresenter>();
+
+        var output = new List<string>();
+        var viewModelContext = new ViewModelTestContext(output);
+
+        Assert.IsNull(listPresenter.Current);
+        Assert.AreEqual(-1, listPresenter.CurrentIndex);
+
+        listPresenter.AddAndSetCurrent<TestViewModel1>(viewModelContext);
+
+        Assert.IsInstanceOfType<TestViewModel1>(listPresenter.Current?.ViewModel);
+        Assert.AreEqual(0, listPresenter.CurrentIndex);
+
+        listPresenter.AddAndSetCurrent<TestViewModel2>(viewModelContext);
+
+        Assert.IsInstanceOfType<TestViewModel2>(listPresenter.Current?.ViewModel);
+        Assert.AreEqual(1, listPresenter.CurrentIndex);
+
+        listPresenter.AddAndSetCurrent<TestViewModel3>(viewModelContext);
+
+        Assert.IsInstanceOfType<TestViewModel3>(listPresenter.Current?.ViewModel);
+        Assert.AreEqual(2, listPresenter.CurrentIndex);
+    }
+
     #region Types
 
     private class TestView1(TestViewModel1 viewModel) : IView<TestViewModel1>
