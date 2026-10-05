@@ -118,29 +118,11 @@ internal class ListPresenter : IListPresenter, IDisposable
     #region Methods
 
     /// <inheritdoc/>
-    public void SetCurrentIndex(int index)
-    {
-        var view = index == -1 ? null : _views[index];
-        if (Current == view)
-            return;
-
-        Current?.ViewModel?.Deactivate();
-        Current = view;
-
-        if (IsActive)
-            Current?.ViewModel?.Activate();
-
-        CurrentIndex = index;
-
-        _currentChangedSource.Emit(
-            args: new(
-                view: Current,
-                isNew: false
-            )
+    public void SetCurrentIndex(int index) =>
+        SetCurrentIndex(
+            index: index,
+            emitChanged: true
         );
-
-        _currentIndexChangedSource.Emit(index);
-    }
 
     /// <inheritdoc/>
     public void SetCurrent(IViewModel? viewModel)
@@ -163,28 +145,26 @@ internal class ListPresenter : IListPresenter, IDisposable
     }
 
     /// <inheritdoc/>
-    public IViewModel Add(int index, IViewModelDescriptor viewModelDescriptor)
-    {
-        _disposeState.ThrowIfDisposed();
-
-        var view = _viewProvider.ProvideFromDescriptor(viewModelDescriptor);
-        _views.Insert(index, view);
-        Subscribe(view.ViewModel);
-        UpdateViewModels();
-
-        return view.ViewModel;
-    }
+    public IViewModel Add(
+        int index,
+        IViewModelDescriptor viewModelDescriptor
+    ) =>
+        Add(
+            index: index,
+            viewModelDescriptor: viewModelDescriptor,
+            setCurrent: false
+        );
 
     /// <inheritdoc/>
     public IViewModel AddAndSetCurrent(
         int index,
         IViewModelDescriptor viewModelDescriptor
-    )
-    {
-        var viewModel = Add(index, viewModelDescriptor);
-        SetCurrentIndex(index);
-        return viewModel;
-    }
+    ) =>
+        Add(
+            index: index,
+            viewModelDescriptor: viewModelDescriptor,
+            setCurrent: true
+        );
 
     /// <inheritdoc/>
     public TViewModel Add<TViewModel>(
@@ -193,56 +173,57 @@ internal class ListPresenter : IListPresenter, IDisposable
     ) where TViewModel : IViewModel =>
         (TViewModel)Add(
             index: index,
-            viewModelDescriptor: new ViewModelDescriptor<TViewModel>(parameters)
+            viewModelDescriptor: new ViewModelDescriptor<TViewModel>(parameters),
+            setCurrent: false
         );
 
     /// <inheritdoc/>
     public TViewModel AddAndSetCurrent<TViewModel>(
         int index,
         params object[] parameters
-    )
-        where TViewModel : IViewModel
-    {
-        var viewModel = Add<TViewModel>(index, parameters);
-        SetCurrentIndex(index);
-        return viewModel;
-    }
+    ) where TViewModel : IViewModel =>
+        (TViewModel)Add(
+            index: index,
+            viewModelDescriptor: new ViewModelDescriptor<TViewModel>(parameters),
+            setCurrent: true
+        );
 
     /// <inheritdoc/>
     public IViewModel Add(IViewModelDescriptor viewModelDescriptor) =>
         Add(
             index: _views.Count,
-            viewModelDescriptor: viewModelDescriptor
+            viewModelDescriptor: viewModelDescriptor,
+            setCurrent: false
         );
 
     /// <inheritdoc/>
     public IViewModel AddAndSetCurrent(
         IViewModelDescriptor viewModelDescriptor
-    )
-    {
-        var viewModel = Add(viewModelDescriptor);
-        SetCurrentIndex(_views.Count - 1);
-        return viewModel;
-    }
+    ) =>
+        Add(
+            index: _views.Count,
+            viewModelDescriptor: viewModelDescriptor,
+            setCurrent: true
+        );
 
     /// <inheritdoc/>
     public TViewModel Add<TViewModel>(params object[] parameters)
         where TViewModel : IViewModel =>
         (TViewModel)Add(
             index: _views.Count,
-            viewModelDescriptor: new ViewModelDescriptor<TViewModel>(parameters)
+            viewModelDescriptor: new ViewModelDescriptor<TViewModel>(parameters),
+            setCurrent: false
         );
 
     /// <inheritdoc/>
     public TViewModel AddAndSetCurrent<TViewModel>(
         params object[] parameters
-    )
-        where TViewModel : IViewModel
-    {
-        var viewModel = Add<TViewModel>(parameters);
-        SetCurrentIndex(_views.Count - 1);
-        return viewModel;
-    }
+    ) where TViewModel : IViewModel =>
+        (TViewModel)Add(
+            index: _views.Count,
+            viewModelDescriptor: new ViewModelDescriptor<TViewModel>(parameters),
+            setCurrent: true
+        );
 
     /// <inheritdoc/>
     public IViewModel[] AddAll(
@@ -256,6 +237,9 @@ internal class ListPresenter : IListPresenter, IDisposable
             .Select(_viewProvider.ProvideFromDescriptor)
             .ToArray();
 
+        if (views.Length == 0)
+            return [];
+
         foreach (var view in views.Reverse())
         {
             _views.Insert(index, view);
@@ -263,6 +247,8 @@ internal class ListPresenter : IListPresenter, IDisposable
         }
 
         UpdateViewModels();
+
+        _changedSource.Emit();
 
         return [.. views.Select(view => view.ViewModel)];
     }
@@ -283,13 +269,21 @@ internal class ListPresenter : IListPresenter, IDisposable
             .Select(view => view.ViewModel)
             .ToArray();
 
+        if (viewModels.Length == 0)
+            return;
+
         _views.Clear();
         UpdateViewModels();
 
-        SetCurrent(null);
+        SetCurrentIndex(
+            index: -1,
+            emitChanged: false
+        );
 
         foreach (var viewModel in viewModels)
             viewModel.Dispose();
+
+        _changedSource.Emit();
     }
 
     /// <inheritdoc/>
@@ -303,9 +297,16 @@ internal class ListPresenter : IListPresenter, IDisposable
         UpdateViewModels();
 
         if (Current == view)
-            SetCurrent(null);
+        {
+            SetCurrentIndex(
+                index: -1,
+                emitChanged: false
+            );
+        }
 
         view.ViewModel.Dispose();
+
+        _changedSource.Emit();
     }
 
     /// <inheritdoc/>
@@ -316,6 +317,9 @@ internal class ListPresenter : IListPresenter, IDisposable
         var views = _views
             .Where(view => viewModels.Contains(view.ViewModel))
             .ToArray();
+
+        if (views.Length == 0)
+            return;
 
         foreach (var view in views)
         {
@@ -328,14 +332,93 @@ internal class ListPresenter : IListPresenter, IDisposable
         foreach (var view in views)
         {
             if (view == Current)
-                SetCurrent(null);
+            {
+                SetCurrentIndex(
+                    index: -1,
+                    emitChanged: false
+                );
+            }
 
             view.ViewModel.Dispose();
         }
+
+        _changedSource.Emit();
     }
 
     /// <inheritdoc/>
     public void Dispose() => _disposeState.Dispose();
+
+    /// <summary>
+    /// Set the current index and emit changed event only if specified.
+    /// </summary>
+    /// <param name="index">The index to set.</param>
+    /// <param name="emitChanged">
+    /// Indicates if the changed event should be emitted.
+    /// </param>
+    private void SetCurrentIndex(int index, bool emitChanged)
+    {
+        if (CurrentIndex == index)
+            return;
+
+        var view = index == -1 ? null : _views[index];
+        if (Current == view)
+            return;
+
+        Current?.ViewModel?.Deactivate();
+        Current = view;
+
+        if (IsActive)
+            Current?.ViewModel?.Activate();
+
+        CurrentIndex = index;
+
+        _currentChangedSource.Emit(
+            args: new(
+                view: Current,
+                isNew: false
+            )
+        );
+
+        _currentIndexChangedSource.Emit(index);
+
+        if (emitChanged)
+            _changedSource.Emit();
+    }
+
+    /// <summary>
+    /// Add a view model and optionally set it as the current view model.
+    /// </summary>
+    /// <param name="index">The index to add the model at.</param>
+    /// <param name="viewModelDescriptor">Descriptor of the view model.</param>
+    /// <param name="setCurrent">
+    /// Indicates if the view model will be set as the current view model.
+    /// </param>
+    /// <returns>The newly created view model.</returns>
+    private IViewModel Add(
+        int index,
+        IViewModelDescriptor viewModelDescriptor,
+        bool setCurrent
+    )
+    {
+        _disposeState.ThrowIfDisposed();
+
+        var view = _viewProvider.ProvideFromDescriptor(viewModelDescriptor);
+        _views.Insert(index, view);
+        Subscribe(view.ViewModel);
+        UpdateViewModels();
+
+        if (setCurrent)
+        {
+            SetCurrentIndex(
+                index: index,
+                emitChanged: false
+            );
+        }
+
+        _changedSource.Emit();
+
+        return view.ViewModel;
+    }
 
     /// <summary>
     /// Update the ViewModels property to be in sync with the views collection.
@@ -386,6 +469,10 @@ internal class ListPresenter : IListPresenter, IDisposable
     /// <inheritdoc/>
     public IEventObservable<int> CurrentIndexChanged => _currentIndexChangedSource.Observable;
     private readonly EventObservableSource<int> _currentIndexChangedSource = new();
+
+    /// <inheritdoc/>
+    public IEventObservable Changed => _changedSource.Observable;
+    private readonly EventObservableSource _changedSource = new();
 
     #endregion
 }

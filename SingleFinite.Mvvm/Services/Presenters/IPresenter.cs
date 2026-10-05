@@ -44,6 +44,11 @@ public interface IPresenter
     IEventObservable<CurrentChangedEventArgs> CurrentChanged { get; }
 
     /// <summary>
+    /// Event that is raised when anything in the presenter has changed.
+    /// </summary>
+    IEventObservable Changed { get; }
+
+    /// <summary>
     /// Arguments for the CurrentChanged event.
     /// </summary>
     /// <param name="view">The current view.</param>

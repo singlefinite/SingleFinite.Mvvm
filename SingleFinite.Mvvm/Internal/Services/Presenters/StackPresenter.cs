@@ -379,5 +379,8 @@ internal sealed class StackPresenter :
     public IEventObservable<IPresenter.CurrentChangedEventArgs> CurrentChanged =>
         _stack.CurrentChanged;
 
+    /// <inheritdoc/>
+    public IEventObservable Changed => _stack.Changed;
+
     #endregion
 }

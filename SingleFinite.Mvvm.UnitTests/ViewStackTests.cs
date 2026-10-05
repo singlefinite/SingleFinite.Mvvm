@@ -472,6 +472,41 @@ public class ViewStackTests
         Assert.IsTrue(view2.ViewModel.IsActive);
     }
 
+    [TestMethod]
+    public void Changed_Is_Observed_When_Changes_Occur()
+    {
+        var observeCount = 0;
+        var viewStack = new ViewStack();
+        viewStack.Changed
+            .Observe()
+            .OnEach(() => observeCount++);
+
+        var view1 = new TestView(new TestViewModel("1", []));
+        var view2 = new TestView(new TestViewModel("2", []));
+        var view3 = new TestView(new TestViewModel("3", []));
+
+        viewStack.Push(view1, view2, view3);
+        Assert.AreEqual(1, observeCount);
+
+        observeCount = 0;
+
+        viewStack.Pop(1);
+        Assert.AreEqual(1, observeCount);
+
+        observeCount = 0;
+
+        viewStack.Clear();
+        Assert.AreEqual(1, observeCount);
+
+        observeCount = 0;
+
+        viewStack.Pop(1);
+        Assert.AreEqual(0, observeCount);
+
+        viewStack.Clear();
+        Assert.AreEqual(0, observeCount);
+    }
+
     #region Types
 
     private class TestViewModel(string name, List<string> output) : ViewModel, ICloseObservable

@@ -188,6 +188,54 @@ public class ListPresenterTests
         Assert.AreEqual(2, listPresenter.CurrentIndex);
     }
 
+    [TestMethod]
+    public async Task Changed_Is_Observed_When_Changes_Occur()
+    {
+        using var context = await MvvmTestContext.CreateAsync();
+        var listPresenter = (ListPresenter)context.ServiceProvider.GetRequiredService<IListPresenter>();
+
+        var output = new List<string>();
+        var viewModelContext = new ViewModelTestContext(output);
+
+        var observedCount = 0;
+        listPresenter.Changed
+            .Observe()
+            .OnEach(() => observedCount++);
+
+        listPresenter.Add<TestViewModel1>(viewModelContext);
+        Assert.AreEqual(1, observedCount);
+
+        observedCount = 0;
+
+        listPresenter.Add<TestViewModel2>(viewModelContext);
+        Assert.AreEqual(1, observedCount);
+
+        observedCount = 0;
+
+        listPresenter.SetCurrentIndex(1);
+        Assert.AreEqual(1, observedCount);
+
+        observedCount = 0;
+
+        listPresenter.SetCurrentIndex(1);
+        Assert.AreEqual(0, observedCount);
+
+        observedCount = 0;
+
+        listPresenter.Remove(0);
+        Assert.AreEqual(1, observedCount);
+
+        observedCount = 0;
+
+        listPresenter.Clear();
+        Assert.AreEqual(1, observedCount);
+
+        observedCount = 0;
+
+        listPresenter.Clear();
+        Assert.AreEqual(0, observedCount);
+    }
+
     #region Types
 
     private class TestView1(TestViewModel1 viewModel) : IView<TestViewModel1>

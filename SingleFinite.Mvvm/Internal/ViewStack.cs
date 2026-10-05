@@ -113,6 +113,8 @@ internal class ViewStack
             views: views
         );
         UpdateState(activateTop: true);
+
+        _changed.Emit();
     }
 
     /// <summary>
@@ -139,6 +141,8 @@ internal class ViewStack
             Insert(index, views);
             UpdateState();
         }
+
+        _changed.Emit();
     }
 
     /// <summary>
@@ -148,7 +152,7 @@ internal class ViewStack
     /// <returns>true if the stack was modifed, false if it wasn't.</returns>
     public bool Pop(int popCount)
     {
-        if (popCount <= 0)
+        if (popCount <= 0 || _views.Count == 0)
             return false;
 
         DeactivateTop();
@@ -157,6 +161,8 @@ internal class ViewStack
             count: popCount
         );
         UpdateState(activateTop: true);
+
+        _changed.Emit();
 
         return true;
     }
@@ -190,6 +196,8 @@ internal class ViewStack
             UpdateState();
         }
 
+        _changed.Emit();
+
         return true;
     }
 
@@ -198,12 +206,17 @@ internal class ViewStack
     /// </summary>
     public void Clear()
     {
+        if (_views.Count == 0)
+            return;
+
         DeactivateTop();
         Remove(
             index: 0,
             count: _views.Count
         );
         UpdateState();
+
+        _changed.Emit();
     }
 
     /// <summary>
@@ -344,6 +357,12 @@ internal class ViewStack
     /// </summary>
     public IEventObservable<IPresenter.CurrentChangedEventArgs> CurrentChanged => _currentChanged.Observable;
     private readonly EventObservableSource<IPresenter.CurrentChangedEventArgs> _currentChanged = new();
+
+    /// <summary>
+    /// Event raised when anything has been changed.
+    /// </summary>
+    public IEventObservable Changed => _changed.Observable;
+    private readonly EventObservableSource _changed = new();
 
     #endregion
 }
