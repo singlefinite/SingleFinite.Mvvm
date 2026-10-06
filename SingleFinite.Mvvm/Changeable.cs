@@ -71,11 +71,21 @@ public abstract class Changeable : IChangeable
     #region Methods
 
     /// <summary>
+    /// Trigger a change event which will call the OnChanged method.  Note that
+    /// the Changed event will emit even if there are no actual changes made.
+    /// </summary>
+    protected void Change()
+    {
+        using var token = _transaction.Start();
+        NotifyChanged();
+    }
+
+    /// <summary>
     /// Call the OnChanged method with the PropertyChanged events disabled.
     /// If this method is called while a previous call is still in progress, the
     /// new call will be ignored.
     /// </summary>
-    protected void Change()
+    private void NotifyChanged()
     {
         if (_isChanging)
             return;
@@ -204,7 +214,7 @@ public abstract class Changeable : IChangeable
         field = value;
 
         if (token is not null)
-            Change();
+            NotifyChanged();
     }
 
     #endregion

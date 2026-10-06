@@ -169,6 +169,22 @@ public class ChangeableTests
         Assert.AreEqual("Changed", observedEvents[2]);
     }
 
+    [TestMethod]
+    public void Change_Raises_Changed_Event_After_Method_Completes()
+    {
+        var testClass = new TestChangeCallClass();
+        var observedEvents = new List<string?>();
+
+        testClass.Changed
+            .Observe()
+            .OnEach(() => observedEvents.Add($"{testClass.FieldOne}, {testClass.FieldTwo}"));
+
+        testClass.DoChange();
+
+        Assert.HasCount(1, observedEvents);
+        Assert.AreEqual("9, 99", observedEvents[0]);
+    }
+
     #region Types
 
     private class TestClass : Changeable
@@ -244,6 +260,32 @@ public class ChangeableTests
         protected override void OnChanged()
         {
             FieldTwo = FieldOne + 1;
+        }
+    }
+
+    private class TestChangeCallClass : Changeable
+    {
+        public int FieldOne
+        {
+            get;
+            set => ChangeProperty(ref field, value);
+        }
+
+        public int FieldTwo
+        {
+            get;
+            set => ChangeProperty(ref field, value);
+        }
+
+        public void DoChange()
+        {
+            Change();
+        }
+
+        protected override void OnChanged()
+        {
+            FieldOne = 9;
+            FieldTwo = 99;
         }
     }
 
