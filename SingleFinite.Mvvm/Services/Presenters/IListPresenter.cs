@@ -211,6 +211,35 @@ public interface IListPresenter : IPresenter
     );
 
     /// <summary>
+    /// Move a view model from one index to another.
+    /// </summary>
+    /// <param name="fromIndex">
+    /// The index of the view model that will be moved.
+    /// </param>
+    /// <param name="toIndex">
+    /// The index to move the view model to.
+    /// </param>
+    void Move(
+        int fromIndex,
+        int toIndex
+    );
+
+    /// <summary>
+    /// Move a view model from one index to another and make it the current
+    /// view model.
+    /// </summary>
+    /// <param name="fromIndex">
+    /// The index of the view model that will be moved.
+    /// </param>
+    /// <param name="toIndex">
+    /// The index to move the view model to.
+    /// </param>
+    void MoveAndSetCurrent(
+        int fromIndex,
+        int toIndex
+    );
+
+    /// <summary>
     /// Remove the view model at the given index.
     /// </summary>
     /// <param name="index">The index of the view model to remove.</param>

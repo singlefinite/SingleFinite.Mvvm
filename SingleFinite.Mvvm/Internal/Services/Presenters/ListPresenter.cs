@@ -263,6 +263,26 @@ internal class ListPresenter : IListPresenter, IDisposable
         );
 
     /// <inheritdoc/>
+    public void Move(
+        int fromIndex,
+        int toIndex
+    ) => Move(
+        fromIndex: fromIndex,
+        toIndex: toIndex,
+        setCurrent: false
+    );
+
+    /// <inheritdoc/>
+    public void MoveAndSetCurrent(
+        int fromIndex,
+        int toIndex
+    ) => Move(
+        fromIndex: fromIndex,
+        toIndex: toIndex,
+        setCurrent: true
+    );
+
+    /// <inheritdoc/>
     public void Clear()
     {
         var viewModels = _views
@@ -418,6 +438,65 @@ internal class ListPresenter : IListPresenter, IDisposable
         _changedSource.Emit();
 
         return view.ViewModel;
+    }
+
+    /// <summary>
+    /// Move a view model from one index to another.
+    /// </summary>
+    /// <param name="fromIndex">
+    /// The index of the view model that will be moved.
+    /// </param>
+    /// <param name="toIndex">
+    /// The index to move the view model to.
+    /// </param>
+    /// <param name="setCurrent">
+    /// Indicates if the moved view model will be set as the current view model.
+    /// </param>
+    private void Move(
+        int fromIndex,
+        int toIndex,
+        bool setCurrent
+    )
+    {
+        if (fromIndex < 0 || fromIndex >= _views.Count)
+            throw new IndexOutOfRangeException($"{nameof(fromIndex)} is outside the range.");
+        if (toIndex < 0 || toIndex >= _views.Count)
+            throw new IndexOutOfRangeException($"{nameof(toIndex)} is outside the range.");
+
+        if (fromIndex == toIndex)
+        {
+            if (setCurrent && CurrentIndex != toIndex)
+                SetCurrentIndex(toIndex);
+            return;
+        }
+
+        var view = _views[fromIndex];
+        _views.RemoveAt(fromIndex);
+        _views.Insert(toIndex, view);
+
+        UpdateViewModels();
+
+        var isCurrentIndexChanged = true;
+        if (fromIndex == CurrentIndex)
+            CurrentIndex = toIndex;
+        else if (fromIndex > CurrentIndex && toIndex < CurrentIndex)
+            CurrentIndex = CurrentIndex + 1;
+        else if (fromIndex < CurrentIndex && toIndex > CurrentIndex)
+            CurrentIndex = CurrentIndex - 1;
+        else
+            isCurrentIndexChanged = false;
+
+        if (isCurrentIndexChanged && !setCurrent)
+        {
+            Current = _views[CurrentIndex];
+            _currentIndexChangedSource.Emit(CurrentIndex);
+        }
+        else if (setCurrent)
+        {
+            SetCurrentIndex(index: toIndex, emitChanged: false);
+        }
+
+        _changedSource.Emit();
     }
 
     /// <summary>
