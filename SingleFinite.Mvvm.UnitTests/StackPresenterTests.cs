@@ -301,7 +301,7 @@ public class StackPresenterTests
         protected ViewModelTestContext Context => context;
 
         protected override void OnCreated() => Context.Output.Add($"OnInit - {nameof(TestViewModel1)}");
-        protected override void OnActivate(CancellationToken _) => Context.Output.Add($"OnStart - {nameof(TestViewModel1)}");
+        protected override void OnActivate() => Context.Output.Add($"OnStart - {nameof(TestViewModel1)}");
         protected override void OnDeactivate() => Context.Output.Add($"OnStop - {nameof(TestViewModel1)}");
         protected override void OnDispose() => Context.Output.Add($"OnDispose - {nameof(TestViewModel1)}");
 
@@ -314,7 +314,7 @@ public class StackPresenterTests
     private class TestViewModel2(ViewModelTestContext context) : TestViewModel1(context)
     {
         protected override void OnCreated() => Context.Output.Add($"OnInit - {nameof(TestViewModel2)}");
-        protected override void OnActivate(CancellationToken _) => Context.Output.Add($"OnStart - {nameof(TestViewModel2)}");
+        protected override void OnActivate() => Context.Output.Add($"OnStart - {nameof(TestViewModel2)}");
         protected override void OnDeactivate() => Context.Output.Add($"OnStop - {nameof(TestViewModel2)}");
         protected override void OnDispose() => Context.Output.Add($"OnDispose - {nameof(TestViewModel2)}");
     }
@@ -322,7 +322,7 @@ public class StackPresenterTests
     private class TestViewModel3(ViewModelTestContext context) : TestViewModel2(context)
     {
         protected override void OnCreated() => Context.Output.Add($"OnInit - {nameof(TestViewModel3)}");
-        protected override void OnActivate(CancellationToken _) => Context.Output.Add($"OnStart - {nameof(TestViewModel3)}");
+        protected override void OnActivate() => Context.Output.Add($"OnStart - {nameof(TestViewModel3)}");
         protected override void OnDeactivate() => Context.Output.Add($"OnStop - {nameof(TestViewModel3)}");
         protected override void OnDispose() => Context.Output.Add($"OnDispose - {nameof(TestViewModel3)}");
     }

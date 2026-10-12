@@ -145,7 +145,7 @@ public class PluginLoaderTests
             PluginHost.Plugin = this;
             OnCreatedCount++;
         }
-        protected override void OnActivate(CancellationToken cancellationToken) => OnActivateCount++;
+        protected override void OnActivate() => OnActivateCount++;
         protected override void OnDeactivate() => OnDeactivateCount++;
         protected override void OnDispose() => OnDisposeCount++;
     }

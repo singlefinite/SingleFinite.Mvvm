@@ -239,7 +239,7 @@ public class DialogPresenterTests
             output.Add("1 Create");
         }
 
-        protected override void OnActivate(CancellationToken cancellationToken)
+        protected override void OnActivate()
         {
             output.Add("1 Activate");
         }
@@ -267,7 +267,7 @@ public class DialogPresenterTests
             output.Add("2 Create");
         }
 
-        protected override void OnActivate(CancellationToken cancellationToken)
+        protected override void OnActivate()
         {
             output.Add("2 Activate");
         }
@@ -295,7 +295,7 @@ public class DialogPresenterTests
             output.Add("3 Create");
         }
 
-        protected override void OnActivate(CancellationToken cancellationToken)
+        protected override void OnActivate()
         {
             output.Add("3 Activate");
         }

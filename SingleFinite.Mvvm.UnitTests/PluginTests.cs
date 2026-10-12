@@ -69,7 +69,7 @@ public class PluginTests
         protected override void OnCreated() =>
             Lines.Add("ExamplePluginHost OnCreated");
 
-        protected override void OnActivate(CancellationToken cancellationToken) =>
+        protected override void OnActivate() =>
             Lines.Add("ExamplePluginHost OnActivate");
 
         protected override void OnDeactivate() =>
@@ -87,7 +87,7 @@ public class PluginTests
         protected override void OnCreated() =>
             PluginHost.Lines.Add("ExamplePluginA OnCreated");
 
-        protected override void OnActivate(CancellationToken cancellationToken) =>
+        protected override void OnActivate() =>
             PluginHost.Lines.Add("ExamplePluginA OnActivate");
 
         protected override void OnDeactivate() =>
@@ -105,7 +105,7 @@ public class PluginTests
         protected override void OnCreated() =>
             PluginHost.Lines.Add("ExamplePluginB OnCreated");
 
-        protected override void OnActivate(CancellationToken cancellationToken) =>
+        protected override void OnActivate() =>
             PluginHost.Lines.Add("ExamplePluginB OnActivate");
 
         protected override void OnDeactivate() =>

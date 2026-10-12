@@ -513,7 +513,7 @@ public class ViewStackTests
     {
         public string Name => name;
 
-        protected override void OnActivate(CancellationToken cancellationToken)
+        protected override void OnActivate()
         {
             output.Add($"{name} Activate");
         }

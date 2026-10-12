@@ -40,12 +40,6 @@ public abstract class ViewModel :
     /// </summary>
     private readonly DisposeState _disposeState;
 
-    /// <summary>
-    /// Holds token that is provided with the OnActivated method and which will 
-    /// be cancelled when the view model is deactivated.
-    /// </summary>
-    private CancellationTokenSource? _activeCancellationTokenSource = null;
-
     #endregion
 
     #region Constructors
@@ -75,7 +69,7 @@ public abstract class ViewModel :
     /// </summary>
     public bool IsActive
     {
-        get => field;
+        get;
         private set
         {
             if (field == value)
@@ -90,13 +84,6 @@ public abstract class ViewModel :
     /// Indicates if this view model has been disposed.
     /// </summary>
     public bool IsDisposed => _disposeState.IsDisposed;
-
-    /// <summary>
-    /// The cancellation token that will be cancelled when the view model is
-    /// deactivated.  This will be null when the view model isn't active.
-    /// </summary>
-    protected CancellationToken? ActiveCancellationToken =>
-        _activeCancellationTokenSource?.Token;
 
     #endregion
 
@@ -119,9 +106,8 @@ public abstract class ViewModel :
         ObjectDisposedException.ThrowIf(IsDisposed, this);
         if (IsActive) return;
 
-        _activeCancellationTokenSource = new();
         IsActive = true;
-        OnActivate(_activeCancellationTokenSource.Token);
+        OnActivate();
         _activatedSource.Emit();
     }
 
@@ -130,10 +116,6 @@ public abstract class ViewModel :
     {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
         if (!IsActive) return;
-
-        _activeCancellationTokenSource?.Cancel();
-        _activeCancellationTokenSource?.Dispose();
-        _activeCancellationTokenSource = null;
 
         IsActive = false;
         OnDeactivate();
@@ -157,11 +139,7 @@ public abstract class ViewModel :
     /// <summary>
     /// Called after the view has been added to the display.
     /// </summary>
-    /// <param name="cancellationToken">
-    /// A cancellation token that gets cancelled when the view model is 
-    /// deactivated.
-    /// </param>
-    protected virtual void OnActivate(CancellationToken cancellationToken)
+    protected virtual void OnActivate()
     {
     }
 
