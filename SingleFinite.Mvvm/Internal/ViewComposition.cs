@@ -27,9 +27,9 @@ using SingleFinite.Mvvm.Services;
 namespace SingleFinite.Mvvm.Internal;
 
 /// <summary>
-/// Used to assemble a view.
+/// Used to compose a view.
 /// </summary>
-internal class ViewAssembleResult : IViewAssembleResult
+internal class ViewComposition : IViewComposition
 {
     #region Fields
 
@@ -39,9 +39,9 @@ internal class ViewAssembleResult : IViewAssembleResult
     private bool _isStarted = false;
 
     /// <summary>
-    /// The scope for the view model.
+    /// The service scope for the view model.
     /// </summary>
-    private readonly IServiceScope _viewModelScope;
+    private readonly IServiceScope _viewModelServiceScope;
 
     /// <summary>
     /// The view model.
@@ -57,14 +57,14 @@ internal class ViewAssembleResult : IViewAssembleResult
     /// </summary>
     /// <param name="serviceProvider">Used to build the view.</param>
     /// <param name="viewModelDescriptor">The view to build.</param>
-    public ViewAssembleResult(
+    public ViewComposition(
         IServiceProvider serviceProvider,
         IViewModelDescriptor viewModelDescriptor
     )
     {
-        _viewModelScope = serviceProvider.CreateLinkedScope();
-        var builder = _viewModelScope.ServiceProvider.GetRequiredService<IBuilder>();
-        var viewBuilder = _viewModelScope.ServiceProvider.GetRequiredService<IViewBuilder>();
+        _viewModelServiceScope = serviceProvider.CreateLinkedScope();
+        var builder = _viewModelServiceScope.ServiceProvider.GetRequiredService<IBuilder>();
+        var viewBuilder = _viewModelServiceScope.ServiceProvider.GetRequiredService<IViewBuilder>();
 
         // Create view model.
         //
@@ -77,7 +77,7 @@ internal class ViewAssembleResult : IViewAssembleResult
         //
         _viewModel.Disposed
             .Observe()
-            .OnEach(_viewModelScope.Dispose)
+            .OnEach(_viewModelServiceScope.Dispose)
             .Once();
 
         // Create view.
@@ -92,7 +92,7 @@ internal class ViewAssembleResult : IViewAssembleResult
         // Create ViewModelNode and wire it up.
         //
         var parentNode = serviceProvider.GetRequiredService<ViewModelNode>();
-        var childNode = _viewModelScope.ServiceProvider.GetRequiredService<ViewModelNode>();
+        var childNode = _viewModelServiceScope.ServiceProvider.GetRequiredService<ViewModelNode>();
         childNode.Initialize(
             viewModel: _viewModel,
             parent: parentNode
@@ -121,7 +121,7 @@ internal class ViewAssembleResult : IViewAssembleResult
         //
         if (_viewModel is IPluginHost pluginHost)
         {
-            var pluginLoader = _viewModelScope.ServiceProvider.GetRequiredService<IPluginLoader>();
+            var pluginLoader = _viewModelServiceScope.ServiceProvider.GetRequiredService<IPluginLoader>();
             pluginLoader.LoadPlugins(pluginHost);
         }
 
@@ -132,15 +132,15 @@ internal class ViewAssembleResult : IViewAssembleResult
 }
 
 /// <summary>
-/// Used to assemble a view.
+/// Used to compose a view.
 /// </summary>
 /// <param name="serviceProvider">Used to build the view.</param>
 /// <param name="viewModelDescriptor">The view to build.</param>
-internal class ViewAssembleResult<TViewModel>(
+internal class ViewComposition<TViewModel>(
     IServiceProvider serviceProvider,
     IViewModelDescriptor viewModelDescriptor
-) : ViewAssembleResult(serviceProvider, viewModelDescriptor),
-    IViewAssembleResult<TViewModel>
+) : ViewComposition(serviceProvider, viewModelDescriptor),
+    IViewComposition<TViewModel>
     where TViewModel : IViewModel
 {
     #region Properties

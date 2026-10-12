@@ -21,33 +21,36 @@
 
 using SingleFinite.Mvvm.Services;
 
-namespace SingleFinite.Mvvm.Internal.Services;
+namespace SingleFinite.Mvvm;
 
 /// <summary>
-/// Implementation of <see cref="IViewAssembler"/>.
+/// The result from composing a view through an <see cref="IViewComposer"/>.
 /// </summary>
-/// <param name="serviceProvider">Used to build views.</param>
-internal sealed class ViewAssembler(
-    IServiceProvider serviceProvider
-) : IViewAssembler
+public interface IViewComposition
 {
-    #region Methods
+    /// <summary>
+    /// The view that was created.
+    /// </summary>
+    IView View { get; }
 
-    /// <inheritdoc/>
-    public IViewAssembleResult AssembleFromDescriptor(
-        IViewModelDescriptor viewModelDescriptor
-    ) => new ViewAssembleResult(
-        serviceProvider: serviceProvider,
-        viewModelDescriptor: viewModelDescriptor
-    );
+    /// <summary>
+    /// This method calls the OnCreated method on the view model and loads
+    /// plugins.
+    /// </summary>
+    void Start();
+}
 
-    /// <inheritdoc/>
-    public IViewAssembleResult<TViewModel> Assemble<TViewModel>(
-        params object[] parameters
-    ) where TViewModel : IViewModel => new ViewAssembleResult<TViewModel>(
-        serviceProvider: serviceProvider,
-        viewModelDescriptor: new ViewModelDescriptor<TViewModel>(parameters)
-    );
-
-    #endregion
+/// <summary>
+/// The result from composing a view through an <see cref="IViewComposer"/>.
+/// </summary>
+/// <typeparam name="TViewModel">
+/// The type of view model the view was composed for.
+/// </typeparam>
+public interface IViewComposition<TViewModel> : IViewComposition
+    where TViewModel : IViewModel
+{
+    /// <summary>
+    /// The view that was created.
+    /// </summary>
+    new IView<TViewModel> View { get; }
 }

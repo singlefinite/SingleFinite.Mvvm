@@ -26,28 +26,28 @@ using SingleFinite.Mvvm.Services;
 namespace SingleFinite.Mvvm.UnitTests;
 
 [TestClass]
-public class ViewAssemblerTests
+public class ViewComposerTests
 {
     [TestMethod]
-    public async Task AssembleDoesNotCallOnCreatedUntilStartIsCalled()
+    public async Task ComposeDoesNotCallOnCreatedUntilStartIsCalled()
     {
         using var context = await MvvmTestContext.CreateAsync();
-        var viewAssembler = (ViewAssembler)context.ServiceProvider.GetRequiredService<IViewAssembler>();
+        var viewComposer = (ViewComposer)context.ServiceProvider.GetRequiredService<IViewComposer>();
 
-        var assembleResult = viewAssembler.Assemble<TestViewModel>();
+        var composition = viewComposer.Compose<TestViewModel>();
 
-        Assert.AreEqual(0, assembleResult.View.ViewModel.OnCreatedCount);
-        Assert.AreEqual(0, assembleResult.View.ViewModel.OnPluginOnCreatedCount);
+        Assert.AreEqual(0, composition.View.ViewModel.OnCreatedCount);
+        Assert.AreEqual(0, composition.View.ViewModel.OnPluginOnCreatedCount);
 
-        assembleResult.Start();
+        composition.Start();
 
-        Assert.AreEqual(1, assembleResult.View.ViewModel.OnCreatedCount);
-        Assert.AreEqual(1, assembleResult.View.ViewModel.OnPluginOnCreatedCount);
+        Assert.AreEqual(1, composition.View.ViewModel.OnCreatedCount);
+        Assert.AreEqual(1, composition.View.ViewModel.OnPluginOnCreatedCount);
 
-        assembleResult.Start();
+        composition.Start();
 
-        Assert.AreEqual(1, assembleResult.View.ViewModel.OnCreatedCount);
-        Assert.AreEqual(1, assembleResult.View.ViewModel.OnPluginOnCreatedCount);
+        Assert.AreEqual(1, composition.View.ViewModel.OnCreatedCount);
+        Assert.AreEqual(1, composition.View.ViewModel.OnPluginOnCreatedCount);
     }
 
     #region Types

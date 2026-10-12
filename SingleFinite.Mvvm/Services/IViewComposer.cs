@@ -22,9 +22,9 @@
 namespace SingleFinite.Mvvm.Services;
 
 /// <summary>
-/// This service is used to assemble <see cref="IView"/> objects.
+/// This service is used to compose <see cref="IView"/> objects.
 /// </summary>
-public interface IViewAssembler
+public interface IViewComposer
 {
     /// <summary>
     /// Creates a new view but doesn't call the view model OnCreated method or
@@ -37,7 +37,7 @@ public interface IViewAssembler
     /// The result which includes the created view and a method to start the
     /// view which will call the view model OnCreated method and load plugins.
     /// </returns>
-    IViewAssembleResult AssembleFromDescriptor(
+    IViewComposition ComposeFromDescriptor(
         IViewModelDescriptor viewModelDescriptor
     );
 
@@ -55,6 +55,6 @@ public interface IViewAssembler
     /// The result which includes the created view and a method to start the
     /// view which will call the view model OnCreated method and load plugins.
     /// </returns>
-    IViewAssembleResult<TViewModel> Assemble<TViewModel>(params object[] parameters)
+    IViewComposition<TViewModel> Compose<TViewModel>(params object[] parameters)
         where TViewModel : IViewModel;
 }

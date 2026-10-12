@@ -53,7 +53,7 @@ internal static class IServiceCollectionExtensions
         .AddSingleton<INonCancellableTaskScope, NonCancellableTaskScope>()
         .AddScoped<IBuilder, Builder>()
         .AddScoped<IViewBuilder, ViewBuilder>()
-        .AddScoped<IViewAssembler, ViewAssembler>()
+        .AddScoped<IViewComposer, ViewComposer>()
         .AddScoped<IViewProvider, ViewProvider>()
         .AddScoped<IServiceLifecycle, ServiceLifecycle>()
         .AddScoped<ITaskScope, AppTaskScope>()

@@ -26,18 +26,18 @@ namespace SingleFinite.Mvvm.Internal.Services;
 /// <summary>
 /// Implementation of <see cref="IViewProvider"/>.
 /// </summary>
-internal class ViewProvider(IViewAssembler viewAssembler) : IViewProvider
+internal class ViewProvider(IViewComposer viewComposer) : IViewProvider
 {
     #region Methods
 
     /// <inheritdoc/>
     public IView ProvideFromDescriptor(IViewModelDescriptor viewModelDescriptor)
     {
-        var assembleResult = viewAssembler.AssembleFromDescriptor(
+        var composition = viewComposer.ComposeFromDescriptor(
             viewModelDescriptor
         );
-        assembleResult.Start();
-        return assembleResult.View;
+        composition.Start();
+        return composition.View;
     }
 
     /// <inheritdoc/>
@@ -45,9 +45,9 @@ internal class ViewProvider(IViewAssembler viewAssembler) : IViewProvider
         params object[] parameters
     ) where TViewModel : IViewModel
     {
-        var assembleResult = viewAssembler.Assemble<TViewModel>();
-        assembleResult.Start();
-        return assembleResult.View;
+        var composition = viewComposer.Compose<TViewModel>();
+        composition.Start();
+        return composition.View;
     }
 
     #endregion
