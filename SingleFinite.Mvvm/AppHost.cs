@@ -21,7 +21,6 @@
 
 using Microsoft.Extensions.DependencyInjection;
 using SingleFinite.Essentials;
-using SingleFinite.Mvvm.Services;
 
 namespace SingleFinite.Mvvm;
 
@@ -89,7 +88,7 @@ public class AppHost : IDisposable
                 unregister: handler => AppDomain.CurrentDomain.UnhandledException -= handler,
                 handler: nextEvent => (sender, e) => nextEvent(e)
             )
-            .OnEach(e => exceptionHandler?.Handle(e.ExceptionObject, e))
+            .OnEach(e => exceptionHandler?.Handle(e.ExceptionObject as Exception))
             .Until(_disposeState.CancellationToken);
 
         foreach (var initializer in _initializers)

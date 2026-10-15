@@ -34,8 +34,12 @@ namespace SingleFinite.Mvvm.Internal.Services;
 /// The cancellation token from this service will be passed to the task scope
 /// so that when it is cancelled the task scope will also be cancelled.
 /// </param>
+/// <param name="exceptionHandler">
+/// The exception handler that will handle uncaught exceptions.
+/// </param>
 internal class AppTaskScope(
-    IServiceLifecycle lifecycle
+    IServiceLifecycle lifecycle,
+    IExceptionHandler exceptionHandler
 ) : IAppTaskScope
 {
     #region Fields
@@ -44,7 +48,8 @@ internal class AppTaskScope(
     /// The underlying task scope.
     /// </summary>
     private readonly TaskScope _taskScope = new(
-        parentCancellationToken: lifecycle.CancellationToken
+        parentCancellationToken: lifecycle.CancellationToken,
+        exceptionHandler: exceptionHandler
     );
 
     #endregion
@@ -65,8 +70,11 @@ internal class AppTaskScope(
     public void Cancel() => _taskScope.Cancel();
 
     /// <inheritdoc/>
-    public TaskScope CreateChildScope(ITaskDispatcher? dispatcher = null) =>
-        _taskScope.CreateChildScope(dispatcher);
+    public TaskScope CreateChildScope(
+        ITaskDispatcher? dispatcher = null,
+        IExceptionHandler? exceptionHandler = null
+    ) =>
+        _taskScope.CreateChildScope(dispatcher, exceptionHandler);
 
     /// <inheritdoc/>
     public ITaskJob<TResult> Run<TResult>(

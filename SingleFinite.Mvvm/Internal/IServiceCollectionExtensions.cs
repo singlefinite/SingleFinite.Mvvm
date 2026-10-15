@@ -19,12 +19,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using SingleFinite.Mvvm.Internal.Services;
-using SingleFinite.Mvvm.Services;
 using Microsoft.Extensions.DependencyInjection;
 using SingleFinite.Essentials;
-using SingleFinite.Mvvm.Services.Presenters;
+using SingleFinite.Mvvm.Internal.Services;
 using SingleFinite.Mvvm.Internal.Services.Presenters;
+using SingleFinite.Mvvm.Services;
+using SingleFinite.Mvvm.Services.Presenters;
 
 namespace SingleFinite.Mvvm.Internal;
 

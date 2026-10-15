@@ -24,14 +24,24 @@ using SingleFinite.Mvvm.Services;
 
 namespace SingleFinite.Mvvm.Internal.Services;
 
-internal class NonCancellableTaskScope : INonCancellableTaskScope
+/// <summary>
+/// A task scope that will not be cancelled when disposed.
+/// </summary>
+/// <param name="exceptionHandler">
+/// The exception handler that will handle uncaught exceptions.
+/// </param>
+internal class NonCancellableTaskScope(
+    IExceptionHandler exceptionHandler
+) : INonCancellableTaskScope
 {
     #region Fields
 
     /// <summary>
     /// The underlying task scope.
     /// </summary>
-    private readonly TaskScope _taskScope = new();
+    private readonly TaskScope _taskScope = new(
+        exceptionHandler: exceptionHandler
+    );
 
     #endregion
 
@@ -48,8 +58,11 @@ internal class NonCancellableTaskScope : INonCancellableTaskScope
     #region Methods
 
     /// <inheritdoc/>
-    public TaskScope CreateChildScope(ITaskDispatcher? dispatcher = null) =>
-        _taskScope.CreateChildScope(dispatcher);
+    public TaskScope CreateChildScope(
+        ITaskDispatcher? dispatcher = null,
+        IExceptionHandler? exceptionHandler = null
+    ) =>
+        _taskScope.CreateChildScope(dispatcher, exceptionHandler);
 
     /// <inheritdoc/>
     public ITaskJob<TResult> Run<TResult>(

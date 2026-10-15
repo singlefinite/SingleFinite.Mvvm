@@ -20,7 +20,7 @@
 // SOFTWARE.
 
 using System.Diagnostics;
-using SingleFinite.Mvvm.Services;
+using SingleFinite.Essentials;
 
 namespace SingleFinite.Mvvm.Internal.Services;
 
@@ -32,16 +32,18 @@ internal class ExceptionHandler : IExceptionHandler
     #region Methods
 
     /// <inheritdoc/>
-    public void Handle(object? exception, object? sourceArgs)
+    public bool Handle(Exception? exception, string? message)
     {
-        var sourceArgsText = string.Empty;
-        if (sourceArgs != null)
-            sourceArgsText = $", SourceArgs: [{sourceArgs.GetType().FullName}]";
+        if (exception is null)
+            return false;
 
-        if (exception is Exception ex)
-            Debug.WriteLine($"Exception: [{ex.GetType().FullName}] {ex.Message}{sourceArgsText}");
-        else
-            Debug.WriteLine($"Exception: [{exception?.GetType()?.FullName}]{sourceArgsText}");
+        var messageText = string.Empty;
+        if (message is not null)
+            messageText = $"{message} ";
+
+        Debug.WriteLine($"{messageText} Exception: [{exception.GetType().FullName}] {exception.Message}");
+
+        return true;
     }
 
     #endregion
