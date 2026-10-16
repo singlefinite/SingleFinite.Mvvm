@@ -246,12 +246,57 @@ public interface IListPresenter : IPresenter
     void Remove(int index);
 
     /// <summary>
+    /// Remove the view model at the given index and then set a new current
+    /// view model.
+    /// </summary>
+    /// <param name="index">The index of the view model to remove.</param>
+    /// <param name="newIndex">
+    /// The index of the view model that will be set as current.  If this is -1
+    /// the presenter will decide which view model to make current using the
+    /// first matching scenario below:
+    /// 1. If the view model was not the current view model no change is made.
+    /// 2. If there was a view model immediately to its left then it will be
+    ///    made current.
+    /// 3. If there was a view model immediately to its right then it will be
+    ///    made current. 
+    /// </param>
+    void RemoveAndSetCurrent(
+        int index,
+        int newIndex = -1
+    );
+
+    /// <summary>
+    /// Remove the given view model.
+    /// </summary>
+    /// <param name="viewModel">The view model to remove.</param>
+    void Remove(IViewModel viewModel);
+
+    /// <summary>
+    /// Remove the given view model and then set a new current view model.
+    /// </summary>
+    /// <param name="viewModel">The view model to remove.</param>
+    /// <param name="newIndex">
+    /// The index of the view model that will be set as current.  If this is -1
+    /// the presenter will decide which view model to make current using the
+    /// first matching scenario below:
+    /// 1. If the view model was not the current view model no change is made.
+    /// 2. If there was a view model immediately to its left then it will be
+    ///    made current.
+    /// 3. If there was a view model immediately to its right then it will be
+    ///    made current. 
+    /// </param>
+    void RemoveAndSetCurrent(
+        IViewModel viewModel,
+        int newIndex = -1
+    );
+
+    /// <summary>
     /// Remove the given view models from the list.
     /// </summary>
     /// <param name="viewModels">
     /// The view models to remove from the list.
     /// </param>
-    void Remove(params IEnumerable<IViewModel> viewModels);
+    void RemoveAll(params IEnumerable<IViewModel> viewModels);
 
     /// <summary>
     /// Remove all view models from the list.

@@ -19,6 +19,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System.Reflection.Metadata.Ecma335;
 using SingleFinite.Essentials;
 using SingleFinite.Mvvm.Services;
 using SingleFinite.Mvvm.Services.Presenters;
@@ -330,7 +331,65 @@ internal class ListPresenter : IListPresenter, IDisposable
     }
 
     /// <inheritdoc/>
-    public void Remove(params IEnumerable<IViewModel> viewModels)
+    public void RemoveAndSetCurrent(
+        int index,
+        int newIndex = -1
+    )
+    {
+        _disposeState.ThrowIfDisposed();
+
+        var view = _views[index];
+        Unsubscribe(view.ViewModel);
+        _views.RemoveAt(index);
+        UpdateViewModels();
+
+        if (newIndex != -1)
+        {
+            SetCurrentIndex(
+                index: newIndex,
+                emitChanged: false
+            );
+        }
+        else if (Current == view)
+        {
+            var adjustedIndex = _views.Count switch
+            {
+                0 => -1,
+                _ => Math.Max(0, newIndex - 1)
+            };
+
+            SetCurrentIndex(
+                index: adjustedIndex,
+                emitChanged: false
+            );
+        }
+
+        view.ViewModel.Dispose();
+
+        _changedSource.Emit();
+    }
+
+    /// <inheritdoc/>
+    public void Remove(IViewModel viewModel)
+    {
+        var index = _views.FindIndex(v => v.ViewModel == viewModel);
+        if (index != -1)
+            Remove(index);
+    }
+
+    /// <inheritdoc/>
+    public void RemoveAndSetCurrent(
+        IViewModel viewModel,
+        int newIndex = -1
+    )
+    {
+        var index = _views.FindIndex(v => v.ViewModel == viewModel);
+        if (index != -1)
+            RemoveAndSetCurrent(index, newIndex);
+    }
+
+    /// <inheritdoc/>
+    public void RemoveAll(params IEnumerable<IViewModel> viewModels)
     {
         _disposeState.ThrowIfDisposed();
 
@@ -377,20 +436,22 @@ internal class ListPresenter : IListPresenter, IDisposable
     /// </param>
     private void SetCurrentIndex(int index, bool emitChanged)
     {
-        if (CurrentIndex == index)
-            return;
+        var isCurrentIndexChanged = CurrentIndex != index;
+        CurrentIndex = index;
 
         var view = index == -1 ? null : _views[index];
         if (Current == view)
+        {
+            if (isCurrentIndexChanged)
+                _currentIndexChangedSource.Emit(index);
             return;
+        }
 
         Current?.ViewModel?.Deactivate();
         Current = view;
 
         if (IsActive)
             Current?.ViewModel?.Activate();
-
-        CurrentIndex = index;
 
         _currentChangedSource.Emit(
             args: new(
@@ -399,7 +460,8 @@ internal class ListPresenter : IListPresenter, IDisposable
             )
         );
 
-        _currentIndexChangedSource.Emit(index);
+        if (isCurrentIndexChanged)
+            _currentIndexChangedSource.Emit(index);
 
         if (emitChanged)
             _changedSource.Emit();

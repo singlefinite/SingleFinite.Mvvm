@@ -164,7 +164,7 @@ public class ListPresenterTests
     }
 
     [TestMethod]
-    public async Task AddAnSetCurrent_Makes_New_ViewModel_Current()
+    public async Task AddAndSetCurrent_Makes_New_ViewModel_Current()
     {
         using var context = await MvvmTestContext.CreateAsync();
         var listPresenter = (ListPresenter)context.ServiceProvider.GetRequiredService<IListPresenter>();
@@ -570,6 +570,116 @@ public class ListPresenterTests
         Assert.IsEmpty(observedCurrentIndexChanged);
 
         Assert.IsEmpty(observedCurrentChanged);
+    }
+
+    [TestMethod]
+    public async Task Remove_Index_Updates_ViewModels()
+    {
+        using var context = await MvvmTestContext.CreateAsync();
+        var listPresenter = (ListPresenter)context.ServiceProvider.GetRequiredService<IListPresenter>();
+
+        var output = new List<string>();
+        var viewModelContext = new ViewModelTestContext(output);
+
+        var viewModel1 = listPresenter.Add<TestViewModel1>(viewModelContext);
+        var viewModel2 = listPresenter.AddAndSetCurrent<TestViewModel2>(viewModelContext);
+        var viewModel3 = listPresenter.Add<TestViewModel3>(viewModelContext);
+
+        listPresenter.Remove(1);
+
+        Assert.AreEqual(-1, listPresenter.CurrentIndex);
+        Assert.IsNull(listPresenter.Current);
+
+        Assert.HasCount(2, listPresenter.ViewModels);
+        Assert.AreEqual(viewModel1, listPresenter.ViewModels[0]);
+        Assert.AreEqual(viewModel3, listPresenter.ViewModels[1]);
+    }
+
+    [TestMethod]
+    public async Task Remove_ViewModel_Updates_ViewModels()
+    {
+        using var context = await MvvmTestContext.CreateAsync();
+        var listPresenter = (ListPresenter)context.ServiceProvider.GetRequiredService<IListPresenter>();
+
+        var output = new List<string>();
+        var viewModelContext = new ViewModelTestContext(output);
+
+        var viewModel1 = listPresenter.Add<TestViewModel1>(viewModelContext);
+        var viewModel2 = listPresenter.AddAndSetCurrent<TestViewModel2>(viewModelContext);
+        var viewModel3 = listPresenter.Add<TestViewModel3>(viewModelContext);
+
+        listPresenter.Remove(viewModel2);
+
+        Assert.AreEqual(-1, listPresenter.CurrentIndex);
+        Assert.IsNull(listPresenter.Current);
+
+        Assert.HasCount(2, listPresenter.ViewModels);
+        Assert.AreEqual(viewModel1, listPresenter.ViewModels[0]);
+        Assert.AreEqual(viewModel3, listPresenter.ViewModels[1]);
+    }
+
+    [TestMethod]
+    public async Task RemoveAndSetCurernt_ViewModel_SetIndex_Below()
+    {
+        using var context = await MvvmTestContext.CreateAsync();
+        var listPresenter = (ListPresenter)context.ServiceProvider.GetRequiredService<IListPresenter>();
+
+        var output = new List<string>();
+        var viewModelContext = new ViewModelTestContext(output);
+
+        var viewModel1 = listPresenter.Add<TestViewModel1>(viewModelContext);
+        var viewModel2 = listPresenter.AddAndSetCurrent<TestViewModel2>(viewModelContext);
+        var viewModel3 = listPresenter.Add<TestViewModel3>(viewModelContext);
+
+        listPresenter.RemoveAndSetCurrent(viewModel2);
+
+        Assert.AreEqual(0, listPresenter.CurrentIndex);
+        Assert.AreEqual(viewModel1, listPresenter.Current?.ViewModel);
+
+        Assert.HasCount(2, listPresenter.ViewModels);
+        Assert.AreEqual(viewModel1, listPresenter.ViewModels[0]);
+        Assert.AreEqual(viewModel3, listPresenter.ViewModels[1]);
+    }
+
+    [TestMethod]
+    public async Task RemoveAndSetCurernt_ViewModel_SetIndex_Above()
+    {
+        using var context = await MvvmTestContext.CreateAsync();
+        var listPresenter = (ListPresenter)context.ServiceProvider.GetRequiredService<IListPresenter>();
+
+        var output = new List<string>();
+        var viewModelContext = new ViewModelTestContext(output);
+
+        var viewModel1 = listPresenter.AddAndSetCurrent<TestViewModel1>(viewModelContext);
+        var viewModel2 = listPresenter.Add<TestViewModel2>(viewModelContext);
+        var viewModel3 = listPresenter.Add<TestViewModel3>(viewModelContext);
+
+        listPresenter.RemoveAndSetCurrent(viewModel1);
+
+        Assert.AreEqual(0, listPresenter.CurrentIndex);
+        Assert.AreEqual(viewModel2, listPresenter.Current?.ViewModel);
+
+        Assert.HasCount(2, listPresenter.ViewModels);
+        Assert.AreEqual(viewModel2, listPresenter.ViewModels[0]);
+        Assert.AreEqual(viewModel3, listPresenter.ViewModels[1]);
+    }
+
+    [TestMethod]
+    public async Task RemoveAndSetCurernt_ViewModel_SetIndex_Empty()
+    {
+        using var context = await MvvmTestContext.CreateAsync();
+        var listPresenter = (ListPresenter)context.ServiceProvider.GetRequiredService<IListPresenter>();
+
+        var output = new List<string>();
+        var viewModelContext = new ViewModelTestContext(output);
+
+        var viewModel1 = listPresenter.AddAndSetCurrent<TestViewModel1>(viewModelContext);
+
+        listPresenter.RemoveAndSetCurrent(viewModel1);
+
+        Assert.AreEqual(-1, listPresenter.CurrentIndex);
+        Assert.IsNull(listPresenter.Current);
+        Assert.IsEmpty(listPresenter.ViewModels);
     }
 
     #region Types
