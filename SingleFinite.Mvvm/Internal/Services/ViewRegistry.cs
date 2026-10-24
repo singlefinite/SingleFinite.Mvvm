@@ -56,8 +56,21 @@ internal sealed class ViewRegistry : IViewRegistry
     #region Methods
 
     /// <inheritdoc/>
-    public Type GetViewType(Type viewModelType) =>
-        _viewDictionary[viewModelType];
+    public Type GetViewType(Type viewModelType)
+    {
+        var type = viewModelType;
+        while (type is not null)
+        {
+            if (_viewDictionary.TryGetValue(type, out var viewType))
+                return viewType;
+
+            type = type.BaseType;
+        }
+
+        // Throw a not found exception if we reach this point.
+        //
+        return _viewDictionary[viewModelType];
+    }
 
     #endregion
 }

@@ -65,7 +65,7 @@ public static class IViewCollectionExtensions
 
             foreach (var definedType in assembly.DefinedTypes)
             {
-                if (definedType.IsAbstract || definedType.IsInterface)
+                if (definedType.IsInterface)
                     continue;
 
                 var viewInterfaces = definedType.FindInterfaces(
