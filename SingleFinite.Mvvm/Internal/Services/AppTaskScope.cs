@@ -62,6 +62,9 @@ internal class AppTaskScope(
     /// <inheritdoc/>
     public CancellationToken CancellationToken => _taskScope.CancellationToken;
 
+    /// <inheritdoc/>
+    public Task Task => _taskScope.Task;
+
     #endregion
 
     #region Methods
@@ -70,7 +73,7 @@ internal class AppTaskScope(
     public void Cancel() => _taskScope.Cancel();
 
     /// <inheritdoc/>
-    public TaskScope CreateChildScope(
+    public ICancelableTaskScope CreateChildScope(
         ITaskDispatcher? dispatcher = null,
         IExceptionHandler? exceptionHandler = null
     ) =>

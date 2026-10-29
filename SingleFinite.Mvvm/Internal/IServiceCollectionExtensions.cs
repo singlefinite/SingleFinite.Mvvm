@@ -50,7 +50,7 @@ internal static class IServiceCollectionExtensions
         .AddSingleton<IBackgroundDispatcher, BackgroundDispatcher>()
         .AddSingleton<IPluginLoader, PluginLoader>()
         .AddSingleton<IAppTaskScope, AppTaskScope>()
-        .AddSingleton<INonCancellableTaskScope, NonCancellableTaskScope>()
+        .AddSingleton<INonCancelableTaskScope, NonCancelableTaskScope>()
         .AddScoped<IBuilder, Builder>()
         .AddScoped<IViewBuilder, ViewBuilder>()
         .AddScoped<IViewComposer, ViewComposer>()

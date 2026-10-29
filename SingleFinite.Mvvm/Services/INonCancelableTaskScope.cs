@@ -27,6 +27,6 @@ namespace SingleFinite.Mvvm.Services;
 /// A task scope that will not be cancelled when the app is closed.  Note that
 /// jobs run on the scope can still be cancelled individually.
 /// </summary>
-public interface INonCancellableTaskScope : ITaskScope
+public interface INonCancelableTaskScope : ITaskScope
 {
 }

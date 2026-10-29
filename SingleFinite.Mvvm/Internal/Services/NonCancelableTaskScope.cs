@@ -30,9 +30,9 @@ namespace SingleFinite.Mvvm.Internal.Services;
 /// <param name="exceptionHandler">
 /// The exception handler that will handle uncaught exceptions.
 /// </param>
-internal class NonCancellableTaskScope(
+internal class NonCancelableTaskScope(
     IExceptionHandler exceptionHandler
-) : INonCancellableTaskScope
+) : INonCancelableTaskScope
 {
     #region Fields
 
@@ -53,12 +53,14 @@ internal class NonCancellableTaskScope(
     /// <inheritdoc/>
     public CancellationToken CancellationToken => _taskScope.CancellationToken;
 
+    public Task Task => _taskScope.Task;
+
     #endregion
 
     #region Methods
 
     /// <inheritdoc/>
-    public TaskScope CreateChildScope(
+    public ICancelableTaskScope CreateChildScope(
         ITaskDispatcher? dispatcher = null,
         IExceptionHandler? exceptionHandler = null
     ) =>
