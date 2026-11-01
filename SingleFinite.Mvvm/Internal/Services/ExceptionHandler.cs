@@ -34,7 +34,7 @@ internal class ExceptionHandler : IExceptionHandler
     /// <inheritdoc/>
     public bool Handle(Exception? exception, string? message)
     {
-        if (exception is null)
+        if (exception is null || exception is OperationCanceledException)
             return false;
 
         var messageText = string.Empty;
