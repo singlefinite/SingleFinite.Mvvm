@@ -122,10 +122,12 @@ internal class DialogPresenter :
 
         var taskSource = new TaskCompletionSource<IViewModel>();
         var viewModel = Show(viewModelDescriptor);
-        viewModel.Disposed
+        Changed
             .Observe()
+            .Where(() => !ViewModels.Contains(viewModel))
             .OnEach(() => taskSource.TrySetResult(viewModel))
             .Once();
+
         return taskSource.Task;
     }
 
