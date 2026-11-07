@@ -61,5 +61,5 @@ internal static class IServiceCollectionExtensions
         .AddTransient<IItemPresenter, ItemPresenter>()
         .AddTransient<IStackPresenter, StackPresenter>()
         .AddTransient<IDialogPresenter, DialogPresenter>()
-        .AddTransient<IListPresenter, ListPresenter>();
+        .AddTransient<ITabPresenter, TabPresenter>();
 }

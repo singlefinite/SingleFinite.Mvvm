@@ -29,7 +29,7 @@ using static SingleFinite.Mvvm.Services.Presenters.IPresenter;
 namespace SingleFinite.Mvvm.UnitTests;
 
 [TestClass]
-public class ListPresenterTests
+public class TabPresenterTests
 {
     public TestContext TestContext { get; set; }
 
@@ -37,7 +37,7 @@ public class ListPresenterTests
     public async Task Lifecycle_Events_Raised_When_Expected()
     {
         using var context = await MvvmTestContext.CreateAsync();
-        var listPresenter = (ListPresenter)context.ServiceProvider.GetRequiredService<IListPresenter>();
+        var tabPresenter = (TabPresenter)context.ServiceProvider.GetRequiredService<ITabPresenter>();
 
         var output = new List<string>();
         var viewModelContext = new ViewModelTestContext(output);
@@ -45,40 +45,40 @@ public class ListPresenterTests
         var viewModelDescriptor2 = new ViewModelDescriptor<TestViewModel2>(viewModelContext);
         var viewModelDescriptor3 = new ViewModelDescriptor<TestViewModel3>(viewModelContext);
 
-        listPresenter.Add(viewModelDescriptor1);
+        tabPresenter.Add(viewModelDescriptor1);
         Assert.HasCount(1, output);
         Assert.AreEqual("OnInit - TestViewModel1", output[0]);
 
-        listPresenter.SetCurrentIndex(0);
+        tabPresenter.SetCurrentIndex(0);
         Assert.HasCount(2, output);
         Assert.AreEqual("OnStart - TestViewModel1", output[1]);
 
         output.Clear();
 
-        listPresenter.AddAll([viewModelDescriptor2, viewModelDescriptor3]);
+        tabPresenter.AddAll([viewModelDescriptor2, viewModelDescriptor3]);
         Assert.HasCount(2, output);
         Assert.AreEqual("OnInit - TestViewModel2", output[0]);
         Assert.AreEqual("OnInit - TestViewModel3", output[1]);
 
-        listPresenter.SetCurrentIndex(2);
+        tabPresenter.SetCurrentIndex(2);
         Assert.HasCount(4, output);
         Assert.AreEqual("OnStop - TestViewModel1", output[2]);
         Assert.AreEqual("OnStart - TestViewModel3", output[3]);
 
         output.Clear();
 
-        listPresenter.Remove(2);
+        tabPresenter.Remove(2);
         Assert.HasCount(2, output);
         Assert.AreEqual("OnStop - TestViewModel3", output[0]);
         Assert.AreEqual("OnDispose - TestViewModel3", output[1]);
 
-        listPresenter.SetCurrentIndex(1);
+        tabPresenter.SetCurrentIndex(1);
         Assert.HasCount(3, output);
         Assert.AreEqual("OnStart - TestViewModel2", output[2]);
 
         output.Clear();
 
-        listPresenter.Clear();
+        tabPresenter.Clear();
         Assert.HasCount(3, output);
         Assert.AreEqual("OnStop - TestViewModel2", output[0]);
         Assert.AreEqual("OnDispose - TestViewModel1", output[1]);
@@ -89,32 +89,32 @@ public class ListPresenterTests
     public async Task SetCurrent_With_Type()
     {
         using var context = await MvvmTestContext.CreateAsync();
-        var listPresenter = (ListPresenter)context.ServiceProvider.GetRequiredService<IListPresenter>();
+        var tabPresenter = (TabPresenter)context.ServiceProvider.GetRequiredService<ITabPresenter>();
 
         var output = new List<string>();
         var viewModelContext = new ViewModelTestContext(output);
         var viewModelDescriptor1 = new ViewModelDescriptor<TestViewModel1>(viewModelContext);
         var viewModelDescriptor2 = new ViewModelDescriptor<TestViewModel2>(viewModelContext);
 
-        listPresenter.AddAll([viewModelDescriptor1, viewModelDescriptor2]);
+        tabPresenter.AddAll([viewModelDescriptor1, viewModelDescriptor2]);
 
-        Assert.IsNull(listPresenter.Current);
-        Assert.AreEqual(-1, listPresenter.CurrentIndex);
+        Assert.IsNull(tabPresenter.Current);
+        Assert.AreEqual(-1, tabPresenter.CurrentIndex);
 
-        listPresenter.SetCurrent<TestViewModel1>();
+        tabPresenter.SetCurrent<TestViewModel1>();
 
-        Assert.IsInstanceOfType<TestViewModel1>(listPresenter.Current?.ViewModel);
-        Assert.AreEqual(0, listPresenter.CurrentIndex);
+        Assert.IsInstanceOfType<TestViewModel1>(tabPresenter.Current?.ViewModel);
+        Assert.AreEqual(0, tabPresenter.CurrentIndex);
 
-        listPresenter.SetCurrent<TestViewModel2>();
+        tabPresenter.SetCurrent<TestViewModel2>();
 
-        Assert.IsInstanceOfType<TestViewModel2>(listPresenter.Current?.ViewModel);
-        Assert.AreEqual(1, listPresenter.CurrentIndex);
+        Assert.IsInstanceOfType<TestViewModel2>(tabPresenter.Current?.ViewModel);
+        Assert.AreEqual(1, tabPresenter.CurrentIndex);
 
-        listPresenter.SetCurrent<TestViewModel3>();
+        tabPresenter.SetCurrent<TestViewModel3>();
 
-        Assert.IsNull(listPresenter.Current);
-        Assert.AreEqual(-1, listPresenter.CurrentIndex);
+        Assert.IsNull(tabPresenter.Current);
+        Assert.AreEqual(-1, tabPresenter.CurrentIndex);
     }
 
     [TestMethod]
@@ -124,27 +124,27 @@ public class ListPresenterTests
 
         var viewModelTestContext = new ViewModelTestContext([]);
 
-        var listPresenter = (ListPresenter)context.ServiceProvider.GetRequiredService<IListPresenter>();
-        var viewModel = listPresenter.Add<TestViewModel1>(viewModelTestContext);
+        var tabPresenter = (TabPresenter)context.ServiceProvider.GetRequiredService<ITabPresenter>();
+        var viewModel = tabPresenter.Add<TestViewModel1>(viewModelTestContext);
 
-        listPresenter.SetCurrent(viewModel);
+        tabPresenter.SetCurrent(viewModel);
 
-        Assert.IsNotNull(listPresenter.Current);
+        Assert.IsNotNull(tabPresenter.Current);
 
         viewModel.Close();
 
-        Assert.IsNull(listPresenter.Current);
+        Assert.IsNull(tabPresenter.Current);
     }
 
     [TestMethod]
     public async Task Nested_Presenter_Deactivates_When_Parent_Deactivates()
     {
         using var context = await MvvmTestContext.CreateAsync();
-        var listPresenter = (ListPresenter)context.ServiceProvider.GetRequiredService<IListPresenter>();
+        var tabPresenter = (TabPresenter)context.ServiceProvider.GetRequiredService<ITabPresenter>();
 
-        var parentViewModel = listPresenter.Add<ParentViewModel>();
+        var parentViewModel = tabPresenter.Add<ParentViewModel>();
 
-        listPresenter.SetCurrent(parentViewModel);
+        tabPresenter.SetCurrent(parentViewModel);
 
         Assert.IsTrue(parentViewModel.IsActive);
         Assert.IsTrue(parentViewModel.Child?.IsActive);
@@ -167,76 +167,76 @@ public class ListPresenterTests
     public async Task AddAndSetCurrent_Makes_New_ViewModel_Current()
     {
         using var context = await MvvmTestContext.CreateAsync();
-        var listPresenter = (ListPresenter)context.ServiceProvider.GetRequiredService<IListPresenter>();
+        var tabPresenter = (TabPresenter)context.ServiceProvider.GetRequiredService<ITabPresenter>();
 
         var output = new List<string>();
         var viewModelContext = new ViewModelTestContext(output);
 
-        Assert.IsNull(listPresenter.Current);
-        Assert.AreEqual(-1, listPresenter.CurrentIndex);
+        Assert.IsNull(tabPresenter.Current);
+        Assert.AreEqual(-1, tabPresenter.CurrentIndex);
 
-        listPresenter.AddAndSetCurrent<TestViewModel1>(viewModelContext);
+        tabPresenter.AddAndSetCurrent<TestViewModel1>(viewModelContext);
 
-        Assert.IsInstanceOfType<TestViewModel1>(listPresenter.Current?.ViewModel);
-        Assert.AreEqual(0, listPresenter.CurrentIndex);
+        Assert.IsInstanceOfType<TestViewModel1>(tabPresenter.Current?.ViewModel);
+        Assert.AreEqual(0, tabPresenter.CurrentIndex);
 
-        listPresenter.AddAndSetCurrent<TestViewModel2>(viewModelContext);
+        tabPresenter.AddAndSetCurrent<TestViewModel2>(viewModelContext);
 
-        Assert.IsInstanceOfType<TestViewModel2>(listPresenter.Current?.ViewModel);
-        Assert.AreEqual(1, listPresenter.CurrentIndex);
+        Assert.IsInstanceOfType<TestViewModel2>(tabPresenter.Current?.ViewModel);
+        Assert.AreEqual(1, tabPresenter.CurrentIndex);
 
-        listPresenter.AddAndSetCurrent<TestViewModel3>(viewModelContext);
+        tabPresenter.AddAndSetCurrent<TestViewModel3>(viewModelContext);
 
-        Assert.IsInstanceOfType<TestViewModel3>(listPresenter.Current?.ViewModel);
-        Assert.AreEqual(2, listPresenter.CurrentIndex);
+        Assert.IsInstanceOfType<TestViewModel3>(tabPresenter.Current?.ViewModel);
+        Assert.AreEqual(2, tabPresenter.CurrentIndex);
     }
 
     [TestMethod]
     public async Task Changed_Is_Observed_When_Changes_Occur()
     {
         using var context = await MvvmTestContext.CreateAsync();
-        var listPresenter = (ListPresenter)context.ServiceProvider.GetRequiredService<IListPresenter>();
+        var tabPresenter = (TabPresenter)context.ServiceProvider.GetRequiredService<ITabPresenter>();
 
         var output = new List<string>();
         var viewModelContext = new ViewModelTestContext(output);
 
         var observedCount = 0;
-        listPresenter.Changed
+        tabPresenter.Changed
             .Observe()
             .OnEach(() => observedCount++)
             .Until(TestContext.CancellationToken);
 
-        listPresenter.Add<TestViewModel1>(viewModelContext);
+        tabPresenter.Add<TestViewModel1>(viewModelContext);
         Assert.AreEqual(1, observedCount);
 
         observedCount = 0;
 
-        listPresenter.Add<TestViewModel2>(viewModelContext);
+        tabPresenter.Add<TestViewModel2>(viewModelContext);
         Assert.AreEqual(1, observedCount);
 
         observedCount = 0;
 
-        listPresenter.SetCurrentIndex(1);
+        tabPresenter.SetCurrentIndex(1);
         Assert.AreEqual(1, observedCount);
 
         observedCount = 0;
 
-        listPresenter.SetCurrentIndex(1);
+        tabPresenter.SetCurrentIndex(1);
         Assert.AreEqual(0, observedCount);
 
         observedCount = 0;
 
-        listPresenter.Remove(0);
+        tabPresenter.Remove(0);
         Assert.AreEqual(1, observedCount);
 
         observedCount = 0;
 
-        listPresenter.Clear();
+        tabPresenter.Clear();
         Assert.AreEqual(1, observedCount);
 
         observedCount = 0;
 
-        listPresenter.Clear();
+        tabPresenter.Clear();
         Assert.AreEqual(0, observedCount);
     }
 
@@ -244,78 +244,78 @@ public class ListPresenterTests
     public async Task Move_To_Same_Index_Has_No_Effect()
     {
         using var context = await MvvmTestContext.CreateAsync();
-        var listPresenter = (ListPresenter)context.ServiceProvider.GetRequiredService<IListPresenter>();
+        var tabPresenter = (TabPresenter)context.ServiceProvider.GetRequiredService<ITabPresenter>();
 
         var output = new List<string>();
         var viewModelContext = new ViewModelTestContext(output);
 
-        listPresenter.Add<TestViewModel1>(viewModelContext);
-        listPresenter.Add<TestViewModel2>(viewModelContext);
-        listPresenter.AddAndSetCurrent<TestViewModel3>(viewModelContext);
+        tabPresenter.Add<TestViewModel1>(viewModelContext);
+        tabPresenter.Add<TestViewModel2>(viewModelContext);
+        tabPresenter.AddAndSetCurrent<TestViewModel3>(viewModelContext);
 
         var observedChangedCount = 0;
-        listPresenter.Changed
+        tabPresenter.Changed
             .Observe()
             .OnEach(() => observedChangedCount++)
             .Until(TestContext.CancellationToken);
 
         var observedCurrentIndexChanged = new List<int>();
-        listPresenter.CurrentIndexChanged
+        tabPresenter.CurrentIndexChanged
             .Observe()
             .OnEach(observedCurrentIndexChanged.Add)
             .Until(TestContext.CancellationToken);
 
         var observedCurrentChanged = new List<CurrentChangedEventArgs>();
-        listPresenter.CurrentChanged
+        tabPresenter.CurrentChanged
             .Observe()
             .OnEach(observedCurrentChanged.Add)
             .Until(TestContext.CancellationToken);
 
-        listPresenter.Move(0, 0);
+        tabPresenter.Move(0, 0);
         Assert.AreEqual(0, observedChangedCount);
         Assert.IsEmpty(observedCurrentIndexChanged);
         Assert.IsEmpty(observedCurrentChanged);
 
-        listPresenter.MoveAndSetCurrent(2, 2);
+        tabPresenter.MoveAndSetCurrent(2, 2);
         Assert.AreEqual(0, observedChangedCount);
         Assert.IsEmpty(observedCurrentIndexChanged);
         Assert.IsEmpty(observedCurrentChanged);
 
-        Assert.AreEqual(2, listPresenter.CurrentIndex);
+        Assert.AreEqual(2, tabPresenter.CurrentIndex);
     }
 
     [TestMethod]
     public async Task MoveAndSetCurrent_To_Same_Index_Only_Changes_Current()
     {
         using var context = await MvvmTestContext.CreateAsync();
-        var listPresenter = (ListPresenter)context.ServiceProvider.GetRequiredService<IListPresenter>();
+        var tabPresenter = (TabPresenter)context.ServiceProvider.GetRequiredService<ITabPresenter>();
 
         var output = new List<string>();
         var viewModelContext = new ViewModelTestContext(output);
 
-        var viewModel1 = listPresenter.Add<TestViewModel1>(viewModelContext);
-        listPresenter.Add<TestViewModel2>(viewModelContext);
-        listPresenter.AddAndSetCurrent<TestViewModel3>(viewModelContext);
+        var viewModel1 = tabPresenter.Add<TestViewModel1>(viewModelContext);
+        tabPresenter.Add<TestViewModel2>(viewModelContext);
+        tabPresenter.AddAndSetCurrent<TestViewModel3>(viewModelContext);
 
         var observedChangedCount = 0;
-        listPresenter.Changed
+        tabPresenter.Changed
             .Observe()
             .OnEach(() => observedChangedCount++)
             .Until(TestContext.CancellationToken);
 
         var observedCurrentIndexChanged = new List<int>();
-        listPresenter.CurrentIndexChanged
+        tabPresenter.CurrentIndexChanged
             .Observe()
             .OnEach(observedCurrentIndexChanged.Add)
             .Until(TestContext.CancellationToken);
 
         var observedCurrentChanged = new List<CurrentChangedEventArgs>();
-        listPresenter.CurrentChanged
+        tabPresenter.CurrentChanged
             .Observe()
             .OnEach(observedCurrentChanged.Add)
             .Until(TestContext.CancellationToken);
 
-        listPresenter.MoveAndSetCurrent(0, 0);
+        tabPresenter.MoveAndSetCurrent(0, 0);
 
         Assert.AreEqual(1, observedChangedCount);
 
@@ -325,49 +325,49 @@ public class ListPresenterTests
         Assert.HasCount(1, observedCurrentChanged);
         Assert.AreEqual(viewModel1, observedCurrentChanged[0].View?.ViewModel);
 
-        Assert.AreEqual(0, listPresenter.CurrentIndex);
-        Assert.AreEqual(viewModel1, listPresenter.Current?.ViewModel);
+        Assert.AreEqual(0, tabPresenter.CurrentIndex);
+        Assert.AreEqual(viewModel1, tabPresenter.Current?.ViewModel);
     }
 
     [TestMethod]
     public async Task MoveAndSetCurrent_Updates_And_Emits()
     {
         using var context = await MvvmTestContext.CreateAsync();
-        var listPresenter = (ListPresenter)context.ServiceProvider.GetRequiredService<IListPresenter>();
+        var tabPresenter = (TabPresenter)context.ServiceProvider.GetRequiredService<ITabPresenter>();
 
         var output = new List<string>();
         var viewModelContext = new ViewModelTestContext(output);
 
-        var viewModel1 = listPresenter.Add<TestViewModel1>(viewModelContext);
-        var viewModel2 = listPresenter.AddAndSetCurrent<TestViewModel2>(viewModelContext);
-        var viewModel3 = listPresenter.Add<TestViewModel3>(viewModelContext);
+        var viewModel1 = tabPresenter.Add<TestViewModel1>(viewModelContext);
+        var viewModel2 = tabPresenter.AddAndSetCurrent<TestViewModel2>(viewModelContext);
+        var viewModel3 = tabPresenter.Add<TestViewModel3>(viewModelContext);
 
         var observedChangedCount = 0;
-        listPresenter.Changed
+        tabPresenter.Changed
             .Observe()
             .OnEach(() => observedChangedCount++)
             .Until(TestContext.CancellationToken);
 
         var observedCurrentIndexChanged = new List<int>();
-        listPresenter.CurrentIndexChanged
+        tabPresenter.CurrentIndexChanged
             .Observe()
             .OnEach(observedCurrentIndexChanged.Add)
             .Until(TestContext.CancellationToken);
 
         var observedCurrentChanged = new List<CurrentChangedEventArgs>();
-        listPresenter.CurrentChanged
+        tabPresenter.CurrentChanged
             .Observe()
             .OnEach(observedCurrentChanged.Add)
             .Until(TestContext.CancellationToken);
 
-        listPresenter.MoveAndSetCurrent(0, 2);
+        tabPresenter.MoveAndSetCurrent(0, 2);
 
-        Assert.AreEqual(viewModel2, listPresenter.ViewModels[0]);
-        Assert.AreEqual(viewModel3, listPresenter.ViewModels[1]);
-        Assert.AreEqual(viewModel1, listPresenter.ViewModels[2]);
+        Assert.AreEqual(viewModel2, tabPresenter.ViewModels[0]);
+        Assert.AreEqual(viewModel3, tabPresenter.ViewModels[1]);
+        Assert.AreEqual(viewModel1, tabPresenter.ViewModels[2]);
 
-        Assert.AreEqual(2, listPresenter.CurrentIndex);
-        Assert.AreEqual(viewModel1, listPresenter.Current?.ViewModel);
+        Assert.AreEqual(2, tabPresenter.CurrentIndex);
+        Assert.AreEqual(viewModel1, tabPresenter.Current?.ViewModel);
 
         Assert.AreEqual(1, observedChangedCount);
 
@@ -375,48 +375,48 @@ public class ListPresenterTests
         Assert.AreEqual(2, observedCurrentIndexChanged[0]);
 
         Assert.HasCount(1, observedCurrentChanged);
-        Assert.AreEqual(viewModel1, listPresenter.Current?.ViewModel);
+        Assert.AreEqual(viewModel1, tabPresenter.Current?.ViewModel);
     }
 
     [TestMethod]
     public async Task Move_From_Before_Current_To_After_Current()
     {
         using var context = await MvvmTestContext.CreateAsync();
-        var listPresenter = (ListPresenter)context.ServiceProvider.GetRequiredService<IListPresenter>();
+        var tabPresenter = (TabPresenter)context.ServiceProvider.GetRequiredService<ITabPresenter>();
 
         var output = new List<string>();
         var viewModelContext = new ViewModelTestContext(output);
 
-        var viewModel1 = listPresenter.Add<TestViewModel1>(viewModelContext);
-        var viewModel2 = listPresenter.AddAndSetCurrent<TestViewModel2>(viewModelContext);
-        var viewModel3 = listPresenter.Add<TestViewModel3>(viewModelContext);
+        var viewModel1 = tabPresenter.Add<TestViewModel1>(viewModelContext);
+        var viewModel2 = tabPresenter.AddAndSetCurrent<TestViewModel2>(viewModelContext);
+        var viewModel3 = tabPresenter.Add<TestViewModel3>(viewModelContext);
 
         var observedChangedCount = 0;
-        listPresenter.Changed
+        tabPresenter.Changed
             .Observe()
             .OnEach(() => observedChangedCount++)
             .Until(TestContext.CancellationToken);
 
         var observedCurrentIndexChanged = new List<int>();
-        listPresenter.CurrentIndexChanged
+        tabPresenter.CurrentIndexChanged
             .Observe()
             .OnEach(observedCurrentIndexChanged.Add)
             .Until(TestContext.CancellationToken);
 
         var observedCurrentChanged = new List<CurrentChangedEventArgs>();
-        listPresenter.CurrentChanged
+        tabPresenter.CurrentChanged
             .Observe()
             .OnEach(observedCurrentChanged.Add)
             .Until(TestContext.CancellationToken);
 
-        listPresenter.Move(0, 2);
+        tabPresenter.Move(0, 2);
 
-        Assert.AreEqual(viewModel2, listPresenter.ViewModels[0]);
-        Assert.AreEqual(viewModel3, listPresenter.ViewModels[1]);
-        Assert.AreEqual(viewModel1, listPresenter.ViewModels[2]);
+        Assert.AreEqual(viewModel2, tabPresenter.ViewModels[0]);
+        Assert.AreEqual(viewModel3, tabPresenter.ViewModels[1]);
+        Assert.AreEqual(viewModel1, tabPresenter.ViewModels[2]);
 
-        Assert.AreEqual(0, listPresenter.CurrentIndex);
-        Assert.AreEqual(viewModel2, listPresenter.Current?.ViewModel);
+        Assert.AreEqual(0, tabPresenter.CurrentIndex);
+        Assert.AreEqual(viewModel2, tabPresenter.Current?.ViewModel);
 
         Assert.AreEqual(1, observedChangedCount);
 
@@ -430,41 +430,41 @@ public class ListPresenterTests
     public async Task Move_From_After_Current_To_Before_Current()
     {
         using var context = await MvvmTestContext.CreateAsync();
-        var listPresenter = (ListPresenter)context.ServiceProvider.GetRequiredService<IListPresenter>();
+        var tabPresenter = (TabPresenter)context.ServiceProvider.GetRequiredService<ITabPresenter>();
 
         var output = new List<string>();
         var viewModelContext = new ViewModelTestContext(output);
 
-        var viewModel1 = listPresenter.Add<TestViewModel1>(viewModelContext);
-        var viewModel2 = listPresenter.AddAndSetCurrent<TestViewModel2>(viewModelContext);
-        var viewModel3 = listPresenter.Add<TestViewModel3>(viewModelContext);
+        var viewModel1 = tabPresenter.Add<TestViewModel1>(viewModelContext);
+        var viewModel2 = tabPresenter.AddAndSetCurrent<TestViewModel2>(viewModelContext);
+        var viewModel3 = tabPresenter.Add<TestViewModel3>(viewModelContext);
 
         var observedChangedCount = 0;
-        listPresenter.Changed
+        tabPresenter.Changed
             .Observe()
             .OnEach(() => observedChangedCount++)
             .Until(TestContext.CancellationToken);
 
         var observedCurrentIndexChanged = new List<int>();
-        listPresenter.CurrentIndexChanged
+        tabPresenter.CurrentIndexChanged
             .Observe()
             .OnEach(observedCurrentIndexChanged.Add)
             .Until(TestContext.CancellationToken);
 
         var observedCurrentChanged = new List<CurrentChangedEventArgs>();
-        listPresenter.CurrentChanged
+        tabPresenter.CurrentChanged
             .Observe()
             .OnEach(observedCurrentChanged.Add)
             .Until(TestContext.CancellationToken);
 
-        listPresenter.Move(2, 0);
+        tabPresenter.Move(2, 0);
 
-        Assert.AreEqual(viewModel3, listPresenter.ViewModels[0]);
-        Assert.AreEqual(viewModel1, listPresenter.ViewModels[1]);
-        Assert.AreEqual(viewModel2, listPresenter.ViewModels[2]);
+        Assert.AreEqual(viewModel3, tabPresenter.ViewModels[0]);
+        Assert.AreEqual(viewModel1, tabPresenter.ViewModels[1]);
+        Assert.AreEqual(viewModel2, tabPresenter.ViewModels[2]);
 
-        Assert.AreEqual(2, listPresenter.CurrentIndex);
-        Assert.AreEqual(viewModel2, listPresenter.Current?.ViewModel);
+        Assert.AreEqual(2, tabPresenter.CurrentIndex);
+        Assert.AreEqual(viewModel2, tabPresenter.Current?.ViewModel);
 
         Assert.AreEqual(1, observedChangedCount);
 
@@ -478,43 +478,43 @@ public class ListPresenterTests
     public async Task Move_From_Before_Current_To_Before_Current()
     {
         using var context = await MvvmTestContext.CreateAsync();
-        var listPresenter = (ListPresenter)context.ServiceProvider.GetRequiredService<IListPresenter>();
+        var tabPresenter = (TabPresenter)context.ServiceProvider.GetRequiredService<ITabPresenter>();
 
         var output = new List<string>();
         var viewModelContext = new ViewModelTestContext(output);
 
-        var viewModel1 = listPresenter.Add<TestViewModel1>(viewModelContext);
-        var viewModel2 = listPresenter.Add<TestViewModel2>(viewModelContext);
-        var viewModel3 = listPresenter.AddAndSetCurrent<TestViewModel3>(viewModelContext);
-        var viewModel4 = listPresenter.Add<TestViewModel3>(viewModelContext);
+        var viewModel1 = tabPresenter.Add<TestViewModel1>(viewModelContext);
+        var viewModel2 = tabPresenter.Add<TestViewModel2>(viewModelContext);
+        var viewModel3 = tabPresenter.AddAndSetCurrent<TestViewModel3>(viewModelContext);
+        var viewModel4 = tabPresenter.Add<TestViewModel3>(viewModelContext);
 
         var observedChangedCount = 0;
-        listPresenter.Changed
+        tabPresenter.Changed
             .Observe()
             .OnEach(() => observedChangedCount++)
             .Until(TestContext.CancellationToken);
 
         var observedCurrentIndexChanged = new List<int>();
-        listPresenter.CurrentIndexChanged
+        tabPresenter.CurrentIndexChanged
             .Observe()
             .OnEach(observedCurrentIndexChanged.Add)
             .Until(TestContext.CancellationToken);
 
         var observedCurrentChanged = new List<CurrentChangedEventArgs>();
-        listPresenter.CurrentChanged
+        tabPresenter.CurrentChanged
             .Observe()
             .OnEach(observedCurrentChanged.Add)
             .Until(TestContext.CancellationToken);
 
-        listPresenter.Move(0, 1);
+        tabPresenter.Move(0, 1);
 
-        Assert.AreEqual(viewModel2, listPresenter.ViewModels[0]);
-        Assert.AreEqual(viewModel1, listPresenter.ViewModels[1]);
-        Assert.AreEqual(viewModel3, listPresenter.ViewModels[2]);
-        Assert.AreEqual(viewModel4, listPresenter.ViewModels[3]);
+        Assert.AreEqual(viewModel2, tabPresenter.ViewModels[0]);
+        Assert.AreEqual(viewModel1, tabPresenter.ViewModels[1]);
+        Assert.AreEqual(viewModel3, tabPresenter.ViewModels[2]);
+        Assert.AreEqual(viewModel4, tabPresenter.ViewModels[3]);
 
-        Assert.AreEqual(2, listPresenter.CurrentIndex);
-        Assert.AreEqual(viewModel3, listPresenter.Current?.ViewModel);
+        Assert.AreEqual(2, tabPresenter.CurrentIndex);
+        Assert.AreEqual(viewModel3, tabPresenter.Current?.ViewModel);
 
         Assert.AreEqual(1, observedChangedCount);
 
@@ -527,43 +527,43 @@ public class ListPresenterTests
     public async Task Move_From_After_Current_To_After_Current()
     {
         using var context = await MvvmTestContext.CreateAsync();
-        var listPresenter = (ListPresenter)context.ServiceProvider.GetRequiredService<IListPresenter>();
+        var tabPresenter = (TabPresenter)context.ServiceProvider.GetRequiredService<ITabPresenter>();
 
         var output = new List<string>();
         var viewModelContext = new ViewModelTestContext(output);
 
-        var viewModel1 = listPresenter.Add<TestViewModel1>(viewModelContext);
-        var viewModel2 = listPresenter.AddAndSetCurrent<TestViewModel2>(viewModelContext);
-        var viewModel3 = listPresenter.Add<TestViewModel3>(viewModelContext);
-        var viewModel4 = listPresenter.Add<TestViewModel3>(viewModelContext);
+        var viewModel1 = tabPresenter.Add<TestViewModel1>(viewModelContext);
+        var viewModel2 = tabPresenter.AddAndSetCurrent<TestViewModel2>(viewModelContext);
+        var viewModel3 = tabPresenter.Add<TestViewModel3>(viewModelContext);
+        var viewModel4 = tabPresenter.Add<TestViewModel3>(viewModelContext);
 
         var observedChangedCount = 0;
-        listPresenter.Changed
+        tabPresenter.Changed
             .Observe()
             .OnEach(() => observedChangedCount++)
             .Until(TestContext.CancellationToken);
 
         var observedCurrentIndexChanged = new List<int>();
-        listPresenter.CurrentIndexChanged
+        tabPresenter.CurrentIndexChanged
             .Observe()
             .OnEach(observedCurrentIndexChanged.Add)
             .Until(TestContext.CancellationToken);
 
         var observedCurrentChanged = new List<CurrentChangedEventArgs>();
-        listPresenter.CurrentChanged
+        tabPresenter.CurrentChanged
             .Observe()
             .OnEach(observedCurrentChanged.Add)
             .Until(TestContext.CancellationToken);
 
-        listPresenter.Move(2, 3);
+        tabPresenter.Move(2, 3);
 
-        Assert.AreEqual(viewModel1, listPresenter.ViewModels[0]);
-        Assert.AreEqual(viewModel2, listPresenter.ViewModels[1]);
-        Assert.AreEqual(viewModel4, listPresenter.ViewModels[2]);
-        Assert.AreEqual(viewModel3, listPresenter.ViewModels[3]);
+        Assert.AreEqual(viewModel1, tabPresenter.ViewModels[0]);
+        Assert.AreEqual(viewModel2, tabPresenter.ViewModels[1]);
+        Assert.AreEqual(viewModel4, tabPresenter.ViewModels[2]);
+        Assert.AreEqual(viewModel3, tabPresenter.ViewModels[3]);
 
-        Assert.AreEqual(1, listPresenter.CurrentIndex);
-        Assert.AreEqual(viewModel2, listPresenter.Current?.ViewModel);
+        Assert.AreEqual(1, tabPresenter.CurrentIndex);
+        Assert.AreEqual(viewModel2, tabPresenter.Current?.ViewModel);
 
         Assert.AreEqual(1, observedChangedCount);
 
@@ -576,110 +576,110 @@ public class ListPresenterTests
     public async Task Remove_Index_Updates_ViewModels()
     {
         using var context = await MvvmTestContext.CreateAsync();
-        var listPresenter = (ListPresenter)context.ServiceProvider.GetRequiredService<IListPresenter>();
+        var tabPresenter = (TabPresenter)context.ServiceProvider.GetRequiredService<ITabPresenter>();
 
         var output = new List<string>();
         var viewModelContext = new ViewModelTestContext(output);
 
-        var viewModel1 = listPresenter.Add<TestViewModel1>(viewModelContext);
-        var viewModel2 = listPresenter.AddAndSetCurrent<TestViewModel2>(viewModelContext);
-        var viewModel3 = listPresenter.Add<TestViewModel3>(viewModelContext);
+        var viewModel1 = tabPresenter.Add<TestViewModel1>(viewModelContext);
+        var viewModel2 = tabPresenter.AddAndSetCurrent<TestViewModel2>(viewModelContext);
+        var viewModel3 = tabPresenter.Add<TestViewModel3>(viewModelContext);
 
-        listPresenter.Remove(1);
+        tabPresenter.Remove(1);
 
-        Assert.AreEqual(-1, listPresenter.CurrentIndex);
-        Assert.IsNull(listPresenter.Current);
+        Assert.AreEqual(-1, tabPresenter.CurrentIndex);
+        Assert.IsNull(tabPresenter.Current);
 
-        Assert.HasCount(2, listPresenter.ViewModels);
-        Assert.AreEqual(viewModel1, listPresenter.ViewModels[0]);
-        Assert.AreEqual(viewModel3, listPresenter.ViewModels[1]);
+        Assert.HasCount(2, tabPresenter.ViewModels);
+        Assert.AreEqual(viewModel1, tabPresenter.ViewModels[0]);
+        Assert.AreEqual(viewModel3, tabPresenter.ViewModels[1]);
     }
 
     [TestMethod]
     public async Task Remove_ViewModel_Updates_ViewModels()
     {
         using var context = await MvvmTestContext.CreateAsync();
-        var listPresenter = (ListPresenter)context.ServiceProvider.GetRequiredService<IListPresenter>();
+        var tabPresenter = (TabPresenter)context.ServiceProvider.GetRequiredService<ITabPresenter>();
 
         var output = new List<string>();
         var viewModelContext = new ViewModelTestContext(output);
 
-        var viewModel1 = listPresenter.Add<TestViewModel1>(viewModelContext);
-        var viewModel2 = listPresenter.AddAndSetCurrent<TestViewModel2>(viewModelContext);
-        var viewModel3 = listPresenter.Add<TestViewModel3>(viewModelContext);
+        var viewModel1 = tabPresenter.Add<TestViewModel1>(viewModelContext);
+        var viewModel2 = tabPresenter.AddAndSetCurrent<TestViewModel2>(viewModelContext);
+        var viewModel3 = tabPresenter.Add<TestViewModel3>(viewModelContext);
 
-        listPresenter.Remove(viewModel2);
+        tabPresenter.Remove(viewModel2);
 
-        Assert.AreEqual(-1, listPresenter.CurrentIndex);
-        Assert.IsNull(listPresenter.Current);
+        Assert.AreEqual(-1, tabPresenter.CurrentIndex);
+        Assert.IsNull(tabPresenter.Current);
 
-        Assert.HasCount(2, listPresenter.ViewModels);
-        Assert.AreEqual(viewModel1, listPresenter.ViewModels[0]);
-        Assert.AreEqual(viewModel3, listPresenter.ViewModels[1]);
+        Assert.HasCount(2, tabPresenter.ViewModels);
+        Assert.AreEqual(viewModel1, tabPresenter.ViewModels[0]);
+        Assert.AreEqual(viewModel3, tabPresenter.ViewModels[1]);
     }
 
     [TestMethod]
     public async Task RemoveAndSetCurernt_ViewModel_SetIndex_Below()
     {
         using var context = await MvvmTestContext.CreateAsync();
-        var listPresenter = (ListPresenter)context.ServiceProvider.GetRequiredService<IListPresenter>();
+        var tabPresenter = (TabPresenter)context.ServiceProvider.GetRequiredService<ITabPresenter>();
 
         var output = new List<string>();
         var viewModelContext = new ViewModelTestContext(output);
 
-        var viewModel1 = listPresenter.Add<TestViewModel1>(viewModelContext);
-        var viewModel2 = listPresenter.AddAndSetCurrent<TestViewModel2>(viewModelContext);
-        var viewModel3 = listPresenter.Add<TestViewModel3>(viewModelContext);
+        var viewModel1 = tabPresenter.Add<TestViewModel1>(viewModelContext);
+        var viewModel2 = tabPresenter.AddAndSetCurrent<TestViewModel2>(viewModelContext);
+        var viewModel3 = tabPresenter.Add<TestViewModel3>(viewModelContext);
 
-        listPresenter.RemoveAndSetCurrent(viewModel2);
+        tabPresenter.RemoveAndSetCurrent(viewModel2);
 
-        Assert.AreEqual(0, listPresenter.CurrentIndex);
-        Assert.AreEqual(viewModel1, listPresenter.Current?.ViewModel);
+        Assert.AreEqual(0, tabPresenter.CurrentIndex);
+        Assert.AreEqual(viewModel1, tabPresenter.Current?.ViewModel);
 
-        Assert.HasCount(2, listPresenter.ViewModels);
-        Assert.AreEqual(viewModel1, listPresenter.ViewModels[0]);
-        Assert.AreEqual(viewModel3, listPresenter.ViewModels[1]);
+        Assert.HasCount(2, tabPresenter.ViewModels);
+        Assert.AreEqual(viewModel1, tabPresenter.ViewModels[0]);
+        Assert.AreEqual(viewModel3, tabPresenter.ViewModels[1]);
     }
 
     [TestMethod]
     public async Task RemoveAndSetCurernt_ViewModel_SetIndex_Above()
     {
         using var context = await MvvmTestContext.CreateAsync();
-        var listPresenter = (ListPresenter)context.ServiceProvider.GetRequiredService<IListPresenter>();
+        var tabPresenter = (TabPresenter)context.ServiceProvider.GetRequiredService<ITabPresenter>();
 
         var output = new List<string>();
         var viewModelContext = new ViewModelTestContext(output);
 
-        var viewModel1 = listPresenter.AddAndSetCurrent<TestViewModel1>(viewModelContext);
-        var viewModel2 = listPresenter.Add<TestViewModel2>(viewModelContext);
-        var viewModel3 = listPresenter.Add<TestViewModel3>(viewModelContext);
+        var viewModel1 = tabPresenter.AddAndSetCurrent<TestViewModel1>(viewModelContext);
+        var viewModel2 = tabPresenter.Add<TestViewModel2>(viewModelContext);
+        var viewModel3 = tabPresenter.Add<TestViewModel3>(viewModelContext);
 
-        listPresenter.RemoveAndSetCurrent(viewModel1);
+        tabPresenter.RemoveAndSetCurrent(viewModel1);
 
-        Assert.AreEqual(0, listPresenter.CurrentIndex);
-        Assert.AreEqual(viewModel2, listPresenter.Current?.ViewModel);
+        Assert.AreEqual(0, tabPresenter.CurrentIndex);
+        Assert.AreEqual(viewModel2, tabPresenter.Current?.ViewModel);
 
-        Assert.HasCount(2, listPresenter.ViewModels);
-        Assert.AreEqual(viewModel2, listPresenter.ViewModels[0]);
-        Assert.AreEqual(viewModel3, listPresenter.ViewModels[1]);
+        Assert.HasCount(2, tabPresenter.ViewModels);
+        Assert.AreEqual(viewModel2, tabPresenter.ViewModels[0]);
+        Assert.AreEqual(viewModel3, tabPresenter.ViewModels[1]);
     }
 
     [TestMethod]
     public async Task RemoveAndSetCurernt_ViewModel_SetIndex_Empty()
     {
         using var context = await MvvmTestContext.CreateAsync();
-        var listPresenter = (ListPresenter)context.ServiceProvider.GetRequiredService<IListPresenter>();
+        var tabPresenter = (TabPresenter)context.ServiceProvider.GetRequiredService<ITabPresenter>();
 
         var output = new List<string>();
         var viewModelContext = new ViewModelTestContext(output);
 
-        var viewModel1 = listPresenter.AddAndSetCurrent<TestViewModel1>(viewModelContext);
+        var viewModel1 = tabPresenter.AddAndSetCurrent<TestViewModel1>(viewModelContext);
 
-        listPresenter.RemoveAndSetCurrent(viewModel1);
+        tabPresenter.RemoveAndSetCurrent(viewModel1);
 
-        Assert.AreEqual(-1, listPresenter.CurrentIndex);
-        Assert.IsNull(listPresenter.Current);
-        Assert.IsEmpty(listPresenter.ViewModels);
+        Assert.AreEqual(-1, tabPresenter.CurrentIndex);
+        Assert.IsNull(tabPresenter.Current);
+        Assert.IsEmpty(tabPresenter.ViewModels);
     }
 
     #region Types
@@ -747,7 +747,7 @@ public class ListPresenterTests
         protected override void OnDispose() => Context.Output.Add($"OnDispose - {nameof(TestViewModel3)}");
     }
 
-    private class ParentViewModel(IListPresenter presenter) : ViewModel
+    private class ParentViewModel(ITabPresenter presenter) : ViewModel
     {
         public ChildViewModel? Child { get; private set; }
 
@@ -758,7 +758,7 @@ public class ListPresenterTests
         }
     }
 
-    private class ChildViewModel(IListPresenter presenter) : ViewModel
+    private class ChildViewModel(ITabPresenter presenter) : ViewModel
     {
         public ExampleViewModel? Example { get; private set; }
 

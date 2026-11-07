@@ -28,7 +28,7 @@ namespace SingleFinite.Mvvm.Services.Presenters;
 /// responsible for creating and invoking the lifecycle methods for the view
 /// models it manages.
 /// </summary>
-public interface IListPresenter : IPresenter
+public interface ITabPresenter : IPresenter
 {
     /// <summary>
     /// The index of the view model that is the current view model.  If there is

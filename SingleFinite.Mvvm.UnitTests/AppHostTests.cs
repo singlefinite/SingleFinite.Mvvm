@@ -20,11 +20,12 @@
 // SOFTWARE.
 
 using Microsoft.Extensions.DependencyInjection;
+using SingleFinite.Essentials;
 
 namespace SingleFinite.Mvvm.UnitTests;
 
 [TestClass]
-public class AppHostTests
+public class AppHostTests(TestContext testContext)
 {
     [TestMethod]
     public async Task Start_Method_Invoke_Initializers()
@@ -74,5 +75,51 @@ public class AppHostTests
         await Assert.ThrowsExactlyAsync<ObjectDisposedException>(
             () => appHost.StartAsync(provider)
         );
+    }
+
+    [TestMethod]
+    public async Task Unobserved_Task_Exception_Is_Handled()
+    {
+        var exceptionHandler = new TestExceptionHandler();
+
+        var services = new ServiceCollection();
+        services.AddSingleton<IExceptionHandler>(exceptionHandler);
+
+        var appHost = new AppHost(
+            initializers: new InitializerCollection()
+        );
+
+        await appHost.StartAsync(services.BuildServiceProvider());
+
+        _ = Task.Run(
+            function: () => throw new InvalidOperationException("Test exception"),
+            cancellationToken: testContext.CancellationToken
+        );
+
+        await Task.Delay(100, testContext.CancellationToken);
+
+        GC.Collect();
+        GC.WaitForPendingFinalizers();
+
+        Assert.HasCount(1, exceptionHandler.Exceptions);
+        Assert.IsInstanceOfType<AggregateException>(exceptionHandler.Exceptions[0]);
+        Assert.IsInstanceOfType<InvalidOperationException>(exceptionHandler.Exceptions[0]?.InnerException);
+
+        Assert.HasCount(1, exceptionHandler.Messages);
+        Assert.AreEqual("Unobserved task exception", exceptionHandler.Messages[0]);
+    }
+
+    private class TestExceptionHandler : IExceptionHandler
+    {
+        public List<Exception?> Exceptions { get; } = [];
+
+        public List<string?> Messages { get; } = [];
+
+        public bool Handle(Exception? exception, string? message = null)
+        {
+            Exceptions.Add(exception);
+            Messages.Add(message);
+            return true;
+        }
     }
 }

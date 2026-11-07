@@ -27,9 +27,9 @@ using SingleFinite.Mvvm.Services.Presenters;
 namespace SingleFinite.Mvvm.Internal.Services.Presenters;
 
 /// <summary>
-/// Implementation of <see cref="IListPresenter"/>.
+/// Implementation of <see cref="ITabPresenter"/>.
 /// </summary>
-internal class ListPresenter : IListPresenter, IDisposable
+internal class TabPresenter : ITabPresenter, IDisposable
 {
     #region Fields
 
@@ -59,7 +59,7 @@ internal class ListPresenter : IListPresenter, IDisposable
     /// <param name="viewModelNode">
     /// Used to observe when a parent IsActive value changes.
     /// </param>
-    public ListPresenter(
+    public TabPresenter(
         IViewProvider viewProvider,
         ViewModelNode viewModelNode
     )

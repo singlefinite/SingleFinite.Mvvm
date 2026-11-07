@@ -91,6 +91,15 @@ public class AppHost : IDisposable
             .OnEach(e => exceptionHandler?.Handle(e.ExceptionObject as Exception))
             .Until(_disposeState.CancellationToken);
 
+        EventObservable
+            .Observe<EventHandler<UnobservedTaskExceptionEventArgs>, UnobservedTaskExceptionEventArgs>(
+                register: handler => TaskScheduler.UnobservedTaskException += handler,
+                unregister: handler => TaskScheduler.UnobservedTaskException -= handler,
+                handler: nextEvent => (sender, e) => nextEvent(e)
+            )
+            .OnEach(args => exceptionHandler?.Handle(args.Exception, "Unobserved task exception"))
+            .Until(_disposeState.CancellationToken);
+
         foreach (var initializer in _initializers)
             await initializer(provider);
     }
