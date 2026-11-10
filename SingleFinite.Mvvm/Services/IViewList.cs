@@ -21,13 +21,13 @@
 
 using SingleFinite.Essentials;
 
-namespace SingleFinite.Mvvm.Services.Presenters;
+namespace SingleFinite.Mvvm.Services;
 
 /// <summary>
 /// Manages a collection of view models.  The object is responsible for creating
 /// and invoking the lifecycle methods for the view models it manages.
 /// </summary>
-public interface IPresenterList : IReadOnlyList<IView>
+public interface IViewList : IReadOnlyList<IView>
 {
     /// <summary>
     /// Create a view model and add it to the list at the given index.

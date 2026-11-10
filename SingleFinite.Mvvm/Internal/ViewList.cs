@@ -21,15 +21,15 @@
 
 using System.Collections;
 using SingleFinite.Essentials;
+using SingleFinite.Mvvm.Internal.Services;
 using SingleFinite.Mvvm.Services;
-using SingleFinite.Mvvm.Services.Presenters;
 
-namespace SingleFinite.Mvvm.Internal.Services.Presenters;
+namespace SingleFinite.Mvvm.Internal;
 
 /// <summary>
-/// Implementation of <see cref="IPresenterList"/>.
+/// Implementation of <see cref="IViewList"/>.
 /// </summary>
-internal class PresenterList : IPresenterList, IDisposable
+internal class ViewList : IViewList, IDisposable
 {
     #region Fields
 
@@ -57,7 +57,7 @@ internal class PresenterList : IPresenterList, IDisposable
     /// </summary>
     /// <param name="viewProvider">The view provider to use.</param>
     /// <param name="viewModelNode">The view model node to use.</param>
-    public PresenterList(
+    public ViewList(
         IViewProvider viewProvider,
         ViewModelNode viewModelNode
     )

@@ -21,20 +21,21 @@
 
 using Microsoft.Extensions.DependencyInjection;
 using SingleFinite.Essentials;
-using SingleFinite.Mvvm.Internal.Services.Presenters;
+using SingleFinite.Mvvm.Internal;
+using SingleFinite.Mvvm.Services;
 using SingleFinite.Mvvm.Services.Presenters;
 using static SingleFinite.Mvvm.Services.Presenters.IPresenter;
 
 namespace SingleFinite.Mvvm.UnitTests;
 
 [TestClass]
-public class PresenterListTests(TestContext testContext)
+public class ViewListTests(TestContext testContext)
 {
     [TestMethod]
     public async Task Lifecycle_Events_Raised_When_Expected()
     {
         using var context = await MvvmTestContext.CreateAsync();
-        var list = (PresenterList)context.ServiceProvider.GetRequiredService<IPresenterList>();
+        var list = (ViewList)context.ServiceProvider.GetRequiredService<IViewList>();
 
         var output = new List<string>();
         var viewModelContext = new ViewModelTestContext(output);
@@ -84,7 +85,7 @@ public class PresenterListTests(TestContext testContext)
 
         var viewModelTestContext = new ViewModelTestContext([]);
 
-        var list = (PresenterList)context.ServiceProvider.GetRequiredService<IPresenterList>();
+        var list = (ViewList)context.ServiceProvider.GetRequiredService<IViewList>();
         var viewModel = list.Add<TestViewModel1>(viewModelTestContext);
 
         Assert.HasCount(1, list);
@@ -98,7 +99,7 @@ public class PresenterListTests(TestContext testContext)
     public async Task Changed_Is_Observed_When_Changes_Occur()
     {
         using var context = await MvvmTestContext.CreateAsync();
-        var list = (PresenterList)context.ServiceProvider.GetRequiredService<IPresenterList>();
+        var list = (ViewList)context.ServiceProvider.GetRequiredService<IViewList>();
 
         var output = new List<string>();
         var viewModelContext = new ViewModelTestContext(output);
@@ -142,7 +143,7 @@ public class PresenterListTests(TestContext testContext)
     public async Task Move_To_Same_Index_Has_No_Effect()
     {
         using var context = await MvvmTestContext.CreateAsync();
-        var list = (PresenterList)context.ServiceProvider.GetRequiredService<IPresenterList>();
+        var list = (ViewList)context.ServiceProvider.GetRequiredService<IViewList>();
 
         var output = new List<string>();
         var viewModelContext = new ViewModelTestContext(output);
