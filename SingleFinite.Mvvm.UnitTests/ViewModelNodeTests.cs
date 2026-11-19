@@ -32,17 +32,11 @@ public class ViewModelNodeTests(TestContext testContext)
     public void Calling_Initialized_More_Than_Once_Throws()
     {
         var node = new ViewModelNode();
-        node.Initialize(
-            viewModel: new ExampleViewModel(),
-            parent: null
-        );
+        node.Initialize(viewModel: new ExampleViewModel());
 
         Assert.Throws<InvalidOperationException>(() =>
         {
-            node.Initialize(
-                viewModel: new ExampleViewModel(),
-                parent: null
-            );
+            node.Initialize(viewModel: new ExampleViewModel());
         });
     }
 
@@ -52,22 +46,19 @@ public class ViewModelNodeTests(TestContext testContext)
         var observedChanges = new List<bool>();
 
         var rootParentNode = new ViewModelNode();
-        rootParentNode.Initialize(
-            viewModel: new ExampleViewModel(),
-            parent: null
-        );
+        rootParentNode.Initialize(viewModel: new ExampleViewModel());
 
-        var firstParentNode = new ViewModelNode();
-        firstParentNode.Initialize(
-            viewModel: new ExampleViewModel(),
-            parent: rootParentNode
-        );
+        var firstParentNode = new ViewModelNode
+        {
+            Parent = rootParentNode
+        };
+        firstParentNode.Initialize(viewModel: new ExampleViewModel());
 
-        var childNode = new ViewModelNode();
-        childNode.Initialize(
-            viewModel: new ExampleViewModel(),
-            parent: firstParentNode
-        );
+        var childNode = new ViewModelNode
+        {
+            Parent = firstParentNode
+        };
+        childNode.Initialize(viewModel: new ExampleViewModel());
 
         rootParentNode.ViewModel?.Activate();
         firstParentNode.ViewModel?.Activate();

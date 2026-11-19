@@ -66,6 +66,11 @@ internal class ViewComposition : IViewComposition
         var builder = _viewModelServiceScope.ServiceProvider.GetRequiredService<IBuilder>();
         var viewBuilder = _viewModelServiceScope.ServiceProvider.GetRequiredService<IViewBuilder>();
 
+        // Linke the parent node to the child node.
+        //
+        var childNode = _viewModelServiceScope.ServiceProvider.GetRequiredService<ViewModelNode>();
+        childNode.Parent = serviceProvider.GetRequiredService<ViewModelNode>();
+
         // Create view model.
         //
         _viewModel = (IViewModel)builder.Build(
@@ -89,14 +94,9 @@ internal class ViewComposition : IViewComposition
             viewModel: _viewModel
         );
 
-        // Create ViewModelNode and wire it up.
+        // Initialize the child node.
         //
-        var parentNode = serviceProvider.GetRequiredService<ViewModelNode>();
-        var childNode = _viewModelServiceScope.ServiceProvider.GetRequiredService<ViewModelNode>();
-        childNode.Initialize(
-            viewModel: _viewModel,
-            parent: parentNode
-        );
+        childNode.Initialize(viewModel: _viewModel);
     }
 
     #endregion

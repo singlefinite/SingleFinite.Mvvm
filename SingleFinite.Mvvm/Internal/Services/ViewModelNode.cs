@@ -47,7 +47,7 @@ internal class ViewModelNode
     /// <summary>
     /// The parent for this node if there is one.
     /// </summary>
-    public ViewModelNode? Parent { get; private set; }
+    public ViewModelNode? Parent { get; set; }
 
     /// <summary>
     /// When this property is true it means the current view model and every
@@ -74,17 +74,15 @@ internal class ViewModelNode
     /// Initialize this node.
     /// </summary>
     /// <param name="viewModel">The view model for this node.</param>
-    /// <param name="parent">The parent of this node if there is one.</param>
     /// <exception cref="InvalidOperationException">
     /// Thrown if the node has already been initialized.
     /// </exception>
-    public void Initialize(IViewModel viewModel, ViewModelNode? parent)
+    public void Initialize(IViewModel viewModel)
     {
         if (_isInitialized)
             throw new InvalidOperationException("This ViewModelNode has already been initialized.");
 
         ViewModel = viewModel;
-        Parent = parent;
         _isInitialized = true;
 
         UpdateIsActiveFromRoot();
@@ -94,7 +92,7 @@ internal class ViewModelNode
             .OnEach(UpdateIsActiveFromRoot)
             .Until(viewModel.Disposed);
 
-        parent?.IsActiveFromRootChanged
+        Parent?.IsActiveFromRootChanged
             .Observe()
             .OnEach(UpdateIsActiveFromRoot)
             .Until(viewModel.Disposed);
