@@ -30,48 +30,48 @@ namespace SingleFinite.Mvvm.Services;
 public interface IViewList : IReadOnlyList<IView>
 {
     /// <summary>
-    /// Create a view model and add it to the list at the given index.
+    /// Create a view and add it to the list at the given index.
     /// </summary>
-    /// <param name="index">The index to add the view model at.</param>
+    /// <param name="index">The index to add the view at.</param>
     /// <param name="viewModelDescriptor">
     /// Describes the view model to build.
     /// </param>
-    /// <returns>The newly created view model.</returns>
-    IViewModel Add(
+    /// <returns>The newly created view.</returns>
+    IView Add(
         int index,
         IViewModelDescriptor viewModelDescriptor
     );
 
     /// <summary>
-    /// Create a view model and add it to the list at the given index.
+    /// Create a view and add it to the list at the given index.
     /// </summary>
     /// <typeparam name="TViewModel">
     /// The type of view model to build.
     /// </typeparam>
-    /// <param name="index">The index to add the view model at.</param>
+    /// <param name="index">The index to add the view at.</param>
     /// <param name="parameters">
     /// The parameters that will be provided to the view model.
     /// </param>
-    /// <returns>The newly created view model.</returns>
-    TViewModel Add<TViewModel>(
+    /// <returns>The newly created view.</returns>
+    IView<TViewModel> Add<TViewModel>(
         int index,
         params object[] parameters
     )
         where TViewModel : IViewModel;
 
     /// <summary>
-    /// Create a view model and add it to the end of the list.
+    /// Create a view and add it to the end of the list.
     /// </summary>
     /// <param name="viewModelDescriptor">
     /// Describes the view model to build.
     /// </param>
-    /// <returns>The newly created view model.</returns>
-    IViewModel Add(
+    /// <returns>The newly created view.</returns>
+    IView Add(
         IViewModelDescriptor viewModelDescriptor
     );
 
     /// <summary>
-    /// Create a view model and add it to the end of the list.
+    /// Create a view and add it to the end of the list.
     /// </summary>
     /// <typeparam name="TViewModel">
     /// The type of view model to build.
@@ -79,44 +79,44 @@ public interface IViewList : IReadOnlyList<IView>
     /// <param name="parameters">
     /// The parameters that will be provided to the view model.
     /// </param>
-    /// <returns>The newly created view model.</returns>
-    TViewModel Add<TViewModel>(
+    /// <returns>The newly created view.</returns>
+    IView<TViewModel> Add<TViewModel>(
         params object[] parameters
     )
         where TViewModel : IViewModel;
 
     /// <summary>
-    /// Create view models and add them to the list at the given index.
+    /// Create views and add them to the list at the given index.
     /// </summary>
-    /// <param name="index">The index to add the view model at.</param>
+    /// <param name="index">The index to add the view at.</param>
     /// <param name="viewModelDescriptors">
     /// The description of view models to build.
     /// </param>
-    /// <returns>The newly created view models.</returns>
-    IViewModel[] AddAll(
+    /// <returns>The newly created views.</returns>
+    IView[] AddAll(
         int index,
         params IEnumerable<IViewModelDescriptor> viewModelDescriptors
     );
 
     /// <summary>
-    /// Create view models and add them to the end of the list.
+    /// Create views and add them to the end of the list.
     /// </summary>
     /// <param name="viewModelDescriptors">
     /// The description of view models to build.
     /// </param>
-    /// <returns>The newly created view models.</returns>
-    IViewModel[] AddAll(
+    /// <returns>The newly created views.</returns>
+    IView[] AddAll(
         params IEnumerable<IViewModelDescriptor> viewModelDescriptors
     );
 
     /// <summary>
-    /// Move a view model from one index to another.
+    /// Move a view from one index to another.
     /// </summary>
     /// <param name="fromIndex">
-    /// The index of the view model that will be moved.
+    /// The index of the view that will be moved.
     /// </param>
     /// <param name="toIndex">
-    /// The index to move the view model to.
+    /// The index to move the view to.
     /// </param>
     void Move(
         int fromIndex,
@@ -124,21 +124,21 @@ public interface IViewList : IReadOnlyList<IView>
     );
 
     /// <summary>
-    /// Remove the view model at the given index.
+    /// Remove the view at the given index.
     /// </summary>
-    /// <param name="index">The index of the view model to remove.</param>
+    /// <param name="index">The index of the view to remove.</param>
     void Remove(int index);
 
     /// <summary>
-    /// Remove the given view models from the list.
+    /// Remove the given views from the list.
     /// </summary>
     /// <param name="viewModels">
-    /// The view models to remove from the list.
+    /// The view models whose views should be removed from the list.
     /// </param>
     void Remove(params IEnumerable<IViewModel> viewModels);
 
     /// <summary>
-    /// Remove all view models from the list.
+    /// Remove all views from the list.
     /// </summary>
     void Clear();
 

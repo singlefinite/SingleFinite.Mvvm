@@ -115,29 +115,29 @@ internal class ViewList : IViewList, IDisposable
     #region Methods
 
     /// <inheritdoc/>
-    public IViewModel Add(
+    public IView Add(
         int index,
         IViewModelDescriptor viewModelDescriptor
     )
     {
-        var viewModel = InsertAt(index, viewModelDescriptor).First();
+        var view = InsertAt(index, viewModelDescriptor).First();
         _changed.Emit();
-        return viewModel;
+        return view;
     }
 
     /// <inheritdoc/>
-    public TViewModel Add<TViewModel>(
+    public IView<TViewModel> Add<TViewModel>(
         int index,
         params object[] parameters
     )
         where TViewModel : IViewModel =>
-        (TViewModel)Add(
+        (IView<TViewModel>)Add(
             index: index,
             viewModelDescriptor: new ViewModelDescriptor<TViewModel>(parameters)
         );
 
     /// <inheritdoc/>
-    public IViewModel Add(
+    public IView Add(
         IViewModelDescriptor viewModelDescriptor
     ) =>
         Add(
@@ -146,16 +146,16 @@ internal class ViewList : IViewList, IDisposable
         );
 
     /// <inheritdoc/>
-    public TViewModel Add<TViewModel>(
+    public IView<TViewModel> Add<TViewModel>(
         params object[] parameters
     )
         where TViewModel : IViewModel =>
-        (TViewModel)Add(
+        (IView<TViewModel>)Add(
             viewModelDescriptor: new ViewModelDescriptor<TViewModel>(parameters)
         );
 
     /// <inheritdoc/>
-    public IViewModel[] AddAll(
+    public IView[] AddAll(
         int index,
         params IEnumerable<IViewModelDescriptor> viewModelDescriptors
     )
@@ -166,7 +166,7 @@ internal class ViewList : IViewList, IDisposable
     }
 
     /// <inheritdoc/>
-    public IViewModel[] AddAll(
+    public IView[] AddAll(
         params IEnumerable<IViewModelDescriptor> viewModelDescriptors
     ) =>
         AddAll(
@@ -244,19 +244,19 @@ internal class ViewList : IViewList, IDisposable
     public void Dispose() => _disposeState.Dispose();
 
     /// <summary>
-    /// Insert the given view models at the given index.
+    /// Insert views for the given view models at the given index.
     /// </summary>
-    /// <param name="index">The index to insert the view models at.</param>
+    /// <param name="index">The index to insert the views at.</param>
     /// <param name="viewModelDescriptors">The view models to insert.</param>
-    /// <returns>The newly created view models.</returns>
-    private IViewModel[] InsertAt(
+    /// <returns>The newly created views.</returns>
+    private IView[] InsertAt(
         int index,
         params IEnumerable<IViewModelDescriptor> viewModelDescriptors
     )
     {
         _disposeState.ThrowIfDisposed();
 
-        var result = new List<IViewModel>();
+        var result = new List<IView>();
         var currentIndex = index;
         foreach (var viewModelDescriptor in viewModelDescriptors)
         {
@@ -266,7 +266,7 @@ internal class ViewList : IViewList, IDisposable
                 view.ViewModel.Activate();
 
             _list.Insert(currentIndex, view);
-            result.Add(view.ViewModel);
+            result.Add(view);
             currentIndex++;
         }
 

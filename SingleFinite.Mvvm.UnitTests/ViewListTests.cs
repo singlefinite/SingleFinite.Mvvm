@@ -86,11 +86,11 @@ public class ViewListTests(TestContext testContext)
         var viewModelTestContext = new ViewModelTestContext([]);
 
         var list = (ViewList)context.ServiceProvider.GetRequiredService<IViewList>();
-        var viewModel = list.Add<TestViewModel1>(viewModelTestContext);
+        var view = list.Add<TestViewModel1>(viewModelTestContext);
 
         Assert.HasCount(1, list);
 
-        viewModel.Close();
+        view.ViewModel.Close();
 
         Assert.IsEmpty(list);
     }
